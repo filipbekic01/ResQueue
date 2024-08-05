@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 using Resqueue.Endpoints;
 using Resqueue.Models;
@@ -26,7 +27,7 @@ public class Program
         });
 
         builder.Services.AddHttpClient();
-        
+
         builder.Services.AddIdentityApiEndpoints<User>()
             .AddEntityFrameworkStores<AppDbContext>();
 
