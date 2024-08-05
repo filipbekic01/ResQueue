@@ -10,14 +10,5 @@ namespace Resqueue
             : base(options)
         {
         }
-
-        // Define your DbSets here. For example:
-        // public DbSet<YourEntity> YourEntities { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            // base.OnModelCreating(modelBuilder);
-            // Configure your entity relationships and additional configurations here
-        }
     }
 }

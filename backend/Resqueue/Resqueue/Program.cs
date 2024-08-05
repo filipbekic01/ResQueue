@@ -14,7 +14,7 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddDbContext<AppDbContext>(db => db.UseSqlite("DataSource=WebOneSql.db"));
+        builder.Services.AddDbContext<AppDbContext>(db => db.UseSqlite("DataSource=local.db"));
         builder.Services.AddCors(corsOptions =>
         {
             corsOptions.AddPolicy("AllowAll", policy =>

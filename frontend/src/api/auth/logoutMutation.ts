@@ -1,11 +1,12 @@
 import axios from 'axios'
 import { useMutation } from '@tanstack/vue-query'
+import { API_URL } from '@/constants/Api'
 
 export function useLogoutMutation() {
   return useMutation({
     mutationFn: () =>
       axios.post(
-        'http://localhost:5182/auth/logout',
+        `${API_URL}/auth/logout`,
         {},
         {
           withCredentials: true

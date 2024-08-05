@@ -156,3 +156,6 @@ local.properties
 .idea/misc.xml
 .idea/codeStyles/
 .id
+
+local.db
+local.db*
