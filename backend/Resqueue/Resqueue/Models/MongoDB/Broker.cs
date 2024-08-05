@@ -1,7 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace WebOne.Models.MongoDB;
+namespace Resqueue.Models.MongoDB;
 
 public class Broker
 {

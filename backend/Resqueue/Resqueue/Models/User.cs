@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace WebOne.Models;
+namespace Resqueue.Models;
 
 public class User : IdentityUser
 {

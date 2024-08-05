@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using WebOne.Dtos;
-using WebOne.Models;
-using WebOne.Models.MongoDB;
+using Resqueue.Dtos;
+using Resqueue.Models;
+using Resqueue.Models.MongoDB;
 
-namespace WebOne.Endpoints;
+namespace Resqueue.Endpoints;
 
 public static class BrokerEndpoints
 {

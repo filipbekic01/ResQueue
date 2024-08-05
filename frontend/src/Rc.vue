@@ -1,0 +1,28 @@
+<script setup lang="ts">
+import { RouterView } from 'vue-router'
+import { useMeQuery } from './api/auth/meQuery'
+import { watch } from 'vue'
+import { useIdentity } from './composables/identityComposable'
+import ConfirmPopup from 'primevue/confirmpopup'
+import DynamicDialog from 'primevue/dynamicdialog'
+
+const { data: me } = useMeQuery()
+const { user } = useIdentity()
+
+watch(
+  () => me.value,
+  (value) => {
+    if (!value) {
+      return
+    }
+    user.value = value
+  }
+)
+</script>
+
+<template>
+  <ConfirmPopup></ConfirmPopup>
+  <DynamicDialog />
+
+  <RouterView />
+</template>

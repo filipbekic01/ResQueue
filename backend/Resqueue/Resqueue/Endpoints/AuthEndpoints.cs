@@ -1,9 +1,9 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using WebOne.Models;
+using Resqueue.Models;
 
-namespace WebOne.Endpoints;
+namespace Resqueue.Endpoints;
 
 public static class AuthEndpoints
 {

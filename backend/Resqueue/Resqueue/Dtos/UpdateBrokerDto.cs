@@ -1,4 +1,4 @@
-namespace WebOne.Dtos;
+namespace Resqueue.Dtos;
 
 public record UpdateBrokerDto(
     string Username,

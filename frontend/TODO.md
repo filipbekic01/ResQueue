@@ -1,0 +1,2 @@
+- tanstack query must have logged in user ID to avoid phantom data (critical)
+  - on log out reload page to avoid this (hackfix)
