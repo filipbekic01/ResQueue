@@ -17,7 +17,7 @@ public static class BrokerEndpoints
             .RequireAuthorization();
 
         group.MapGet("",
-            async (IMongoClient mongoClient, UserManager<User> userManager, HttpContext httpContext) =>
+            async (IMongoCollection<Broker> collection, UserManager<User> userManager, HttpContext httpContext) =>
             {
                 var user = await userManager.GetUserAsync(httpContext.User);
                 if (user == null)
@@ -25,11 +25,8 @@ public static class BrokerEndpoints
                     return Results.Unauthorized();
                 }
 
-                var database = mongoClient.GetDatabase("webone");
-                var brokersCollection = database.GetCollection<Broker>("brokers");
-
                 var filter = Builders<Broker>.Filter.Eq(b => b.UserId, user.Id);
-                var brokers = await brokersCollection.Find(filter).ToListAsync();
+                var brokers = await collection.Find(filter).ToListAsync();
                 var dtos = brokers.Select(x => new BrokerDto(
                     x.Id.ToString(),
                     x.Name,
@@ -41,7 +38,7 @@ public static class BrokerEndpoints
             });
 
         group.MapPost("",
-            async (IMongoClient mongoClient, [FromBody] CreateBrokerDto dto, UserManager<User> userManager,
+            async (IMongoCollection<Broker> collection, [FromBody] CreateBrokerDto dto, UserManager<User> userManager,
                 HttpContext httpContext) =>
             {
                 var user = await userManager.GetUserAsync(httpContext.User);
@@ -53,9 +50,6 @@ public static class BrokerEndpoints
                 byte[] authBytes = Encoding.UTF8.GetBytes($"{dto.Username}:{dto.Password}");
                 string authBase64 = Convert.ToBase64String(authBytes);
 
-                var database = mongoClient.GetDatabase("webone");
-                var brokersCollection = database.GetCollection<Broker>("brokers");
-
                 var broker = new Broker
                 {
                     Name = dto.Name,
@@ -65,14 +59,14 @@ public static class BrokerEndpoints
                     UserId = user.Id
                 };
 
-                await brokersCollection.InsertOneAsync(broker);
+                await collection.InsertOneAsync(broker);
 
                 return Results.Ok();
             });
 
         group.MapPut("/{id}",
             async (string id, [FromBody] UpdateBrokerDto updateBrokerDto, UserManager<User> userManager,
-                HttpContext httpContext, IMongoClient mongoClient) =>
+                HttpContext httpContext, IMongoCollection<Broker> collection) =>
             {
                 if (!ObjectId.TryParse(id, out var objectId))
                 {
@@ -84,9 +78,6 @@ public static class BrokerEndpoints
                 {
                     return Results.Unauthorized();
                 }
-
-                var database = mongoClient.GetDatabase("webone");
-                var brokersCollection = database.GetCollection<Broker>("brokers");
 
                 var filter = Builders<Broker>.Filter.And(
                     Builders<Broker>.Filter.Eq(b => b.Id, objectId),
@@ -98,13 +89,14 @@ public static class BrokerEndpoints
                     .Set(b => b.Port, updateBrokerDto.Port)
                     .Set(b => b.Url, updateBrokerDto.Url);
 
-                var result = await brokersCollection.UpdateOneAsync(filter, update);
+                var result = await collection.UpdateOneAsync(filter, update);
 
                 return result.MatchedCount == 0 ? Results.NotFound() : Results.NoContent();
             });
 
         group.MapDelete("{id}",
-            async (IMongoClient mongoClient, UserManager<User> userManager, HttpContext httpContext, string id) =>
+            async (IMongoCollection<Broker> collection, UserManager<User> userManager, HttpContext httpContext,
+                string id) =>
             {
                 if (!ObjectId.TryParse(id, out var objectId))
                 {
@@ -117,15 +109,12 @@ public static class BrokerEndpoints
                     return Results.Unauthorized();
                 }
 
-                var database = mongoClient.GetDatabase("webone");
-                var brokersCollection = database.GetCollection<Broker>("brokers");
-
                 var filter = Builders<Broker>.Filter.And(
                     Builders<Broker>.Filter.Eq(b => b.Id, objectId),
                     Builders<Broker>.Filter.Eq(b => b.UserId, user.Id)
                 );
 
-                var result = await brokersCollection.DeleteOneAsync(filter);
+                var result = await collection.DeleteOneAsync(filter);
 
                 return result.DeletedCount == 0 ? Results.NotFound() : Results.Ok();
             });
