@@ -1,3 +1,12 @@
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
+using Microsoft.AspNetCore.Identity;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using Resqueue.Models;
+using Resqueue.Models.MongoDB;
+
 namespace Resqueue.Endpoints;
 
 public static class QueueEndpoints
@@ -7,7 +16,32 @@ public static class QueueEndpoints
         RouteGroupBuilder group = routes.MapGroup("queues")
             .RequireAuthorization();
 
-        // app.MapPost("import", async (IMongoClient client, IHttpClientFactory httpClientFactory, string queueName) =>
+        group.MapGet("{brokerId}",
+            async (IMongoCollection<Queue> collection, UserManager<User> userManager, HttpContext httpContext,
+                string brokerId) =>
+            {
+                var user = await userManager.GetUserAsync(httpContext.User);
+                if (user == null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                if (!ObjectId.TryParse(brokerId, out var brokerObjectId))
+                {
+                    return Results.BadRequest("Invalid Broker ID format.");
+                }
+
+                var filter = Builders<Queue>.Filter.And(
+                    Builders<Queue>.Filter.Eq(q => q.UserId, user.Id),
+                    Builders<Queue>.Filter.Eq(q => q.BrokerId, brokerObjectId)
+                );
+
+                var queues = await collection.Find(filter).ToListAsync();
+
+                return Results.Ok(queues);
+            });
+
+        // group.MapPost("sync", async (IMongoClient client, IHttpClientFactory httpClientFactory, string queueName) =>
         // {
         //     var http = httpClientFactory.CreateClient();
         //     var credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes("rabbitmq:rabbitmq"));
@@ -30,42 +64,16 @@ public static class QueueEndpoints
         //
         //     var content1 = await response.Content.ReadAsStringAsync();
         //     var messages = JsonSerializer.Deserialize<List<RabbitMQMessage>>(content1)!.ToList();
-        //     
+        //
         //     var db = client.GetDatabase("webone");
         //     var collection = db.GetCollection<RabbitMQMessage>("rabbitmq");
-        //     
+        //
         //     foreach (var message in messages)
         //     {
         //         await collection.InsertOneAsync(message);
         //     }
         // });
 
-        // group.MapGet("/{brokerId}",
-        //     async (IMongoClient mongoClient, UserManager<User> userManager, HttpContext httpContext, string brokerId) =>
-        //     {
-        //         var user = await userManager.GetUserAsync(httpContext.User);
-        //         if (user == null)
-        //         {
-        //             return Results.Unauthorized();
-        //         }
-        //
-        //         if (!ObjectId.TryParse(brokerId, out var brokerObjectId))
-        //         {
-        //             return Results.BadRequest("Invalid Broker ID format.");
-        //         }
-        //
-        //         var database = mongoClient.GetDatabase("webone");
-        //         var queuesCollection = database.GetCollection<Queue>("queues");
-        //
-        //         var filter = Builders<Queue>.Filter.And(
-        //             Builders<Queue>.Filter.Eq(q => q.UserId, user.Id),
-        //             Builders<Queue>.Filter.Eq(q => q.BrokerId, brokerObjectId)
-        //         );
-        //
-        //         var queues = await queuesCollection.Find(filter).ToListAsync();
-        //
-        //         return Results.Ok(queues);
-        //     });
         //
         // group.MapPost("", async (IMongoClient mongoClient, [FromBody] CreateQueueDto dto, UserManager<User> userManager, HttpContext httpContext) =>
         // {

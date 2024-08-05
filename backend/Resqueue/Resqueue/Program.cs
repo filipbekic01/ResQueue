@@ -33,23 +33,7 @@ public class Program
         builder.Services.AddIdentityApiEndpoints<User>()
             .AddEntityFrameworkStores<AppDbContext>();
 
-        builder.Services.AddSingleton<IMongoClient, MongoClient>(sp =>
-        {
-            var settings = MongoClientSettings.FromConnectionString("mongodb://localhost:27018");
-            return new MongoClient(settings);
-        });
-
-        builder.Services.AddScoped(sp =>
-        {
-            var client = sp.GetRequiredService<IMongoClient>();
-            return client.GetDatabase("resqueue");
-        });
-
-        builder.Services.AddScoped(sp =>
-        {
-            var database = sp.GetRequiredService<IMongoDatabase>();
-            return database.GetCollection<Broker>("brokers");
-        });
+        builder.Services.AddMongoDb();
 
         builder.Services.ConfigureApplicationCookie(options => { options.ExpireTimeSpan = TimeSpan.FromDays(30); });
         builder.Services.AddAuthorization();
@@ -61,6 +45,7 @@ public class Program
         app.MapIdentityApi<User>();
         app.MapAuthEndpoints();
         app.MapBrokerEndpoints();
+        app.MapQueueEndpoints();
 
         app.Run();
     }

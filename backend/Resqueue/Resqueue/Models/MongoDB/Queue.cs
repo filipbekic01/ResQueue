@@ -7,6 +7,8 @@ namespace Resqueue.Models.MongoDB
     {
         [BsonId] public ObjectId Id { get; set; }
         public ObjectId BrokerId { get; set; }
+        public string UserId { get; set; }
         public string Name { get; set; }
+        public string Data { get; set; }
     }
 }

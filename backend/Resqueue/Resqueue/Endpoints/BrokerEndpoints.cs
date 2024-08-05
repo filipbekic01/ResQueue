@@ -1,4 +1,6 @@
+using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
@@ -60,6 +62,75 @@ public static class BrokerEndpoints
                 };
 
                 await collection.InsertOneAsync(broker);
+
+                return Results.Ok();
+            });
+
+        group.MapPost("{brokerId}/sync",
+            async (IMongoCollection<Queue> queuesCollection, IMongoCollection<Broker> brokersCollection,
+                [FromBody] CreateBrokerDto dto, UserManager<User> userManager,
+                HttpContext httpContext, IHttpClientFactory httpClientFactory, string brokerId) =>
+            {
+                var user = await userManager.GetUserAsync(httpContext.User);
+                if (user == null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                var filter = Builders<Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(brokerId));
+                var broker = await brokersCollection.Find(filter).FirstOrDefaultAsync();
+                if (broker == null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                var http = httpClientFactory.CreateClient();
+
+                http.BaseAddress = new Uri($"{broker.Url}:{broker.Port}");
+
+                http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", broker.Auth);
+                http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                // var response =
+                //     await http.PostAsync(
+                //         $"https://localhost:15671/api/queues/{naeeem}",
+                //         new StringContent(JsonSerializer.Serialize(new
+                //         {
+                //             count = 1000, // should not be limited
+                //             ackmode = "ack_requeue_true",
+                //             encoding = "auto",
+                //             truncate = 50000
+                //         }), Encoding.UTF8, "application/json"));
+
+                // sync queues
+                var response = await http.GetAsync($"/api/queues");
+                response.EnsureSuccessStatusCode();
+
+                var content1 = await response.Content.ReadAsStringAsync();
+                using JsonDocument document = JsonDocument.Parse(content1);
+                // var queueData = JsonSerializer.Deserialize<List<dynamic>>(content1);
+                var newQueues = new List<Queue>();
+                JsonElement root = document.RootElement;
+
+                foreach (JsonElement element in root.EnumerateArray())
+                {
+                    // Check if the JSON object has a "Name" property
+                    if (element.TryGetProperty("name", out JsonElement nameProperty))
+                    {
+                        var q = new Queue
+                        {
+                            BrokerId = new ObjectId(brokerId),
+                            UserId = user.Id,
+                            Name = nameProperty.ToString(),
+                            Data = element.ToString()
+                        };
+
+                        newQueues.Add(q);
+                        // Console.WriteLine($"Object has a Name property with value: {nameProperty.GetString()}");
+                    }
+                }
+
+                await queuesCollection.InsertManyAsync(newQueues);
 
                 return Results.Ok();
             });
