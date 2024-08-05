@@ -8,6 +8,7 @@ import Aura from '@primevue/themes/aura'
 import { VueQueryPlugin } from '@tanstack/vue-query'
 import ConfirmationService from 'primevue/confirmationservice'
 import DialogService from 'primevue/dialogservice'
+import ToastService from 'primevue/toastservice'
 
 const app = createApp(Rc)
 
@@ -15,6 +16,7 @@ app.use(router)
 app.use(VueQueryPlugin)
 app.use(ConfirmationService)
 app.use(DialogService)
+app.use(ToastService)
 app.use(PrimeVue, {
   theme: {
     preset: Aura,

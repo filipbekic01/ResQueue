@@ -91,24 +91,11 @@ public static class BrokerEndpoints
                 http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", broker.Auth);
                 http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                // var response =
-                //     await http.PostAsync(
-                //         $"https://localhost:15671/api/queues/{naeeem}",
-                //         new StringContent(JsonSerializer.Serialize(new
-                //         {
-                //             count = 1000, // should not be limited
-                //             ackmode = "ack_requeue_true",
-                //             encoding = "auto",
-                //             truncate = 50000
-                //         }), Encoding.UTF8, "application/json"));
-
-                // sync queues
                 var response = await http.GetAsync($"/api/queues");
                 response.EnsureSuccessStatusCode();
 
                 var content1 = await response.Content.ReadAsStringAsync();
                 using JsonDocument document = JsonDocument.Parse(content1);
-                // var queueData = JsonSerializer.Deserialize<List<dynamic>>(content1);
                 var newQueues = new List<Queue>();
                 JsonElement root = document.RootElement;
 
@@ -117,12 +104,13 @@ public static class BrokerEndpoints
                     // Check if the JSON object has a "Name" property
                     if (element.TryGetProperty("name", out JsonElement nameProperty))
                     {
+                        var bsonDocument = BsonDocument.Parse(element.GetRawText());
                         var q = new Queue
                         {
                             BrokerId = new ObjectId(brokerId),
                             UserId = user.Id,
                             Name = nameProperty.ToString(),
-                            Data = element.ToString()
+                            Data = bsonDocument
                         };
 
                         newQueues.Add(q);

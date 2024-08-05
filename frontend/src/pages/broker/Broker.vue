@@ -4,6 +4,8 @@ import { useSyncBrokerMutation } from '@/api/broker/syncBrokerMutation'
 import { useQueuesQuery } from '@/api/queues/queuesQuery'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Button from 'primevue/button'
+import DataTable from 'primevue/datatable'
+import { useToast } from 'primevue/usetoast'
 import { computed } from 'vue'
 
 const props = defineProps<{
@@ -17,13 +19,20 @@ const broker = computed(() => brokers.value?.find((x) => x.id === props.id))
 const brokerId = computed(() => broker.value?.id)
 const { data: queues } = useQueuesQuery(brokerId)
 
+const toast = useToast()
+
 const syncBroker = () => {
   if (!broker.value) {
     return
   }
 
   syncBrokerAsync(broker.value.id).then(() => {
-    console.log('synced!')
+    toast.add({
+      severity: 'success',
+      summary: 'Sync Completed!',
+      detail: `Broker ${broker.value?.name} synced!`,
+      life: 3000
+    })
   })
 }
 </script>
@@ -46,12 +55,14 @@ const syncBroker = () => {
       </div>
       <Tabs value="0">
         <TabList>
-          <Tab value="0">Overview</Tab>
+          <Tab value="0">Queues ({{ queues?.length }})</Tab>
         </TabList>
         <TabPanels>
           <TabPanel value="0">
             <p class="m-0">
-              {{ queues }}
+              <DataTable :value="queues">
+                <Column field="name" header="Name"></Column>
+              </DataTable>
             </p>
           </TabPanel>
         </TabPanels>

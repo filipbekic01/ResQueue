@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Resqueue.Dtos;
 using Resqueue.Models;
 using Resqueue.Models.MongoDB;
 
@@ -38,7 +39,12 @@ public static class QueueEndpoints
 
                 var queues = await collection.Find(filter).ToListAsync();
 
-                return Results.Ok(queues);
+                return Results.Ok(queues.Select(q => new QueueDto()
+                {
+                    Id = q.Id.ToString(),
+                    Name = q.Name,
+                    Data = q.Data
+                }));
             });
 
         // group.MapPost("sync", async (IMongoClient client, IHttpClientFactory httpClientFactory, string queueName) =>

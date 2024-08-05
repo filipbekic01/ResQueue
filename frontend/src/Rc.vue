@@ -5,6 +5,7 @@ import { watch } from 'vue'
 import { useIdentity } from './composables/identityComposable'
 import ConfirmPopup from 'primevue/confirmpopup'
 import DynamicDialog from 'primevue/dynamicdialog'
+import Toast from 'primevue/toast'
 
 const { data: me } = useMeQuery()
 const { user } = useIdentity()
@@ -23,6 +24,7 @@ watch(
 <template>
   <ConfirmPopup></ConfirmPopup>
   <DynamicDialog />
+  <Toast />
 
   <RouterView />
 </template>

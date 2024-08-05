@@ -1,3 +1,4 @@
+using System.Text.Json;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -9,6 +10,6 @@ namespace Resqueue.Models.MongoDB
         public ObjectId BrokerId { get; set; }
         public string UserId { get; set; }
         public string Name { get; set; }
-        public string Data { get; set; }
+        public BsonDocument Data { get; set; }
     }
 }
