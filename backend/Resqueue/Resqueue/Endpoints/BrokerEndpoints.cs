@@ -246,7 +246,7 @@ public static class BrokerEndpoints
                     Builders<Broker>.Filter.Eq(b => b.Id, broker.Id)
                 );
 
-                var result = await brokersCollection.UpdateOneAsync(filter, update);
+                await brokersCollection.UpdateOneAsync(filter, update);
 
                 return Results.Ok();
             });

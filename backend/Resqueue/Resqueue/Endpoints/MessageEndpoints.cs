@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Resqueue.Dtos;
@@ -44,6 +45,7 @@ public static class MessageEndpoints
                 }));
             });
 
+        // ack from queue
         group.MapPost("{queueId}/sync",
             async (IHttpClientFactory httpClientFactory,
                 IMongoCollection<Message> messagesCollection,
@@ -114,6 +116,79 @@ public static class MessageEndpoints
                 }
 
                 await messagesCollection.InsertManyAsync(messages);
+
+                return Results.Ok();
+            });
+
+        group.MapDelete("{queueId}", async (string[] messageIds) =>
+        {
+            // todo: archive messages
+        });
+
+        group.MapPost("publish",
+            async (IHttpClientFactory httpClientFactory,
+                IMongoCollection<Message> messagesCollection,
+                IMongoCollection<Exchange> exchangesCollection,
+                IMongoCollection<Broker> brokersCollection,
+                UserManager<User> userManager,
+                HttpContext httpContext,
+                [FromBody] PublishDto dto
+            ) =>
+            {
+                var user = await userManager.GetUserAsync(httpContext.User);
+                if (user == null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                var exchangeFilter = Builders<Exchange>.Filter.Eq(b => b.Id, ObjectId.Parse(dto.ExchangeId));
+                var exchange = await exchangesCollection.Find(exchangeFilter).FirstOrDefaultAsync();
+                if (exchange == null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                var brokerFilter = Builders<Broker>.Filter.And(
+                    Builders<Broker>.Filter.Eq(b => b.Id, exchange.BrokerId),
+                    Builders<Broker>.Filter.Eq(b => b.UserId, user.Id)
+                );
+                var broker = await brokersCollection.Find(brokerFilter).FirstOrDefaultAsync();
+                if (broker == null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                var messagesFilter =
+                    Builders<Message>.Filter.In(b => b.Id, dto.MessageIds.Select(ObjectId.Parse).ToList());
+                var messages = await messagesCollection.Find(messagesFilter).ToListAsync();
+
+                var http = httpClientFactory.CreateClient();
+                http.BaseAddress = new Uri($"{broker.Url}:{broker.Port}");
+
+                http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", broker.Auth);
+                http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                // Please note that the HTTP API is not ideal for high performance publishing; the need to create a new
+                // TCP connection for each message published can limit message throughput compared to AMQP or other
+                // protocols using long-lived connections.
+
+                foreach (var message in messages)
+                {
+                    var requestBody = new
+                    {
+                        properties = "",
+                        routing_key = exchange.RawData.GetValue("name"),
+                        payload = message.RawData.GetValue("payload"),
+                        payload_encoding = message.RawData.GetValue("payload_encoding")
+                    };
+
+                    // vhost?
+                    var response =
+                        await http.PostAsync($"/api/exchanges/%2F/{exchange.RawData.GetValue("name")}/publish",
+                            new StringContent(JsonSerializer.Serialize(requestBody)));
+
+                    response.EnsureSuccessStatusCode();
+                }
 
                 return Results.Ok();
             });

@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
+import { useExchangesQuery } from '@/api/exchanges/exchangesQuery'
 import { useMessagesQuery } from '@/api/messages/messagesQuery'
+import { usePublishMessagesMutation } from '@/api/messages/publishMessagesMutation'
 import { useSyncMessagesMutation } from '@/api/messages/syncMessagesMutation'
 import { useQueuesQuery } from '@/api/queues/queuesQuery'
 import AppLayout from '@/layouts/AppLayout.vue'
@@ -8,27 +10,39 @@ import Breadcrumb from 'primevue/breadcrumb'
 import Column from 'primevue/column'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps<{
   brokerId: string
   queueId: string
 }>()
 
+const router = useRouter()
+
 const confirm = useConfirm()
 const toast = useToast()
 
 const { mutateAsync: syncMessagesAsync } = useSyncMessagesMutation()
+const { mutateAsync: publishMessagesAsync } = usePublishMessagesMutation()
 
 const { data: messages } = useMessagesQuery(props.queueId)
 const { data: brokers } = useBrokersQuery()
 const { data: queues } = useQueuesQuery(props.brokerId)
+const { data: exchanges } = useExchangesQuery(props.brokerId)
 
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
 const queue = computed(() => queues.value?.find((x) => x.id === props.queueId))
 
 const rabbitMqMessages = computed(() =>
   messages.value?.map((x) => ({
+    _id: x.id,
+    ...JSON.parse(x.rawData)
+  }))
+)
+
+const rabbitMqExchanges = computed(() =>
+  exchanges.value?.map((x) => ({
     _id: x.id,
     ...JSON.parse(x.rawData)
   }))
@@ -69,15 +83,77 @@ const syncMessages = (event: any) => {
     reject: () => {}
   })
 }
+
+const openMessage = (id: string) => {
+  router.push({
+    name: 'message',
+    params: {
+      brokerId: broker.value?.id,
+      queueId: queue.value?.id,
+      messageId: id
+    }
+  })
+}
+
+const selectedMessages = ref()
+const selectedExchange = ref()
+
+const publishMessages = (event: any) => {
+  confirm.require({
+    target: event.currentTarget,
+    message: `Do you want to publish ${selectedMessages.value.length} messages?`,
+    icon: 'pi pi-info-circle',
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Publish',
+      severity: ''
+    },
+    accept: () => {
+      publishMessagesAsync({
+        exchangeId: selectedExchange.value._id,
+        messageIds: selectedMessages.value.map((msg: any) => msg._id)
+      }).then(() => {
+        toast.add({
+          severity: 'info',
+          summary: 'Publish Completed!',
+          detail: `Messages published to exchange _!`,
+          life: 3000
+        })
+      })
+    },
+    reject: () => {}
+  })
+}
 </script>
 
 <template>
   <AppLayout>
     <Breadcrumb :model="breadcrumbs" />
-    <div>
-      <Button @click="(e) => syncMessages(e)">Sync messages</Button>
+    <div class="flex gap-2 ms-2">
+      <Button @click="(e) => syncMessages(e)">Sync </Button>
+      <Select
+        v-model="selectedExchange"
+        :options="rabbitMqExchanges"
+        optionLabel="name"
+        placeholder="Select an Exchange"
+        class="w-full md:w-56"
+      />
+
+      <Button @click="(e) => publishMessages(e)">Publish </Button>
     </div>
-    <DataTable :value="rabbitMqMessages">
+    <DataTable
+      paginator
+      :rows="20"
+      v-model:selection="selectedMessages"
+      :value="rabbitMqMessages"
+      data-key="_id"
+    >
+      <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+      <Column field="_id" header="Internal ID"></Column>
       <Column field="payload_bytes" header="Payload Bytes"></Column>
       <Column field="redelivered" header="Redelivered"></Column>
     </DataTable>

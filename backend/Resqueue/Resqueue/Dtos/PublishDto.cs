@@ -1,6 +1,6 @@
 namespace Resqueue.Dtos;
 
-public class PublishDto
-{
-    
-}
+public record PublishDto(
+    string ExchangeId,
+    string[] MessageIds
+);
