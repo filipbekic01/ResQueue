@@ -10,7 +10,6 @@ import { useToast } from 'primevue/usetoast'
 import { computed } from 'vue'
 import { formatDistanceToNow, format } from 'date-fns'
 import { useRouter } from 'vue-router'
-import type { QueueDto } from '@/dtos/queueDto'
 
 const props = defineProps<{
   brokerId: string

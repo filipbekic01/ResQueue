@@ -44,7 +44,7 @@ public static class MessageEndpoints
                 }));
             });
 
-        group.MapGet("{queueId}/sync",
+        group.MapPost("{queueId}/sync",
             async (IHttpClientFactory httpClientFactory,
                 IMongoCollection<Message> messagesCollection,
                 IMongoCollection<Queue> queuesCollection,
@@ -68,7 +68,7 @@ public static class MessageEndpoints
                 }
 
                 var brokerFilter = Builders<Broker>.Filter.And(
-                    Builders<Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(queueId)),
+                    Builders<Broker>.Filter.Eq(b => b.Id, queue.BrokerId),
                     Builders<Broker>.Filter.Eq(b => b.UserId, user.Id)
                 );
                 var broker = await brokersCollection.Find(brokerFilter).FirstOrDefaultAsync();
@@ -85,13 +85,35 @@ public static class MessageEndpoints
 
                 // Sync queues
 
+                var requestBody = new
+                {
+                    count = 10, // Number of messages to fetch
+                    ackmode = "ack_requeue_true", // Acknowledge and requeue the messages
+                    encoding = "auto",
+                    truncate = 50000
+                };
+
                 // vhost?
-                var response = await http.GetAsync($"/api/queues/%2F/{queue.RawData.GetValue("name")}/get");
+                var response =
+                    await http.PostAsync($"/api/queues/%2F/{queue.RawData.GetValue("name")}/get",
+                        new StringContent(JsonSerializer.Serialize(requestBody)));
                 response.EnsureSuccessStatusCode();
 
                 var content1 = await response.Content.ReadAsStringAsync();
                 using var document = JsonDocument.Parse(content1);
                 var root = document.RootElement;
+
+                var messages = new List<Message>();
+                foreach (var element in root.EnumerateArray())
+                {
+                    messages.Add(new Message()
+                    {
+                        QueueId = queue.Id,
+                        RawData = BsonDocument.Parse(element.GetRawText())
+                    });
+                }
+
+                await messagesCollection.InsertManyAsync(messages);
 
                 return Results.Ok();
             });
