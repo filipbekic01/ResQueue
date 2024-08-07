@@ -55,7 +55,7 @@ const openBroker = (id: string) => {
   router.push({
     name: 'broker',
     params: {
-      id
+      brokerId: id
     }
   })
 }
@@ -90,13 +90,13 @@ setTimeout(() => {
         </div>
       </div>
       <Button size="small" class="mx-2 mt-2" @click="openCreateBrokerDialog()">Create</Button>
-
+      ----------------------- Archive?
       <div class="border-t flex flex-col mt-auto">
         <div class="p-2 ms-auto text-gray-400">{{ user!.email }}</div>
         <div class="p-2 cursor-pointer" @click="logout">Log out</div>
       </div>
     </div>
-    <div class="grow"><slot></slot></div>
+    <div class="grow flex flex-col overflow-auto"><slot></slot></div>
   </div>
   <template v-else> Loading...</template>
 </template>

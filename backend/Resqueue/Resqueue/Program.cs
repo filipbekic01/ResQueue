@@ -46,6 +46,8 @@ public class Program
         app.MapAuthEndpoints();
         app.MapBrokerEndpoints();
         app.MapQueueEndpoints();
+        app.MapExchangeEndpoints();
+        app.MapMessageEndpoints();
 
         app.Run();
     }

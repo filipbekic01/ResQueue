@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { CreateBrokerDto } from '@/dtos/createBrokerDto'
-import { inject, reactive, type Ref } from 'vue'
+import { inject, reactive, ref, type Ref } from 'vue'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
 import { useCreateBrokerMutation } from '@/api/broker/createBrokerMutation'
 
@@ -8,12 +8,18 @@ const { mutateAsync: createBrokerAsync } = useCreateBrokerMutation()
 
 const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 
+const frameworks = ref([
+  { name: 'None', code: '' },
+  { name: 'MassTransit', code: 'masstransit' }
+])
+
 const newBroker = reactive<CreateBrokerDto>({
   name: 'local',
   username: 'rabbitmq',
   password: 'rabbitmq',
   port: 15671,
-  url: 'https://localhost'
+  url: 'https://localhost',
+  framework: ''
 })
 
 const createBroker = () => {
@@ -57,6 +63,18 @@ const createBroker = () => {
       autocomplete="off"
     />
   </div>
+  <div class="flex items-center gap-4 mb-8">
+    <label for="port" class="font-semibold w-24">Framework (optional)</label>
+    <Select
+      v-model="newBroker.framework"
+      :options="frameworks"
+      optionLabel="name"
+      option-value="code"
+      placeholder="Select a Framework"
+      class="w-full md:w-56"
+    ></Select>
+  </div>
+
   <div class="flex justify-end gap-2">
     <Button type="button" label="Cancel" severity="secondary" @click="dialogRef?.close()"></Button>
     <Button type="button" label="Create broker" @click="createBroker"></Button>

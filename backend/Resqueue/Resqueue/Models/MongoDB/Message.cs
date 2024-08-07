@@ -3,10 +3,9 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Resqueue.Models.MongoDB;
 
-public class Queue
+public class Message
 {
     [BsonId] public ObjectId Id { get; set; }
-    public ObjectId BrokerId { get; set; }
-    public string UserId { get; set; }
+    public ObjectId QueueId { get; set; }
     public BsonDocument RawData { get; set; }
 }

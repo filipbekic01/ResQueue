@@ -24,7 +24,7 @@ watch(
 <template>
   <ConfirmPopup></ConfirmPopup>
   <DynamicDialog />
-  <Toast />
+  <Toast position="bottom-right" />
 
   <RouterView />
 </template>

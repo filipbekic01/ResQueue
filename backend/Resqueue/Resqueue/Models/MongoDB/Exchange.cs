@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Resqueue.Models.MongoDB;
 
-public class Queue
+public class Exchange
 {
     [BsonId] public ObjectId Id { get; set; }
     public ObjectId BrokerId { get; set; }

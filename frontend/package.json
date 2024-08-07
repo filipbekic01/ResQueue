@@ -17,6 +17,7 @@
     "@primevue/themes": "^4.0.4",
     "@tanstack/vue-query": "^5.51.21",
     "axios": "^1.7.3",
+    "date-fns": "^3.6.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.0.4",
     "vue": "^3.4.29",

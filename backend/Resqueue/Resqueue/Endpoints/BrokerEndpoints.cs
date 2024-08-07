@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Resqueue.Constants;
 using Resqueue.Dtos;
 using Resqueue.Models;
 using Resqueue.Models.MongoDB;
@@ -33,7 +34,12 @@ public static class BrokerEndpoints
                     x.Id.ToString(),
                     x.Name,
                     x.Port,
-                    x.Url
+                    x.Url,
+                    x.Framework,
+                    x.CreatedAt,
+                    x.UpdatedAt,
+                    x.SyncedAt,
+                    x.DeletedAt
                 ));
 
                 return Results.Ok(dtos);
@@ -49,8 +55,18 @@ public static class BrokerEndpoints
                     return Results.Unauthorized();
                 }
 
+                if (!string.IsNullOrEmpty(dto.Framework))
+                {
+                    if (dto.Framework.ToLower() != Frameworks.MASS_TRANSIT)
+                    {
+                        return Results.BadRequest("Invalid framework.");
+                    }
+                }
+
                 byte[] authBytes = Encoding.UTF8.GetBytes($"{dto.Username}:{dto.Password}");
                 string authBase64 = Convert.ToBase64String(authBytes);
+
+                var dateTime = DateTime.UtcNow;
 
                 var broker = new Broker
                 {
@@ -58,7 +74,10 @@ public static class BrokerEndpoints
                     Auth = authBase64,
                     Port = dto.Port,
                     Url = dto.Url,
-                    UserId = user.Id
+                    Framework = string.IsNullOrEmpty(dto.Framework) ? Frameworks.NONE : dto.Framework.ToLower(),
+                    UserId = user.Id,
+                    CreatedAt = dateTime,
+                    UpdatedAt = dateTime
                 };
 
                 await collection.InsertOneAsync(broker);
@@ -68,6 +87,7 @@ public static class BrokerEndpoints
 
         group.MapPost("{brokerId}/sync",
             async (IMongoCollection<Queue> queuesCollection, IMongoCollection<Broker> brokersCollection,
+                IMongoCollection<Exchange> exchangesCollection,
                 [FromBody] CreateBrokerDto dto, UserManager<User> userManager,
                 HttpContext httpContext, IHttpClientFactory httpClientFactory, string brokerId) =>
             {
@@ -77,12 +97,18 @@ public static class BrokerEndpoints
                     return Results.Unauthorized();
                 }
 
-                var filter = Builders<Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(brokerId));
-                var broker = await brokersCollection.Find(filter).FirstOrDefaultAsync();
+                var brokerFilter = Builders<Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(brokerId));
+                var broker = await brokersCollection.Find(brokerFilter).FirstOrDefaultAsync();
                 if (broker == null)
                 {
                     return Results.Unauthorized();
                 }
+
+                var queuesFilter = Builders<Queue>.Filter.Eq(b => b.BrokerId, ObjectId.Parse(brokerId));
+                var queues = await queuesCollection.Find(queuesFilter).ToListAsync();
+
+                var exchangesFilters = Builders<Exchange>.Filter.Eq(b => b.BrokerId, ObjectId.Parse(brokerId));
+                var exchanges = await exchangesCollection.Find(exchangesFilters).ToListAsync();
 
                 var http = httpClientFactory.CreateClient();
 
@@ -91,34 +117,136 @@ public static class BrokerEndpoints
                 http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", broker.Auth);
                 http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
+                // Sync queues
+
                 var response = await http.GetAsync($"/api/queues");
                 response.EnsureSuccessStatusCode();
 
                 var content1 = await response.Content.ReadAsStringAsync();
-                using JsonDocument document = JsonDocument.Parse(content1);
-                var newQueues = new List<Queue>();
-                JsonElement root = document.RootElement;
+                using var document = JsonDocument.Parse(content1);
+                var root = document.RootElement;
 
-                foreach (JsonElement element in root.EnumerateArray())
+                var queuesToAdd = new List<Queue>();
+                var queueIdsToDelete = new List<ObjectId>();
+
+                foreach (var element in root.EnumerateArray())
                 {
-                    // Check if the JSON object has a "Name" property
-                    if (element.TryGetProperty("name", out JsonElement nameProperty))
+                    if (!element.TryGetProperty("name", out var nameProperty))
                     {
-                        var bsonDocument = BsonDocument.Parse(element.GetRawText());
-                        var q = new Queue
+                        continue;
+                    }
+
+                    var queueName = nameProperty.ToString();
+
+                    if (!queues.Any(queue =>
+                            queue.RawData.TryGetValue("name", out var nameValue) && nameValue == queueName))
+                    {
+                        queuesToAdd.Add(new Queue
                         {
                             BrokerId = new ObjectId(brokerId),
                             UserId = user.Id,
-                            Name = nameProperty.ToString(),
-                            Data = bsonDocument
-                        };
-
-                        newQueues.Add(q);
-                        // Console.WriteLine($"Object has a Name property with value: {nameProperty.GetString()}");
+                            RawData = BsonDocument.Parse(element.GetRawText())
+                        });
                     }
                 }
 
-                await queuesCollection.InsertManyAsync(newQueues);
+                foreach (var queue in queues)
+                {
+                    if (!queue.RawData.TryGetValue("name", out var nameValue))
+                    {
+                        continue;
+                    }
+
+                    var queueName = nameValue.ToString();
+
+                    if (!root.EnumerateArray().Any(element =>
+                            element.TryGetProperty("name", out var nameProperty) &&
+                            nameProperty.ToString() == queueName))
+                    {
+                        queueIdsToDelete.Add(queue.Id);
+                    }
+                }
+
+                if (queueIdsToDelete.Count > 0)
+                {
+                    var deleteFilter = Builders<Queue>.Filter.In(q => q.Id, queueIdsToDelete);
+                    await queuesCollection.DeleteManyAsync(deleteFilter);
+                }
+
+                if (queuesToAdd.Count > 0)
+                {
+                    await queuesCollection.InsertManyAsync(queuesToAdd);
+                }
+
+                // Sync exchanges
+
+                response = await http.GetAsync($"/api/exchanges");
+                response.EnsureSuccessStatusCode();
+
+                var content2 = await response.Content.ReadAsStringAsync();
+                using var document2 = JsonDocument.Parse(content2);
+                var root2 = document2.RootElement;
+
+                var exchangesToAdd = new List<Exchange>();
+                var exchangeIdsToDelete = new List<ObjectId>();
+
+                foreach (var element in root2.EnumerateArray())
+                {
+                    if (!element.TryGetProperty("name", out var nameProperty))
+                    {
+                        continue;
+                    }
+
+                    var exchangeName = nameProperty.ToString();
+
+                    if (!exchanges.Any(exchange =>
+                            exchange.RawData.TryGetValue("name", out var nameValue) && nameValue == exchangeName))
+                    {
+                        exchangesToAdd.Add(new Exchange
+                        {
+                            BrokerId = new ObjectId(brokerId),
+                            UserId = user.Id,
+                            RawData = BsonDocument.Parse(element.GetRawText())
+                        });
+                    }
+                }
+
+                foreach (var exchange in exchanges)
+                {
+                    if (!exchange.RawData.TryGetValue("name", out var nameValue))
+                    {
+                        continue;
+                    }
+
+                    var exchangeName = nameValue.ToString();
+
+                    if (!root2.EnumerateArray().Any(element =>
+                            element.TryGetProperty("name", out var nameProperty) &&
+                            nameProperty.ToString() == exchangeName))
+                    {
+                        exchangeIdsToDelete.Add(exchange.Id);
+                    }
+                }
+
+                if (exchangeIdsToDelete.Count > 0)
+                {
+                    var deleteFilter = Builders<Exchange>.Filter.In(q => q.Id, exchangeIdsToDelete);
+                    await exchangesCollection.DeleteManyAsync(deleteFilter);
+                }
+
+                if (exchangesToAdd.Count > 0)
+                {
+                    await exchangesCollection.InsertManyAsync(exchangesToAdd);
+                }
+
+                var update = Builders<Broker>.Update
+                    .Set(b => b.SyncedAt, DateTime.UtcNow);
+
+                var filter = Builders<Broker>.Filter.And(
+                    Builders<Broker>.Filter.Eq(b => b.Id, broker.Id)
+                );
+
+                var result = await brokersCollection.UpdateOneAsync(filter, update);
 
                 return Results.Ok();
             });
@@ -146,6 +274,7 @@ public static class BrokerEndpoints
                 var update = Builders<Broker>.Update
                     .Set(b => b.Auth, $"{updateBrokerDto.Username}:{updateBrokerDto.Password}")
                     .Set(b => b.Port, updateBrokerDto.Port)
+                    .Set(b => b.UpdatedAt, DateTime.UtcNow)
                     .Set(b => b.Url, updateBrokerDto.Url);
 
                 var result = await collection.UpdateOneAsync(filter, update);

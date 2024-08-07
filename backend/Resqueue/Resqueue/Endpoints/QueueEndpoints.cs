@@ -1,6 +1,3 @@
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -42,8 +39,7 @@ public static class QueueEndpoints
                 return Results.Ok(queues.Select(q => new QueueDto()
                 {
                     Id = q.Id.ToString(),
-                    Name = q.Name,
-                    Data = q.Data
+                    RawData = q.RawData.ToString()
                 }));
             });
 

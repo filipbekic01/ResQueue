@@ -18,6 +18,7 @@ app.use(ConfirmationService)
 app.use(DialogService)
 app.use(ToastService)
 app.use(PrimeVue, {
+  ripple: true,
   theme: {
     preset: Aura,
     options: {

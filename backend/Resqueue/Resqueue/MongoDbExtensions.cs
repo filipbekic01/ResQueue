@@ -31,6 +31,18 @@ public static class MongoDbExtensions
             return database.GetCollection<Queue>("queues");
         });
 
+        services.AddScoped(sp =>
+        {
+            var database = sp.GetRequiredService<IMongoDatabase>();
+            return database.GetCollection<Exchange>("exchanges");
+        });
+
+        services.AddScoped(sp =>
+        {
+            var database = sp.GetRequiredService<IMongoDatabase>();
+            return database.GetCollection<Message>("messages");
+        });
+
         return services;
     }
 }

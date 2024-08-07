@@ -1,4 +1,4 @@
-export interface QueueDto {
+export interface ExchangeDto {
   id: string
   rawData: string
 }

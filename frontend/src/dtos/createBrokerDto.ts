@@ -4,4 +4,5 @@ export interface CreateBrokerDto {
   password: string
   port: number
   url: string
+  framework: string
 }
