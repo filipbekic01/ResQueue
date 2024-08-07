@@ -141,18 +141,18 @@ public static class MessageEndpoints
                     return Results.Unauthorized();
                 }
 
-                var exchangeFilter = Builders<Exchange>.Filter.Eq(b => b.Id, ObjectId.Parse(dto.ExchangeId));
-                var exchange = await exchangesCollection.Find(exchangeFilter).FirstOrDefaultAsync();
+                var exchange = await exchangesCollection
+                    .Find(Builders<Exchange>.Filter.Eq(b => b.Id, ObjectId.Parse(dto.ExchangeId)))
+                    .FirstOrDefaultAsync();
                 if (exchange == null)
                 {
                     return Results.Unauthorized();
                 }
 
-                var brokerFilter = Builders<Broker>.Filter.And(
+                var broker = await brokersCollection.Find(Builders<Broker>.Filter.And(
                     Builders<Broker>.Filter.Eq(b => b.Id, exchange.BrokerId),
                     Builders<Broker>.Filter.Eq(b => b.UserId, user.Id)
-                );
-                var broker = await brokersCollection.Find(brokerFilter).FirstOrDefaultAsync();
+                )).FirstOrDefaultAsync();
                 if (broker == null)
                 {
                     return Results.Unauthorized();
@@ -176,10 +176,10 @@ public static class MessageEndpoints
                 {
                     var requestBody = new
                     {
-                        properties = "",
-                        routing_key = exchange.RawData.GetValue("name"),
-                        payload = message.RawData.GetValue("payload"),
-                        payload_encoding = message.RawData.GetValue("payload_encoding")
+                        properties = new { },
+                        routing_key = exchange.RawData.GetValue("name").ToString(),
+                        payload = message.RawData.GetValue("payload").ToString(),
+                        payload_encoding = message.RawData.GetValue("payload_encoding").ToString()
                     };
 
                     // vhost?
@@ -189,6 +189,12 @@ public static class MessageEndpoints
 
                     response.EnsureSuccessStatusCode();
                 }
+
+                await messagesCollection.UpdateOneAsync(
+                    Builders<Message>.Filter
+                        .In(b => b.Id, messages.Select(x => x.Id).ToList()),
+                    Builders<Message>.Update
+                        .Set(b => b.DeletedAt, DateTime.UtcNow));
 
                 return Results.Ok();
             });

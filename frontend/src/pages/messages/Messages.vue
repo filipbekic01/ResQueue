@@ -7,6 +7,7 @@ import { useSyncMessagesMutation } from '@/api/messages/syncMessagesMutation'
 import { useQueuesQuery } from '@/api/queues/queuesQuery'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Breadcrumb from 'primevue/breadcrumb'
+import Button from 'primevue/button'
 import Column from 'primevue/column'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
@@ -133,15 +134,16 @@ const publishMessages = (event: any) => {
 <template>
   <AppLayout>
     <Breadcrumb :model="breadcrumbs" />
-    <div class="flex gap-2 ms-2">
+    <div class="flex gap-2 mx-2">
       <Button @click="(e) => syncMessages(e)">Sync </Button>
       <Select
         v-model="selectedExchange"
         :options="rabbitMqExchanges"
         optionLabel="name"
         placeholder="Select an Exchange"
-        class="w-full md:w-56"
-      />
+        class="w-96 ms-auto"
+        :virtualScrollerOptions="{ itemSize: 38, style: 'width:900px' }"
+      ></Select>
 
       <Button @click="(e) => publishMessages(e)">Publish </Button>
     </div>
@@ -156,6 +158,11 @@ const publishMessages = (event: any) => {
       <Column field="_id" header="Internal ID"></Column>
       <Column field="payload_bytes" header="Payload Bytes"></Column>
       <Column field="redelivered" header="Redelivered"></Column>
+      <Column field="" header="qwe">
+        <template #body>
+          <Button size="small" outlined>Details</Button>
+        </template>
+      </Column>
     </DataTable>
   </AppLayout>
 </template>
