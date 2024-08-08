@@ -141,6 +141,7 @@ const selectQueue = (data: any) => {
           <TabPanel value="1">
             <p class="m-0">
               <DataTable
+                :virtual-scroller-options="{ itemSize: 38 }"
                 :value="rabbitMqQueues"
                 selection-mode="single"
                 @row-select="(e) => selectQueue(e.data)"

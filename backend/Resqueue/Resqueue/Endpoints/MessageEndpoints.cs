@@ -111,7 +111,8 @@ public static class MessageEndpoints
                     messages.Add(new Message()
                     {
                         QueueId = queue.Id,
-                        RawData = BsonDocument.Parse(element.GetRawText())
+                        RawData = BsonDocument.Parse(element.GetRawText()),
+                        CreatedAt = DateTime.UtcNow
                     });
                 }
 

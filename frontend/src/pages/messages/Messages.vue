@@ -37,14 +37,14 @@ const queue = computed(() => queues.value?.find((x) => x.id === props.queueId))
 
 const rabbitMqMessages = computed(() =>
   messages.value?.map((x) => ({
-    _id: x.id,
+    ...x,
     ...JSON.parse(x.rawData)
   }))
 )
 
 const rabbitMqExchanges = computed(() =>
   exchanges.value?.map((x) => ({
-    _id: x.id,
+    ...x,
     ...JSON.parse(x.rawData)
   }))
 )
@@ -115,8 +115,8 @@ const publishMessages = (event: any) => {
     },
     accept: () => {
       publishMessagesAsync({
-        exchangeId: selectedExchange.value._id,
-        messageIds: selectedMessages.value.map((msg: any) => msg._id)
+        exchangeId: selectedExchange.value.id,
+        messageIds: selectedMessages.value.map((msg: any) => msg.id)
       }).then(() => {
         toast.add({
           severity: 'info',
@@ -152,15 +152,15 @@ const publishMessages = (event: any) => {
       :rows="20"
       v-model:selection="selectedMessages"
       :value="rabbitMqMessages"
-      data-key="_id"
+      data-key="id"
     >
       <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
-      <Column field="_id" header="Internal ID"></Column>
+      <Column field="id" header="Internal ID"></Column>
       <Column field="payload_bytes" header="Payload Bytes"></Column>
       <Column field="redelivered" header="Redelivered"></Column>
       <Column field="" header="qwe">
-        <template #body>
-          <Button size="small" outlined>Details</Button>
+        <template #body="{ data }">
+          <Button size="small" @click="openMessage(data.id)" outlined>more details -></Button>
         </template>
       </Column>
     </DataTable>
