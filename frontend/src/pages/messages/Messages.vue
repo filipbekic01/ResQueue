@@ -144,7 +144,6 @@ const publishMessages = (event: any) => {
         class="w-96 ms-auto"
         :virtualScrollerOptions="{ itemSize: 38, style: 'width:900px' }"
       ></Select>
-
       <Button @click="(e) => publishMessages(e)">Publish </Button>
     </div>
     <DataTable
