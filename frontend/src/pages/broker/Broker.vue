@@ -7,7 +7,7 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import DataTable from 'primevue/datatable'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { formatDistanceToNow, format } from 'date-fns'
 import { useRouter } from 'vue-router'
 
@@ -28,12 +28,14 @@ const toast = useToast()
 
 const rabbitMqQueues = computed(
   () =>
-    queues.value?.map((q) => {
-      return {
-        _id: q.id,
-        ...JSON.parse(q.rawData)
-      }
-    }) ?? []
+    queues.value
+      ?.filter((x) => x.rawData.toLowerCase().includes(search.value.toLowerCase()))
+      .map((q) => {
+        return {
+          _id: q.id,
+          ...JSON.parse(q.rawData)
+        }
+      }) ?? []
 )
 
 const rabbitMqExchanges = computed(
@@ -77,6 +79,10 @@ const syncBroker = (event: any) => {
     reject: () => {}
   })
 }
+
+const selectedTab = ref('2')
+
+const search = ref('')
 
 const selectQueue = (data: any) => {
   // RabbitMQ/QueueDto missing type
@@ -125,42 +131,75 @@ const selectQueue = (data: any) => {
           framework: {{ broker.framework ?? 'none' }}
         </div>
       </div>
-      <Tabs value="1" class="overflow-auto">
+      <Tabs v-model:value="selectedTab" class="overflow-auto grow">
         <TabList>
-          <Tab value="0">Exchanges ({{ rabbitMqExchanges?.length }})</Tab>
-          <Tab value="1">Queues ({{ rabbitMqQueues?.length }})</Tab>
+          <Tab value="0">Overview</Tab>
+          <Tab value="1">Topics ({{ rabbitMqExchanges?.length }})</Tab>
+          <Tab value="2"
+            >Queues (<template v-if="queues?.length != rabbitMqQueues?.length"
+              >{{ rabbitMqQueues?.length }} of </template
+            >{{ queues?.length }})</Tab
+          >
+          <div class="flex items-center grow px-3">
+            <InputText
+              class="max-w-96 grow ms-auto"
+              placeholder="Search"
+              icon="pi pi-search"
+              v-model="search"
+            ></InputText>
+          </div>
         </TabList>
-        <TabPanels class="overflow-auto">
-          <TabPanel value="0">
-            <p class="m-0">
-              <DataTable :value="rabbitMqExchanges">
-                <Column field="name" header="Name"></Column>
-              </DataTable>
-            </p>
+        <TabPanels class="flex overflow-auto grow" style="padding: 0">
+          <TabPanel value="0" class="overflow-auto flex grow"> settings </TabPanel>
+          <TabPanel value="1" class="overflow-auto flex grow">
+            <DataTable
+              v-if="selectedTab == '1'"
+              :value="rabbitMqExchanges"
+              scrollable
+              scroll-height="flex"
+              class="grow"
+              :virtual-scroller-options="{
+                itemSize: 46
+              }"
+            >
+              <Column field="name" header="Name"></Column>
+            </DataTable>
           </TabPanel>
-          <TabPanel value="1">
-            <p class="m-0">
+          <TabPanel value="2" class="overflow-auto flex grow">
+            <template v-if="selectedTab == '2'">
               <DataTable
-                :virtual-scroller-options="{ itemSize: 38 }"
+                scrollable
+                scroll-height="flex"
+                :virtual-scroller-options="{
+                  itemSize: 46
+                }"
+                sort-field="messages"
+                sort-order="-1"
+                class="grow"
                 :value="rabbitMqQueues"
                 selection-mode="single"
                 @row-select="(e) => selectQueue(e.data)"
               >
-                <Column field="vhost" header="VHost"></Column>
-                <Column field="name" header="Name">
+                <Column sortable field="vhost" header="VHost" class="w-[10%]"></Column>
+                <Column sortable field="name" header="Name" class="w-[60%]">
                   <template #body="{ data }">
-                    ...{{ data.name.slice(-20) }} ({{ data.messages }})</template
-                  >
+                    <span class="overflow-hidden whitespace-nowrap">{{ data.name }}</span>
+                  </template>
                 </Column>
 
-                <Column field="type" header="Type"></Column>
-                <Column field="" header="Features">
+                <Column sortable field="messages" header="Messages" class="w-[10%]">
+                  <template #body="{ data }">
+                    {{ data.messages }}
+                  </template>
+                </Column>
+                <Column sortable field="type" header="Type" class="w-[10%]"></Column>
+                <Column sortable field="" header="Features" class="w-[10%]">
                   <template #body="{ data }">
                     <Tag v-show="data.durable" severity="info">D</Tag>
                   </template>
                 </Column>
               </DataTable>
-            </p>
+            </template>
           </TabPanel>
         </TabPanels>
       </Tabs>

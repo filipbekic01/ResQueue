@@ -3,9 +3,15 @@ import { useLogoutMutation } from '@/api/auth/logoutMutation'
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { useDeleteBrokerMutation } from '@/api/broker/deleteBrokerMutation'
 import { useIdentity } from '@/composables/identityComposable'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import CreateBrokerDialog from '@/dialogs/CreateBrokerDialog.vue'
+import { useDialog } from 'primevue/usedialog'
+import Button from 'primevue/button'
+import InputText from 'primevue/inputtext'
+import { computed } from 'vue'
+import type { ResqueueRoute } from './SidebarRouterLink.vue'
+import SidebarRouterLink from './SidebarRouterLink.vue'
 
 const { user } = useIdentity()
 const { mutateAsync: logoutAsync } = useLogoutMutation()
@@ -13,9 +19,6 @@ const { mutateAsync: deleteBrokerAsync } = useDeleteBrokerMutation()
 const { data: brokers } = useBrokersQuery()
 const confirm = useConfirm()
 const router = useRouter()
-
-import { useDialog } from 'primevue/usedialog'
-import Button from 'primevue/button'
 
 const dialog = useDialog()
 
@@ -60,6 +63,44 @@ const openBroker = (id: string) => {
   })
 }
 
+const staticRoutes = computed<ResqueueRoute[]>(() => [
+  {
+    id: 0,
+    label: 'Dashboard',
+    icon: 'pi pi-home',
+    to: {
+      name: 'app'
+    }
+  },
+  {
+    id: 1,
+    label: 'Settings',
+    icon: 'pi pi-cog',
+    to: {
+      name: 'settings'
+    }
+  }
+])
+
+const brokerRoutes = computed<ResqueueRoute[]>(() => {
+  let id = 0
+
+  const routes =
+    brokers.value?.map((broker) => ({
+      id: ++id,
+      label: broker.name ?? '',
+      icon: 'pi pi-inbox',
+      to: {
+        name: 'broker',
+        params: {
+          brokerId: broker.id
+        }
+      }
+    })) ?? []
+
+  return routes
+})
+
 // todo: do it properly
 setTimeout(() => {
   if (!user.value) {
@@ -69,68 +110,56 @@ setTimeout(() => {
 </script>
 
 <template>
-  <div class="flex h-screen" v-if="user">
-    <div class="basis-64 w-64 shrink-0 h-screen flex">
-      <div class="flex flex-col rounded-lg grow">
-        <RouterLink
-          :to="{ name: 'app' }"
-          class="w-full flex flex-col items-start py-2 px-4 text-slate-700 bg-white shadow rounded-lg ms-1 mt-3"
-        >
-          <!-- <i class="pi pi-home mr-3"></i> -->
-          <span class="font-bold">Filip Bekic</span>
-          <span>filip1994sm@gmail.com</span>
-        </RouterLink>
+  <div class="flex h-screen gap-2 p-2" v-if="user">
+    <div class="basis-64 w-64 shrink-0 flex flex-col">
+      <RouterLink
+        :to="{ name: 'app' }"
+        class="flex flex-col items-start py-3 px-2 ms-2 me-3 border-b border-gray-200"
+      >
+        <!-- <i class="pi pi-home mr-3"></i> -->
+        <span class="font-bold">Filip Bekic</span>
+        <span>filip1994sm@gmail.com</span>
+      </RouterLink>
 
-        <nav class="flex flex-col w-full px-2">
-          <RouterLink
-            :to="{ name: 'app' }"
-            class="w-full flex items-center py-2 px-4 text-slate-700 hover:bg-white hover:shadow rounded-lg"
-          >
-            <i class="pi pi-home mr-3"></i>
-            <span>Dashboard</span>
-          </RouterLink>
-          <RouterLink
-            v-for="broker in brokers"
-            :key="broker.id"
-            to="/page2"
-            class="w-full flex items-center py-2 px-4 text-slate-700 hover:bg-white hover:shadow rounded-lg"
-          >
-            <i class="pi pi-calendar mr-3"></i>
-            <span>{{ broker.name }}</span>
-          </RouterLink>
-          <RouterLink
-            to="/page3"
-            class="w-full flex items-center py-2 px-4 text-slate-700 hover:bg-white hover:shadow rounded-lg"
-          >
-            <i class="pi pi-users mr-3"></i>
-            <span>Page 3</span>
-          </RouterLink>
-        </nav>
+      <div class="flex flex-col ms-2 me-3 gap-2 mt-4 grow mb-1">
+        <SidebarRouterLink
+          v-for="staticRoute in staticRoutes"
+          :key="staticRoute.id"
+          v-bind="staticRoute"
+        />
 
-        <div class="mt-auto mb-6 flex flex-col items-center">
-          <RouterLink
-            to="/page3"
-            class="w-full flex items-center py-2 px-4 text-slate-700 hover:bg-white hover:shadow rounded-lg"
-          >
-            <i class="pi pi-users mr-3"></i>
-            <span>Help</span> </RouterLink
-          ><RouterLink
-            to="/page3"
-            class="w-full flex items-center py-2 px-4 text-slate-700 hover:bg-white hover:shadow rounded-lg"
-          >
-            <i class="pi pi-users mr-3"></i>
-            <span>Settings</span>
-          </RouterLink>
-        </div>
+        <InputText placeholder="Search" variant="outlined"></InputText>
+
+        <SidebarRouterLink
+          v-for="brokerRoute in brokerRoutes"
+          :key="brokerRoute.id"
+          v-bind="brokerRoute"
+        />
+
+        <Button
+          class="mt-auto"
+          @click="openCreateBrokerDialog()"
+          icon="pi pi-plus"
+          label="Add Broker"
+        ></Button>
       </div>
     </div>
-    <!-- <div class="bg-slate-300 flex flex-col">
+
+    <div class="bg-white flex flex-col grow rounded-2xl border border-gray-200 overflow-auto">
+      <div class="border-b px-7 py-3">
+        <div class="font-bold">Hey, Filip!</div>
+        <div>Monday, October 23, 2023</div>
+      </div>
+      <slot></slot>
+    </div>
+  </div>
+  <template v-else> Loading...</template>
+  <!-- <div class="bg-slate-300 flex flex-col">
       <div class="flex px-2">
         <div class="text-orange-700">RabbitMQ</div>
       </div>
       <div v-for="broker in brokers" :key="broker.id" class="mt-2">
         <div class="flex px-2">
-          <div class="cursor-pointer" @click="openBroker(broker.id)">{{ broker.name }}</div>
           <Button
             size="small"
             class="ms-auto"
@@ -140,18 +169,11 @@ setTimeout(() => {
           >
         </div>
       </div>
-      <Button size="small" class="mx-2 mt-2" @click="openCreateBrokerDialog()">Create</Button>
+      
       ----------------------- Archive?
       <div class="border-t flex flex-col mt-auto">
         <div class="p-2 ms-auto text-slate-400">{{ user!.email }}</div>
         <div class="p-2 cursor-pointer" @click="logout">Log out</div>
       </div>
     </div> -->
-    <div class="grow flex overflow-auto p-3">
-      <div class="bg-white flex flex-col grow rounded-lg shadow">
-        <slot></slot>
-      </div>
-    </div>
-  </div>
-  <template v-else> Loading...</template>
 </template>

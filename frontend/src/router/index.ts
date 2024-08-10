@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Broker from '../pages/broker/Broker.vue'
 import Dashboard from '../pages/dashboard/Dashboard.vue'
+import Settings from '../pages/settings/Settings.vue'
 import Messages from '../pages/messages/Messages.vue'
 import Message from '../pages/message/Message.vue'
 import Home from '../pages/home/Home.vue'
@@ -19,7 +20,12 @@ const router = createRouter({
       component: Dashboard
     },
     {
-      path: '/app/broker/:brokerId',
+      path: '/settings',
+      name: 'settings',
+      component: Settings
+    },
+    {
+      path: '/app/brokers/:brokerId',
       name: 'broker',
       props: true,
       component: Broker
