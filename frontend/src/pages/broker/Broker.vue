@@ -174,7 +174,7 @@ const selectQueue = (data: any) => {
                   itemSize: 46
                 }"
                 sort-field="messages"
-                sort-order="-1"
+                :sort-order="-1"
                 class="grow"
                 :value="rabbitMqQueues"
                 selection-mode="single"
