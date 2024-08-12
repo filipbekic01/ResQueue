@@ -10,6 +10,7 @@ import ConfirmationService from 'primevue/confirmationservice'
 import DialogService from 'primevue/dialogservice'
 import ToastService from 'primevue/toastservice'
 import { definePreset } from '@primevue/themes'
+import Tooltip from 'primevue/tooltip'
 
 const Noir = definePreset(Aura, {
   semantic: {
@@ -75,5 +76,7 @@ app.use(PrimeVue, {
     }
   }
 })
+
+app.directive('tooltip', Tooltip)
 
 app.mount('#app')

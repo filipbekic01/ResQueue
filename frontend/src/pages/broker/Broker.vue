@@ -94,41 +94,67 @@ const selectQueue = (data: any) => {
     }
   })
 }
+
+const breadcrumbs = computed(() => {
+  return [
+    {
+      label: 'RQ'
+    },
+    { label: `${broker.value?.name}` },
+    { label: `queue ?` },
+    { label: `messages` }
+  ]
+})
 </script>
 
 <template>
   <AppLayout>
+    <template #title>
+      {{ broker?.name }}
+    </template>
+    <template #description>
+      <Breadcrumb :model="breadcrumbs" style="padding: 0" />
+    </template>
     <template v-if="broker">
       <div class="flex p-4">
         <div
-          class="w-24 h-24 rounded bg-orange-400 items-center justify-center flex text-2xl text-white"
+          class="w-24 h-24 rounded-2xl bg-orange-400 items-center justify-center flex text-2xl text-white"
         >
           RMQ
         </div>
-        <div class="flex flex-col ps-2">
-          <div>Name: {{ broker.name }}</div>
-          <div>URL: {{ broker.url }}</div>
-          <div>Port: {{ broker.port }}</div>
 
-          <div
-            v-if="!isPendingSyncBroker"
-            class="text-blue-400 hover:text-blue-300 cursor-pointer"
-            @click="(e) => syncBroker(e)"
-          >
-            sync
+        <div class="flex flex-col ps-2">
+          <div class="font-bold">RabbitMQ</div>
+          <div>{{ broker.url }}:{{ broker.port }}</div>
+          <div class="text-gray-500 flex gap-3">
+            <div>Created {{ formatDistanceToNow(broker.createdAt) }} ago</div>
           </div>
-          <a v-else>syncing...</a>
+          <div class="flex gap-2">
+            <Badge severity="secondary" class="mt-auto">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-tags" style="font-size: 0.8rem"></i>
+                <b>Framework</b>
+                {{ broker.framework ? 'MassTransit' : 'none' }}
+              </div>
+            </Badge>
+            <Badge severity="secondary" class="mt-auto">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-tags" style="font-size: 0.8rem"></i>
+                <b>Version</b>
+                <a>3.16.2</a>
+              </div>
+            </Badge>
+          </div>
         </div>
-        <div class="ms-auto text-end">
-          created on {{ format(broker.createdAt, 'MM/dd/yyyy') }}
-          <br />
-          updated {{ formatDistanceToNow(broker.updatedAt) }} ago
-          <br />
+        <div class="ms-auto text-end flex items-center gap-3">
           <template v-if="broker.syncedAt">
             synced {{ formatDistanceToNow(broker.syncedAt) ?? 'never' }} ago </template
           ><template v-else>never synced</template>
-          <br />
-          framework: {{ broker.framework ?? 'none' }}
+          <Button
+            :loading="isPendingSyncBroker"
+            @click="(e) => syncBroker(e)"
+            label="Synchronize"
+          ></Button>
         </div>
       </div>
       <Tabs v-model:value="selectedTab" class="overflow-auto grow">
@@ -189,7 +215,14 @@ const selectQueue = (data: any) => {
 
                 <Column sortable field="messages" header="Messages" class="w-[10%]">
                   <template #body="{ data }">
-                    {{ data.messages }}
+                    <div class="flex gap-2" v-tooltip.left="'Messages in queue and locally.'">
+                      <div class="flex gap-1 items-center">
+                        <i class="text-xs text-emerald-500 pi pi-caret-up"></i>{{ data.messages }}
+                      </div>
+                      <div class="flex gap-1 items-center">
+                        <i class="text-xs text-red-500 pi pi-caret-down"></i>{{ data.messages }}
+                      </div>
+                    </div>
                   </template>
                 </Column>
                 <Column sortable field="type" header="Type" class="w-[10%]"></Column>

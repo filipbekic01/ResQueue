@@ -49,14 +49,6 @@ const rabbitMqExchanges = computed(() =>
   }))
 )
 
-const breadcrumbs = computed(() => {
-  return [
-    { label: `broker ${broker.value?.name}` },
-    { label: `queue ${queue.value?.id}` },
-    { label: `messages` }
-  ]
-})
-
 const syncMessages = (event: any) => {
   confirm.require({
     target: event.currentTarget,
@@ -133,9 +125,8 @@ const publishMessages = (event: any) => {
 
 <template>
   <AppLayout>
-    <Breadcrumb :model="breadcrumbs" />
     <div class="flex gap-2 mx-2">
-      <Button @click="(e) => syncMessages(e)">Sync </Button>
+      <Button @click="(e) => syncMessages(e)">Synchronize</Button>
       <Select
         v-model="selectedExchange"
         :options="rabbitMqExchanges"

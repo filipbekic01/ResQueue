@@ -3,7 +3,7 @@ import { useLogoutMutation } from '@/api/auth/logoutMutation'
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { useDeleteBrokerMutation } from '@/api/broker/deleteBrokerMutation'
 import { useIdentity } from '@/composables/identityComposable'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import CreateBrokerDialog from '@/dialogs/CreateBrokerDialog.vue'
 import { useDialog } from 'primevue/usedialog'
@@ -12,6 +12,7 @@ import InputText from 'primevue/inputtext'
 import { computed } from 'vue'
 import type { ResqueueRoute } from './SidebarRouterLink.vue'
 import SidebarRouterLink from './SidebarRouterLink.vue'
+import { formatDate } from 'date-fns'
 
 const { user } = useIdentity()
 const { mutateAsync: logoutAsync } = useLogoutMutation()
@@ -147,8 +148,12 @@ setTimeout(() => {
 
     <div class="bg-white flex flex-col grow rounded-2xl border border-gray-200 overflow-auto">
       <div class="border-b px-7 py-3">
-        <div class="font-bold">Hey, Filip!</div>
-        <div>Monday, October 23, 2023</div>
+        <div class="font-bold">
+          <slot name="title">Hey, {{ user.email }}</slot>
+        </div>
+        <div>
+          <slot name="description">{{ formatDate(new Date(), 'eeee, MMMM d, yyyy') }}</slot>
+        </div>
       </div>
       <slot></slot>
     </div>
