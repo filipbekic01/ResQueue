@@ -102,7 +102,11 @@ const backToMessages = () => {
       ></Select>
       <Button @click="(e) => publishMessages(e)">Publish </Button>
     </div>
-    <div v-for="(value, key) in rabbitMqMessage" :key="key" class="flex border-gray-200 border-b">
+    <div
+      v-for="(value, key) in rabbitMqMessage"
+      :key="key"
+      class="flex border-gray-200 border-b px-5 py-3"
+    >
       <div class="basis-44 shrink-0">{{ key }}:</div>
       <div class="text-green-600 shrink-o">{{ value }}</div>
     </div>

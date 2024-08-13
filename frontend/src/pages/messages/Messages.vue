@@ -1,12 +1,11 @@
 <script lang="ts" setup>
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
-import { useExchangesQuery } from '@/api/exchanges/exchangesQuery'
-import { useMessagesQuery } from '@/api/messages/messagesQuery'
 import { usePublishMessagesMutation } from '@/api/messages/publishMessagesMutation'
 import { useSyncMessagesMutation } from '@/api/messages/syncMessagesMutation'
 import { useQueuesQuery } from '@/api/queues/queuesQuery'
+import { useExchanges } from '@/composables/exchangesComposable'
+import { useMessages } from '@/composables/messagesComposable'
 import AppLayout from '@/layouts/AppLayout.vue'
-import Breadcrumb from 'primevue/breadcrumb'
 import Button from 'primevue/button'
 import Column from 'primevue/column'
 import { useConfirm } from 'primevue/useconfirm'
@@ -27,28 +26,22 @@ const toast = useToast()
 const { mutateAsync: syncMessagesAsync } = useSyncMessagesMutation()
 const { mutateAsync: publishMessagesAsync } = usePublishMessagesMutation()
 
-const { data: messages } = useMessagesQuery(props.queueId)
 const { data: brokers } = useBrokersQuery()
+const { formattedExchanges } = useExchanges(props.brokerId)
+const { formattedMessages } = useMessages(props.queueId)
+
 const { data: queues } = useQueuesQuery(props.brokerId)
-const { data: exchanges } = useExchangesQuery(props.brokerId)
 
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
 const queue = computed(() => queues.value?.find((x) => x.id === props.queueId))
 
-const rabbitMqMessages = computed(() =>
-  messages.value?.map((x) => ({
-    ...x,
-    ...JSON.parse(x.rawData)
-  }))
-)
-
-const rabbitMqExchanges = computed(() =>
-  exchanges.value?.map((x) => ({
-    ...x,
-    ...JSON.parse(x.rawData)
-  }))
-)
-
+const backToBroker = () =>
+  router.push({
+    name: 'broker',
+    params: {
+      brokerId: props.brokerId
+    }
+  })
 const syncMessages = (event: any) => {
   confirm.require({
     target: event.currentTarget,
@@ -125,34 +118,47 @@ const publishMessages = (event: any) => {
 
 <template>
   <AppLayout>
-    <div class="flex gap-2 mx-2">
-      <Button @click="(e) => syncMessages(e)">Synchronize</Button>
+    <template #prepend>
+      <div
+        class="w-[42px] h-[42px] rounded-xl bg-[#FF6600] items-center justify-center flex text-2xl text-white"
+      >
+        <img src="/rmq.svg" class="w-6" />
+      </div>
+    </template>
+    <template #title>Messages</template>
+    <template #description>breadcrubsm?</template>
+    <div class="flex gap-2 mx-5 my-3 items-start">
+      <Button @click="backToBroker" outlined label="Back" icon="pi pi-arrow-left"></Button>
+      <Button @click="(e) => syncMessages(e)" outlined label="Sync"></Button>
       <Select
         v-model="selectedExchange"
-        :options="rabbitMqExchanges"
+        :options="formattedExchanges"
         optionLabel="name"
         placeholder="Select an Exchange"
         class="w-96 ms-auto"
         :virtualScrollerOptions="{ itemSize: 38, style: 'width:900px' }"
       ></Select>
-      <Button @click="(e) => publishMessages(e)">Publish </Button>
+      <Button @click="(e) => publishMessages(e)" label="Publish" />
     </div>
     <DataTable
       paginator
       :rows="20"
       v-model:selection="selectedMessages"
-      :value="rabbitMqMessages"
+      :value="formattedMessages"
       data-key="id"
     >
       <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
-      <Column field="id" header="Internal ID"></Column>
-      <Column field="payload_bytes" header="Payload Bytes"></Column>
-      <Column field="redelivered" header="Redelivered"></Column>
-      <Column field="" header="qwe">
+      <Column field="id" header="Internal ID">
         <template #body="{ data }">
-          <Button size="small" @click="openMessage(data.id)" outlined>more details -></Button>
+          <span
+            @click="openMessage(data.id)"
+            class="border-dashed border-gray-600 border-b hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
+            >{{ data.id }}</span
+          >
         </template>
       </Column>
+      <Column field="parsed.payload_bytes" header="Payload Bytes"></Column>
+      <Column field="parsed.redelivered" header="Redelivered"></Column>
     </DataTable>
   </AppLayout>
 </template>

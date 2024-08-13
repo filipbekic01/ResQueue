@@ -147,12 +147,17 @@ setTimeout(() => {
     </div>
 
     <div class="bg-white flex flex-col grow rounded-2xl border border-gray-200 overflow-auto">
-      <div class="border-b px-7 py-3">
-        <div class="font-bold">
-          <slot name="title">Hey, {{ user.email }}</slot>
-        </div>
-        <div>
-          <slot name="description">{{ formatDate(new Date(), 'eeee, MMMM d, yyyy') }}</slot>
+      <div class="border-b px-5 py-3">
+        <div class="flex gap-2">
+          <div><slot name="prepend"></slot></div>
+          <div class="flex-col">
+            <div class="font-bold">
+              <slot name="title">Hey, {{ user.email }}</slot>
+            </div>
+            <div>
+              <slot name="description">{{ formatDate(new Date(), 'eeee, MMMM d, yyyy') }}</slot>
+            </div>
+          </div>
         </div>
       </div>
       <slot></slot>
