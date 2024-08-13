@@ -30,8 +30,8 @@ function getRandomWelcomeBack() {
 
 <template>
   <AppLayout>
-    <template #title>{{ getRandomWelcomeBack() }}</template>
-    <template #description>{{ format(new Date(), 'eeee, dd. MMMM, yyyy') }}</template>
+    <div class="text-3xl font-bold px-7 pt-4">Dashboard</div>
+    <div class="text-gray-400 px-7">{{ getRandomWelcomeBack() }}</div>
     <div class="flex m-4">
       <div class="max-w-sm overflow-hidden border border-gray-200 rounded-2xl p-6">
         <div class="flex justify-between items-center">

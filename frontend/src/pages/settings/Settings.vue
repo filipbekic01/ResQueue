@@ -14,8 +14,8 @@ const changeFontSize = (size: '14px' | '16px') =>
 
 <template>
   <AppLayout>
-    <template #title>Your Settings</template>
-    <template #description>Customize your experience</template>
+    <div class="text-3xl font-bold px-7 pt-4">Settings</div>
+    <div class="text-gray-400 px-7">Customize your experience.</div>
     <div class="gap-2 flex items-center px-7 py-3">
       Font Size: {{ localAppConfig.fontSize }}px
       <Button size="small" @click="changeFontSize('14px')" label="A"></Button>

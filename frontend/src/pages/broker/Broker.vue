@@ -59,7 +59,7 @@ const syncBroker = (event: any) => {
 </script>
 
 <template>
-  <AppLayout hide-header>
+  <AppLayout>
     <template v-if="broker">
       <div class="flex p-4">
         <div

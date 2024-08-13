@@ -11,16 +11,6 @@ import Button from 'primevue/button'
 import { computed } from 'vue'
 import type { ResqueueRoute } from './SidebarRouterLink.vue'
 import SidebarRouterLink from './SidebarRouterLink.vue'
-import Divider from 'primevue/divider'
-
-withDefaults(
-  defineProps<{
-    hideHeader?: boolean
-  }>(),
-  {
-    hideHeader: false
-  }
-)
 
 const { user } = useIdentity()
 const { mutateAsync: logoutAsync } = useLogoutMutation()
@@ -120,17 +110,17 @@ setTimeout(() => {
 
 <template>
   <div class="flex h-screen gap-2 p-2" v-if="user">
-    <div class="basis-64 w-64 shrink-0 flex flex-col">
+    <div class="basis-70 w-7basis-70 shrink-0 flex flex-col">
       <RouterLink
         :to="{ name: 'app' }"
-        class="flex flex-row items-center py-3 px-2 ms-2 me-3 border-b border-gray-200"
+        class="flex flex-row gap-3 items-center py-3 px-2 ms-2 me-3 border-b border-gray-200"
       >
-        <div class="flex flex-col">
+        <div class="grow flex items-center justify-end bg-black p-2.5 rounded-lg">
+          <i class="pi pi-database text-white rotate-90" style="font-size: 1.5rem"></i>
+        </div>
+        <div class="flex flex-col grow">
           <span class="font-bold"> Filip Bekic</span>
           <span>{{ user.email }}</span>
-        </div>
-        <div class="grow flex items-center justify-end">
-          <i class="pi pi-code text-gray-300 rotate-90"></i>
         </div>
       </RouterLink>
 
@@ -141,7 +131,7 @@ setTimeout(() => {
           v-bind="staticRoute"
         />
 
-        <Divider></Divider>
+        <div class="border-b border-gray-200 my-2"></div>
         <!-- <InputText placeholder="Search" variant="outlined"></InputText> -->
 
         <SidebarRouterLink
@@ -164,7 +154,7 @@ setTimeout(() => {
     </div>
 
     <div class="bg-white flex flex-col grow rounded-2xl border border-gray-200 overflow-auto">
-      <div class="border-b px-5 py-3" v-if="!hideHeader">
+      <div class="border-b px-5 py-3">
         <div class="flex gap-2">
           <div><slot name="prepend"></slot></div>
           <div class="flex-col">
