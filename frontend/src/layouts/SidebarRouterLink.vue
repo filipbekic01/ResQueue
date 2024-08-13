@@ -34,10 +34,11 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => {
   <RouterLink
     :key="id"
     :to="to"
-    class="w-full flex items-center py-2 px-4 text-slate-700 font-medium rounded-lg hover:bg-white"
+    class="w-full flex items-center py-2 px-4 text-slate-700 rounded-lg hover:bg-white"
     :class="[
       {
-        'bg-white shadow font-medium': isRoute(to)
+        'bg-white shadow font-semibold': isRoute(to),
+        'font-medium': !isRoute(to)
       }
     ]"
   >

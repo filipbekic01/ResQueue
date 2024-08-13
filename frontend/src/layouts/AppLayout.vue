@@ -123,11 +123,15 @@ setTimeout(() => {
     <div class="basis-64 w-64 shrink-0 flex flex-col">
       <RouterLink
         :to="{ name: 'app' }"
-        class="flex flex-col items-start py-3 px-2 ms-2 me-3 border-b border-gray-200"
+        class="flex flex-row items-center py-3 px-2 ms-2 me-3 border-b border-gray-200"
       >
-        <!-- <i class="pi pi-home mr-3"></i> -->
-        <span class="font-bold">Filip Bekic</span>
-        <span>filip1994sm@gmail.com</span>
+        <div class="flex flex-col">
+          <span class="font-bold"> Filip Bekic</span>
+          <span>{{ user.email }}</span>
+        </div>
+        <div class="grow flex items-center justify-end">
+          <i class="pi pi-code text-gray-300 rotate-90"></i>
+        </div>
       </RouterLink>
 
       <div class="flex flex-col ms-2 me-3 gap-2 mt-4 grow mb-1">
