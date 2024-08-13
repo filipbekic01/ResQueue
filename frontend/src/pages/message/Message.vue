@@ -63,6 +63,14 @@ const publishMessages = (event: any) => {
   })
 }
 
+const backToBroker = () =>
+  router.push({
+    name: 'broker',
+    params: {
+      brokerId: props.brokerId
+    }
+  })
+
 const backToMessages = () => {
   router.push({
     name: 'messages',
@@ -76,8 +84,26 @@ const backToMessages = () => {
 
 <template>
   <AppLayout>
-    <div class="flex gap-2 mx-2 mt-2">
-      <Button @click="backToMessages">Back to messages</Button>
+    <template #prepend>
+      <div
+        class="w-[42px] h-[42px] rounded-xl bg-[#FF6600] items-center justify-center flex text-2xl text-white cursor-pointer active:scale-95"
+        @click="backToBroker"
+      >
+        <img src="/rmq.svg" class="w-7 select-none" />
+      </div>
+    </template>
+    <template #title
+      ><span class="hover:underline cursor-pointer" @click="backToBroker">{{
+        broker?.name
+      }}</span></template
+    >
+    <template #description
+      ><span class="cursor-pointer hover:underline" @click="backToMessages">Messages</span> /
+      {{ message?.id }}</template
+    >
+
+    <div class="flex gap-2 mx-5 mt-3">
+      <Button outlined @click="backToMessages" icon="pi pi-arrow-left" label="Messages"></Button>
       <Select
         v-model="selectedExchange"
         :options="formattedExchanges"
@@ -86,7 +112,7 @@ const backToMessages = () => {
         class="w-96 ms-auto"
         :virtualScrollerOptions="{ itemSize: 38, style: 'width:900px' }"
       ></Select>
-      <Button @click="(e) => publishMessages(e)">Publish </Button>
+      <Button @click="(e) => publishMessages(e)" label="Publish"></Button>
     </div>
     <template v-if="message">
       <MessageRabbitMq v-if="broker?.system === BROKER_SYSTEMS.RABBIT_MQ" :message="message" />

@@ -12,8 +12,10 @@ const { user } = useIdentity()
       <div class="text-2xl mx-auto mt-10 text-center">Rescue queue loads</div>
       <div class="mx-auto mt-10 text-center">resqueue</div>
 
-      <Button v-if="!user" class="mt-4">Register</Button>
-      <RouterLink v-else :to="{ name: 'app' }"><Button class="mt-4">Open App</Button></RouterLink>
+      <Button v-if="!user" class="mt-4" label="Register"></Button>
+      <RouterLink v-else :to="{ name: 'app' }"
+        ><Button class="mt-4" label="Open App"></Button
+      ></RouterLink>
     </div>
     <div class="flex gap-4 mt-16">
       <div class="bg-gray-200 h-48 flex-1 text-gray-700 rounded-lg p-2">

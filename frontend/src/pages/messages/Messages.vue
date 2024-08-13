@@ -123,15 +123,20 @@ const publishMessages = (event: any) => {
   <AppLayout>
     <template #prepend>
       <div
-        class="w-[42px] h-[42px] rounded-xl bg-[#FF6600] items-center justify-center flex text-2xl text-white"
+        class="w-[42px] h-[42px] rounded-xl bg-[#FF6600] items-center justify-center flex text-2xl text-white cursor-pointer active:scale-95"
+        @click="backToBroker"
       >
-        <img src="/rmq.svg" class="w-6" />
+        <img src="/rmq.svg" class="w-7 select-none" />
       </div>
     </template>
-    <template #title>Messages</template>
-    <template #description>Breadcrumbs...</template>
+    <template #title
+      ><span class="hover:underline cursor-pointer" @click="backToBroker">{{
+        broker?.name
+      }}</span></template
+    >
+    <template #description>Messages</template>
     <div class="flex gap-2 mx-5 my-3 items-start">
-      <Button @click="backToBroker" outlined label="Back" icon="pi pi-arrow-left"></Button>
+      <Button @click="backToBroker" outlined label="Broker" icon="pi pi-arrow-left"></Button>
       <Button @click="(e) => syncMessages(e)" outlined label="Sync"></Button>
       <Select
         v-model="selectedExchange"
@@ -160,6 +165,7 @@ const publishMessages = (event: any) => {
           >
         </template>
       </Column>
+      <Column field="summary" header="Summary"> </Column>
       <Column field="createdAt" header="Created At">
         <template #body="{ data }"> {{ formatDistanceToNow(data.createdAt) }} ago </template>
       </Column>

@@ -22,6 +22,9 @@ const { mutateAsync: syncBrokerAsync, isPending: isPendingSyncBroker } = useSync
 const { data: brokers } = useBrokersQuery()
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
 
+const selectedTab = ref('2')
+const search = ref('')
+
 const syncBroker = (event: any) => {
   confirm.require({
     target: event.currentTarget,
@@ -53,29 +56,10 @@ const syncBroker = (event: any) => {
     reject: () => {}
   })
 }
-
-const selectedTab = ref('2')
-
-const search = ref('')
-
-const breadcrumbs = computed(() => {
-  return [
-    {
-      label: 'RQ'
-    },
-    { label: `${broker.value?.name}` },
-    { label: `queue ?` },
-    { label: `messages` }
-  ]
-})
 </script>
 
 <template>
-  <AppLayout>
-    <template #title>Broker</template>
-    <template #description>
-      <Breadcrumb :model="breadcrumbs" style="padding: 0" />
-    </template>
+  <AppLayout hide-header>
     <template v-if="broker">
       <div class="flex p-4">
         <div

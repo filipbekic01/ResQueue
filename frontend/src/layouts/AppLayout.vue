@@ -8,11 +8,19 @@ import { useConfirm } from 'primevue/useconfirm'
 import CreateBrokerDialog from '@/dialogs/CreateBrokerDialog.vue'
 import { useDialog } from 'primevue/usedialog'
 import Button from 'primevue/button'
-import InputText from 'primevue/inputtext'
 import { computed } from 'vue'
 import type { ResqueueRoute } from './SidebarRouterLink.vue'
 import SidebarRouterLink from './SidebarRouterLink.vue'
-import { formatDate } from 'date-fns'
+import Divider from 'primevue/divider'
+
+withDefaults(
+  defineProps<{
+    hideHeader?: boolean
+  }>(),
+  {
+    hideHeader: false
+  }
+)
 
 const { user } = useIdentity()
 const { mutateAsync: logoutAsync } = useLogoutMutation()
@@ -129,7 +137,8 @@ setTimeout(() => {
           v-bind="staticRoute"
         />
 
-        <InputText placeholder="Search" variant="outlined"></InputText>
+        <Divider></Divider>
+        <!-- <InputText placeholder="Search" variant="outlined"></InputText> -->
 
         <SidebarRouterLink
           v-for="brokerRoute in brokerRoutes"
@@ -138,7 +147,11 @@ setTimeout(() => {
         />
 
         <Button
-          class="mt-auto"
+          :class="[
+            {
+              'mt-auto': brokers?.length
+            }
+          ]"
           @click="openCreateBrokerDialog()"
           icon="pi pi-plus"
           label="Add Broker"
@@ -147,15 +160,15 @@ setTimeout(() => {
     </div>
 
     <div class="bg-white flex flex-col grow rounded-2xl border border-gray-200 overflow-auto">
-      <div class="border-b px-5 py-3">
+      <div class="border-b px-5 py-3" v-if="!hideHeader">
         <div class="flex gap-2">
           <div><slot name="prepend"></slot></div>
           <div class="flex-col">
             <div class="font-bold">
-              <slot name="title">Hey, {{ user.email }}</slot>
+              <slot name="title"></slot>
             </div>
             <div>
-              <slot name="description">{{ formatDate(new Date(), 'eeee, MMMM d, yyyy') }}</slot>
+              <slot name="description"></slot>
             </div>
           </div>
         </div>

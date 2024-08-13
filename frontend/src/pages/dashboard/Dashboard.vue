@@ -2,24 +2,36 @@
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Card from 'primevue/card'
-import { formatDistanceToNow } from 'date-fns'
+import { format } from 'date-fns'
 import { useRouter } from 'vue-router'
+import Button from 'primevue/button'
 
 const { data: brokers } = useBrokersQuery()
 const router = useRouter()
 
-const openBroker = (id: string) => {
-  router.push({
-    name: 'broker',
-    params: {
-      brokerId: id
-    }
-  })
+function getRandomWelcomeBack() {
+  const messages = [
+    'Great to see you again!',
+    'Glad to have you back!',
+    'Nice to have you here again!',
+    'Happy to see you back!',
+    "Welcome back, it's good to have you!",
+    'It’s wonderful to see you again!',
+    'Back in action, I see!',
+    "Welcome back! We've missed you!",
+    'Hey there! Long time no see!',
+    'You’re back! Let’s pick up where we left off!'
+  ]
+
+  const randomIndex = Math.floor(Math.random() * messages.length)
+  return messages[randomIndex]
 }
 </script>
 
 <template>
   <AppLayout>
+    <template #title>{{ getRandomWelcomeBack() }}</template>
+    <template #description>{{ format(new Date(), 'eeee, dd. MMMM, yyyy') }}</template>
     <div class="flex m-4">
       <div class="max-w-sm overflow-hidden border border-gray-200 rounded-2xl p-6">
         <div class="flex justify-between items-center">
@@ -38,11 +50,7 @@ const openBroker = (id: string) => {
           </p>
         </div>
         <div class="mt-6">
-          <button
-            class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 focus:outline-none"
-          >
-            Manage Subscription
-          </button>
+          <Button outlined label="Manage Subscription"></Button>
         </div>
       </div>
     </div>
