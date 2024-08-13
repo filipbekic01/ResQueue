@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { API_URL } from '@/constants/Api'
+import { API_URL } from '@/constants/api'
 
 export function useSyncBrokerMutation() {
   const queryClient = useQueryClient()

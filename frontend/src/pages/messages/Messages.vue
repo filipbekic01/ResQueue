@@ -4,14 +4,16 @@ import { usePublishMessagesMutation } from '@/api/messages/publishMessagesMutati
 import { useSyncMessagesMutation } from '@/api/messages/syncMessagesMutation'
 import { useQueuesQuery } from '@/api/queues/queuesQuery'
 import { useExchanges } from '@/composables/exchangesComposable'
-import { useMessages } from '@/composables/messagesComposable'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Button from 'primevue/button'
-import Column from 'primevue/column'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { formatDistanceToNow } from 'date-fns'
+import { useMessagesQuery } from '@/api/messages/messagesQuery'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
 
 const props = defineProps<{
   brokerId: string
@@ -28,7 +30,7 @@ const { mutateAsync: publishMessagesAsync } = usePublishMessagesMutation()
 
 const { data: brokers } = useBrokersQuery()
 const { formattedExchanges } = useExchanges(props.brokerId)
-const { formattedMessages } = useMessages(props.queueId)
+const { data: messages } = useMessagesQuery(props.queueId)
 
 const { data: queues } = useQueuesQuery(props.brokerId)
 
@@ -42,6 +44,7 @@ const backToBroker = () =>
       brokerId: props.brokerId
     }
   })
+
 const syncMessages = (event: any) => {
   confirm.require({
     target: event.currentTarget,
@@ -126,7 +129,7 @@ const publishMessages = (event: any) => {
       </div>
     </template>
     <template #title>Messages</template>
-    <template #description>breadcrubsm?</template>
+    <template #description>Breadcrumbs...</template>
     <div class="flex gap-2 mx-5 my-3 items-start">
       <Button @click="backToBroker" outlined label="Back" icon="pi pi-arrow-left"></Button>
       <Button @click="(e) => syncMessages(e)" outlined label="Sync"></Button>
@@ -144,7 +147,7 @@ const publishMessages = (event: any) => {
       paginator
       :rows="20"
       v-model:selection="selectedMessages"
-      :value="formattedMessages"
+      :value="messages"
       data-key="id"
     >
       <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
@@ -157,8 +160,9 @@ const publishMessages = (event: any) => {
           >
         </template>
       </Column>
-      <Column field="parsed.payload_bytes" header="Payload Bytes"></Column>
-      <Column field="parsed.redelivered" header="Redelivered"></Column>
+      <Column field="createdAt" header="Created At">
+        <template #body="{ data }"> {{ formatDistanceToNow(data.createdAt) }} ago </template>
+      </Column>
     </DataTable>
   </AppLayout>
 </template>

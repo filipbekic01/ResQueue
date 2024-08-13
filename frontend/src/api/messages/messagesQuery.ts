@@ -1,4 +1,4 @@
-import { API_URL } from '@/constants/Api'
+import { API_URL } from '@/constants/api'
 import type { MessageDto } from '@/dtos/messageDto'
 import { useQuery } from '@tanstack/vue-query'
 import axios from 'axios'

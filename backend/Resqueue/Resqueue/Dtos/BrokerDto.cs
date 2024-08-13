@@ -2,6 +2,7 @@ namespace Resqueue.Dtos;
 
 public record BrokerDto(
     string Id,
+    string System,
     string Name,
     int Port,
     string Url,

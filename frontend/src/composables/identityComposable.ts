@@ -1,4 +1,4 @@
-import { API_URL } from '@/constants/Api'
+import { API_URL } from '@/constants/api'
 import { ref } from 'vue'
 
 export interface User {

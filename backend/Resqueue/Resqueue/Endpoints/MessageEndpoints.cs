@@ -85,8 +85,6 @@ public static class MessageEndpoints
                 http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", broker.Auth);
                 http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                // Sync queues
-
                 var requestBody = new
                 {
                     count = 10, // Number of messages to fetch
@@ -112,11 +110,15 @@ public static class MessageEndpoints
                     {
                         QueueId = queue.Id,
                         RawData = BsonDocument.Parse(element.GetRawText()),
+                        Summary = "Contextual summary of messages",
                         CreatedAt = DateTime.UtcNow
                     });
                 }
 
-                await messagesCollection.InsertManyAsync(messages);
+                if (messages.Count > 0)
+                {
+                    await messagesCollection.InsertManyAsync(messages);
+                }
 
                 return Results.Ok();
             });

@@ -1,12 +1,15 @@
 <script lang="ts" setup>
-import { useExchangesQuery } from '@/api/exchanges/exchangesQuery'
-import { useMessagesQuery } from '@/api/messages/messagesQuery'
 import { usePublishMessagesMutation } from '@/api/messages/publishMessagesMutation'
+import { useExchanges } from '@/composables/exchangesComposable'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import MessageRabbitMq from './MessageRabbitMq.vue'
+import { useBrokersQuery } from '@/api/broker/brokersQuery'
+import { BROKER_SYSTEMS } from '@/constants/brokerSystems'
+import { useMessagesQuery } from '@/api/messages/messagesQuery'
 
 const props = defineProps<{
   brokerId: string
@@ -19,30 +22,13 @@ const router = useRouter()
 const confirm = useConfirm()
 const toast = useToast()
 
-const { mutateAsync: publishMessagesAsync } = usePublishMessagesMutation()
-
+const { data: brokers } = useBrokersQuery()
+const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
+const { formattedExchanges } = useExchanges(props.brokerId)
 const { data: messages } = useMessagesQuery(props.queueId)
-const { data: exchanges } = useExchangesQuery(props.brokerId)
-
 const message = computed(() => messages.value?.find((x) => x.id === props.messageId))
 
-const rabbitMqMessage = computed(() => {
-  if (!message.value) {
-    return {}
-  }
-
-  return {
-    ...message.value,
-    ...JSON.parse(message.value.rawData)
-  }
-})
-
-const rabbitMqExchanges = computed(() =>
-  exchanges.value?.map((x) => ({
-    ...x,
-    ...JSON.parse(x.rawData)
-  }))
-)
+const { mutateAsync: publishMessagesAsync } = usePublishMessagesMutation()
 
 const selectedExchange = ref()
 
@@ -94,7 +80,7 @@ const backToMessages = () => {
       <Button @click="backToMessages">Back to messages</Button>
       <Select
         v-model="selectedExchange"
-        :options="rabbitMqExchanges"
+        :options="formattedExchanges"
         optionLabel="name"
         placeholder="Select an Exchange"
         class="w-96 ms-auto"
@@ -102,13 +88,8 @@ const backToMessages = () => {
       ></Select>
       <Button @click="(e) => publishMessages(e)">Publish </Button>
     </div>
-    <div
-      v-for="(value, key) in rabbitMqMessage"
-      :key="key"
-      class="flex border-gray-200 border-b px-5 py-3"
-    >
-      <div class="basis-44 shrink-0">{{ key }}:</div>
-      <div class="text-green-600 shrink-o">{{ value }}</div>
-    </div>
+    <template v-if="message">
+      <MessageRabbitMq v-if="broker?.system === BROKER_SYSTEMS.RABBIT_MQ" :message="message" />
+    </template>
   </AppLayout>
 </template>

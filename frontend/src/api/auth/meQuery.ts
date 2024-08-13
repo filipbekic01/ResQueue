@@ -1,5 +1,5 @@
 import type { User } from '@/composables/identityComposable'
-import { API_URL } from '@/constants/Api'
+import { API_URL } from '@/constants/api'
 import { useQuery } from '@tanstack/vue-query'
 import axios from 'axios'
 

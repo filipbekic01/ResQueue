@@ -6,6 +6,7 @@ namespace Resqueue.Models.MongoDB;
 public class Broker
 {
     [BsonId] public ObjectId Id { get; set; }
+    public string System { get; set; }
     public string Name { get; set; }
     public string UserId { get; set; }
     public string Auth { get; set; }

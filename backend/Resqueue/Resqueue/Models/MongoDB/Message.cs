@@ -8,6 +8,7 @@ public class Message
     [BsonId] public ObjectId Id { get; set; }
     public ObjectId QueueId { get; set; }
     public BsonDocument RawData { get; set; }
+    public string Summary { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public DateTime? DeletedAt { get; set; }

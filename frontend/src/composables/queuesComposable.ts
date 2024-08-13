@@ -7,10 +7,12 @@ export function useQueues(brokerId: MaybeRef<string>) {
   const formattedQueues = computed(
     () =>
       query.data.value?.map((q) => {
-        return {
+        const item = {
           ...q,
           parsed: JSON.parse(q.rawData)
         }
+
+        return item
       }) ?? []
   )
 

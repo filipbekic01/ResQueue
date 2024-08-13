@@ -32,6 +32,7 @@ public static class BrokerEndpoints
                 var brokers = await collection.Find(filter).ToListAsync();
                 var dtos = brokers.Select(x => new BrokerDto(
                     x.Id.ToString(),
+                    x.System,
                     x.Name,
                     x.Port,
                     x.Url,
@@ -70,6 +71,7 @@ public static class BrokerEndpoints
 
                 var broker = new Broker
                 {
+                    System = BrokerSystems.RABBIT_MQ,
                     Name = dto.Name,
                     Auth = authBase64,
                     Port = dto.Port,
@@ -127,15 +129,12 @@ public static class BrokerEndpoints
                 var root = document.RootElement;
 
                 var queuesToAdd = new List<Queue>();
+                var queuesToUpdate = new List<Queue>();
                 var queueIdsToDelete = new List<ObjectId>();
 
                 foreach (var element in root.EnumerateArray())
                 {
-                    if (!element.TryGetProperty("name", out var nameProperty))
-                    {
-                        continue;
-                    }
-
+                    element.TryGetProperty("name", out var nameProperty);
                     var queueName = nameProperty.ToString();
 
                     if (!queues.Any(queue =>
@@ -147,6 +146,24 @@ public static class BrokerEndpoints
                             UserId = user.Id,
                             RawData = BsonDocument.Parse(element.GetRawText())
                         });
+                    }
+                    else
+                    {
+                        var queue = queues.Find(x =>
+                            x.RawData.TryGetValue("name", out var nameValue) && nameValue == queueName);
+
+                        if (queue is null)
+                        {
+                            continue;
+                        }
+
+                        var newRawData = BsonDocument.Parse(element.GetRawText());
+
+                        if (!queue.RawData.Equals(newRawData))
+                        {
+                            queue.RawData = newRawData;
+                            queuesToUpdate.Add(queue);
+                        }
                     }
                 }
 
@@ -176,6 +193,25 @@ public static class BrokerEndpoints
                 if (queuesToAdd.Count > 0)
                 {
                     await queuesCollection.InsertManyAsync(queuesToAdd);
+                }
+
+                if (queuesToUpdate.Count > 0)
+                {
+                    var bulkOperations = new List<WriteModel<Queue>>();
+
+                    foreach (var queue in queuesToUpdate)
+                    {
+                        var updateFilter = Builders<Queue>.Filter.Eq(q => q.Id, queue.Id);
+                        var updateDefinition = Builders<Queue>.Update.Set(q => q.RawData, queue.RawData);
+
+                        var updateOneModel = new UpdateOneModel<Queue>(updateFilter, updateDefinition);
+                        bulkOperations.Add(updateOneModel);
+                    }
+
+                    if (bulkOperations.Count > 0)
+                    {
+                        await queuesCollection.BulkWriteAsync(bulkOperations);
+                    }
                 }
 
                 // Sync exchanges

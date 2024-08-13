@@ -1,5 +1,6 @@
 export interface BrokerDto {
   id: string
+  system: string
   name: string
   port: number
   url: string
