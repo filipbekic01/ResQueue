@@ -24,6 +24,7 @@ public static class AuthEndpoints
             return Results.Ok(new UserDto()
             {
                 Id = user.Id.ToString(),
+                Email = user.Email,
                 UserConfig = new UserConfigDto
                 {
                     showBrokerSyncConfirm = user.UserConfig.showBrokerSyncConfirm,

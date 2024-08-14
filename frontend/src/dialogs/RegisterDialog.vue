@@ -1,14 +1,24 @@
 <script lang="ts" setup>
+import { useLoginMutation } from '@/api/auth/loginMutation'
+import { useMeQuery } from '@/api/auth/meQuery'
 import { useRegisterMutation } from '@/api/auth/registerMutation'
-import { ref } from 'vue'
+import { useIdentity } from '@/composables/identityComposable'
+import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
+import { inject, ref, type Ref } from 'vue'
 
+const { user } = useIdentity()
 const { mutateAsync: registerAsync } = useRegisterMutation()
+const { refetch } = useMeQuery()
+
+const { mutateAsync: loginAsync } = useLoginMutation()
 
 const email = ref('filip1994sm@gmail.com')
 const password = ref('Password1!')
 const passwordAgain = ref('Password1!')
 
 const passwordType = ref('password')
+
+const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 
 const togglePasswordType = () =>
   (passwordType.value = passwordType.value == 'password' ? 'text' : 'password')
@@ -22,7 +32,15 @@ const register = () => {
     email: email.value,
     password: password.value
   }).then(() => {
-    // login(email.value, password.value)
+    loginAsync({
+      email: email.value,
+      password: password.value
+    }).then(() => {
+      refetch().then((x) => {
+        user.value = x.data
+        dialogRef?.value.close()
+      })
+    })
   })
 }
 </script>
