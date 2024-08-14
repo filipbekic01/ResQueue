@@ -14,7 +14,6 @@ const { mutateAsync: loginAsync } = useLoginMutation()
 
 const email = ref('filip1994sm@gmail.com')
 const password = ref('Password1!')
-const passwordAgain = ref('Password1!')
 
 const passwordType = ref('password')
 
@@ -24,10 +23,6 @@ const togglePasswordType = () =>
   (passwordType.value = passwordType.value == 'password' ? 'text' : 'password')
 
 const register = () => {
-  if (password.value != passwordAgain.value) {
-    return
-  }
-
   registerAsync({
     email: email.value,
     password: password.value
