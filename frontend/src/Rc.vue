@@ -3,7 +3,6 @@ import { RouterView } from 'vue-router'
 import { useMeQuery } from './api/auth/meQuery'
 import { watch } from 'vue'
 import { useIdentity } from './composables/identityComposable'
-import ConfirmPopup from 'primevue/confirmpopup'
 import DynamicDialog from 'primevue/dynamicdialog'
 import Toast from 'primevue/toast'
 import ConfirmDialog from 'primevue/confirmdialog'
@@ -23,9 +22,10 @@ watch(
 </script>
 
 <template>
-  <!-- <ConfirmPopup></ConfirmPopup> -->
   <ConfirmDialog></ConfirmDialog>
+
   <DynamicDialog />
+
   <Toast position="top-right" />
 
   <RouterView />

@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Resqueue.Endpoints;
+using Resqueue.Features.Broker;
+using Resqueue.Features.Broker.SyncBroker;
+using Resqueue.Features.Broker.UpdateBroker;
 using Resqueue.Models;
 
 namespace Resqueue;
@@ -26,6 +29,9 @@ public class Program
         builder.Services.AddMongoDb();
 
         builder.Services.AddSingleton<IEmailSender<User>, DummyEmailSender>();
+        
+        builder.Services.AddTransient<ISyncBrokerFeature, SyncBrokerFeature>();
+        builder.Services.AddTransient<IUpdateBrokerFeature, UpdateBrokerFeature>();
 
         builder.Services.ConfigureApplicationCookie(options => { options.ExpireTimeSpan = TimeSpan.FromDays(30); });
 

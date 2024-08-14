@@ -10,7 +10,9 @@ const { user } = useIdentity()
   <WebLayout>
     <div class="rounded-t-xl xxx">
       <div class="text-center pt-20">
-        <div class="text-4xl font-bold mx-auto text-center">Welcome to Resqueue</div>
+        <div class="text-4xl font-bold mx-auto text-center">
+          Welcome, you <span class="border-b border-gray-400 border-dashed">developer!</span>
+        </div>
         <div class="mx-auto mt-4 text-xl text-center">
           Effortless Queue Management. <br />Streamline, Manage, and Requeue with Ease.
         </div>

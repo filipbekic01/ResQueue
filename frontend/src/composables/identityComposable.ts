@@ -1,11 +1,7 @@
-import { API_URL } from '@/constants/api'
+import type { UserDto } from '@/dtos/userDto'
 import { ref } from 'vue'
 
-export interface User {
-  email: string
-}
-
-const user = ref<User>()
+const user = ref<UserDto>()
 
 export function useIdentity() {
   return {
