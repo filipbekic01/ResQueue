@@ -1,7 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Resqueue.Models.MongoDB;
+namespace Resqueue.Models;
 
 public class Message
 {

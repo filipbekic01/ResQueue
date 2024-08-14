@@ -1,5 +1,7 @@
+using AspNetCore.Identity.Mongo;
+using MongoDB.Bson;
 using MongoDB.Driver;
-using Resqueue.Models.MongoDB;
+using Resqueue.Models;
 
 namespace Resqueue;
 
@@ -7,9 +9,21 @@ public static class MongoDbExtensions
 {
     public static IServiceCollection AddMongoDb(this IServiceCollection services)
     {
-        services.AddSingleton<IMongoClient, MongoClient>(sp =>
+        const string mongoOptionsConnectionString = "mongodb://localhost:27018";
+
+        services.AddIdentityMongoDbProvider<User, Role, ObjectId>(opt =>
+            {
+                opt.Password.RequiredLength = 6;
+                opt.Password.RequireDigit = false;
+                opt.Password.RequireLowercase = false;
+                opt.Password.RequireNonAlphanumeric = false;
+                opt.Password.RequireUppercase = false;
+            },
+            mongoOptions => { mongoOptions.ConnectionString = $"{mongoOptionsConnectionString}/identity"; });
+
+        services.AddSingleton<IMongoClient, MongoClient>(_ =>
         {
-            var settings = MongoClientSettings.FromConnectionString("mongodb://localhost:27018");
+            var settings = MongoClientSettings.FromConnectionString(mongoOptionsConnectionString);
             return new MongoClient(settings);
         });
 

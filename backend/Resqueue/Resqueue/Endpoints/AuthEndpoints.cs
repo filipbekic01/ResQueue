@@ -1,6 +1,7 @@
-using System.Security.Claims;
+using System.Threading.Channels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Resqueue.Dtos;
 using Resqueue.Models;
 
 namespace Resqueue.Endpoints;
@@ -12,7 +13,24 @@ public static class AuthEndpoints
         RouteGroupBuilder group = routes.MapGroup("auth")
             .RequireAuthorization();
 
-        group.MapGet("me", (ClaimsPrincipal user) => new { Email = user.Identity!.Name }).RequireAuthorization();
+        group.MapGet("me", async (HttpContext httpContext, UserManager<User> userManager) =>
+        {
+            var user = await userManager.GetUserAsync(httpContext.User);
+            if (user == null)
+            {
+                return Results.Unauthorized();
+            }
+
+            return Results.Ok(new UserDto()
+            {
+                Id = user.Id.ToString(),
+                UserConfig = new UserConfigDto
+                {
+                    showBrokerSyncConfirm = user.UserConfig.showBrokerSyncConfirm,
+                    showMessagesSyncConfirm = user.UserConfig.showMessagesSyncConfirm
+                }
+            });
+        }).RequireAuthorization();
 
         group.MapPost("logout", async (SignInManager<User> signInManager,
                 [FromBody] object empty) =>

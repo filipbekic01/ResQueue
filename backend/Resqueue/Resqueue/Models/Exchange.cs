@@ -1,12 +1,12 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Resqueue.Models.MongoDB;
+namespace Resqueue.Models;
 
-public class Queue
+public class Exchange
 {
     [BsonId] public ObjectId Id { get; set; }
     public ObjectId BrokerId { get; set; }
-    public string UserId { get; set; }
+    public ObjectId UserId { get; set; }
     public BsonDocument RawData { get; set; }
 }

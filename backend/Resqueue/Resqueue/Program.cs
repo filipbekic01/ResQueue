@@ -1,12 +1,6 @@
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using MongoDB.Driver;
+using Microsoft.AspNetCore.Identity;
 using Resqueue.Endpoints;
 using Resqueue.Models;
-using Resqueue.Models.MongoDB;
 
 namespace Resqueue;
 
@@ -16,7 +10,6 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddDbContext<AppDbContext>(db => db.UseSqlite("DataSource=local.db"));
         builder.Services.AddCors(corsOptions =>
         {
             corsOptions.AddPolicy("AllowAll", policy =>
@@ -30,17 +23,20 @@ public class Program
 
         builder.Services.AddHttpClient();
 
-        builder.Services.AddIdentityApiEndpoints<User>()
-            .AddEntityFrameworkStores<AppDbContext>();
-
         builder.Services.AddMongoDb();
 
+        builder.Services.AddSingleton<IEmailSender<User>, DummyEmailSender>();
+
         builder.Services.ConfigureApplicationCookie(options => { options.ExpireTimeSpan = TimeSpan.FromDays(30); });
+
         builder.Services.AddAuthorization();
 
         var app = builder.Build();
 
         app.UseCors("AllowAll");
+
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         app.MapIdentityApi<User>();
         app.MapAuthEndpoints();

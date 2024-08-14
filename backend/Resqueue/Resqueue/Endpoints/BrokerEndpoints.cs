@@ -8,7 +8,6 @@ using MongoDB.Driver;
 using Resqueue.Constants;
 using Resqueue.Dtos;
 using Resqueue.Models;
-using Resqueue.Models.MongoDB;
 
 namespace Resqueue.Endpoints;
 
@@ -71,13 +70,13 @@ public static class BrokerEndpoints
 
                 var broker = new Broker
                 {
+                    UserId = user.Id,
                     System = BrokerSystems.RABBIT_MQ,
                     Name = dto.Name,
                     Auth = authBase64,
                     Port = dto.Port,
                     Url = dto.Url,
                     Framework = string.IsNullOrEmpty(dto.Framework) ? Frameworks.NONE : dto.Framework.ToLower(),
-                    UserId = user.Id,
                     CreatedAt = dateTime,
                     UpdatedAt = dateTime
                 };
@@ -142,7 +141,7 @@ public static class BrokerEndpoints
                     {
                         queuesToAdd.Add(new Queue
                         {
-                            BrokerId = new ObjectId(brokerId),
+                            BrokerId = ObjectId.Parse(brokerId),
                             UserId = user.Id,
                             RawData = BsonDocument.Parse(element.GetRawText())
                         });
@@ -240,8 +239,8 @@ public static class BrokerEndpoints
                     {
                         exchangesToAdd.Add(new Exchange
                         {
-                            BrokerId = new ObjectId(brokerId),
                             UserId = user.Id,
+                            BrokerId = ObjectId.Parse(brokerId),
                             RawData = BsonDocument.Parse(element.GetRawText())
                         });
                     }

@@ -6,7 +6,6 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using Resqueue.Dtos;
 using Resqueue.Models;
-using Resqueue.Models.MongoDB;
 
 namespace Resqueue.Endpoints;
 
