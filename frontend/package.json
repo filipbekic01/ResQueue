@@ -16,19 +16,19 @@
   "dependencies": {
     "@primevue/themes": "^4.0.4",
     "@tanstack/vue-query": "^5.51.21",
-    "axios": "^1.7.3",
+    "axios": "^1.7.4",
     "date-fns": "^3.6.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.0.4",
     "quill": "^2.0.2",
     "vue": "^3.4.29",
-    "vue-router": "^4.4.2"
+    "vue-router": "^4.4.3"
   },
   "devDependencies": {
     "@primevue/auto-import-resolver": "^4.0.4",
     "@rushstack/eslint-patch": "^1.10.4",
     "@tsconfig/node20": "^20.1.4",
-    "@types/node": "^20.14.14",
+    "@types/node": "^20.14.15",
     "@vitejs/plugin-vue": "^5.1.2",
     "@vue/eslint-config-prettier": "^9.0.0",
     "@vue/eslint-config-typescript": "^13.0.0",
@@ -37,14 +37,14 @@
     "eslint": "^8.57.0",
     "eslint-plugin-vue": "^9.27.0",
     "npm-run-all2": "^6.2.2",
-    "postcss": "^8.4.40",
+    "postcss": "^8.4.41",
     "prettier": "^3.3.3",
     "sass": "^1.77.8",
     "sass-loader": "^16.0.0",
-    "tailwindcss": "^3.4.7",
+    "tailwindcss": "^3.4.10",
     "typescript": "~5.4.0",
-    "unplugin-vue-components": "^0.27.3",
-    "vite": "^5.3.5",
+    "unplugin-vue-components": "^0.27.4",
+    "vite": "^5.4.0",
     "vue-tsc": "^2.0.29"
   }
 }
