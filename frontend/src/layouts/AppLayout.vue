@@ -12,6 +12,15 @@ import { computed } from 'vue'
 import type { ResqueueRoute } from './SidebarRouterLink.vue'
 import SidebarRouterLink from './SidebarRouterLink.vue'
 
+withDefaults(
+  defineProps<{
+    hideHeader?: boolean
+  }>(),
+  {
+    hideHeader: false
+  }
+)
+
 const { user } = useIdentity()
 const { mutateAsync: logoutAsync } = useLogoutMutation()
 const { mutateAsync: deleteBrokerAsync } = useDeleteBrokerMutation()
@@ -154,7 +163,7 @@ setTimeout(() => {
     </div>
 
     <div class="bg-white flex flex-col grow rounded-2xl border border-gray-200 overflow-auto">
-      <div class="border-b px-5 py-3">
+      <div class="border-b px-5 py-3" v-if="!hideHeader">
         <div class="flex gap-2">
           <div><slot name="prepend"></slot></div>
           <div class="flex-col">
@@ -171,7 +180,7 @@ setTimeout(() => {
     </div>
   </div>
   <template v-else> Loading...</template>
-  <!-- <div class="bg-slate-300 flex flex-col">
+  <!-- <div class="bg-gray-300 flex flex-col">
       <div class="flex px-2">
         <div class="text-orange-700">RabbitMQ</div>
       </div>
@@ -189,7 +198,7 @@ setTimeout(() => {
       
       ----------------------- Archive?
       <div class="border-t flex flex-col mt-auto">
-        <div class="p-2 ms-auto text-slate-400">{{ user!.email }}</div>
+        <div class="p-2 ms-auto text-gray-400">{{ user!.email }}</div>
         <div class="p-2 cursor-pointer" @click="logout">Log out</div>
       </div>
     </div> -->

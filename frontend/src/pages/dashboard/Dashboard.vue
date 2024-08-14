@@ -29,7 +29,7 @@ function getRandomWelcomeBack() {
 </script>
 
 <template>
-  <AppLayout>
+  <AppLayout hide-header>
     <div class="text-3xl font-bold px-7 pt-4">Dashboard</div>
     <div class="text-gray-400 px-7">{{ getRandomWelcomeBack() }}</div>
     <div class="flex m-4">

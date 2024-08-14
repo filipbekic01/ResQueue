@@ -16,7 +16,7 @@ const router = useRouter()
 const { data: brokers } = useBrokersQuery()
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
 
-const { formattedQueues } = useQueues(props.brokerId)
+const { formattedQueues } = useQueues(computed(() => props.brokerId))
 const filteredFormattedQueues = computed(() =>
   formattedQueues.value.filter((x) => x.rawData.toLowerCase().includes(props.filter))
 )

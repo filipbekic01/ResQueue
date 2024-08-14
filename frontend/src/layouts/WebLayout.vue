@@ -135,21 +135,39 @@ const register = () => {
   </Dialog>
 
   <div class="h-screen">
-    <div class="container mx-auto">
-      <div class="border-b-2 flex gap-2">
-        <RouterLink class="p-2" :to="{ name: 'home' }">resqueue.io</RouterLink>
-        <div class="ms-auto flex">
+    <div class="max-w-[1024px] mx-auto">
+      <div class="flex gap-2 py-3 items-center">
+        <div class="flex items-center justify-end bg-black p-2.5 rounded-lg">
+          <i class="pi pi-database text-white rotate-90" style="font-size: 1.5rem"></i>
+        </div>
+        <RouterLink class="text-xl font-semibold p-2" :to="{ name: 'home' }">Resqueue</RouterLink>
+        <div class="flex gap-3 ms-2 items-center grow justify-center">
+          <RouterLink class="text-lg p-2" :to="{ name: 'home' }">Home</RouterLink>
+          <RouterLink class="text-lg p-2" :to="{ name: 'home' }">Pricing</RouterLink>
+          <RouterLink class="text-lg p-2" :to="{ name: 'home' }">Support</RouterLink>
+        </div>
+        <div class="ms-auto flex text-lg gap-3">
           <template v-if="user">
             <div class="p-2 text-gray-400">{{ user.email }}</div>
             <div class="p-2 cursor-pointer" @click="logout">Log out</div>
           </template>
           <template v-else>
-            <div @click="showLogin = true" class="p-2 cursor-pointer">Log in</div>
-            <div @click="showRegister = true" class="p-2 cursor-pointer">Register</div>
+            <Button outlined @click="showLogin = true" class="p-2 cursor-pointer">Log in</Button>
+            <Button @click="showRegister = true" class="p-2 cursor-pointer">Register</Button>
           </template>
         </div>
       </div>
       <slot></slot>
+      <div class="border-t mt-16 text-gray-600 py-4 text-center">
+        Developed by
+        <a
+          href="https://www.linkedin.com/in/filipbekic01/"
+          target="_blank"
+          class="hover:text-blue-500 border-b border-gray-400 border-dashed"
+          >Filip Bekic</a
+        >
+        — Republic of Serbia, Novi Sad
+      </div>
     </div>
   </div>
 </template>

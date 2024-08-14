@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import { useExchanges } from '@/composables/exchangesComposable'
+import { computed } from 'vue'
 
 const props = defineProps<{
   brokerId: string
 }>()
 
-const { formattedExchanges } = useExchanges(props.brokerId)
+const { formattedExchanges } = useExchanges(computed(() => props.brokerId))
 </script>
 
 <template>

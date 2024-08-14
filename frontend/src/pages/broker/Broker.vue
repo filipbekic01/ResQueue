@@ -26,10 +26,13 @@ const selectedTab = ref('2')
 const search = ref('')
 
 const syncBroker = (event: any) => {
+  console.log(event.currentTarget)
   confirm.require({
     target: event.currentTarget,
-    message: 'Do you want to sync the broker?',
+    message:
+      'Do you really want to sync with remote broker? You can turn off this dialog in settings.',
     icon: 'pi pi-info-circle',
+    header: 'Sync Broker',
     rejectProps: {
       label: 'Cancel',
       severity: 'secondary',
@@ -59,7 +62,7 @@ const syncBroker = (event: any) => {
 </script>
 
 <template>
-  <AppLayout>
+  <AppLayout hide-header>
     <template v-if="broker">
       <div class="flex p-4">
         <div
@@ -85,24 +88,32 @@ const syncBroker = (event: any) => {
               </div>
             </Badge>
           </div>
-          <div class="flex gap-2 text-gray-500 mt-auto">
-            <div>Created {{ formatDistanceToNow(broker.createdAt) }} ago</div>
-            •
-            <div>
+          <div class="flex gap-2 text-gray-500 mt-auto items-center">
+            <i
+              class="pi pi-sync"
+              :class="[
+                {
+                  'pi pi-spin': isPendingSyncBroker
+                }
+              ]"
+              style="font-size: 0.8rem"
+            ></i>
+            <div v-if="!isPendingSyncBroker">
               <template v-if="broker.syncedAt">
-                Synced {{ formatDistanceToNow(broker.syncedAt) ?? 'never' }} ago
+                Synced
+                <span class="underline hover:text-blue-500 cursor-pointer" @click="syncBroker">{{
+                  formatDistanceToNow(broker.syncedAt)
+                }}</span>
+                ago
               </template>
-              <template v-else>Never synced</template>
+              <template v-else>
+                <span class="underline hover:text-blue-500 cursor-pointer" @click="syncBroker">
+                  Click to sync broker
+                </span>
+              </template>
             </div>
+            <div v-else>Syncing...</div>
           </div>
-        </div>
-        <div class="ms-auto text-end flex-col flex">
-          <Button
-            :loading="isPendingSyncBroker"
-            @click="(e) => syncBroker(e)"
-            label="Sync"
-            icon="pi pi-sync"
-          ></Button>
         </div>
       </div>
       <Tabs v-model:value="selectedTab" class="overflow-auto grow">
@@ -110,7 +121,7 @@ const syncBroker = (event: any) => {
           <Tab value="0">Overview</Tab>
           <Tab value="1">Topics</Tab>
           <Tab value="2">Queues</Tab>
-          <div class="flex items-center grow px-3">
+          <div class="flex items-start px-3 gap-3 grow">
             <InputText
               class="max-w-96 grow ms-auto"
               placeholder="Search"
