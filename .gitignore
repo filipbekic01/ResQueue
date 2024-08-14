@@ -121,7 +121,6 @@ bld/
 node_modules/
 jspm_packages/
 wwwroot/
-public/
 logs/
 !wwwroot/README.md
 npm-debug.log*
