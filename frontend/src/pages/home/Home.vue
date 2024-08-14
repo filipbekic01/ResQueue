@@ -25,31 +25,31 @@ const { user } = useIdentity()
 
     <div class="flex gap-4 mt-20">
       <div class="bg-gray-200 flex-1 text-gray-700 rounded-2xl p-6">
-        <div class="text-xl font-bold flex gap-2">
+        <div class="text-xl font-bold flex gap-2 items-center">
           <div class="bg-[#ff6600] rounded-lg w-7 p-1.5"><img class="w-full" src="/rmq.svg" /></div>
           RabbitMQ
+          <i class="pi pi-check-circle ms-auto text-emerald-600" style="font-size: 1.15rem"></i>
         </div>
-        <div class="mt-3">Released on 2024/12/01</div>
       </div>
-      <div class="bg-gray-200 flex-1 text-gray-700 rounded-2xl p-6">
-        <div class="text-xl font-bold flex gap-2">
+      <div class="bg-gray-200 flex-1 rounded-2xl p-6">
+        <div class="text-xl font-bold flex gap-2 items-center">
           <div class="bg-[#007FFF] rounded-lg w-7 p-1.5">
             <img class="w-full" src="/azure.svg" />
           </div>
           Azure Service Bus
+          <span class="text-sm ms-auto text-gray-500 font-normal">coming soon...</span>
         </div>
-        <div class="mt-3">Under active development.</div>
       </div>
       <div class="bg-gray-200 flex-1 text-gray-700 rounded-2xl p-6">
-        <div class="text-xl font-bold flex gap-2">
-          <div class="bg-[#fff] rounded-lg w-7 p-1.5"><img class="w-full" src="/aws.svg" /></div>
+        <div class="text-xl font-bold flex gap-2 items-center">
+          <div class="bg-[#fff] rounded-lg w-7 p-1.5">
+            <img class="w-full" src="/aws.svg" />
+          </div>
           Amazon SQS
+          <span class="text-sm ms-auto text-gray-500 font-normal">coming soon...</span>
         </div>
-        <div class="mt-3">Under active development.</div>
       </div>
     </div>
-
-    <!-- <div class="text-center mt-20 mb-8 text-xl">Highlighted Features</div> -->
 
     <div class="flex gap-4 mt-16">
       <div class="bg-gray-200 flex-1 text-gray-700 rounded-2xl p-6">
@@ -108,6 +108,13 @@ const { user } = useIdentity()
           need, whenever you need it.
         </div>
       </div>
+    </div>
+    <div class="text-center mt-20 mb-8 text-xl">Our Clients</div>
+
+    <div class="flex items-center justify-center">
+      <a href="https://mydesigns.io" target="_blank">
+        <img src="/md.svg" class="opacity-35 w-64 hover:opacity-75 cursor-pointer" />
+      </a>
     </div>
   </WebLayout>
 </template>
