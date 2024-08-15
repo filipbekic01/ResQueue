@@ -14,6 +14,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { useMessagesQuery } from '@/api/messages/messagesQuery'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
+import Tag from 'primevue/tag'
 
 const props = defineProps<{
   brokerId: string
@@ -29,13 +30,13 @@ const { mutateAsync: syncMessagesAsync } = useSyncMessagesMutation()
 const { mutateAsync: publishMessagesAsync } = usePublishMessagesMutation()
 
 const { data: brokers } = useBrokersQuery()
-const { formattedExchanges } = useExchanges(props.brokerId)
-const { data: messages } = useMessagesQuery(props.queueId)
+const { formattedExchanges } = useExchanges(computed(() => props.brokerId))
+const { data: messages } = useMessagesQuery(computed(() => props.queueId))
 
-const { data: queues } = useQueuesQuery(props.brokerId)
+const { data: queues } = useQueuesQuery(computed(() => props.brokerId))
 
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
-const queue = computed(() => queues.value?.find((x) => x.id === props.queueId))
+// const queue = computed(() => queues.value?.find((x) => x.id === props.queueId))
 
 const backToBroker = () =>
   router.push({
@@ -45,9 +46,9 @@ const backToBroker = () =>
     }
   })
 
-const syncMessages = (event: any) => {
+const syncMessages = () => {
   confirm.require({
-    target: event.currentTarget,
+    header: 'Sync Messages',
     message: 'Do you want to import new messages?',
     icon: 'pi pi-info-circle',
     rejectProps: {
@@ -137,7 +138,7 @@ const publishMessages = (event: any) => {
     <template #description>Messages</template>
     <div class="flex gap-2 mx-5 my-3 items-start">
       <Button @click="backToBroker" outlined label="Broker" icon="pi pi-arrow-left"></Button>
-      <Button @click="(e) => syncMessages(e)" outlined label="Sync"></Button>
+      <Button @click="() => syncMessages()" outlined label="Sync"></Button>
       <Select
         v-model="selectedExchange"
         :options="formattedExchanges"
@@ -156,18 +157,44 @@ const publishMessages = (event: any) => {
       data-key="id"
     >
       <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
-      <Column field="id" header="Internal ID">
+      <Column field="id" header="Internal ID" class="w-[0%]">
         <template #body="{ data }">
-          <span
-            @click="openMessage(data.id)"
-            class="border-dashed border-gray-600 border-b hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
-            >{{ data.id }}</span
-          >
+          <div class="flex">
+            <span
+              @click="openMessage(data.id)"
+              class="border-dashed border-gray-600 border-b hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
+              >{{ data.id }}</span
+            >
+          </div>
         </template>
       </Column>
-      <Column field="summary" header="Summary"> </Column>
-      <Column field="createdAt" header="Created At">
-        <template #body="{ data }"> {{ formatDistanceToNow(data.createdAt) }} ago </template>
+      <Column field="flags" header="Marks" class="w-[0%]">
+        <template #body="{ data }">
+          <div class="flex gap-2">
+            <Tag v-if="!data.isReviewed" value="Error" severity="danger"></Tag>
+            <Tag v-if="!data.isReviewed" value="Reviewed" severity="success"></Tag>
+          </div>
+        </template>
+      </Column>
+      <Column field="summary" header="Summary">
+        <template #body="{ data }">
+          {{ data.summary ?? 'No summary available for this message.' }}
+        </template>
+      </Column>
+
+      <Column field="updatedAt" header="Updated" class="w-[0%]">
+        <template #body="{ data }"
+          ><div class="whitespace-nowrap">
+            {{ data.updatedAt ? `${formatDistanceToNow(data.updatedAt)}` : '-' }}
+          </div></template
+        >
+      </Column>
+      <Column field="createdAt" header="Created" class="w-[0%]">
+        <template #body="{ data }"
+          ><div class="whitespace-nowrap">
+            {{ formatDistanceToNow(data.createdAt) }} ago
+          </div></template
+        >
       </Column>
     </DataTable>
   </AppLayout>

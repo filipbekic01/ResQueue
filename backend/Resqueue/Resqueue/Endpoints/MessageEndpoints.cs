@@ -43,7 +43,10 @@ public static class MessageEndpoints
                 return Results.Ok(messages.Select(q => new MessageDto()
                 {
                     Id = q.Id.ToString(),
-                    RawData = q.RawData.ToString()
+                    RawData = q.RawData.ToString(),
+                    CreatedAt = q.CreatedAt,
+                    UpdatedAt = q.UpdatedAt,
+                    IsReviewed = q.IsReviewed
                 }));
             });
 

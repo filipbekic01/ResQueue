@@ -25,10 +25,8 @@ const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId
 const selectedTab = ref('2')
 const search = ref('')
 
-const syncBroker = (event: any) => {
-  console.log(event.currentTarget)
+const syncBroker = () => {
   confirm.require({
-    target: event.currentTarget,
     message:
       'Do you really want to sync with remote broker? You can turn off this dialog in settings.',
     icon: 'pi pi-info-circle',
@@ -137,8 +135,13 @@ const syncBroker = (event: any) => {
           <TabPanel value="1" class="overflow-auto flex grow">
             <BrokerExchanges v-if="selectedTab == '1'" :broker-id="brokerId" />
           </TabPanel>
-          <TabPanel value="2" class="overflow-auto flex grow">
-            <BrokerQueues v-if="selectedTab == '2'" :broker-id="brokerId" :filter="search" />
+          <TabPanel value="2" class="overflow-auto flex grow flex-col">
+            <BrokerQueues
+              v-if="selectedTab == '2'"
+              :broker-id="brokerId"
+              :filter="search"
+              @request-sync="syncBroker"
+            />
           </TabPanel>
         </TabPanels>
       </Tabs>

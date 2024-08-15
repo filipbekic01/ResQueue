@@ -1,12 +1,12 @@
 import { useQueuesQuery } from '@/api/queues/queuesQuery'
-import { computed, type MaybeRef } from 'vue'
+import { computed, type MaybeRef, type Ref } from 'vue'
 
-export function useQueues(brokerId: MaybeRef<string>) {
-  const query = useQueuesQuery(brokerId)
+export function useQueues(brokerId: MaybeRef<string>, pageIndex: Ref<number>) {
+  const query = useQueuesQuery(brokerId, pageIndex)
 
   const formattedQueues = computed(
     () =>
-      query.data.value?.map((q) => {
+      query.data.value?.items.map((q) => {
         const item = {
           ...q,
           parsed: JSON.parse(q.rawData)

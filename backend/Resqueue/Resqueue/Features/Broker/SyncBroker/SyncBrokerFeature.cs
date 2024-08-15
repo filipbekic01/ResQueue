@@ -26,6 +26,8 @@ public class SyncBrokerFeature(
 {
     public async Task<OperationResult<SyncBrokerFeatureResponse>> ExecuteAsync(SyncBrokerFeatureRequest request)
     {
+        var dt = DateTime.UtcNow;
+
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user == null)
         {
@@ -85,7 +87,8 @@ public class SyncBrokerFeature(
                 {
                     BrokerId = ObjectId.Parse(request.Id),
                     UserId = user.Id,
-                    RawData = BsonDocument.Parse(element.GetRawText())
+                    RawData = BsonDocument.Parse(element.GetRawText()),
+                    CreatedAt = dt
                 });
             }
             else

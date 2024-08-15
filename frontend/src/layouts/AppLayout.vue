@@ -97,7 +97,7 @@ const brokerRoutes = computed<ResqueueRoute[]>(() => {
     brokers.value?.map((broker) => ({
       id: ++id,
       label: broker.name ?? '',
-      icon: 'pi pi-inbox',
+      icon: 'pi pi-box',
       to: {
         name: 'broker',
         params: {
