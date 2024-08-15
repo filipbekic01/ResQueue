@@ -9,6 +9,7 @@ public class Message
     public ObjectId QueueId { get; set; }
     public BsonDocument RawData { get; set; }
     public string Summary { get; set; }
+    public bool IsReviewed { get; set; } = false;
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public DateTime? DeletedAt { get; set; }
