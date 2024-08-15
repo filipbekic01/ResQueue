@@ -30,8 +30,8 @@ public class SyncBrokerFeature(
         if (user == null)
         {
             return OperationResult<SyncBrokerFeatureResponse>.Failure(new ProblemDetails()
-            { 
-                Detail= "Unauthorized access",
+            {
+                Detail = "Unauthorized access",
                 Status = StatusCodes.Status401Unauthorized
             });
         }

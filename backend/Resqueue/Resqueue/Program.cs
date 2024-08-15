@@ -5,6 +5,7 @@ using Resqueue.Features.Broker.SyncBroker;
 using Resqueue.Features.Broker.UpdateBroker;
 using Resqueue.Features.Messages.ArchiveMessages;
 using Resqueue.Features.Messages.PublishMessages;
+using Resqueue.Features.Messages.ReviewMessages;
 using Resqueue.Features.Messages.SyncMessages;
 using Resqueue.Models;
 
@@ -38,6 +39,7 @@ public class Program
         builder.Services.AddTransient<ISyncMessagesFeature, SyncMessagesFeature>();
         builder.Services.AddTransient<IPublishMessagesFeature, PublishMessagesFeature>();
         builder.Services.AddTransient<IArchiveMessagesFeature, ArchiveMessagesFeature>();
+        builder.Services.AddTransient<IReviewMessagesFeature, ReviewMessagesFeature>();
 
         builder.Services.ConfigureApplicationCookie(options => { options.ExpireTimeSpan = TimeSpan.FromDays(30); });
 

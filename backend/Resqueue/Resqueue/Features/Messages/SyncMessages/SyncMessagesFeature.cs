@@ -85,6 +85,7 @@ public class SyncMessagesFeature(
             messages.Add(new Message()
             {
                 QueueId = queue.Id,
+                UserId = user.Id,
                 RawData = BsonDocument.Parse(element.GetRawText()),
                 Summary = "Contextual summary of messages",
                 CreatedAt = DateTime.UtcNow

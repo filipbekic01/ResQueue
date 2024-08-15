@@ -1,5 +1,3 @@
-using System.Net.Http.Headers;
-using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
@@ -7,6 +5,7 @@ using MongoDB.Driver;
 using Resqueue.Dtos;
 using Resqueue.Features.Messages.ArchiveMessages;
 using Resqueue.Features.Messages.PublishMessages;
+using Resqueue.Features.Messages.ReviewMessages;
 using Resqueue.Features.Messages.SyncMessages;
 using Resqueue.Filters;
 using Resqueue.Models;
@@ -75,8 +74,23 @@ public static class MessageEndpoints
                     : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
             }).AddRetryFilter();
 
+        group.MapPost("review",
+            async (IReviewMessagesFeature publishMessagesFeature, HttpContext httpContext,
+                [FromBody] ReviewMessagesDto dto) =>
+            {
+                var result = await publishMessagesFeature.ExecuteAsync(new ReviewMessagesFeatureRequest(
+                    ClaimsPrincipal: httpContext.User,
+                    Dto: dto
+                ));
+
+                return result.IsSuccess
+                    ? Results.Ok(result.Value)
+                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+            }).AddRetryFilter();
+
         group.MapDelete("{id}",
-            async (IArchiveMessagesFeature archiveMessagesFeature, ArchiveMessagesDto dto, HttpContext httpContext,
+            async (IArchiveMessagesFeature archiveMessagesFeature, [FromBody] ArchiveMessagesDto dto,
+                HttpContext httpContext,
                 string id) =>
             {
                 var result = await archiveMessagesFeature.ExecuteAsync(new ArchiveMessagesFeatureRequest(

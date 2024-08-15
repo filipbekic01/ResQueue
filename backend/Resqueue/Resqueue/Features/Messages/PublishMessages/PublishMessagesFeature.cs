@@ -37,6 +37,7 @@ public class PublishMessagesFeature(
         var exchange = await exchangesCollection
             .Find(Builders<Exchange>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Dto.ExchangeId)))
             .FirstOrDefaultAsync();
+
         if (exchange == null)
         {
             return OperationResult<PublishMessagesFeatureResponse>.Failure(new ProblemDetails()
