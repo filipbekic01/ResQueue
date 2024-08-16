@@ -156,7 +156,7 @@ const brokerRoutes = computed<ResqueueRoute[]>(() => {
     </div>
 
     <div class="bg-white flex flex-col grow rounded-2xl border border-gray-200 overflow-auto">
-      <div class="border-b px-5 py-3" v-if="!hideHeader">
+      <div class="border-b px-4 py-3" v-if="!hideHeader">
         <div class="flex gap-2">
           <div><slot name="prepend"></slot></div>
           <div class="flex-col">

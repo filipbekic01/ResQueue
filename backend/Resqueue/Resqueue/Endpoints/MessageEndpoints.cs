@@ -91,9 +91,10 @@ public static class MessageEndpoints
                     {
                         Id = q.Id.ToString(),
                         RawData = q.RawData.ToString(),
+                        Summary = q.Summary,
+                        IsReviewed = q.IsReviewed,
                         CreatedAt = q.CreatedAt,
-                        UpdatedAt = q.UpdatedAt,
-                        IsReviewed = q.IsReviewed
+                        UpdatedAt = q.UpdatedAt
                     }).ToList(),
                     PageIndex = pageIndex,
                     TotalPages = totalPages,

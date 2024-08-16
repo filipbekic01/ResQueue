@@ -6,7 +6,7 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Paginator, { type PageState } from 'primevue/paginator'
 import { usePaginatedQueuesQuery } from '@/api/queues/paginatedQueuesQuery'
-import { useRabbitMqQueues } from '@/composables/queuesComposable'
+import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
 
 const emit = defineEmits<{
   (e: 'request-sync'): void

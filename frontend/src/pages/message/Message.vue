@@ -10,7 +10,6 @@ import MessageRabbitMq from './MessageRabbitMq.vue'
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { BROKER_SYSTEMS } from '@/constants/brokerSystems'
 import { useMessageQuery } from '@/api/messages/messageQuery'
-import { useRabbitMqMessage } from '@/composables/rabbitMqMessageComposable'
 
 const props = defineProps<{
   brokerId: string
@@ -102,7 +101,7 @@ const backToMessages = () => {
       {{ message?.id }}</template
     >
 
-    <div class="flex gap-2 mx-5 mt-3">
+    <div class="flex gap-2 px-4 py-2 items-start border-b">
       <Button outlined @click="backToMessages" icon="pi pi-arrow-left" label="Messages"></Button>
       <Select
         v-model="selectedExchange"
@@ -112,7 +111,12 @@ const backToMessages = () => {
         class="w-96 ms-auto"
         :virtualScrollerOptions="{ itemSize: 38, style: 'width:900px' }"
       ></Select>
-      <Button @click="(e) => publishMessages(e)" label="Publish"></Button>
+      <Button
+        @click="(e) => publishMessages(e)"
+        label="Publish"
+        iconPos="right"
+        icon="pi pi-send"
+      ></Button>
     </div>
     <template v-if="message">
       <MessageRabbitMq v-if="broker?.system === BROKER_SYSTEMS.RABBIT_MQ" :message="message" />

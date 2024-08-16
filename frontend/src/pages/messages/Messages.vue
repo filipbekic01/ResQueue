@@ -22,6 +22,7 @@ import type { RabbitMqMessageDto } from '@/dtos/rabbitMqMessageDto'
 import { useArchiveMessagesMutation } from '@/api/messages/archiveMessagesMutation'
 import type { PageState } from 'primevue/paginator'
 import { usePaginatedMessagesQuery } from '@/api/messages/paginatedMessagesQuery'
+import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
 
 const props = defineProps<{
   brokerId: string
@@ -42,13 +43,17 @@ const pageIndex = ref(0)
 
 const { data: brokers } = useBrokersQuery()
 const { formattedExchanges } = useExchanges(computed(() => props.brokerId))
-const { data: paginatedMessages } = usePaginatedMessagesQuery(
+const { data: paginatedMessages, isPending } = usePaginatedMessagesQuery(
   computed(() => props.queueId),
   pageIndex
 )
 
 const { data: queue } = useQueueQuery(computed(() => props.queueId))
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
+
+const queues = computed(() => (queue.value ? [queue.value] : undefined))
+const { rabbitMqQueues } = useRabbitMqQueues(queues)
+const rabbitMqQueue = computed(() => rabbitMqQueues.value[0] ?? undefined)
 
 const backToBroker = () =>
   router.push({
@@ -213,6 +218,10 @@ const archiveMessages = () => {
 const changePage = (e: PageState) => {
   pageIndex.value = e.page
 }
+
+const syncLabel = computed(() => {
+  return `Pull (${rabbitMqQueue.value?.parsed.messages})`
+})
 </script>
 
 <template>
@@ -231,9 +240,15 @@ const changePage = (e: PageState) => {
       }}</span></template
     >
     <template #description>Messages</template>
-    <div class="flex gap-2 mx-5 my-3 items-start">
+    <div class="flex gap-2 px-4 py-2 items-start border-b">
       <Button @click="backToBroker" outlined label="Broker" icon="pi pi-arrow-left"></Button>
-      <Button @click="() => syncMessages()" outlined label="Sync" icon="pi pi-sync"></Button>
+      <Button
+        @click="() => syncMessages()"
+        outlined
+        :label="syncLabel"
+        icon="pi pi-download"
+      ></Button>
+      <Button outlined label="Refresh Table" icon="pi pi-refresh"></Button>
       <Button
         @click="() => reviewMessages()"
         outlined
@@ -245,7 +260,7 @@ const changePage = (e: PageState) => {
         @click="() => archiveMessages()"
         outlined
         :disabled="!selectedMessages.length"
-        label="Archive"
+        severity="danger"
         icon="pi pi-trash"
       ></Button>
 
@@ -257,55 +272,77 @@ const changePage = (e: PageState) => {
         class="w-96 ms-auto"
         :virtualScrollerOptions="{ itemSize: 38, style: 'width:900px' }"
       ></Select>
-      <Button @click="publishMessages" label="Publish" icon="pi pi-send" icon-pos="right" />
+      <Button
+        @click="publishMessages"
+        :disabled="!selectedMessageIds.length"
+        label="Requeue"
+        icon="pi pi-send"
+        icon-pos="right"
+      />
     </div>
-    <DataTable v-model:selection="selectedMessages" :value="paginatedMessages?.items" data-key="id">
-      <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
-      <Column field="id" header="ID" class="w-[0%]">
-        <template #body="{ data }">
-          <div class="flex">
-            <span
-              @click="openMessage(data.id)"
-              class="border-dashed border-gray-600 border-b hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
-              >{{ data.id }}</span
-            >
-          </div>
-        </template>
-      </Column>
-      <Column field="flags" header="Marks" class="w-[0%]">
-        <template #body="{ data }">
-          <div class="flex gap-2">
-            <Tag value="E" severity="danger"></Tag>
-            <Tag v-if="data.isReviewed" value="Reviewed" severity="success"></Tag>
-          </div>
-        </template>
-      </Column>
-      <Column field="summary" header="Summary">
-        <template #body="{ data }">
-          {{ data.summary ?? 'No summary available for this message.' }}
-        </template>
-      </Column>
+    <template v-if="isPending">
+      <div class="p-5"><i class="pi pi-spinner pi-spin me-2"></i>Loading queues...</div>
+    </template>
+    <template v-else-if="paginatedMessages?.items.length">
+      <DataTable
+        v-model:selection="selectedMessages"
+        :value="paginatedMessages?.items"
+        data-key="id"
+      >
+        <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
 
-      <Column field="updatedAt" header="Updated" class="w-[0%]">
-        <template #body="{ data }"
-          ><div class="whitespace-nowrap">
-            {{ data.updatedAt ? `${formatDistanceToNow(data.updatedAt)}` : '-' }}
-          </div></template
-        >
-      </Column>
-      <Column field="createdAt" header="Created" class="w-[0%]">
-        <template #body="{ data }"
-          ><div class="whitespace-nowrap">
-            {{ formatDistanceToNow(data.createdAt) }} ago
-          </div></template
-        >
-      </Column>
-    </DataTable>
-    <Paginator
-      @page="changePage"
-      :rows="50"
-      :always-show="false"
-      :total-records="paginatedMessages?.totalCount"
-    ></Paginator>
+        <Column field="id" header="Message" class="w-[0%]">
+          <template #body="{ data }">
+            <div class="flex">
+              <span
+                @click="openMessage(data.id)"
+                class="border-dashed border-gray-600 border-b hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
+                >{{ data.id }}</span
+              >
+            </div>
+          </template>
+        </Column>
+        <Column field="flags" class="w-[0%]">
+          <template #body="{ data }">
+            <div class="flex gap-2">
+              <Tag v-if="data.isReviewed" icon="pi pi-check"></Tag>
+            </div>
+          </template>
+        </Column>
+        <Column field="summary" header="Summary">
+          <template #body="{ data }">
+            {{ data.summary ?? 'No summary available for this message.' }}
+          </template>
+        </Column>
+
+        <Column field="updatedAt" header="Updated" class="w-[0%]">
+          <template #body="{ data }"
+            ><div class="whitespace-nowrap text-gray-500">
+              {{ data.updatedAt ? `${formatDistanceToNow(data.updatedAt)}` : 'never' }}
+            </div></template
+          >
+        </Column>
+        <Column field="createdAt" header="Created" class="w-[0%]">
+          <template #body="{ data }"
+            ><div class="whitespace-nowrap">
+              {{ formatDistanceToNow(data.createdAt) }} ago
+            </div></template
+          >
+        </Column>
+      </DataTable>
+      <Paginator
+        @page="changePage"
+        :rows="50"
+        :always-show="false"
+        :total-records="paginatedMessages?.totalCount"
+      ></Paginator>
+    </template>
+    <template v-else>
+      <div class="flex items-center flex-col mt-24 grow">
+        <img src="/ebox.svg" class="w-56 opacity-50 pb-5" />
+        <div class="text-lg">No Messages</div>
+        <div class="">Make sure you pull the messages.</div>
+      </div>
+    </template>
   </AppLayout>
 </template>
