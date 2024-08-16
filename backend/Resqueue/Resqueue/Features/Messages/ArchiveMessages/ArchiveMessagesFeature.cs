@@ -8,7 +8,7 @@ using Resqueue.Models;
 
 namespace Resqueue.Features.Messages.ArchiveMessages;
 
-public record ArchiveMessagesFeatureRequest(ClaimsPrincipal ClaimsPrincipal, string QueueId, ArchiveMessagesDto Dto);
+public record ArchiveMessagesFeatureRequest(ClaimsPrincipal ClaimsPrincipal, ArchiveMessagesDto Dto);
 
 public record ArchiveMessagesFeatureResponse();
 
@@ -20,6 +20,8 @@ public class ArchiveMessagesFeature(
     public async Task<OperationResult<ArchiveMessagesFeatureResponse>> ExecuteAsync(
         ArchiveMessagesFeatureRequest request)
     {
+        var dt = DateTime.UtcNow;
+
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user == null)
         {
@@ -31,11 +33,8 @@ public class ArchiveMessagesFeature(
 
         var filter = Builders<Message>.Filter.And(
             Builders<Message>.Filter.In(m => m.Id, request.Dto.Ids.Select(ObjectId.Parse)),
-            Builders<Message>.Filter.Eq(m => m.QueueId, ObjectId.Parse(request.QueueId)),
             Builders<Message>.Filter.Eq(m => m.UserId, user.Id)
         );
-
-        var dt = DateTime.UtcNow;
 
         var update = Builders<Message>.Update.Set(m => m.DeletedAt, dt);
 

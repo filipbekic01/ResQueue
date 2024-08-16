@@ -2,21 +2,17 @@ import axios from 'axios'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { API_URL } from '@/constants/api'
 
-export function useSyncMessagesMutation() {
+export function useArchiveMessagesMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (queueId: string) =>
-      axios.post(
-        `${API_URL}/messages/sync`,
-        {},
-        {
-          params: {
-            queueId
-          },
-          withCredentials: true
-        }
-      ),
+    mutationFn: (ids: string[]) =>
+      axios.delete(`${API_URL}/messages`, {
+        data: {
+          ids
+        },
+        withCredentials: true
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['messages'] }) // for specific key please, check other places too
     }

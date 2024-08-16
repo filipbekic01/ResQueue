@@ -2,7 +2,6 @@
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { usePublishMessagesMutation } from '@/api/messages/publishMessagesMutation'
 import { useSyncMessagesMutation } from '@/api/messages/syncMessagesMutation'
-import { useQueuesQuery } from '@/api/queues/queuesQuery'
 import { useExchanges } from '@/composables/exchangesComposable'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Button from 'primevue/button'
@@ -11,10 +10,18 @@ import { useToast } from 'primevue/usetoast'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { formatDistanceToNow } from 'date-fns'
-import { useMessagesQuery } from '@/api/messages/messagesQuery'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Tag from 'primevue/tag'
+import { useQueueQuery } from '@/api/queues/queueQuery'
+import {
+  useReviewMessagesMutation,
+  type ReviewMessagesRequest
+} from '@/api/messages/useReviewMessagesMutation'
+import type { RabbitMqMessageDto } from '@/dtos/rabbitMqMessageDto'
+import { useArchiveMessagesMutation } from '@/api/messages/archiveMessagesMutation'
+import type { PageState } from 'primevue/paginator'
+import { usePaginatedMessagesQuery } from '@/api/messages/paginatedMessagesQuery'
 
 const props = defineProps<{
   brokerId: string
@@ -28,15 +35,20 @@ const toast = useToast()
 
 const { mutateAsync: syncMessagesAsync } = useSyncMessagesMutation()
 const { mutateAsync: publishMessagesAsync } = usePublishMessagesMutation()
+const { mutateAsync: reviewMessagesAsync } = useReviewMessagesMutation()
+const { mutateAsync: archiveMessagesAsync } = useArchiveMessagesMutation()
+
+const pageIndex = ref(0)
 
 const { data: brokers } = useBrokersQuery()
 const { formattedExchanges } = useExchanges(computed(() => props.brokerId))
-const { data: messages } = useMessagesQuery(computed(() => props.queueId))
+const { data: paginatedMessages } = usePaginatedMessagesQuery(
+  computed(() => props.queueId),
+  pageIndex
+)
 
-const { data: queues } = useQueuesQuery(computed(() => props.brokerId))
-
+const { data: queue } = useQueueQuery(computed(() => props.queueId))
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
-// const queue = computed(() => queues.value?.find((x) => x.id === props.queueId))
 
 const backToBroker = () =>
   router.push({
@@ -85,12 +97,48 @@ const openMessage = (id: string) => {
   })
 }
 
-const selectedMessages = ref()
+const selectedMessages = ref<RabbitMqMessageDto[]>([])
+const selectedMessageIds = computed(() => selectedMessages.value.map((x) => x.id))
 const selectedExchange = ref()
 
-const publishMessages = (event: any) => {
+const reviewMessages = () => {
+  const notReviewedIds =
+    paginatedMessages.value?.items
+      ?.filter((x) => selectedMessageIds.value.includes(x.id))
+      .filter((x) => !x.isReviewed)
+      .map((x) => x.id) ?? []
+
+  const reviewedIds =
+    paginatedMessages.value?.items
+      ?.filter((x) => selectedMessageIds.value.includes(x.id))
+      .filter((x) => x.isReviewed)
+      .map((x) => x.id) ?? []
+
+  let request: ReviewMessagesRequest = {
+    idsToFalse: [],
+    idsToTrue: []
+  }
+
+  if (reviewedIds.length && !notReviewedIds.length) {
+    request.idsToFalse = reviewedIds
+  } else if (request.idsToFalse.length && request.idsToTrue.length) {
+    request.idsToTrue = notReviewedIds
+  } else {
+    request.idsToTrue = notReviewedIds
+  }
+
+  reviewMessagesAsync(request).then(() => {
+    toast.add({
+      severity: 'info',
+      summary: 'Marked as reviewed',
+      detail: `Messages successfully reviewed`,
+      life: 3000
+    })
+  })
+}
+
+const publishMessages = () => {
   confirm.require({
-    target: event.currentTarget,
     message: `Do you want to publish ${selectedMessages.value.length} messages?`,
     icon: 'pi pi-info-circle',
     rejectProps: {
@@ -105,18 +153,65 @@ const publishMessages = (event: any) => {
     accept: () => {
       publishMessagesAsync({
         exchangeId: selectedExchange.value.id,
-        messageIds: selectedMessages.value.map((msg: any) => msg.id)
+        messageIds: selectedMessages.value.map((x) => x.id)
       }).then(() => {
         toast.add({
           severity: 'info',
-          summary: 'Publish Completed!',
-          detail: `Messages published to exchange _!`,
+          summary: 'Publish completed',
+          detail: `Messages published to exchange ...`,
           life: 3000
         })
       })
     },
     reject: () => {}
   })
+}
+
+const reviewMessagesLabel = computed(() => {
+  let message = 'Mark as Reviewed'
+
+  if (
+    selectedMessageIds.value?.length >= 1 &&
+    paginatedMessages.value?.items
+      ?.filter((x) => selectedMessageIds.value.includes(x.id))
+      .every((x) => x.isReviewed)
+  ) {
+    message = 'Mark as Unreviewed'
+  }
+
+  return message
+})
+
+const archiveMessages = () => {
+  confirm.require({
+    header: 'Archive Messages',
+    message: `Do you want to archive ${selectedMessages.value.length} messages?`,
+    icon: 'pi pi-info-circle',
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Publish',
+      severity: ''
+    },
+    accept: () => {
+      archiveMessagesAsync(selectedMessageIds.value).then(() => {
+        toast.add({
+          severity: 'info',
+          summary: 'Archived messages',
+          detail: `Messages successfully reviewed!`,
+          life: 3000
+        })
+      })
+    },
+    reject: () => {}
+  })
+}
+
+const changePage = (e: PageState) => {
+  pageIndex.value = e.page
 }
 </script>
 
@@ -138,7 +233,22 @@ const publishMessages = (event: any) => {
     <template #description>Messages</template>
     <div class="flex gap-2 mx-5 my-3 items-start">
       <Button @click="backToBroker" outlined label="Broker" icon="pi pi-arrow-left"></Button>
-      <Button @click="() => syncMessages()" outlined label="Sync"></Button>
+      <Button @click="() => syncMessages()" outlined label="Sync" icon="pi pi-sync"></Button>
+      <Button
+        @click="() => reviewMessages()"
+        outlined
+        :disabled="!selectedMessages.length"
+        :label="reviewMessagesLabel"
+        icon="pi pi-check"
+      ></Button>
+      <Button
+        @click="() => archiveMessages()"
+        outlined
+        :disabled="!selectedMessages.length"
+        label="Archive"
+        icon="pi pi-trash"
+      ></Button>
+
       <Select
         v-model="selectedExchange"
         :options="formattedExchanges"
@@ -147,17 +257,11 @@ const publishMessages = (event: any) => {
         class="w-96 ms-auto"
         :virtualScrollerOptions="{ itemSize: 38, style: 'width:900px' }"
       ></Select>
-      <Button @click="(e) => publishMessages(e)" label="Publish" />
+      <Button @click="publishMessages" label="Publish" icon="pi pi-send" icon-pos="right" />
     </div>
-    <DataTable
-      paginator
-      :rows="20"
-      v-model:selection="selectedMessages"
-      :value="messages"
-      data-key="id"
-    >
+    <DataTable v-model:selection="selectedMessages" :value="paginatedMessages?.items" data-key="id">
       <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
-      <Column field="id" header="Internal ID" class="w-[0%]">
+      <Column field="id" header="ID" class="w-[0%]">
         <template #body="{ data }">
           <div class="flex">
             <span
@@ -171,8 +275,8 @@ const publishMessages = (event: any) => {
       <Column field="flags" header="Marks" class="w-[0%]">
         <template #body="{ data }">
           <div class="flex gap-2">
-            <Tag v-if="!data.isReviewed" value="Error" severity="danger"></Tag>
-            <Tag v-if="!data.isReviewed" value="Reviewed" severity="success"></Tag>
+            <Tag value="E" severity="danger"></Tag>
+            <Tag v-if="data.isReviewed" value="Reviewed" severity="success"></Tag>
           </div>
         </template>
       </Column>
@@ -197,5 +301,11 @@ const publishMessages = (event: any) => {
         >
       </Column>
     </DataTable>
+    <Paginator
+      @page="changePage"
+      :rows="50"
+      :always-show="false"
+      :total-records="paginatedMessages?.totalCount"
+    ></Paginator>
   </AppLayout>
 </template>

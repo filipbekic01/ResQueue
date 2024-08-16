@@ -108,13 +108,6 @@ const brokerRoutes = computed<ResqueueRoute[]>(() => {
 
   return routes
 })
-
-// todo: do it properly
-setTimeout(() => {
-  if (!user.value) {
-    router.push({ name: 'home' })
-  }
-}, 1500)
 </script>
 
 <template>

@@ -9,7 +9,8 @@ import { useRouter } from 'vue-router'
 import MessageRabbitMq from './MessageRabbitMq.vue'
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { BROKER_SYSTEMS } from '@/constants/brokerSystems'
-import { useMessagesQuery } from '@/api/messages/messagesQuery'
+import { useMessageQuery } from '@/api/messages/messageQuery'
+import { useRabbitMqMessage } from '@/composables/rabbitMqMessageComposable'
 
 const props = defineProps<{
   brokerId: string
@@ -25,8 +26,7 @@ const toast = useToast()
 const { data: brokers } = useBrokersQuery()
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
 const { formattedExchanges } = useExchanges(props.brokerId)
-const { data: messages } = useMessagesQuery(props.queueId)
-const message = computed(() => messages.value?.find((x) => x.id === props.messageId))
+const { data: message } = useMessageQuery(computed(() => props.messageId))
 
 const { mutateAsync: publishMessagesAsync } = usePublishMessagesMutation()
 

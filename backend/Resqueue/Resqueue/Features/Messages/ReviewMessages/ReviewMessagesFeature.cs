@@ -19,6 +19,7 @@ public class ReviewMessagesFeature(
 {
     public async Task<OperationResult<ReviewMessagesFeatureResponse>> ExecuteAsync(ReviewMessagesFeatureRequest request)
     {
+        var dt = DateTime.UtcNow;
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user == null)
         {
@@ -28,14 +29,30 @@ public class ReviewMessagesFeature(
             });
         }
 
-        var filter = Builders<Message>.Filter.And(
-            Builders<Message>.Filter.In(m => m.Id, request.Dto.Ids.Select(ObjectId.Parse)),
+        var bulkOperations = new List<WriteModel<Message>>();
+
+        var filterToTrue = Builders<Message>.Filter.And(
+            Builders<Message>.Filter.In(m => m.Id, request.Dto.IdsToTrue.Select(ObjectId.Parse)),
             Builders<Message>.Filter.Eq(m => m.UserId, user.Id)
         );
+        var updateToTrue = Builders<Message>.Update
+            .Set(m => m.UpdatedAt, dt)
+            .Set(m => m.IsReviewed, true);
+        bulkOperations.Add(new UpdateManyModel<Message>(filterToTrue, updateToTrue));
 
-        var update = Builders<Message>.Update.Set(m => m.IsReviewed, true);
+        var filterToFalse = Builders<Message>.Filter.And(
+            Builders<Message>.Filter.In(m => m.Id, request.Dto.IdsToFalse.Select(ObjectId.Parse)),
+            Builders<Message>.Filter.Eq(m => m.UserId, user.Id)
+        );
+        var update = Builders<Message>.Update
+            .Set(m => m.UpdatedAt, dt)
+            .Set(m => m.IsReviewed, false);
+        bulkOperations.Add(new UpdateManyModel<Message>(filterToFalse, update));
 
-        await messagesCollection.UpdateManyAsync(filter, update);
+        if (bulkOperations.Count != 0)
+        {
+            await messagesCollection.BulkWriteAsync(bulkOperations);
+        }
 
         return OperationResult<ReviewMessagesFeatureResponse>.Success(new ReviewMessagesFeatureResponse());
     }

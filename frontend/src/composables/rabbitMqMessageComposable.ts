@@ -2,11 +2,17 @@ import { computed, toValue, type MaybeRef } from 'vue'
 import type { MessageDto } from '@/dtos/messageDto'
 import type { RabbitMqMessageDto } from '@/dtos/rabbitMqMessageDto'
 
-export function useRabbitMqMessage(dto: MaybeRef<MessageDto>) {
-  const message = computed(() => {
+export function useRabbitMqMessage(message: MaybeRef<MessageDto | undefined>) {
+  const rabbitMqMessage = computed(() => {
+    const value = toValue(message)
+
+    if (!value) {
+      return undefined
+    }
+
     const parsedMessage: RabbitMqMessageDto = {
-      ...toValue(dto),
-      parsed: JSON.parse(toValue(dto).rawData)
+      ...toValue(value),
+      parsed: JSON.parse(value.rawData)
     }
 
     parsedMessage.parsed.payload = parsedMessage.parsed.payload
@@ -17,6 +23,6 @@ export function useRabbitMqMessage(dto: MaybeRef<MessageDto>) {
   })
 
   return {
-    message
+    rabbitMqMessage
   }
 }

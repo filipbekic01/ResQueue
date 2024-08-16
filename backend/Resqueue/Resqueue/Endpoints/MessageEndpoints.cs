@@ -19,9 +19,9 @@ public static class MessageEndpoints
         RouteGroupBuilder group = routes.MapGroup("messages")
             .RequireAuthorization();
 
-        group.MapGet("{id}",
+        group.MapGet("",
             async (IMongoCollection<Message> messagesCollection, UserManager<User> userManager, HttpContext httpContext,
-                string id) =>
+                [FromQuery(Name = "ids[]")] string[] ids) =>
             {
                 var user = await userManager.GetUserAsync(httpContext.User);
                 if (user == null)
@@ -29,16 +29,15 @@ public static class MessageEndpoints
                     return Results.Unauthorized();
                 }
 
-                if (!ObjectId.TryParse(id, out var queueId))
-                {
-                    return Results.BadRequest("Invalid Broker ID format.");
-                }
-
                 var filter = Builders<Message>.Filter.And(
-                    Builders<Message>.Filter.Eq(q => q.QueueId, queueId)
+                    Builders<Message>.Filter.In(q => q.Id, ids.Select(ObjectId.Parse)),
+                    Builders<Message>.Filter.Eq(q => q.UserId, user.Id),
+                    Builders<Message>.Filter.Eq(q => q.DeletedAt, null)
                 );
 
-                var messages = await messagesCollection.Find(filter).ToListAsync();
+                var sort = Builders<Message>.Sort.Descending(q => q.Id);
+
+                var messages = await messagesCollection.Find(filter).Sort(sort).ToListAsync();
 
                 return Results.Ok(messages.Select(q => new MessageDto()
                 {
@@ -50,12 +49,65 @@ public static class MessageEndpoints
                 }));
             });
 
-        group.MapPost("{id}/sync",
-            async (ISyncMessagesFeature syncMessagesFeature, HttpContext httpContext, string id) =>
+        group.MapGet("paginated",
+            async (IMongoCollection<Message> messagesCollection, UserManager<User> userManager, HttpContext httpContext,
+                [FromQuery] string queueId, [FromQuery] int pageIndex = 0,
+                int pageSize = 50) =>
+            {
+                pageSize = pageSize > 0 & pageSize <= 100 ? pageSize : 50;
+                pageIndex = pageIndex >= 0 ? pageIndex : 0;
+
+                var user = await userManager.GetUserAsync(httpContext.User);
+                if (user == null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                if (!ObjectId.TryParse(queueId, out var queueIdObjectId))
+                {
+                    return Results.BadRequest("Invalid Broker ID format.");
+                }
+
+                var filter = Builders<Message>.Filter.And(
+                    Builders<Message>.Filter.Eq(q => q.QueueId, queueIdObjectId),
+                    Builders<Message>.Filter.Eq(q => q.UserId, user.Id),
+                    Builders<Message>.Filter.Eq(q => q.DeletedAt, null)
+                );
+
+                var sort = Builders<Message>.Sort.Descending(q => q.Id);
+
+                var totalItems = await messagesCollection.CountDocumentsAsync(filter);
+                var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+                var messages = await messagesCollection.Find(filter)
+                    .Sort(sort)
+                    .Skip((pageIndex) * pageSize)
+                    .Limit(pageSize)
+                    .ToListAsync();
+
+                return Results.Ok(new PaginatedResult<MessageDto>()
+                {
+                    Items = messages.Select(q => new MessageDto()
+                    {
+                        Id = q.Id.ToString(),
+                        RawData = q.RawData.ToString(),
+                        CreatedAt = q.CreatedAt,
+                        UpdatedAt = q.UpdatedAt,
+                        IsReviewed = q.IsReviewed
+                    }).ToList(),
+                    PageIndex = pageIndex,
+                    TotalPages = totalPages,
+                    PageSize = pageSize,
+                    TotalCount = (int)totalItems,
+                });
+            });
+
+        group.MapPost("sync",
+            async (ISyncMessagesFeature syncMessagesFeature, HttpContext httpContext, [FromQuery] string queueId) =>
             {
                 var result = await syncMessagesFeature.ExecuteAsync(new SyncMessagesFeatureRequest(
                     ClaimsPrincipal: httpContext.User,
-                    Id: id
+                    QueueId: queueId
                 ));
 
                 return result.IsSuccess
@@ -91,14 +143,12 @@ public static class MessageEndpoints
                     : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
             }).AddRetryFilter();
 
-        group.MapDelete("{id}",
+        group.MapDelete("",
             async (IArchiveMessagesFeature archiveMessagesFeature, [FromBody] ArchiveMessagesDto dto,
-                HttpContext httpContext,
-                string id) =>
+                HttpContext httpContext) =>
             {
                 var result = await archiveMessagesFeature.ExecuteAsync(new ArchiveMessagesFeatureRequest(
                     ClaimsPrincipal: httpContext.User,
-                    QueueId: id,
                     Dto: dto
                 ));
 

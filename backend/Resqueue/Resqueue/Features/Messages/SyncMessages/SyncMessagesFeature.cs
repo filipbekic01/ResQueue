@@ -9,7 +9,7 @@ using Resqueue.Models;
 
 namespace Resqueue.Features.Messages.SyncMessages;
 
-public record SyncMessagesFeatureRequest(ClaimsPrincipal ClaimsPrincipal, string Id);
+public record SyncMessagesFeatureRequest(ClaimsPrincipal ClaimsPrincipal, string QueueId);
 
 public record SyncMessagesFeatureResponse();
 
@@ -32,7 +32,7 @@ public class SyncMessagesFeature(
             });
         }
 
-        var queueFilter = Builders<Queue>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Id));
+        var queueFilter = Builders<Queue>.Filter.Eq(b => b.Id, ObjectId.Parse(request.QueueId));
         var queue = await queuesCollection.Find(queueFilter).FirstOrDefaultAsync();
         if (queue == null)
         {

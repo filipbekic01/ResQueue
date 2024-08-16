@@ -1,12 +1,10 @@
-import { useQueuesQuery } from '@/api/queues/queuesQuery'
-import { computed, type MaybeRef, type Ref } from 'vue'
+import type { QueueDto } from '@/dtos/queueDto'
+import { computed, type Ref } from 'vue'
 
-export function useQueues(brokerId: MaybeRef<string>, pageIndex: Ref<number>) {
-  const query = useQueuesQuery(brokerId, pageIndex)
-
-  const formattedQueues = computed(
+export function useRabbitMqQueues(queues: Ref<QueueDto[] | undefined>) {
+  const rabbitMqQueues = computed(
     () =>
-      query.data.value?.items.map((q) => {
+      queues.value?.map((q) => {
         const item = {
           ...q,
           parsed: JSON.parse(q.rawData)
@@ -17,7 +15,6 @@ export function useQueues(brokerId: MaybeRef<string>, pageIndex: Ref<number>) {
   )
 
   return {
-    query,
-    formattedQueues
+    rabbitMqQueues
   }
 }

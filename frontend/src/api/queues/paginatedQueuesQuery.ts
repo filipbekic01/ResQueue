@@ -5,14 +5,14 @@ import { useQuery } from '@tanstack/vue-query'
 import axios from 'axios'
 import { computed, toValue, type MaybeRef } from 'vue'
 
-export const useQueuesQuery = (
+export const usePaginatedQueuesQuery = (
   brokerId: MaybeRef<string | undefined>,
   pageIndex: MaybeRef<number>
 ) =>
   useQuery({
     queryKey: ['queues', brokerId, pageIndex],
     queryFn: async () => {
-      const response = await axios.get<PaginatedResult<QueueDto>>(`${API_URL}/queues`, {
+      const response = await axios.get<PaginatedResult<QueueDto>>(`${API_URL}/queues/paginated`, {
         params: {
           brokerId: toValue(brokerId),
           pageSize: 50,

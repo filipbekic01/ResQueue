@@ -4,8 +4,9 @@ import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useQueues } from '@/composables/queuesComposable'
 import Paginator, { type PageState } from 'primevue/paginator'
+import { usePaginatedQueuesQuery } from '@/api/queues/paginatedQueuesQuery'
+import { useRabbitMqQueues } from '@/composables/queuesComposable'
 
 const emit = defineEmits<{
   (e: 'request-sync'): void
@@ -23,13 +24,12 @@ const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId
 
 const pageIndex = ref(0)
 
-const {
-  query: { data: queues, isPending: isLoading },
-  formattedQueues
-} = useQueues(
+const { data: paginatedQueues, isPending } = usePaginatedQueuesQuery(
   computed(() => props.brokerId),
   pageIndex
 )
+
+const { rabbitMqQueues } = useRabbitMqQueues(computed(() => paginatedQueues.value?.items))
 
 const selectQueue = (data: any) => {
   router.push({
@@ -46,18 +46,18 @@ const changePage = (e: PageState) => {
 }
 </script>
 <template>
-  <template v-if="isLoading">
+  <template v-if="isPending">
     <div class="p-5"><i class="pi pi-spinner pi-spin me-2"></i>Loading queues...</div>
   </template>
-  <template v-else-if="formattedQueues.length">
+  <template v-else-if="rabbitMqQueues.length">
     <DataTable
       scrollable
       data-key="id"
       scroll-height="flex"
-      :value="formattedQueues"
+      :value="rabbitMqQueues"
       class="grow overflow-auto"
     >
-      <Column sortable field="name" header="Name" class="w-[60%] overflow-ellipsis overflow-hidden">
+      <Column field="name" header="Name" class="w-[60%] overflow-ellipsis overflow-hidden">
         <template #body="{ data }">
           <span
             @click="selectQueue(data)"
@@ -66,19 +66,18 @@ const changePage = (e: PageState) => {
           >
         </template>
       </Column>
-
-      <Column sortable field="parsed.messages" header="Messages" class="w-[0%]">
+      <Column field="asb" header="Synced" class="w-[0%]">
         <template #body="{ data }">
           <div class="flex gap-1 items-center">
-            <i class="text-xs text-emerald-500 pi pi-cloud-upload"></i>{{ data.parsed['messages'] }}
+            <i class="text-xs text-gray-500 pi pi-inbox"></i>{{ data.parsed['messages'] }}
           </div>
         </template>
       </Column>
 
-      <Column sortable field="asb" header="Synced" class="w-[0%]">
+      <Column field="parsed.messages" header="Messages" class="w-[0%]">
         <template #body="{ data }">
           <div class="flex gap-1 items-center">
-            <i class="text-xs text-gray-500 pi pi-cloud-download"></i>{{ data.parsed['messages'] }}
+            <i class="text-xs text-emerald-500 pi pi-arrow-down"></i>{{ data.parsed['messages'] }}
           </div>
         </template>
       </Column>
@@ -91,7 +90,12 @@ const changePage = (e: PageState) => {
         </template>
       </Column>
     </DataTable>
-    <Paginator @page="changePage" :rows="50" :total-records="queues?.totalCount"></Paginator>
+    <Paginator
+      @page="changePage"
+      :rows="50"
+      :always-show="false"
+      :total-records="paginatedQueues?.totalCount"
+    ></Paginator>
   </template>
   <template v-else>
     <div class="flex items-center flex-col mt-24 grow">
