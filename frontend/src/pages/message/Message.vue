@@ -79,6 +79,8 @@ const backToMessages = () => {
     }
   })
 }
+
+const isMasstransitFramework = computed(() => message.value?.rawData.includes('MT-Host'))
 </script>
 
 <template>
@@ -96,10 +98,13 @@ const backToMessages = () => {
         broker?.name
       }}</span></template
     >
-    <template #description
-      ><span class="cursor-pointer hover:underline" @click="backToMessages">Messages</span> /
-      {{ message?.id }}</template
-    >
+    <template #description>
+      <div class="flex items-center">
+        <span class="cursor-pointer hover:underline" @click="backToMessages">Messages</span>
+        <i class="pi pi-angle-right mx-1"></i>
+        {{ message?.id }}
+      </div>
+    </template>
 
     <div class="flex gap-2 px-4 py-2 items-start border-b">
       <Button outlined @click="backToMessages" icon="pi pi-arrow-left" label="Messages"></Button>

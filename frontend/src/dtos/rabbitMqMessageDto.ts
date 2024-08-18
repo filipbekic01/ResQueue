@@ -8,10 +8,12 @@ export interface RabbitMqMessageDto extends MessageDto {
     routing_key: string
     message_count: number
     properties: {
+      message_id: string
       delivery_mode: number
       headers: {
         [key: string]: string
       }
+      content_type: string
     }
     payload: string
     payload_encoding: string
