@@ -5,6 +5,8 @@ import Settings from '../pages/settings/Settings.vue'
 import Messages from '../pages/messages/Messages.vue'
 import Message from '../pages/message/Message.vue'
 import Home from '../pages/home/Home.vue'
+import Support from '../pages/support/Support.vue'
+import Pricing from '../pages/pricing/Pricing.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,6 +25,16 @@ const router = createRouter({
       path: '/settings',
       name: 'settings',
       component: Settings
+    },
+    {
+      path: '/support',
+      name: 'support',
+      component: Support
+    },
+    {
+      path: '/pricing',
+      name: 'pricing',
+      component: Pricing
     },
     {
       path: '/app/brokers/:brokerId',

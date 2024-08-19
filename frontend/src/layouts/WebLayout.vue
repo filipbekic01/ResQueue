@@ -7,11 +7,13 @@ import RegisterDialog from '@/dialogs/RegisterDialog.vue'
 import Dialog from 'primevue/dialog'
 import { useDialog } from 'primevue/usedialog'
 import { ref } from 'vue'
+import { RouterLink, useRoute, type RouteLocationAsRelativeGeneric } from 'vue-router'
 
 const dialog = useDialog()
 
 const { user } = useIdentity()
 const { refetch } = useMeQuery()
+const route = useRoute()
 
 const { mutateAsync: loginAsync } = useLoginMutation()
 const { mutateAsync: logoutAsync } = useLogoutMutation()
@@ -41,6 +43,8 @@ const logout = () => {
     user.value = undefined
   })
 }
+
+const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
 
 const openRegisterDialog = () =>
   dialog.open(RegisterDialog, {
@@ -78,35 +82,88 @@ const openRegisterDialog = () =>
     </div>
     <div class="flex justify-end gap-2">
       <Button type="button" label="Cancel" severity="secondary" @click="showLogin = false"></Button>
-      <Button type="button" label="Log in" @click="login(email, password)"></Button>
+      <Button type="button" label="Log In" @click="login(email, password)"></Button>
     </div>
   </Dialog>
 
-  <div class="h-screen bg-[url('/vert.svg')]">
-    <div class="gap-2 py-3 items-center center border-b border-b-100 bg-white">
-      <div class="max-w-[1024px] mx-auto flex items-">
-        <div class="flex items-center justify-end bg-black p-2.5 rounded-lg">
-          <i class="pi pi-database text-white rotate-90" style="font-size: 1.5rem"></i>
+  <div class="h-screen bg-[url('/vert.svg')] flex flex-col">
+    <div class="gap-2 items-center center border-b border-b-100 bg-white sticky top-0">
+      <div class="w-[1024px] mx-auto flex items-">
+        <div class="basis-1/3 flex items-center py-3">
+          <div class="flex items-center justify-end bg-black p-2.5 rounded-lg">
+            <i class="pi pi-database text-white rotate-90" style="font-size: 1.5rem"></i>
+          </div>
+          <RouterLink class="text-xl font-semibold px-2" :to="{ name: 'home' }"
+            >ResQueue</RouterLink
+          >
         </div>
-        <RouterLink class="text-xl font-semibold p-2" :to="{ name: 'home' }">ResQueue</RouterLink>
-        <div class="flex gap-3 ms-2 items-center grow justify-center">
-          <RouterLink class="text-lg p-2" :to="{ name: 'home' }">Home</RouterLink>
-          <RouterLink class="text-lg p-2" :to="{ name: 'home' }">Pricing</RouterLink>
-          <RouterLink class="text-lg p-2" :to="{ name: 'home' }">Support</RouterLink>
+        <div class="basis-1/3 flex gap-3 items-center grow justify-center -mb-px">
+          <RouterLink
+            :class="[
+              'text-lg px-2 h-full flex items-center border-b',
+              {
+                'border-gray-200': !isRoute({ name: 'home' }),
+                'border-gray-500': isRoute({ name: 'home' })
+              }
+            ]"
+            :to="{ name: 'home' }"
+            >Home</RouterLink
+          >
+          <RouterLink
+            :class="[
+              'text-lg px-2 h-full flex items-center border-b',
+              {
+                'border-gray-200': !isRoute({ name: 'pricing' }),
+                'border-gray-500': isRoute({ name: 'pricing' })
+              }
+            ]"
+            :to="{ name: 'pricing' }"
+            >Pricing</RouterLink
+          >
+          <RouterLink
+            :class="[
+              'text-lg px-2 h-full flex items-center border-b',
+              {
+                'border-gray-200': !isRoute({ name: 'support' }),
+                'border-gray-500': isRoute({ name: 'support' })
+              }
+            ]"
+            :to="{ name: 'support' }"
+            >Support</RouterLink
+          >
         </div>
-        <div class="ms-auto flex text-lg gap-3">
+        <div class="basis-1/3 flex justify-end gap-3 py-3 items-center">
           <template v-if="user">
-            <div class="p-2 text-gray-400">Welcome</div>
-            <div class="p-2 cursor-pointer" @click="logout">Log out</div>
+            <Button @click="logout" label="Logout" icon="pi pi-sign-out" text></Button>
+            <RouterLink :to="{ name: 'app' }">
+              <Button
+                @click="logout"
+                label="Dashboard"
+                icon="pi pi-arrow-right"
+                icon-pos="right"
+              ></Button>
+            </RouterLink>
           </template>
           <template v-else>
-            <Button outlined @click="showLogin = true" class="p-2 cursor-pointer">Log in</Button>
-            <Button @click="openRegisterDialog" class="p-2 cursor-pointer">Register</Button>
+            <Button
+              outlined
+              @click="showLogin = true"
+              class="p-2 cursor-pointer"
+              label="Login"
+              icon="pi pi-sign-in"
+              text
+            ></Button>
+            <Button
+              @click="openRegisterDialog"
+              class="p-2 cursor-pointer"
+              label="Register"
+              icon="pi pi-user-plus"
+            ></Button>
           </template>
         </div>
       </div>
     </div>
-    <div class="max-w-[1024px] mx-auto px-8">
+    <div class="w-[1024px] grow mx-auto px-8">
       <slot></slot>
     </div>
     <div class="bg-white border-t border-gray-100 mt-16 py-4 text-center">

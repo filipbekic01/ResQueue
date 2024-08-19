@@ -17,7 +17,7 @@ const { user } = useIdentity()
         </div>
 
         <div class="flex mt-8">
-          <Button v-if="!user" label="Start Now"></Button>
+          <Button v-if="!user" size="large" label="Create Account"></Button>
           <RouterLink v-else :to="{ name: 'app' }"
             ><Button size="large" label="Go to Dashboard"></Button
           ></RouterLink>
@@ -108,11 +108,11 @@ const { user } = useIdentity()
       </div>
     </div>
 
-    <div class="text-center mt-20 mb-8 text-xl">Our Clients</div>
+    <div class="text-center mt-20 mb-8 text-lg">Our Clients</div>
 
     <div class="flex items-center justify-center">
       <a href="https://mydesigns.io" target="_blank">
-        <img src="/md.svg" class="opacity-35 w-64 hover:opacity-75 cursor-pointer" />
+        <img src="/md.svg" class="opacity-100 w-64 cursor-pointer" />
       </a>
     </div>
   </WebLayout>
