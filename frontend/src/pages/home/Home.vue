@@ -8,109 +8,106 @@ const { user } = useIdentity()
 
 <template>
   <WebLayout>
-    <div class="rounded-t-xl xxx">
-      <div class="text-center pt-20">
-        <div class="text-4xl font-bold mx-auto text-center">
-          Welcome to <span class="">ResQueue</span>
+    <div class="flex px-8 py-24">
+      <div class="flex flex-col justify-center items-center grow">
+        <div class="text-4xl font-bold mx-auto">Effortless Queue Healing</div>
+        <!-- <div class="mx-auto mt-4 text-xl">Streamline, Manage, and Requeue with Ease.</div> -->
+        <div class="mx-auto mt-4 text-xl">
+          Dead-Letter Queue (DLQ) Management • Manage and Re(s)queue with Ease
         </div>
-        <div class="mx-auto mt-4 text-xl text-center">
-          Effortless Queue Management. <br />Streamline, Manage, and Requeue with Ease.
-        </div>
-      </div>
-      <div class="flex mt-4">
-        <div class="border border-zinc-400 rounded-lg p-0.5 mx-auto">
+
+        <div class="flex mt-8">
           <Button v-if="!user" label="Start Now"></Button>
-          <RouterLink v-else :to="{ name: 'app' }"><Button label="Open App"></Button></RouterLink>
+          <RouterLink v-else :to="{ name: 'app' }"
+            ><Button size="large" label="Go to Dashboard"></Button
+          ></RouterLink>
         </div>
       </div>
     </div>
 
-    <div class="flex gap-4 mt-20">
-      <div class="bg-gray-200 flex-1 text-gray-700 rounded-2xl p-6">
+    <div class="flex gap-4 items-center">
+      <div class="shadow bg-white border-gray-400 flex-1 text-gray-700 rounded-2xl p-4">
         <div class="text-xl font-bold flex gap-2 items-center">
-          <div class="bg-[#ff6600] rounded-lg w-7 p-1.5"><img class="w-full" src="/rmq.svg" /></div>
+          <div class="bg-[#ff6600] rounded-lg w-8 p-1.5">
+            <img src="/rmq.svg" />
+          </div>
           RabbitMQ
           <i class="pi pi-check-circle ms-auto text-emerald-600" style="font-size: 1.15rem"></i>
         </div>
       </div>
-      <div class="bg-gray-200 flex-1 rounded-2xl p-6">
+
+      <div class="shadow bg-white border-gray-400 flex-1 text-gray-700 rounded-2xl p-4">
         <div class="text-xl font-bold flex gap-2 items-center">
-          <div class="bg-[#007FFF] rounded-lg w-7 p-1.5">
-            <img class="w-full" src="/azure.svg" />
+          <div class="bg-[#007FFF] rounded-lg w-8 p-1.5">
+            <img src="/azure.svg" />
           </div>
           Azure Service Bus
-          <span class="text-sm ms-auto text-gray-500 font-normal">coming soon...</span>
+          <i
+            v-tooltip.top="'Coming soon...'"
+            class="pi pi-calendar-clock ms-auto text-gray-600"
+            style="font-size: 1.15rem"
+          ></i>
         </div>
       </div>
-      <div class="bg-gray-200 flex-1 text-gray-700 rounded-2xl p-6">
+
+      <div class="shadow bg-white border-gray-400 flex-1 text-gray-700 rounded-2xl p-4">
         <div class="text-xl font-bold flex gap-2 items-center">
-          <div class="bg-[#fff] rounded-lg w-7 p-1.5">
-            <img class="w-full" src="/aws.svg" />
+          <div class="bg-[#fff] rounded-lg w-8 p-1.5 border border-gray-300">
+            <img src="/aws.svg" />
           </div>
           Amazon SQS
-          <span class="text-sm ms-auto text-gray-500 font-normal">coming soon...</span>
+          <i
+            v-tooltip.top="'Coming soon...'"
+            class="pi pi-calendar-clock ms-auto text-gray-600"
+            style="font-size: 1.15rem"
+          ></i>
         </div>
       </div>
     </div>
 
     <div class="flex gap-4 mt-16">
-      <div class="bg-gray-200 flex-1 text-gray-700 rounded-2xl p-6">
+      <div class="shadow bg-white border-gray-400 flex-1 text-gray-700 rounded-2xl p-6">
         <div class="text-xl font-bold">
-          <i class="pi pi-check-circle mr-3" style="font-size: 1.15rem"></i>Reliable Performance
+          <i class="pi pi-th-large mr-3" style="font-size: 1.15rem"></i>Connect Multiple Brokers
         </div>
-        <div class="mt-3 ms-8">
-          Depend on consistent, uninterrupted service that ensures your queues are managed with
-          precision, day in and day out.
+        <div class="mt-3 ms-8 text-lg">
+          Seamlessly manage and connect multiple brokers, ensuring a unified and efficient queue
+          management experience.
         </div>
       </div>
-      <div class="bg-gray-200 flex-1 text-gray-700 rounded-2xl p-6">
+      <div class="shadow bg-white border-gray-400 flex-1 text-gray-700 rounded-2xl p-6">
         <div class="text-xl font-bold">
-          <i class="pi pi-bolt mr-3" style="font-size: 1.15rem"></i>Lightning-Fast Processing
+          <i class="pi pi-send mr-3" style="font-size: 1.15rem"></i>Requeue Any Message
         </div>
-        <div class="mt-3 ms-8">
-          Experience rapid queue management with optimized processing, ensuring that your tasks are
-          completed in record time.
-        </div>
-      </div>
-      <div class="bg-gray-200 flex-1 text-gray-700 rounded-2xl p-6">
-        <div class="text-xl font-bold">
-          <i class="pi pi-lock mr-3" style="font-size: 1.15rem"></i>Enhanced Security
-        </div>
-        <div class="mt-3 ms-8">
-          Keep your data safe with advanced security protocols that protect your queues and ensure
-          the integrity of your transactions.
+        <div class="mt-3 ms-8 text-lg">
+          Enjoy the flexibility to requeue any message, not just the first one in the stack,
+          ensuring greater control over your workflow.
         </div>
       </div>
     </div>
     <div class="flex gap-4 mt-4">
-      <div class="bg-gray-200 flex-1 text-gray-700 rounded-2xl p-6">
+      <div class="shadow bg-white border-gray-400 flex-1 text-gray-700 rounded-2xl p-6">
         <div class="text-xl font-bold">
-          <i class="pi pi-cog mr-3" style="font-size: 1.15rem"></i>Intuitive Interface
+          <i class="pi pi-paperclip mr-3" style="font-size: 1.15rem"></i>Message IDs for Easy
+          Sharing
         </div>
-        <div class="mt-3 ms-8">
-          Navigate with ease using a user-friendly interface designed for efficiency, making queue
-          management a seamless experience.
+        <div class="mt-3 ms-8 text-lg">
+          Each message is assigned a unique ID, making it simple to share and collaborate with
+          colleagues.
         </div>
       </div>
-      <div class="bg-gray-200 flex-1 text-gray-700 rounded-2xl p-6">
+      <div class="shadow bg-white border-gray-400 flex-1 text-gray-700 rounded-2xl p-6">
         <div class="text-xl font-bold">
-          <i class="pi pi-chart-line mr-3" style="font-size: 1.15rem"></i>Scalable Solution
+          <i class="pi pi-check-circle mr-3" style="font-size: 1.15rem"></i>Mark Messages as
+          Reviewed
         </div>
-        <div class="mt-3 ms-8">
-          Grow with confidence, knowing that Resqueue can scale alongside your business, handling
-          increased loads with ease.
-        </div>
-      </div>
-      <div class="bg-gray-200 flex-1 text-gray-700 rounded-2xl p-6">
-        <div class="text-xl font-bold">
-          <i class="pi pi-question-circle mr-3" style="font-size: 1.15rem"></i>Comprehensive Support
-        </div>
-        <div class="mt-3 ms-8">
-          Benefit from dedicated support and detailed documentation, ensuring you have the help you
-          need, whenever you need it.
+        <div class="mt-3 ms-8 text-lg">
+          Improve organization by marking messages as reviewed, making it easier to keep track of
+          processed queues.
         </div>
       </div>
     </div>
+
     <div class="text-center mt-20 mb-8 text-xl">Our Clients</div>
 
     <div class="flex items-center justify-center">

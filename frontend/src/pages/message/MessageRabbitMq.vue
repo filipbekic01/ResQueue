@@ -1,12 +1,16 @@
 <script lang="ts" setup>
 import { useRabbitMqMessage } from '@/composables/rabbitMqMessageComposable'
 import type { MessageDto } from '@/dtos/messageDto'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { formatDistanceToNow } from 'date-fns'
+import SelectButton from 'primevue/selectbutton'
 
 const props = defineProps<{
   message: MessageDto
 }>()
+
+const options = ref(['Formatted', 'Raw View'])
+const optValue = ref('Formatted')
 
 const { rabbitMqMessage } = useRabbitMqMessage(computed(() => props.message))
 </script>
@@ -14,12 +18,16 @@ const { rabbitMqMessage } = useRabbitMqMessage(computed(() => props.message))
 <template>
   <div class="mx-5 my-3 rounded-lg">
     <!-- <div class="font-semibold bg-gray-100 rounded-lg px-2 mb-1">Message</div> -->
-    <div class="mb-2 flex items-center">
-      <div class="text-2xl">Message</div>
-      <div class="text-gray-500 ms-auto">
-        Pulled {{ formatDistanceToNow(message.createdAt) }} • Updated
-        {{ formatDistanceToNow(message.updatedAt) }}
+    <div class="mb-4 flex items-center">
+      <div>
+        <div class="text-2xl">Message</div>
+        <div class="text-gray-500">
+          Pulled {{ formatDistanceToNow(message.createdAt) }} • Updated
+          {{ message.updatedAt ? formatDistanceToNow(message.updatedAt) : 'never' }}
+        </div>
       </div>
+
+      <SelectButton class="ms-auto" v-model="optValue" :options="options" aria-labelledby="basic" />
     </div>
     <div
       v-for="(value, key) in rabbitMqMessage?.parsed"

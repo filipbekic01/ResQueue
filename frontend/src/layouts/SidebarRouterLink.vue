@@ -42,7 +42,16 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => {
       }
     ]"
   >
-    <i class="mr-3" style="font-size: 1.125rem" :class="icon"></i>
+    <i
+      class="mr-3 text-gray-600"
+      style="font-size: 1.125rem"
+      :class="[
+        icon,
+        {
+          'text-gray-900': isRoute(to)
+        }
+      ]"
+    ></i>
     <span>{{ label }}</span>
   </RouterLink>
 </template>

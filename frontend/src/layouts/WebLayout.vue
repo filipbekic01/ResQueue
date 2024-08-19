@@ -82,9 +82,9 @@ const openRegisterDialog = () =>
     </div>
   </Dialog>
 
-  <div class="h-screen">
-    <div class="max-w-[1024px] mx-auto">
-      <div class="flex gap-2 py-3 items-center">
+  <div class="h-screen bg-[url('/vert.svg')]">
+    <div class="gap-2 py-3 items-center center border-b border-b-100 bg-white">
+      <div class="max-w-[1024px] mx-auto flex items-">
         <div class="flex items-center justify-end bg-black p-2.5 rounded-lg">
           <i class="pi pi-database text-white rotate-90" style="font-size: 1.5rem"></i>
         </div>
@@ -96,7 +96,7 @@ const openRegisterDialog = () =>
         </div>
         <div class="ms-auto flex text-lg gap-3">
           <template v-if="user">
-            <div class="p-2 text-gray-400">{{ user.email }}</div>
+            <div class="p-2 text-gray-400">Welcome</div>
             <div class="p-2 cursor-pointer" @click="logout">Log out</div>
           </template>
           <template v-else>
@@ -105,17 +105,12 @@ const openRegisterDialog = () =>
           </template>
         </div>
       </div>
+    </div>
+    <div class="max-w-[1024px] mx-auto px-8">
       <slot></slot>
-      <div class="border-t mt-16 text-gray-600 py-4 text-center">
-        Developed by
-        <a
-          href="https://www.linkedin.com/in/filipbekic01/"
-          target="_blank"
-          class="hover:text-blue-500 border-b border-gray-400 border-dashed"
-          >Filip Bekic</a
-        >
-        — Republic of Serbia, Novi Sad
-      </div>
+    </div>
+    <div class="bg-white border-t border-gray-100 mt-16 py-4 text-center">
+      Developed in Republic of Serbia, Novi Sad
     </div>
   </div>
 </template>

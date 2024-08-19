@@ -6,4 +6,15 @@
 
 html {
   font-size: 0.875rem;
+  background:
+    radial-gradient(circle, transparent 20%, #fff 20%, #fff 80%, transparent 80%, transparent),
+    radial-gradient(circle, transparent 20%, #fff 20%, #fff 80%, transparent 80%, transparent) 25px
+      25px,
+    linear-gradient(#f3f4f6 2px, transparent 2px) 0 -1px,
+    linear-gradient(90deg, #f3f4f6 2px, #fff 2px) -1px 0;
+  background-size:
+    50px 50px,
+    50px 50px,
+    25px 25px,
+    25px 25px;
 }

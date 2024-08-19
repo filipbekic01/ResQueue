@@ -75,7 +75,7 @@ const staticRoutes = computed<ResqueueRoute[]>(() => [
   {
     id: 0,
     label: 'Dashboard',
-    icon: 'pi pi-home',
+    icon: 'pi pi-objects-column',
     to: {
       name: 'app'
     }
@@ -83,7 +83,7 @@ const staticRoutes = computed<ResqueueRoute[]>(() => [
   {
     id: 1,
     label: 'Settings',
-    icon: 'pi pi-cog',
+    icon: 'pi pi-list-check',
     to: {
       name: 'settings'
     }
@@ -97,7 +97,7 @@ const brokerRoutes = computed<ResqueueRoute[]>(() => {
     brokers.value?.map((broker) => ({
       id: ++id,
       label: broker.name ?? '',
-      icon: 'pi pi-box',
+      icon: 'pi pi-sort',
       to: {
         name: 'broker',
         params: {
@@ -111,8 +111,8 @@ const brokerRoutes = computed<ResqueueRoute[]>(() => {
 </script>
 
 <template>
-  <div class="flex h-screen gap-2 p-2" v-if="user">
-    <div class="basis-70 w-7basis-70 shrink-0 flex flex-col">
+  <div class="flex h-screen gap-2 p-2 bg-gray-100" v-if="user">
+    <div class="basis-70 w-70 basis-70 shrink-0 flex flex-col">
       <RouterLink
         :to="{ name: 'app' }"
         class="flex flex-row gap-3 items-center py-3 px-2 ms-2 me-3 border-b border-gray-200"

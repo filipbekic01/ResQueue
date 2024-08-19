@@ -10,6 +10,7 @@ import MessageRabbitMq from './MessageRabbitMq.vue'
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { BROKER_SYSTEMS } from '@/constants/brokerSystems'
 import { useMessageQuery } from '@/api/messages/messageQuery'
+import SelectButton from 'primevue/selectbutton'
 
 const props = defineProps<{
   brokerId: string
@@ -42,7 +43,7 @@ const publishMessages = (event: any) => {
       outlined: true
     },
     acceptProps: {
-      label: 'Publish',
+      label: 'Requeue',
       severity: ''
     },
     accept: () => {
@@ -118,13 +119,15 @@ const isMasstransitFramework = computed(() => message.value?.rawData.includes('M
       ></Select>
       <Button
         @click="(e) => publishMessages(e)"
-        label="Publish"
+        label="Requeue"
         iconPos="right"
         icon="pi pi-send"
       ></Button>
     </div>
-    <template v-if="message">
+    <!-- <ScrollPanel class="flex" v-if="message"> -->
+    <div class="flex overflow-auto" v-if="message">
       <MessageRabbitMq v-if="broker?.system === BROKER_SYSTEMS.RABBIT_MQ" :message="message" />
-    </template>
+    </div>
+    <!-- </ScrollPanel> -->
   </AppLayout>
 </template>
