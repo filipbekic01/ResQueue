@@ -5,6 +5,6 @@ public record CreateBrokerDto(
     string Username,
     string Password,
     int Port,
-    string Url,
+    string Host,
     string Framework
 );

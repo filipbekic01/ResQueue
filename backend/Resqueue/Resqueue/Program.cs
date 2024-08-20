@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Resqueue.Endpoints;
+using Resqueue.Features.Broker;
 using Resqueue.Features.Broker.SyncBroker;
 using Resqueue.Features.Broker.UpdateBroker;
 using Resqueue.Features.Messages.ArchiveMessages;
@@ -35,6 +36,7 @@ public class Program
         builder.Services.AddMongoDb();
         builder.Services.AddSingleton<IEmailSender<User>, DummyEmailSender>();
 
+        builder.Services.AddSingleton<RabbitmqConnectionFactory>();
         builder.Services.AddTransient<ISyncBrokerFeature, SyncBrokerFeature>();
         builder.Services.AddTransient<IUpdateBrokerFeature, UpdateBrokerFeature>();
 

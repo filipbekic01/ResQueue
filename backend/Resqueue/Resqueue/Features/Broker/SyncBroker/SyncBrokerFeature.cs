@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -57,9 +58,10 @@ public class SyncBrokerFeature(
 
         var http = httpClientFactory.CreateClient();
 
-        http.BaseAddress = new Uri($"{broker.Url}:{broker.Port}");
+        http.BaseAddress = new Uri($"https://{broker.Host}:{broker.Port}");
 
-        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", broker.Auth);
+        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
+            Convert.ToBase64String(Encoding.UTF8.GetBytes($"{broker.Username}:{broker.Password}")));
         http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
         // Sync queues

@@ -43,10 +43,11 @@ public class UpdateBrokerFeature(
         );
 
         var update = Builders<Models.Broker>.Update
-            .Set(b => b.Auth, $"{request.Dto.Username}:{request.Dto.Password}")
+            .Set(b => b.Username, request.Dto.Username)
+            .Set(b => b.Password, request.Dto.Password)
             .Set(b => b.Port, request.Dto.Port)
             .Set(b => b.UpdatedAt, DateTime.UtcNow)
-            .Set(b => b.Url, request.Dto.Url);
+            .Set(b => b.Host, request.Dto.Host);
 
         await brokersCollection.UpdateOneAsync(filter, update);
 

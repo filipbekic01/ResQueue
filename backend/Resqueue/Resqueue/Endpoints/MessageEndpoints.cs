@@ -39,14 +39,7 @@ public static class MessageEndpoints
 
                 var messages = await messagesCollection.Find(filter).Sort(sort).ToListAsync();
 
-                return Results.Ok(messages.Select(q => new MessageDto()
-                {
-                    Id = q.Id.ToString(),
-                    RawData = q.RawData.ToString(),
-                    CreatedAt = q.CreatedAt,
-                    UpdatedAt = q.UpdatedAt,
-                    IsReviewed = q.IsReviewed
-                }));
+                return Results.Ok(messages.Select(MessageMapper.ToDto));
             });
 
         group.MapGet("paginated",
@@ -87,15 +80,7 @@ public static class MessageEndpoints
 
                 return Results.Ok(new PaginatedResult<MessageDto>()
                 {
-                    Items = messages.Select(q => new MessageDto()
-                    {
-                        Id = q.Id.ToString(),
-                        RawData = q.RawData.ToString(),
-                        Summary = q.Summary,
-                        IsReviewed = q.IsReviewed,
-                        CreatedAt = q.CreatedAt,
-                        UpdatedAt = q.UpdatedAt
-                    }).ToList(),
+                    Items = messages.Select(MessageMapper.ToDto).ToList(),
                     PageIndex = pageIndex,
                     TotalPages = totalPages,
                     PageSize = pageSize,

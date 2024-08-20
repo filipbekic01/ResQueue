@@ -5,7 +5,7 @@ public record BrokerDto(
     string System,
     string Name,
     int Port,
-    string Url,
+    string Host,
     string Framework,
     DateTime CreatedAt,
     DateTime UpdatedAt,
