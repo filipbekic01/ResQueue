@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Identity;
 using Resqueue.Endpoints;
-using Resqueue.Features.Broker;
 using Resqueue.Features.Broker.SyncBroker;
 using Resqueue.Features.Broker.UpdateBroker;
 using Resqueue.Features.Messages.ArchiveMessages;
 using Resqueue.Features.Messages.PublishMessages;
 using Resqueue.Features.Messages.ReviewMessages;
 using Resqueue.Features.Messages.SyncMessages;
+using Resqueue.Features.Stripe;
+using Resqueue.Features.Stripe.CreateSubscription;
+using Resqueue.Features.Stripe.EventHandler;
 using Resqueue.Models;
 
 namespace Resqueue;
@@ -41,6 +43,9 @@ public class Program
         builder.Services.AddTransient<IArchiveMessagesFeature, ArchiveMessagesFeature>();
         builder.Services.AddTransient<IReviewMessagesFeature, ReviewMessagesFeature>();
 
+        builder.Services.AddTransient<ICreateSubscriptionFeature, CreateSubscriptionFeature>();
+        builder.Services.AddTransient<IEventHandlerFeature, EventHandlerFeature>();
+
         builder.Services.ConfigureApplicationCookie(options => { options.ExpireTimeSpan = TimeSpan.FromDays(30); });
 
         builder.Services.AddAuthorization();
@@ -58,6 +63,7 @@ public class Program
         app.MapQueueEndpoints();
         app.MapExchangeEndpoints();
         app.MapMessageEndpoints();
+        app.MapStripeEndpoints();
 
         app.Run();
     }
