@@ -8,17 +8,21 @@ import { computed, toValue, type MaybeRef } from 'vue'
 export const usePaginatedQueuesQuery = (
   brokerId: MaybeRef<string | undefined>,
   pageIndex: MaybeRef<number>,
-  search: MaybeRef<string>
+  search: MaybeRef<string | undefined>,
+  sortField: MaybeRef<string | undefined>,
+  sortOrder: MaybeRef<string | undefined>
 ) =>
   useQuery({
-    queryKey: ['queues', brokerId, pageIndex, search],
+    queryKey: ['queues', brokerId, pageIndex, search, sortField, sortOrder],
     queryFn: async () => {
       const response = await axios.get<PaginatedResult<QueueDto>>(`${API_URL}/queues/paginated`, {
         params: {
           brokerId: toValue(brokerId),
           pageSize: 50,
           pageIndex: toValue(pageIndex),
-          search: toValue(search)
+          search: toValue(search),
+          sortField: toValue(sortField),
+          sortOrder: toValue(sortOrder)
         },
         withCredentials: true
       })

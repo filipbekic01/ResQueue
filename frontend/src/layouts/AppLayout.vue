@@ -99,7 +99,7 @@ const brokerRoutes = computed<ResqueueRoute[]>(() => {
       label: broker.name ?? '',
       icon: 'pi pi-sort',
       to: {
-        name: 'broker',
+        name: 'queues',
         params: {
           brokerId: broker.id
         }

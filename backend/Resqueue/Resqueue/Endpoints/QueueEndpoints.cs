@@ -41,12 +41,23 @@ public static class QueueEndpoints
 
         group.MapGet("paginated",
             async (IMongoCollection<Queue> collection, UserManager<User> userManager, HttpContext httpContext,
-                [FromQuery] string brokerId, [FromQuery] int pageIndex = 0,
-                int pageSize = 50, [FromQuery] string search = "") =>
+                [FromQuery] string brokerId,
+                [FromQuery] string? sortField,
+                [FromQuery] int? sortOrder,
+                [FromQuery] int pageIndex = 0,
+                [FromQuery] int pageSize = 50,
+                [FromQuery] string search = "") =>
             {
                 pageSize = pageSize > 0 & pageSize <= 100 ? pageSize : 50;
                 pageIndex = pageIndex >= 0 ? pageIndex : 0;
                 search = search.Trim();
+                sortField = new[]
+                {
+                    "name", "synced", "messages"
+                }.Contains(sortField)
+                    ? sortField
+                    : null;
+                sortOrder = sortField is not null && sortOrder is 1 or -1 ? sortOrder : null;
 
                 var user = await userManager.GetUserAsync(httpContext.User);
                 if (user == null)
@@ -73,6 +84,12 @@ public static class QueueEndpoints
                 var filter = Builders<Queue>.Filter.And(filters);
 
                 var sort = Builders<Queue>.Sort.Descending(q => q.Id);
+                if (sortField is not null && sortOrder is not null)
+                {
+                    sort = sortOrder == 1
+                        ? Builders<Queue>.Sort.Ascending($"RawData.{sortField}")
+                        : Builders<Queue>.Sort.Descending($"RawData.{sortField}");
+                }
 
                 var totalItems = await collection.CountDocumentsAsync(filter);
                 var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);

@@ -7,6 +7,9 @@ import Message from '../pages/message/Message.vue'
 import Home from '../pages/home/Home.vue'
 import Support from '../pages/support/Support.vue'
 import Pricing from '../pages/pricing/Pricing.vue'
+import BrokerQueues from '@/pages/broker/queues/BrokerQueues.vue'
+import BrokerTopics from '@/pages/broker/topics/BrokerTopics.vue'
+import BrokerOverview from '@/pages/broker/overview/BrokerOverview.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,11 +18,6 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: Home
-    },
-    {
-      path: '/app',
-      name: 'app',
-      component: Dashboard
     },
     {
       path: '/settings',
@@ -37,10 +35,35 @@ const router = createRouter({
       component: Pricing
     },
     {
+      path: '/app',
+      name: 'app',
+      component: Dashboard
+    },
+    {
       path: '/app/brokers/:brokerId',
       name: 'broker',
       props: true,
-      component: Broker
+      component: Broker,
+      children: [
+        {
+          path: 'overview',
+          name: 'overview',
+          props: true,
+          component: BrokerOverview
+        },
+        {
+          path: 'topics',
+          name: 'topics',
+          props: true,
+          component: BrokerTopics
+        },
+        {
+          path: 'queues',
+          name: 'queues',
+          props: true,
+          component: BrokerQueues
+        }
+      ]
     },
     {
       path: '/app/brokers/:brokerId/queues/:queueId/messages',

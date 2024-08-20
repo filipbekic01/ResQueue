@@ -4,11 +4,8 @@ import { useSyncBrokerMutation } from '@/api/broker/syncBrokerMutation'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { formatDistanceToNow } from 'date-fns'
-import BrokerQueues from './BrokerQueues.vue'
-import BrokerExchanges from './BrokerExchanges.vue'
-import BrokerOverview from './BrokerOverview.vue'
 import Select from 'primevue/select'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -26,17 +23,14 @@ const { mutateAsync: syncBrokerAsync, isPending: isPendingSyncBroker } = useSync
 const { data: brokers } = useBrokersQuery()
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
 
-const selectedTab = ref('2')
-
-const search = ref('')
-const applySearch = (v: any) => {
-  // router.push({
-  //   name: route.path,
-  //   query: {
-  //     ...route.query,
-  //     search: search.value
-  //   }
-  // })
+const applySearch = (value: string) => {
+  router.push({
+    path: route.path,
+    query: {
+      ...route.query,
+      search: value ? value : undefined
+    }
+  })
 }
 
 const syncBroker = () => {
@@ -71,6 +65,8 @@ const syncBroker = () => {
     reject: () => {}
   })
 }
+
+const updateTabValue = (a: any) => router.push({ name: a })
 </script>
 
 <template>
@@ -113,46 +109,39 @@ const syncBroker = () => {
           </div>
         </div>
       </div>
-      <Tabs v-model:value="selectedTab" class="overflow-auto grow">
+      <Tabs :value="route.name?.toString() ?? ''" @update:value="updateTabValue">
         <TabList>
-          <Tab value="0">Overview</Tab>
-          <Tab value="1">Topics</Tab>
-          <Tab value="2">Queues</Tab>
+          <Tab value="overview">Overview</Tab>
+          <Tab value="topics">Topics</Tab>
+          <Tab value="queues">Queues</Tab>
           <div class="flex px-3 gap-3 grow items-center">
             <div class="ms-auto text-gray-500">Filters</div>
-            <i class="pi pi-filter me-1 text-gray-400"></i>
+
+            <i
+              v-if="route.query.search"
+              class="pi pi-times me-1 text-gray-400 cursor-pointer hover:text-gray-600"
+              @click="applySearch('')"
+            ></i>
+            <i v-else class="pi pi-filter me-1 text-gray-400"></i>
             <InputText
               class="max-w-96"
               placeholder="Search"
               icon="pi pi-search"
-              :value="search"
-              @change="applySearch"
+              :value="route.query.search"
+              @change="(e) => applySearch((e.target as any)?.value)"
             ></InputText>
+
             <ButtonGroup>
-              <Button label="error" outlined @click="search = 'error'"></Button>
-              <Button label="fail" outlined @click="search = 'fail'"></Button>
-              <Button label="dead" outlined @click="search = 'dead'"></Button>
+              <Button label="error" outlined @click="applySearch('error')"></Button>
+              <Button label="fail" outlined @click="applySearch('fail')"></Button>
+              <Button label="dead" outlined @click="applySearch('dead')"></Button>
             </ButtonGroup>
             <Select></Select>
           </div>
         </TabList>
-        <TabPanels class="flex overflow-auto grow dikaa" style="padding: 0">
-          <TabPanel value="0" class="overflow-auto flex grow">
-            <BrokerOverview />
-          </TabPanel>
-          <TabPanel value="1" class="overflow-auto flex grow">
-            <BrokerExchanges v-if="selectedTab == '1'" :broker-id="brokerId" />
-          </TabPanel>
-          <TabPanel value="2" class="overflow-auto flex grow flex-col">
-            <BrokerQueues
-              v-if="selectedTab == '2'"
-              :broker-id="brokerId"
-              :search="search"
-              @request-sync="syncBroker"
-            />
-          </TabPanel>
-        </TabPanels>
       </Tabs>
+
+      <RouterView />
     </template>
     <template v-else> loading... </template>
   </AppLayout>

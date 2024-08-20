@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
+import DataTable, { type DataTableSortEvent } from 'primevue/datatable'
 import { computed, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Paginator, { type PageState } from 'primevue/paginator'
 import { usePaginatedQueuesQuery } from '@/api/queues/paginatedQueuesQuery'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
@@ -14,20 +14,25 @@ const emit = defineEmits<{
 
 const props = defineProps<{
   brokerId: string
-  search: string
 }>()
 
 const router = useRouter()
+const route = useRoute()
 
 const { data: brokers } = useBrokersQuery()
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
 
 const pageIndex = ref(0)
+const changePage = (e: PageState) => {
+  pageIndex.value = e.page
+}
 
 const { data: paginatedQueues, isPending } = usePaginatedQueuesQuery(
   computed(() => props.brokerId),
   pageIndex,
-  computed(() => props.search)
+  computed(() => route.query.search?.toString()),
+  computed(() => route.query.sortField?.toString()),
+  computed(() => route.query.sortOrder?.toString())
 )
 
 const totalCountFrozen = ref(0)
@@ -55,12 +60,15 @@ const selectQueue = (data: any) => {
   })
 }
 
-const changePage = (e: PageState) => {
-  pageIndex.value = e.page
-}
-
-const updateSort = (e) => {
-  // console.log(e)
+const updateSort = (e: DataTableSortEvent) => {
+  router.push({
+    path: route.path,
+    query: {
+      ...route.query,
+      sortField: e.sortField?.toString(),
+      sortOrder: e.sortOrder ? e.sortOrder : undefined
+    }
+  })
 }
 </script>
 
@@ -76,18 +84,29 @@ const updateSort = (e) => {
       :value="rabbitMqQueues"
       removable-sort
       class="grow overflow-auto"
+      :sort-field="route.query.sortField"
+      :sort-order="route.query.sortOrder ? parseInt(route.query.sortOrder.toString()) : undefined"
       @sort="updateSort"
     >
       <Column sortable field="name" header="Name" class="w-[60%] overflow-ellipsis overflow-hidden">
         <template #body="{ data }">
           <span
             @click="selectQueue(data)"
-            class="border-b border-gray-600 border-dashed hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
+            class="hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
             >{{ data.parsed['name'] }}</span
           >
         </template>
       </Column>
-      <Column sortable field="synced" header="Synced" class="w-[0%]">
+
+      <Column field="parsed.consumers" header="Cons" class="w-[0%]">
+        <template #body="{ data }">
+          <div class="text-end">
+            {{ data.parsed['consumers'] }}
+          </div>
+        </template>
+      </Column>
+
+      <Column field="pulled" header="Pld" class="w-[0%]">
         <template #body="{ data }">
           <div class="flex gap-1 items-center">
             <i class="text-xs text-gray-500 pi pi-inbox"></i>{{ data.parsed['messages'] }}
@@ -95,7 +114,7 @@ const updateSort = (e) => {
         </template>
       </Column>
 
-      <Column field="parsed.messages" header="Messages" class="w-[0%]">
+      <Column sortable field="parsed.messages" header="Msgs" class="w-[0%]">
         <template #body="{ data }">
           <div class="flex gap-1 items-center">
             <i class="text-xs text-emerald-500 pi pi-arrow-down"></i>{{ data.parsed['messages'] }}
@@ -107,7 +126,7 @@ const updateSort = (e) => {
 
       <Column field="parsed.features" header="Features" class="w-[0%]">
         <template #body="{ data }">
-          <Tag v-show="data.parsed['durable']" severity="info">D</Tag>
+          <div v-show="data.parsed['durable']" severity="info">D</div>
         </template>
       </Column>
     </DataTable>
