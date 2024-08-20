@@ -71,7 +71,7 @@ public class SyncMessagesFeature(
 
         // vhost?
         var response =
-            await http.PostAsync($"/api/queues/luqrhkdv/{queue.RawData.GetValue("name")}/get",
+            await http.PostAsync($"/api/queues/%2F/{queue.RawData.GetValue("name")}/get",
                 new StringContent(JsonSerializer.Serialize(requestBody)));
         response.EnsureSuccessStatusCode();
 

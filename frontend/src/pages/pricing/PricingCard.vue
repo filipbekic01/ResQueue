@@ -22,11 +22,11 @@ defineProps<{
     ]"
   >
     <Tag
-      icon="pi pi-sparkles"
+      severity="info"
       v-if="recommended"
       style="font-weight: 600"
       class="-translate-y-4 translate-x-1/2 border-gray-400 border top-0 right-1/2 left-0 absolute"
-      >Most Popular</Tag
+      >Recommended</Tag
     >
     <div class="text-2xl font-semibold mb-4">{{ tier }}</div>
     <div class="text-gray-500 mb-6">{{ text }}</div>

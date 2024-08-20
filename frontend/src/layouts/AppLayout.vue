@@ -142,16 +142,24 @@ const brokerRoutes = computed<ResqueueRoute[]>(() => {
           v-bind="brokerRoute"
         />
 
-        <Button
+        <div
+          class="flex justify-between"
           :class="[
             {
               'mt-auto': brokers?.length
             }
           ]"
-          @click="openCreateBrokerDialog()"
-          icon="pi pi-plus"
-          label="Add Broker"
-        ></Button>
+        >
+          <RouterLink :to="{ name: 'home' }">
+            <Button
+              icon="pi pi-arrow-left"
+              severity="secondary"
+              class="grow"
+              label="Website"
+            ></Button
+          ></RouterLink>
+        </div>
+        <Button @click="openCreateBrokerDialog()" icon="pi pi-plus" label="Add Broker"></Button>
       </div>
     </div>
 

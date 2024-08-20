@@ -42,10 +42,11 @@ public static class QueueEndpoints
         group.MapGet("paginated",
             async (IMongoCollection<Queue> collection, UserManager<User> userManager, HttpContext httpContext,
                 [FromQuery] string brokerId, [FromQuery] int pageIndex = 0,
-                int pageSize = 50) =>
+                int pageSize = 50, [FromQuery] string search = "") =>
             {
                 pageSize = pageSize > 0 & pageSize <= 100 ? pageSize : 50;
                 pageIndex = pageIndex >= 0 ? pageIndex : 0;
+                search = search.Trim();
 
                 var user = await userManager.GetUserAsync(httpContext.User);
                 if (user == null)
@@ -58,13 +59,21 @@ public static class QueueEndpoints
                     return Results.BadRequest("Invalid Broker ID format.");
                 }
 
-                var filter = Builders<Queue>.Filter.And(
+                var filters = new List<FilterDefinition<Queue>>
+                {
                     Builders<Queue>.Filter.Eq(q => q.UserId, user.Id),
                     Builders<Queue>.Filter.Eq(q => q.BrokerId, brokerObjectId)
-                );
+                };
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    filters.Add(Builders<Queue>.Filter.Regex("RawData.name", new BsonRegularExpression(search, "i")));
+                }
+
+                var filter = Builders<Queue>.Filter.And(filters);
 
                 var sort = Builders<Queue>.Sort.Descending(q => q.Id);
-                
+
                 var totalItems = await collection.CountDocumentsAsync(filter);
                 var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 

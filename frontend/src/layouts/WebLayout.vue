@@ -136,12 +136,7 @@ const openRegisterDialog = () =>
           <template v-if="user">
             <Button @click="logout" label="Logout" icon="pi pi-sign-out" text></Button>
             <RouterLink :to="{ name: 'app' }">
-              <Button
-                @click="logout"
-                label="Dashboard"
-                icon="pi pi-arrow-right"
-                icon-pos="right"
-              ></Button>
+              <Button label="Dashboard" icon="pi pi-arrow-right" icon-pos="right"></Button>
             </RouterLink>
           </template>
           <template v-else>

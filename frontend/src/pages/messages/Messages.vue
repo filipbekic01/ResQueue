@@ -239,7 +239,7 @@ const syncLabel = computed(() => {
         broker?.name
       }}</span></template
     >
-    <template #description>{{ rabbitMqQueue.parsed.name }}</template>
+    <template #description>{{ rabbitMqQueue?.parsed.name }}</template>
     <div class="flex gap-2 px-4 py-2 items-start border-b">
       <Button @click="backToBroker" outlined label="Broker" icon="pi pi-arrow-left"></Button>
       <Button

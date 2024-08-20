@@ -9,6 +9,8 @@ import { formatDistanceToNow } from 'date-fns'
 import BrokerQueues from './BrokerQueues.vue'
 import BrokerExchanges from './BrokerExchanges.vue'
 import BrokerOverview from './BrokerOverview.vue'
+import Select from 'primevue/select'
+import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps<{
   brokerId: string
@@ -16,6 +18,8 @@ const props = defineProps<{
 
 const confirm = useConfirm()
 const toast = useToast()
+const router = useRouter()
+const route = useRoute()
 
 const { mutateAsync: syncBrokerAsync, isPending: isPendingSyncBroker } = useSyncBrokerMutation()
 
@@ -23,7 +27,17 @@ const { data: brokers } = useBrokersQuery()
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
 
 const selectedTab = ref('2')
+
 const search = ref('')
+const applySearch = (v: any) => {
+  // router.push({
+  //   name: route.path,
+  //   query: {
+  //     ...route.query,
+  //     search: search.value
+  //   }
+  // })
+}
 
 const syncBroker = () => {
   confirm.require({
@@ -71,21 +85,6 @@ const syncBroker = () => {
 
         <div class="flex flex-col ps-3">
           <div class="font-bold text-3xl">{{ broker.name }}</div>
-          <div class="flex gap-2 mt-1">
-            <Badge severity="secondary" class="mt-auto">
-              <div class="flex items-center gap-2">
-                <i class="pi pi-tags"></i>
-
-                {{ broker.framework ? 'MassTransit Framework' : 'No Framework' }}
-              </div>
-            </Badge>
-            <Badge severity="secondary" class="mt-auto">
-              <div class="flex items-center gap-2">
-                <i class="pi pi-tags"></i>
-                Version 3.16.2
-              </div>
-            </Badge>
-          </div>
           <div class="flex gap-2 text-gray-500 mt-auto items-center">
             <i
               class="pi pi-sync"
@@ -119,13 +118,22 @@ const syncBroker = () => {
           <Tab value="0">Overview</Tab>
           <Tab value="1">Topics</Tab>
           <Tab value="2">Queues</Tab>
-          <div class="flex items-start px-3 gap-3 grow">
+          <div class="flex px-3 gap-3 grow items-center">
+            <div class="ms-auto text-gray-500">Filters</div>
+            <i class="pi pi-filter me-1 text-gray-400"></i>
             <InputText
-              class="max-w-96 grow ms-auto"
+              class="max-w-96"
               placeholder="Search"
               icon="pi pi-search"
-              v-model="search"
+              :value="search"
+              @change="applySearch"
             ></InputText>
+            <ButtonGroup>
+              <Button label="error" outlined @click="search = 'error'"></Button>
+              <Button label="fail" outlined @click="search = 'fail'"></Button>
+              <Button label="dead" outlined @click="search = 'dead'"></Button>
+            </ButtonGroup>
+            <Select></Select>
           </div>
         </TabList>
         <TabPanels class="flex overflow-auto grow dikaa" style="padding: 0">
@@ -139,7 +147,7 @@ const syncBroker = () => {
             <BrokerQueues
               v-if="selectedTab == '2'"
               :broker-id="brokerId"
-              :filter="search"
+              :search="search"
               @request-sync="syncBroker"
             />
           </TabPanel>

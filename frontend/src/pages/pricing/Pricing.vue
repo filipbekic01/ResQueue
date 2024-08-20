@@ -5,7 +5,7 @@ import PricingCard from './PricingCard.vue'
 
 <template>
   <WebLayout>
-    <div class="flex px-8 py-14 grow">
+    <div class="flex px-8 py-20 grow">
       <div class="flex flex-col items-center grow">
         <div class="text-4xl font-bold">Choose Your Plan</div>
         <div class="mt-4 text-xl">Help us continue building innovative and impactful tools.</div>
@@ -24,7 +24,7 @@ import PricingCard from './PricingCard.vue'
       <PricingCard
         tier="Essentials"
         text="All features unlocked"
-        :features="['Unlimited brokers', '5GB Storage', 'Team Collaboration']"
+        :features="['Unlimited brokers (*)', '5GB Storage', 'Team Collaboration']"
         :price="7.99"
         severity="success"
         :recommended="true"
@@ -33,11 +33,29 @@ import PricingCard from './PricingCard.vue'
       <PricingCard
         tier="Ultimate"
         text="All features unlocked"
-        :features="['Unlimited brokers', '100GB Storage', 'Team Collaboration']"
+        :features="['Unlimited brokers (*)', '100GB Storage', 'Team Collaboration']"
         :price="19.99"
         severity="primary"
         :recommended="false"
       />
+    </div>
+
+    <div class="mx-16 text-sm text-gray-500 pt-24">
+      While we strive to keep our services accessible, the reality is that maintaining high-quality
+      offerings comes with costs. From hosting and databases to ongoing development, these expenses
+      are essential for us to continue delivering the tools you rely on. Your support through our
+      payment plans allows us to cover these costs and keep improving. We sincerely appreciate your
+      contributions and thank you for helping us grow.
+    </div>
+    <div class="mx-16 text-sm text-gray-500 mt-4">
+      Support is provided through our dedicated Discord channel and active community forums, with
+      the option for on-premise, one-to-one direct support through these channels. For custom plan
+      requests, don’t hesitate to reach out through any of our support channels—we're more than
+      happy to assist you.
+    </div>
+    <div class="mx-16 text-sm text-gray-500 mt-4">
+      (*) While "unlimited" means you can add as many brokers as you need, it still refers to a
+      practical, though extensive, capacity within the system.
     </div>
   </WebLayout>
 </template>
