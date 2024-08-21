@@ -59,14 +59,14 @@ public static class AuthEndpoints
                     new(
                         CustomerEmail: user.Email,
                         PaymentMethodId: dto.PaymentMethodId,
-                        PriceId: dto.PriceId
+                        PriceId: dto.Plan // todo: define priceId
                     )
                 ));
 
                 if (!featureResult.IsSuccess)
                 {
                     await userManager.DeleteAsync(user);
-                    
+
                     return Results.Problem(featureResult.Problem?.Detail,
                         statusCode: featureResult.Problem?.Status ?? 500);
                 }

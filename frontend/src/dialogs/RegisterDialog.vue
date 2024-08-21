@@ -2,18 +2,22 @@
 import { useLoginMutation } from '@/api/auth/loginMutation'
 import { useMeQuery } from '@/api/auth/meQuery'
 import { useRegisterMutation } from '@/api/auth/registerMutation'
-import { useCreateSubscriptionMutation } from '@/api/stripe/createSubscriptionMutation'
 import { useIdentity } from '@/composables/identityComposable'
-import { loadStripe, type Stripe, type StripeCardElement } from '@stripe/stripe-js'
+import {
+  loadStripe,
+  type PaymentMethod,
+  type Stripe,
+  type StripeCardElement
+} from '@stripe/stripe-js'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
+import Message from 'primevue/message'
 import { inject, onMounted, ref, type Ref } from 'vue'
 
 const { user } = useIdentity()
-const { mutateAsync: registerAsync } = useRegisterMutation()
+const { mutateAsync: registerAsync, isPending } = useRegisterMutation()
 const { refetch } = useMeQuery()
 
 const { mutateAsync: loginAsync } = useLoginMutation()
-const { mutateAsync: createSubscriptionAsync } = useCreateSubscriptionMutation()
 
 const email = ref('filip1994sm@gmail.com')
 const password = ref('Password1!')
@@ -29,29 +33,35 @@ const togglePasswordType = () =>
   (passwordType.value = passwordType.value == 'password' ? 'text' : 'password')
 
 const register = async () => {
-  if (!stripe || !cardElement) {
-    alert('Payment initialization error.')
-    return
-  }
+  let pm: PaymentMethod | undefined = undefined
 
-  const { error, paymentMethod } = await stripe.createPaymentMethod({
-    type: 'card',
-    card: cardElement,
-    billing_details: {
-      email: email.value
+  if (dialogRef?.value.plan) {
+    if (!stripe || !cardElement) {
+      alert('Payment initialization error.')
+      return
     }
-  })
 
-  if (!paymentMethod || error) {
-    alert('Payment processing error.')
-    return
+    const { error, paymentMethod } = await stripe.createPaymentMethod({
+      type: 'card',
+      card: cardElement,
+      billing_details: {
+        email: email.value
+      }
+    })
+
+    if (!paymentMethod || error) {
+      alert('Payment processing error.')
+      return
+    }
+
+    pm = paymentMethod
   }
 
   registerAsync({
     email: email.value,
     password: password.value,
-    paymentMethodId: paymentMethod.id,
-    priceId: dialogRef?.value.data.priceId
+    paymentMethodId: pm?.id,
+    plan: dialogRef?.value.data.plan
   }).then(() => {
     loginAsync({
       email: email.value,
@@ -71,12 +81,16 @@ const loadStripeAsync = async () => {
   )
 
   if (!stripe) {
+    alert('Failed to load payment processor.')
     return
   }
 
   const elements = stripe.elements()
-
-  cardElement = elements.create('card')
+  cardElement = elements.create('card', {
+    style: {
+      base: {}
+    }
+  })
   cardElement.mount('#card-element')
 }
 
@@ -88,22 +102,55 @@ onMounted(() => {
 <template>
   <div class="flex flex-col gap-4 mb-4">
     <label for="email" class="font-semibold white">E-Mail Address</label>
-    <InputText v-model="email" id="email" class="flex-auto" type="email" autocomplete="off" />
+    <InputText
+      v-model="email"
+      placeholder="E-mail address"
+      id="email"
+      class="flex-auto"
+      type="email"
+      autocomplete="off"
+    />
   </div>
-  <div class="flex flex-col gap-4 mb-8">
+  <div class="flex flex-col gap-4 mb-4">
     <label for="password" class="font-semibold white flex items-center"
       >Password <i class="pi pi-eye ms-2 cursor-pointer" @click="togglePasswordType"></i
     ></label>
     <InputText
       id="password"
+      placeholder="********"
       v-model="password"
       class="flex-auto"
       :type="passwordType"
       autocomplete="off"
     />
   </div>
-  <div class="flex justify-end gap-2">
-    <Button type="button" label="Cancel" severity="secondary" tabindex="-1"></Button>
-    <Button type="button" label="Register" @click="register"></Button>
+  <div v-if="dialogRef?.data.plan" class="flex flex-col gap-4">
+    <label for="card-element" class="font-semibold white flex items-center">Credit Card </label>
+    <div class="border border-slate-300 p-3 rounded-md" id="card-element"></div>
+    <Message severity="secondary" pt:text:class="flex grow gap-2 "
+      >Plan:
+      <span class="">{{ dialogRef.data.plan === 'essentials' ? 'Essentials' : 'Ultimate' }}</span
+      ><span class="ms-auto">{{
+        dialogRef.data.plan === 'essentials' ? '$7.99/mo' : '$19.99/mo'
+      }}</span></Message
+    >
+  </div>
+  <Message severity="secondary" v-else
+    >Registering for a free account limits features.<br /><span
+      class="border-b border-gray-400 hover:border-gray-800 border-dashed cursor-pointer"
+      @click="dialogRef?.close()"
+      >Upgrade to unlock full access.</span
+    ></Message
+  >
+
+  <div class="flex justify-end gap-2 mt-8">
+    <Button
+      type="button"
+      label="Register"
+      icon="pi pi-arrow-right"
+      icon-pos="right"
+      :loading="isPending"
+      @click="register"
+    ></Button>
   </div>
 </template>

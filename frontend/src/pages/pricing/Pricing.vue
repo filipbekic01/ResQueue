@@ -6,10 +6,10 @@ import { useDialog } from 'primevue/usedialog'
 
 const dialog = useDialog()
 
-const openRegisterDialog = (pricingId?: string) =>
+const openRegisterDialog = (plan?: string) =>
   dialog.open(RegisterDialog, {
     data: {
-      pricingId
+      plan
     },
     props: {
       header: 'Registration',
@@ -47,7 +47,7 @@ const openRegisterDialog = (pricingId?: string) =>
         :price="7.99"
         severity="info"
         :recommended="true"
-        @get-started="openRegisterDialog('prod_QhMwOLV4urqRjA')"
+        @get-started="openRegisterDialog('essentials')"
       />
 
       <PricingCard
@@ -57,7 +57,7 @@ const openRegisterDialog = (pricingId?: string) =>
         :price="19.99"
         severity="primray"
         :recommended="false"
-        @get-started="openRegisterDialog('prod_QhMxhOpIthNWcs')"
+        @get-started="openRegisterDialog('ultimate')"
       />
     </div>
 
