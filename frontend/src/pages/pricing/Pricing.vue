@@ -61,20 +61,20 @@ const openRegisterDialog = (plan?: string) =>
       />
     </div>
 
-    <div class="mx-16 text-sm text-gray-500 pt-24">
+    <div class="mx-16 text-sm text-slate-500 pt-24">
       While we strive to keep our services accessible, the reality is that maintaining high-quality
       offerings comes with costs. From hosting and databases to ongoing development, these expenses
       are essential for us to continue delivering the tools you rely on. Your support through our
       payment plans allows us to cover these costs and keep improving. We sincerely appreciate your
       contributions and thank you for helping us grow.
     </div>
-    <div class="mx-16 text-sm text-gray-500 mt-4">
+    <div class="mx-16 text-sm text-slate-500 mt-4">
       Support is provided through our dedicated Discord channel and active community forums, with
       the option for on-premise, one-to-one direct support through these channels. For custom plan
       requests, don’t hesitate to reach out through any of our support channels—we're more than
       happy to assist you.
     </div>
-    <div class="mx-16 text-sm text-gray-500 mt-4">
+    <div class="mx-16 text-sm text-slate-500 mt-4">
       (*) While "unlimited" means you can add as many brokers as you need, it still refers to a
       practical, though extensive, capacity within the system.
     </div>

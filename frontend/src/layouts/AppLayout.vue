@@ -115,7 +115,7 @@ const brokerRoutes = computed<ResqueueRoute[]>(() => {
     <div class="basis-70 w-70 basis-70 shrink-0 flex flex-col">
       <RouterLink
         :to="{ name: 'app' }"
-        class="flex flex-row gap-3 items-center py-3 px-2 ms-2 me-3 border-b border-gray-200"
+        class="flex flex-row gap-3 items-center py-3 px-2 ms-2 me-3 border-b border-slate-200"
       >
         <div class="grow flex items-center justify-end bg-black p-2.5 rounded-lg">
           <i class="pi pi-database text-white rotate-90" style="font-size: 1.5rem"></i>
@@ -133,7 +133,7 @@ const brokerRoutes = computed<ResqueueRoute[]>(() => {
           v-bind="staticRoute"
         />
 
-        <div class="border-b border-gray-200 my-2"></div>
+        <div class="border-b border-slate-200 my-2"></div>
         <!-- <InputText placeholder="Search" variant="outlined"></InputText> -->
 
         <SidebarRouterLink
@@ -163,7 +163,7 @@ const brokerRoutes = computed<ResqueueRoute[]>(() => {
       </div>
     </div>
 
-    <div class="bg-white flex flex-col grow rounded-2xl border border-gray-200 overflow-auto">
+    <div class="bg-white flex flex-col grow rounded-2xl border border-slate-200 overflow-auto">
       <div class="border-b px-4 py-3" v-if="!hideHeader">
         <div class="flex gap-2">
           <div><slot name="prepend"></slot></div>
@@ -181,7 +181,7 @@ const brokerRoutes = computed<ResqueueRoute[]>(() => {
     </div>
   </div>
   <template v-else> Loading...</template>
-  <!-- <div class="bg-gray-300 flex flex-col">
+  <!-- <div class="bg-slate-300 flex flex-col">
       <div class="flex px-2">
         <div class="text-orange-700">RabbitMQ</div>
       </div>
@@ -199,7 +199,7 @@ const brokerRoutes = computed<ResqueueRoute[]>(() => {
       
       ----------------------- Archive?
       <div class="border-t flex flex-col mt-auto">
-        <div class="p-2 ms-auto text-gray-400">{{ user!.email }}</div>
+        <div class="p-2 ms-auto text-slate-400">{{ user!.email }}</div>
         <div class="p-2 cursor-pointer" @click="logout">Log out</div>
       </div>
     </div> -->

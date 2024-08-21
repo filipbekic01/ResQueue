@@ -40,7 +40,7 @@ const { user } = useIdentity()
     </div>
 
     <div class="flex gap-4 items-center">
-      <div class="shadow bg-white border-gray-400 flex-1 text-gray-700 rounded-2xl p-4">
+      <div class="shadow bg-white border-slate-400 flex-1 text-slate-700 rounded-2xl p-4">
         <div class="text-xl font-bold flex gap-2 items-center">
           <div class="bg-[#ff6600] rounded-lg w-8 p-1.5">
             <img src="/rmq.svg" />
@@ -50,7 +50,7 @@ const { user } = useIdentity()
         </div>
       </div>
 
-      <div class="shadow bg-white border-gray-400 flex-1 text-gray-700 rounded-2xl p-4">
+      <div class="shadow bg-white border-slate-400 flex-1 text-slate-700 rounded-2xl p-4">
         <div class="text-xl font-bold flex gap-2 items-center">
           <div class="bg-[#007FFF] rounded-lg w-8 p-1.5">
             <img src="/azure.svg" />
@@ -58,21 +58,21 @@ const { user } = useIdentity()
           Azure Service Bus
           <i
             v-tooltip.top="'Coming soon...'"
-            class="pi pi-calendar-clock ms-auto text-gray-600"
+            class="pi pi-calendar-clock ms-auto text-slate-600"
             style="font-size: 1.15rem"
           ></i>
         </div>
       </div>
 
-      <div class="shadow bg-white border-gray-400 flex-1 text-gray-700 rounded-2xl p-4">
+      <div class="shadow bg-white border-slate-400 flex-1 text-slate-700 rounded-2xl p-4">
         <div class="text-xl font-bold flex gap-2 items-center">
-          <div class="bg-[#fff] rounded-lg w-8 p-1.5 border border-gray-300">
+          <div class="bg-[#fff] rounded-lg w-8 p-1.5 border border-slate-300">
             <img src="/aws.svg" />
           </div>
           Amazon SQS
           <i
             v-tooltip.top="'Coming soon...'"
-            class="pi pi-calendar-clock ms-auto text-gray-600"
+            class="pi pi-calendar-clock ms-auto text-slate-600"
             style="font-size: 1.15rem"
           ></i>
         </div>
@@ -80,7 +80,7 @@ const { user } = useIdentity()
     </div>
 
     <div class="flex gap-4 mt-16">
-      <div class="shadow bg-white border-gray-400 flex-1 text-gray-700 rounded-2xl p-6">
+      <div class="shadow bg-white border-slate-400 flex-1 text-slate-700 rounded-2xl p-6">
         <div class="text-xl font-bold">
           <i class="pi pi-th-large mr-3" style="font-size: 1.15rem"></i>Connect Multiple Brokers
         </div>
@@ -89,7 +89,7 @@ const { user } = useIdentity()
           management experience.
         </div>
       </div>
-      <div class="shadow bg-white border-gray-400 flex-1 text-gray-700 rounded-2xl p-6">
+      <div class="shadow bg-white border-slate-400 flex-1 text-slate-700 rounded-2xl p-6">
         <div class="text-xl font-bold">
           <i class="pi pi-send mr-3" style="font-size: 1.15rem"></i>Requeue Any Message
         </div>
@@ -100,7 +100,7 @@ const { user } = useIdentity()
       </div>
     </div>
     <div class="flex gap-4 mt-4">
-      <div class="shadow bg-white border-gray-400 flex-1 text-gray-700 rounded-2xl p-6">
+      <div class="shadow bg-white border-slate-400 flex-1 text-slate-700 rounded-2xl p-6">
         <div class="text-xl font-bold">
           <i class="pi pi-paperclip mr-3" style="font-size: 1.15rem"></i>Message IDs for Easy
           Sharing
@@ -110,7 +110,7 @@ const { user } = useIdentity()
           colleagues.
         </div>
       </div>
-      <div class="shadow bg-white border-gray-400 flex-1 text-gray-700 rounded-2xl p-6">
+      <div class="shadow bg-white border-slate-400 flex-1 text-slate-700 rounded-2xl p-6">
         <div class="text-xl font-bold">
           <i class="pi pi-check-circle mr-3" style="font-size: 1.15rem"></i>Mark Messages as
           Reviewed

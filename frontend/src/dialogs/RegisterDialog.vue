@@ -137,7 +137,7 @@ onMounted(() => {
   </div>
   <Message severity="secondary" v-else
     >Registering for a free account limits features.<br /><span
-      class="border-b border-gray-400 hover:border-gray-800 border-dashed cursor-pointer"
+      class="border-b border-slate-400 hover:border-slate-800 border-dashed cursor-pointer"
       @click="dialogRef?.close()"
       >Upgrade to unlock full access.</span
     ></Message

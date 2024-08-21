@@ -34,7 +34,7 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => {
   <RouterLink
     :key="id"
     :to="to"
-    class="w-full flex items-center py-2.5 px-4 text-gray-700 rounded-lg hover:bg-white"
+    class="w-full flex items-center py-2.5 px-4 text-slate-700 rounded-lg hover:bg-white"
     :class="[
       {
         'bg-white shadow font-semibold': isRoute(to),
@@ -43,12 +43,12 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => {
     ]"
   >
     <i
-      class="mr-3 text-gray-600"
+      class="mr-3 text-slate-600"
       style="font-size: 1.125rem"
       :class="[
         icon,
         {
-          'text-gray-900': isRoute(to)
+          'text-slate-900': isRoute(to)
         }
       ]"
     ></i>

@@ -89,8 +89,8 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
             :class="[
               'text-lg px-2 h-full flex items-center border-b',
               {
-                'border-gray-200': !isRoute({ name: 'home' }),
-                'border-gray-500': isRoute({ name: 'home' })
+                'border-slate-200': !isRoute({ name: 'home' }),
+                'border-slate-500': isRoute({ name: 'home' })
               }
             ]"
             :to="{ name: 'home' }"
@@ -100,8 +100,8 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
             :class="[
               'text-lg px-2 h-full flex items-center border-b',
               {
-                'border-gray-200': !isRoute({ name: 'pricing' }),
-                'border-gray-500': isRoute({ name: 'pricing' })
+                'border-slate-200': !isRoute({ name: 'pricing' }),
+                'border-slate-500': isRoute({ name: 'pricing' })
               }
             ]"
             :to="{ name: 'pricing' }"
@@ -111,8 +111,8 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
             :class="[
               'text-lg px-2 h-full flex items-center border-b',
               {
-                'border-gray-200': !isRoute({ name: 'support' }),
-                'border-gray-500': isRoute({ name: 'support' })
+                'border-slate-200': !isRoute({ name: 'support' }),
+                'border-slate-500': isRoute({ name: 'support' })
               }
             ]"
             :to="{ name: 'support' }"
@@ -145,7 +145,7 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
     <div class="w-[1024px] grow mx-auto px-8">
       <slot></slot>
     </div>
-    <div class="bg-white border-t border-gray-100 mt-16 py-4 text-center">
+    <div class="bg-white border-t border-slate-100 mt-16 py-4 text-center">
       Developed in Republic of Serbia, Novi Sad
     </div>
   </div>

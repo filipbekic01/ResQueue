@@ -81,7 +81,7 @@ const updateTabValue = (a: any) => router.push({ name: a })
 
         <div class="flex flex-col ps-3">
           <div class="font-bold text-3xl">{{ broker.name }}</div>
-          <div class="flex gap-2 text-gray-500 mt-auto items-center">
+          <div class="flex gap-2 text-slate-500 mt-auto items-center">
             <i
               class="pi pi-sync"
               :class="[
@@ -115,14 +115,14 @@ const updateTabValue = (a: any) => router.push({ name: a })
           <Tab value="topics">Topics</Tab>
           <Tab value="queues">Queues</Tab>
           <div class="flex px-3 gap-3 grow items-center">
-            <div class="ms-auto text-gray-500">Filters</div>
+            <div class="ms-auto text-slate-500">Filters</div>
 
             <i
               v-if="route.query.search"
-              class="pi pi-times me-1 text-gray-400 cursor-pointer hover:text-gray-600"
+              class="pi pi-times me-1 text-slate-400 cursor-pointer hover:text-slate-600"
               @click="applySearch('')"
             ></i>
-            <i v-else class="pi pi-filter me-1 text-gray-400"></i>
+            <i v-else class="pi pi-filter me-1 text-slate-400"></i>
             <InputText
               class="max-w-96"
               placeholder="Search"

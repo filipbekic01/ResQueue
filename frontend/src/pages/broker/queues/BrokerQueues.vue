@@ -109,7 +109,7 @@ const updateSort = (e: DataTableSortEvent) => {
       <Column field="pulled" header="Pld" class="w-[0%]">
         <template #body="{ data }">
           <div class="flex gap-1 items-center">
-            <i class="text-xs text-gray-500 pi pi-inbox"></i>{{ data.parsed['messages'] }}
+            <i class="text-xs text-slate-500 pi pi-inbox"></i>{{ data.parsed['messages'] }}
           </div>
         </template>
       </Column>

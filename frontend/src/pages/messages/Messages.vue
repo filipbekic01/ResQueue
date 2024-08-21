@@ -296,7 +296,7 @@ const syncLabel = computed(() => {
             <div class="flex">
               <span
                 @click="openMessage(data.id)"
-                class="border-dashed border-gray-600 border-b hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
+                class="border-dashed border-slate-600 border-b hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
                 >{{ data.id }}</span
               >
             </div>
@@ -317,7 +317,7 @@ const syncLabel = computed(() => {
 
         <Column field="updatedAt" header="Updated" class="w-[0%]">
           <template #body="{ data }"
-            ><div class="whitespace-nowrap text-gray-500">
+            ><div class="whitespace-nowrap text-slate-500">
               {{ data.updatedAt ? `${formatDistanceToNow(data.updatedAt)}` : 'never' }}
             </div></template
           >
