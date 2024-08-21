@@ -3,13 +3,11 @@ import { useLoginMutation } from '@/api/auth/loginMutation'
 import { useLogoutMutation } from '@/api/auth/logoutMutation'
 import { useMeQuery } from '@/api/auth/meQuery'
 import { useIdentity } from '@/composables/identityComposable'
-import RegisterDialog from '@/dialogs/RegisterDialog.vue'
 import Dialog from 'primevue/dialog'
-import { useDialog } from 'primevue/usedialog'
 import { ref } from 'vue'
-import { RouterLink, useRoute, type RouteLocationAsRelativeGeneric } from 'vue-router'
+import { RouterLink, useRoute, useRouter, type RouteLocationAsRelativeGeneric } from 'vue-router'
 
-const dialog = useDialog()
+const router = useRouter()
 
 const { user } = useIdentity()
 const { refetch } = useMeQuery()
@@ -45,17 +43,6 @@ const logout = () => {
 }
 
 const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
-
-const openRegisterDialog = () =>
-  dialog.open(RegisterDialog, {
-    props: {
-      header: 'Registration',
-      style: {
-        width: '30rem'
-      },
-      modal: true
-    }
-  })
 </script>
 
 <template>
@@ -135,9 +122,6 @@ const openRegisterDialog = () =>
         <div class="basis-1/3 flex justify-end gap-3 py-3 items-center">
           <template v-if="user">
             <Button @click="logout" label="Logout" icon="pi pi-sign-out" text></Button>
-            <RouterLink :to="{ name: 'app' }">
-              <Button label="Dashboard" icon="pi pi-arrow-right" icon-pos="right"></Button>
-            </RouterLink>
           </template>
           <template v-else>
             <Button
@@ -149,9 +133,9 @@ const openRegisterDialog = () =>
               text
             ></Button>
             <Button
-              @click="openRegisterDialog"
+              @click="router.push({ name: 'pricing' })"
               class="p-2 cursor-pointer"
-              label="Register"
+              label="Free Registration"
               icon="pi pi-user-plus"
             ></Button>
           </template>

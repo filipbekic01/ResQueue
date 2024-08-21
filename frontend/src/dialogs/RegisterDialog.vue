@@ -2,30 +2,56 @@
 import { useLoginMutation } from '@/api/auth/loginMutation'
 import { useMeQuery } from '@/api/auth/meQuery'
 import { useRegisterMutation } from '@/api/auth/registerMutation'
+import { useCreateSubscriptionMutation } from '@/api/stripe/createSubscriptionMutation'
 import { useIdentity } from '@/composables/identityComposable'
+import { loadStripe, type Stripe, type StripeCardElement } from '@stripe/stripe-js'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
-import { inject, ref, type Ref } from 'vue'
+import { inject, onMounted, ref, type Ref } from 'vue'
 
 const { user } = useIdentity()
 const { mutateAsync: registerAsync } = useRegisterMutation()
 const { refetch } = useMeQuery()
 
 const { mutateAsync: loginAsync } = useLoginMutation()
+const { mutateAsync: createSubscriptionAsync } = useCreateSubscriptionMutation()
 
 const email = ref('filip1994sm@gmail.com')
 const password = ref('Password1!')
 
 const passwordType = ref('password')
 
+let stripe: Stripe | null = null
+let cardElement: StripeCardElement | null = null
+
 const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 
 const togglePasswordType = () =>
   (passwordType.value = passwordType.value == 'password' ? 'text' : 'password')
 
-const register = () => {
+const register = async () => {
+  if (!stripe || !cardElement) {
+    alert('Payment initialization error.')
+    return
+  }
+
+  const { error, paymentMethod } = await stripe.createPaymentMethod({
+    type: 'card',
+    card: cardElement,
+    billing_details: {
+      email: email.value
+    }
+  })
+
+  if (!paymentMethod || error) {
+    alert('Payment processing error.')
+    return
+  }
+
   registerAsync({
     email: email.value,
-    password: password.value
+    password: password.value,
+    paymentMethodId: paymentMethod.id,
+    priceId: dialogRef?.value.data.priceId
   }).then(() => {
     loginAsync({
       email: email.value,
@@ -38,6 +64,25 @@ const register = () => {
     })
   })
 }
+
+const loadStripeAsync = async () => {
+  stripe = await loadStripe(
+    'pk_test_51PpxV4KE6sxW2owau69f5U6Fzf5uMnUIgo9gB8WxnCkaix9pcxn9yGr1erlTZjPt2ec7I8X42eKKmNpCgNoaDxw300PVRqNQUe'
+  )
+
+  if (!stripe) {
+    return
+  }
+
+  const elements = stripe.elements()
+
+  cardElement = elements.create('card')
+  cardElement.mount('#card-element')
+}
+
+onMounted(() => {
+  loadStripeAsync()
+})
 </script>
 
 <template>

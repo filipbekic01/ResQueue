@@ -1,6 +1,24 @@
 <script lang="ts" setup>
 import WebLayout from '@/layouts/WebLayout.vue'
 import PricingCard from './PricingCard.vue'
+import RegisterDialog from '@/dialogs/RegisterDialog.vue'
+import { useDialog } from 'primevue/usedialog'
+
+const dialog = useDialog()
+
+const openRegisterDialog = (pricingId?: string) =>
+  dialog.open(RegisterDialog, {
+    data: {
+      pricingId
+    },
+    props: {
+      header: 'Registration',
+      style: {
+        width: '30rem'
+      },
+      modal: true
+    }
+  })
 </script>
 
 <template>
@@ -19,6 +37,7 @@ import PricingCard from './PricingCard.vue'
         :price="0"
         severity="secondary"
         :recommended="false"
+        @get-started="openRegisterDialog(undefined)"
       />
 
       <PricingCard
@@ -26,8 +45,9 @@ import PricingCard from './PricingCard.vue'
         text="All features unlocked"
         :features="['Unlimited brokers (*)', '5GB Storage', 'Team Collaboration']"
         :price="7.99"
-        severity="success"
+        severity="info"
         :recommended="true"
+        @get-started="openRegisterDialog('prod_QhMwOLV4urqRjA')"
       />
 
       <PricingCard
@@ -35,8 +55,9 @@ import PricingCard from './PricingCard.vue'
         text="All features unlocked"
         :features="['Unlimited brokers (*)', '100GB Storage', 'Team Collaboration']"
         :price="19.99"
-        severity="primary"
+        severity="primray"
         :recommended="false"
+        @get-started="openRegisterDialog('prod_QhMxhOpIthNWcs')"
       />
     </div>
 

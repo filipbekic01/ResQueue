@@ -2,6 +2,9 @@
 import { useIdentity } from '@/composables/identityComposable'
 import WebLayout from '@/layouts/WebLayout.vue'
 import Button from 'primevue/button'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const { user } = useIdentity()
 </script>
@@ -11,15 +14,26 @@ const { user } = useIdentity()
     <div class="flex px-8 py-24">
       <div class="flex flex-col justify-center items-center grow">
         <div class="text-4xl font-bold mx-auto">Effortless Queue Healing</div>
-        <!-- <div class="mx-auto mt-4 text-xl">Streamline, Manage, and Requeue with Ease.</div> -->
         <div class="mx-auto mt-4 text-xl">
           Dead-Letter Queue (DLQ) Management • Manage and Re(s)queue with Ease
         </div>
 
         <div class="flex mt-8">
-          <Button v-if="!user" size="large" label="Create Account"></Button>
+          <Button
+            v-if="!user"
+            size="large"
+            label="Begin Your Journey"
+            icon="pi pi-arrow-right"
+            icon-pos="right"
+            @click="router.push({ name: 'pricing' })"
+          ></Button>
           <RouterLink v-else :to="{ name: 'app' }"
-            ><Button size="large" label="Go to Dashboard"></Button
+            ><Button
+              size="large"
+              label="Go to Dashboard"
+              icon="pi pi-arrow-right"
+              icon-pos="right"
+            ></Button
           ></RouterLink>
         </div>
       </div>

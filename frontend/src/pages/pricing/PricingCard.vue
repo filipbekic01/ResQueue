@@ -9,6 +9,10 @@ defineProps<{
   severity: string
   recommended: boolean
 }>()
+
+const emit = defineEmits<{
+  (e: 'get-started'): void
+}>()
 </script>
 
 <template>
@@ -34,6 +38,6 @@ defineProps<{
     <ul class="space-y-2 mb-6 text-center">
       <li v-for="ft in features" :key="ft">{{ ft }}</li>
     </ul>
-    <Button label="Get Started" :severity="severity"></Button>
+    <Button label="Get Started" :severity="severity" @click="emit('get-started')"></Button>
   </div>
 </template>

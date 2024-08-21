@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@primevue/themes": "^4.0.4",
+    "@stripe/stripe-js": "^4.3.0",
     "@tanstack/vue-query": "^5.51.21",
     "axios": "^1.7.4",
     "date-fns": "^3.6.0",
