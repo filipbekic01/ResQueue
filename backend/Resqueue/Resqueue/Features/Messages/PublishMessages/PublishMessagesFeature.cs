@@ -119,10 +119,7 @@ public class PublishMessagesFeature(
 
                 if (message.RabbitmqMetadata.Properties.Headers is not null)
                 {
-                    // props.Headers = message.RabbitmqMetadata.Properties.Headers;
-                    props.Headers =
-                        JsonSerializer.Deserialize<IDictionary<string, object>>(message.RabbitmqMetadata.Properties
-                            .Headers.ToJson());
+                    props.Headers = message.RabbitmqMetadata.Properties.Headers;
                 }
 
                 if (message.RabbitmqMetadata.Properties.MessageId is not null)
@@ -164,13 +161,13 @@ public class PublishMessagesFeature(
             };
 
             channel.BasicPublish(exchange.RawData.GetValue("name").AsString, "", false, props, body);
-        }
 
-        await messagesCollection.UpdateOneAsync(
-            Builders<Message>.Filter
-                .In(b => b.Id, messages.Select(x => x.Id).ToList()),
-            Builders<Message>.Update
-                .Set(b => b.DeletedAt, DateTime.UtcNow));
+            await messagesCollection.UpdateOneAsync(
+                Builders<Message>.Filter
+                    .Eq(b => b.Id, message.Id),
+                Builders<Message>.Update
+                    .Set(b => b.DeletedAt, DateTime.UtcNow));
+        }
 
         return OperationResult<PublishMessagesFeatureResponse>.Success(new PublishMessagesFeatureResponse());
     }

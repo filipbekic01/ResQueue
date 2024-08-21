@@ -56,9 +56,7 @@ public static class MessageMapper
                 CorrelationId = metadata.Properties.CorrelationId,
                 DeliveryMode = metadata.Properties.DeliveryMode,
                 Expiration = metadata.Properties.Expiration,
-                Headers = metadata.Properties.Headers is { } headers
-                    ? JsonSerializer.Deserialize<IDictionary<string, object>>(headers.ToJson())
-                    : null,
+                Headers = metadata.Properties.Headers,
                 MessageId = metadata.Properties.MessageId,
                 Priority = metadata.Properties.Priority,
                 ReplyTo = metadata.Properties.ReplyTo,
