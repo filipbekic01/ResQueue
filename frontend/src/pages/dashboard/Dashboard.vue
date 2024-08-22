@@ -75,18 +75,18 @@ const logout = () => {
           <div class="mt-3">Dialogs</div>
           <div class="text-slate-600 flex flex-col gap-2 mt-2">
             <div class="flex items-center gap-1.5">
-              <Checkbox :value="user?.userConfig.showBrokerSyncConfirm"></Checkbox> Show broker sync
-              confirm dialog
+              <Checkbox :model-value="user?.userConfig.showBrokerSyncConfirm"></Checkbox> Show
+              broker sync confirm dialog
             </div>
             <div class="flex items-center gap-1.5">
-              <Checkbox :value="user?.userConfig.showMessagesSyncConfirm"></Checkbox> Show message
-              sync confirm dialog
+              <Checkbox :model-value="user?.userConfig.showMessagesSyncConfirm"></Checkbox> Show
+              message sync confirm dialog
             </div>
           </div>
         </div>
       </div>
       <div>
-        <Button label="Logout" @click="logout" outlined icon="pi pi-sign-out  "></Button>
+        <Button label="Logout" @click="logout" outlined icon="pi pi-sign-out"></Button>
       </div>
     </div>
   </AppLayout>
