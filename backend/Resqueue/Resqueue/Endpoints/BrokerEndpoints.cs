@@ -35,7 +35,7 @@ public static class BrokerEndpoints
                     x.System,
                     x.Name,
                     x.Port,
-                    x.Url,
+                    x.Host,
                     x.Framework,
                     x.CreatedAt,
                     x.UpdatedAt,
@@ -64,9 +64,6 @@ public static class BrokerEndpoints
                     }
                 }
 
-                byte[] authBytes = Encoding.UTF8.GetBytes($"{dto.Username}:{dto.Password}");
-                string authBase64 = Convert.ToBase64String(authBytes);
-
                 var dateTime = DateTime.UtcNow;
 
                 var broker = new Broker
@@ -74,9 +71,10 @@ public static class BrokerEndpoints
                     UserId = user.Id,
                     System = BrokerSystems.RABBIT_MQ,
                     Name = dto.Name,
-                    Auth = authBase64,
+                    Username = dto.Username,
+                    Password = dto.Password,
                     Port = dto.Port,
-                    Url = dto.Url,
+                    Host = dto.Host,
                     Framework = string.IsNullOrEmpty(dto.Framework) ? Frameworks.NONE : dto.Framework.ToLower(),
                     CreatedAt = dateTime,
                     UpdatedAt = dateTime

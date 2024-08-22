@@ -1,16 +1,15 @@
 <script lang="ts" setup>
+import { useBrokersQuery } from '@/api/broker/brokersQuery'
+import { useMessageQuery } from '@/api/messages/messageQuery'
 import { usePublishMessagesMutation } from '@/api/messages/publishMessagesMutation'
 import { useExchanges } from '@/composables/exchangesComposable'
+import { BROKER_SYSTEMS } from '@/constants/brokerSystems'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import MessageRabbitMq from './MessageRabbitMq.vue'
-import { useBrokersQuery } from '@/api/broker/brokersQuery'
-import { BROKER_SYSTEMS } from '@/constants/brokerSystems'
-import { useMessageQuery } from '@/api/messages/messageQuery'
-import SelectButton from 'primevue/selectbutton'
 
 const props = defineProps<{
   brokerId: string
@@ -81,7 +80,9 @@ const backToMessages = () => {
   })
 }
 
-const isMasstransitFramework = computed(() => message.value?.rawData.includes('MT-Host'))
+const isMasstransitFramework = computed(() =>
+  Object.keys(message.value?.rabbitmqMetadata?.properties.headers ?? {})?.includes('MT-Host')
+)
 </script>
 
 <template>
