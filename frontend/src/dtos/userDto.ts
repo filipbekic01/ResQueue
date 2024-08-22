@@ -4,4 +4,6 @@ export interface UserDto {
   id: string
   email: string
   userConfig: UserConfigDto
+  isSubscribed: boolean
+  subscriptionId: string
 }

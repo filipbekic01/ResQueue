@@ -6,7 +6,7 @@ import type { RegisterDto } from '@/dtos/registerDto'
 export function useRegisterMutation() {
   return useMutation({
     mutationFn: (data: RegisterDto) =>
-      axios.post(`${API_URL}/register`, data, {
+      axios.post(`${API_URL}/auth/register`, data, {
         withCredentials: true
       })
   })

@@ -1,21 +1,19 @@
 <script lang="ts" setup>
 import { useLoginMutation } from '@/api/auth/loginMutation'
-import { useMeQuery } from '@/api/auth/meQuery'
 import { useRegisterMutation } from '@/api/auth/registerMutation'
 import { useIdentity } from '@/composables/identityComposable'
-import {
-  loadStripe,
-  type PaymentMethod,
-  type Stripe,
-  type StripeCardElement
-} from '@stripe/stripe-js'
+import { loadStripe, type Stripe, type StripeCardElement } from '@stripe/stripe-js'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
 import Message from 'primevue/message'
+import { useToast } from 'primevue/usetoast'
 import { inject, onMounted, ref, type Ref } from 'vue'
 
-const { user } = useIdentity()
-const { mutateAsync: registerAsync, isPending } = useRegisterMutation()
-const { refetch } = useMeQuery()
+const { mutateAsync: registerAsync } = useRegisterMutation()
+const toast = useToast()
+
+const {
+  query: { refetch }
+} = useIdentity()
 
 const { mutateAsync: loginAsync } = useLoginMutation()
 
@@ -32,47 +30,93 @@ const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 const togglePasswordType = () =>
   (passwordType.value = passwordType.value == 'password' ? 'text' : 'password')
 
+const paymentMethodId = ref<string>()
+const isRegisterLoading = ref(false)
 const register = async () => {
-  let pm: PaymentMethod | undefined = undefined
+  if (isRegisterLoading.value) {
+    return
+  }
 
-  if (dialogRef?.value.plan) {
+  isRegisterLoading.value = true
+
+  if (dialogRef?.value.data.plan) {
     if (!stripe || !cardElement) {
-      alert('Payment initialization error.')
+      toast.add({
+        severity: 'error',
+        summary: 'Registration Problem',
+        detail: 'Payment initialization error.',
+        life: 6000
+      })
+      isRegisterLoading.value = false
       return
     }
 
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: 'card',
-      card: cardElement,
-      billing_details: {
-        email: email.value
+    try {
+      const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: 'card',
+        card: cardElement,
+        billing_details: {
+          email: email.value
+        }
+      })
+
+      if (!paymentMethod || error) {
+        toast.add({
+          severity: 'error',
+          summary: 'Registration Problem',
+          detail: 'Payment processing error.',
+          life: 6000
+        })
+        isRegisterLoading.value = false
+        return
       }
-    })
 
-    if (!paymentMethod || error) {
-      alert('Payment processing error.')
-      return
+      paymentMethodId.value = paymentMethod.id
+    } catch (e) {
+      isRegisterLoading.value = false
+      toast.add({
+        severity: 'error',
+        summary: 'Registration Problem',
+        detail: e,
+        life: 6000
+      })
     }
-
-    pm = paymentMethod
   }
 
   registerAsync({
     email: email.value,
     password: password.value,
-    paymentMethodId: pm?.id,
+    paymentMethodId: paymentMethodId.value,
     plan: dialogRef?.value.data.plan
-  }).then(() => {
-    loginAsync({
-      email: email.value,
-      password: password.value
-    }).then(() => {
-      refetch().then((x) => {
-        user.value = x.data
-        dialogRef?.value.close()
+  })
+    .then(() => {
+      loginAsync({
+        email: email.value,
+        password: password.value
+      }).then(() => {
+        refetch().then(() => {
+          dialogRef?.value.close()
+        })
       })
     })
-  })
+    .catch((e) => {
+      let error = e.message
+
+      if (e.response?.data?.errors && Object.keys(e.response.data.errors).length) {
+        const firstKey = Object.keys(e.response.data.errors)[0]
+        error = e.response.data.errors[firstKey][0]
+      }
+
+      toast.add({
+        severity: 'error',
+        summary: 'Registration Problem',
+        detail: error,
+        life: 6000
+      })
+    })
+    .finally(() => {
+      isRegisterLoading.value = false
+    })
 }
 
 const loadStripeAsync = async () => {
@@ -95,7 +139,16 @@ const loadStripeAsync = async () => {
 }
 
 onMounted(() => {
-  loadStripeAsync()
+  isRegisterLoading.value = true
+  setTimeout(() => {
+    if (dialogRef?.value.data.plan) {
+      loadStripeAsync().finally(() => {
+        isRegisterLoading.value = false
+      })
+    } else {
+      isRegisterLoading.value = false
+    }
+  }, 500)
 })
 </script>
 
@@ -124,8 +177,11 @@ onMounted(() => {
       autocomplete="off"
     />
   </div>
-  <div v-if="dialogRef?.data.plan" class="flex flex-col gap-4">
-    <label for="card-element" class="font-semibold white flex items-center">Credit Card </label>
+  <div
+    v-if="dialogRef?.data.plan"
+    class="flex flex-col gap-4 p-4 rounded-xl border border-slate-300"
+  >
+    <label for="card-element" class="font-semibold white flex items-center"> Credit Card </label>
     <div class="border border-slate-300 p-3 rounded-md" id="card-element"></div>
     <Message severity="secondary" pt:text:class="flex grow gap-2 "
       >Plan:
@@ -143,14 +199,16 @@ onMounted(() => {
     ></Message
   >
 
-  <div class="flex justify-end gap-2 mt-8">
+  <div class="flex items-center gap-2 mt-8 flex-col">
     <Button
       type="button"
       label="Register"
       icon="pi pi-arrow-right"
       icon-pos="right"
-      :loading="isPending"
+      class="w-3/4"
+      :loading="isRegisterLoading"
       @click="register"
     ></Button>
+    <div class="text-gray-500">Let's build something great together!</div>
   </div>
 </template>

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Resqueue.Dtos;
 using Resqueue.Features.Stripe.CreateSubscription;
+using Resqueue.Filters;
 using Resqueue.Models;
 
 namespace Resqueue.Endpoints;
@@ -24,7 +25,10 @@ public static class AuthEndpoints
             return Results.Ok(new UserDto()
             {
                 Id = user.Id.ToString(),
-                Email = user.Email,
+                Email = user.Email!,
+                SubscriptionId = user.SubscriptionId,
+                IsSubscribed = user.IsSubscribed,
+                SubscriptionPlan = user.SubscriptionPlan,
                 UserConfig = new UserConfigDto
                 {
                     showBrokerSyncConfirm = user.UserConfig.showBrokerSyncConfirm,
@@ -56,10 +60,11 @@ public static class AuthEndpoints
                 }
 
                 var featureResult = await feature.ExecuteAsync(new CreateSubscriptionRequest(
+                    UserId: user.Id.ToString(),
                     new(
                         CustomerEmail: user.Email,
                         PaymentMethodId: dto.PaymentMethodId,
-                        PriceId: dto.Plan // todo: define priceId
+                        Plan: dto.Plan
                     )
                 ));
 
@@ -72,7 +77,7 @@ public static class AuthEndpoints
                 }
 
                 return Results.Ok();
-            });
+            }).AllowAnonymousOnly();
 
         group.MapPost("logout", async (SignInManager<User> signInManager,
                 [FromBody] object empty) =>

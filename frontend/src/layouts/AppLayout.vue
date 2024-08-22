@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { useLogoutMutation } from '@/api/auth/logoutMutation'
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
-import { useDeleteBrokerMutation } from '@/api/broker/deleteBrokerMutation'
 import { useIdentity } from '@/composables/identityComposable'
-import { RouterLink, useRouter } from 'vue-router'
-import { useConfirm } from 'primevue/useconfirm'
+import { RouterLink } from 'vue-router'
 import CreateBrokerDialog from '@/dialogs/CreateBrokerDialog.vue'
 import { useDialog } from 'primevue/usedialog'
 import Button from 'primevue/button'
@@ -21,54 +18,15 @@ withDefaults(
   }
 )
 
-const { user } = useIdentity()
-const { mutateAsync: logoutAsync } = useLogoutMutation()
-const { mutateAsync: deleteBrokerAsync } = useDeleteBrokerMutation()
+const {
+  query: { data: user }
+} = useIdentity()
 const { data: brokers } = useBrokersQuery()
-const confirm = useConfirm()
-const router = useRouter()
 
 const dialog = useDialog()
 
-const logout = () => {
-  logoutAsync().then(() => {
-    user.value = undefined
-    router.push({ name: 'home' })
-  })
-}
-
 const openCreateBrokerDialog = () => {
   dialog.open(CreateBrokerDialog, {})
-}
-
-const deleteBroker = (event: any, id: string) => {
-  confirm.require({
-    target: event.currentTarget,
-    message: 'Do you want to delete this broker?',
-    icon: 'pi pi-info-circle',
-    rejectProps: {
-      label: 'Cancel',
-      severity: 'secondary',
-      outlined: true
-    },
-    acceptProps: {
-      label: 'Delete',
-      severity: 'danger'
-    },
-    accept: () => {
-      deleteBrokerAsync(id)
-    },
-    reject: () => {}
-  })
-}
-
-const openBroker = (id: string) => {
-  router.push({
-    name: 'broker',
-    params: {
-      brokerId: id
-    }
-  })
 }
 
 const staticRoutes = computed<ResqueueRoute[]>(() => [

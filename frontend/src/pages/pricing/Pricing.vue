@@ -3,13 +3,28 @@ import WebLayout from '@/layouts/WebLayout.vue'
 import PricingCard from './PricingCard.vue'
 import RegisterDialog from '@/dialogs/RegisterDialog.vue'
 import { useDialog } from 'primevue/usedialog'
+import { useIdentity } from '@/composables/identityComposable'
+import { useRouter } from 'vue-router'
 
 const dialog = useDialog()
+const router = useRouter()
 
-const openRegisterDialog = (plan?: string) =>
+const {
+  query: { data: user, isPending }
+} = useIdentity()
+
+const openRegisterDialog = (plan?: string) => {
+  if (user.value?.isSubscribed) {
+    router.push({
+      name: 'settings'
+    })
+
+    return
+  }
+
   dialog.open(RegisterDialog, {
     data: {
-      plan
+      plan: plan
     },
     props: {
       header: 'Registration',
@@ -19,6 +34,7 @@ const openRegisterDialog = (plan?: string) =>
       modal: true
     }
   })
+}
 </script>
 
 <template>
@@ -45,7 +61,7 @@ const openRegisterDialog = (plan?: string) =>
         text="All features unlocked"
         :features="['Unlimited brokers (*)', '5GB Storage', 'Team Collaboration']"
         :price="7.99"
-        severity="info"
+        severity="primary"
         :recommended="true"
         @get-started="openRegisterDialog('essentials')"
       />
@@ -61,7 +77,14 @@ const openRegisterDialog = (plan?: string) =>
       />
     </div>
 
-    <div class="mx-16 text-sm text-slate-500 pt-24">
+    <div class="flex justify-center mt-16">
+      <RouterLink :to="{ name: 'support' }" class="cursor-pointer text-gray-600 hover:text-blue-500"
+        ><i class="pi pi-question-circle me-1"></i>Experiencing issues or have additional questions?
+        Get help here.</RouterLink
+      >
+    </div>
+
+    <div class="mx-16 text-sm text-slate-500 pt-8">
       While we strive to keep our services accessible, the reality is that maintaining high-quality
       offerings comes with costs. From hosting and databases to ongoing development, these expenses
       are essential for us to continue delivering the tools you rely on. Your support through our

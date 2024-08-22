@@ -10,6 +10,7 @@ import Pricing from '../pages/pricing/Pricing.vue'
 import BrokerQueues from '@/pages/broker/queues/BrokerQueues.vue'
 import BrokerTopics from '@/pages/broker/topics/BrokerTopics.vue'
 import BrokerOverview from '@/pages/broker/overview/BrokerOverview.vue'
+import Login from '@/pages/login/Login.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,6 +19,11 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: Home
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: Login
     },
     {
       path: '/settings',

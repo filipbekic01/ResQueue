@@ -26,11 +26,11 @@ const emit = defineEmits<{
     ]"
   >
     <Tag
-      severity="info"
+      severity="success"
       v-if="recommended"
       style="font-weight: 600"
       class="-translate-y-4 translate-x-1/2 border-slate-400 border top-0 right-1/2 left-0 absolute"
-      >Recommended</Tag
+      ><i class="pi pi-sparkles me-1"></i>Recommended</Tag
     >
     <div class="text-2xl font-semibold mb-4">{{ tier }}</div>
     <div class="text-slate-500 mb-6">{{ text }}</div>
@@ -38,6 +38,10 @@ const emit = defineEmits<{
     <ul class="space-y-2 mb-6 text-center">
       <li v-for="ft in features" :key="ft">{{ ft }}</li>
     </ul>
-    <Button label="Get Started" :severity="severity" @click="emit('get-started')"></Button>
+    <Button
+      :outlined="tier.toLowerCase() !== 'essentials'"
+      label="Get Started"
+      @click="emit('get-started')"
+    ></Button>
   </div>
 </template>

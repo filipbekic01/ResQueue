@@ -1,10 +1,9 @@
-import type { UserDto } from '@/dtos/userDto'
-import { ref } from 'vue'
-
-const user = ref<UserDto>()
+import { useMeQuery } from '@/api/auth/meQuery'
 
 export function useIdentity() {
+  const query = useMeQuery()
+
   return {
-    user
+    query
   }
 }
