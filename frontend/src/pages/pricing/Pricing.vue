@@ -16,7 +16,7 @@ const {
 const openRegisterDialog = (plan?: string) => {
   if (user.value?.isSubscribed) {
     router.push({
-      name: 'settings'
+      name: 'dashboard'
     })
 
     return

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useLogoutMutation } from '@/api/auth/logoutMutation'
+import { useIdentity } from '@/composables/identityComposable'
 import AppLayout from '@/layouts/AppLayout.vue'
 
 function getRandomWelcomeBack() {
@@ -18,29 +20,56 @@ function getRandomWelcomeBack() {
   const randomIndex = Math.floor(Math.random() * messages.length)
   return messages[randomIndex]
 }
+
+const {
+  query: { data: user }
+} = useIdentity()
+
+const { mutateAsync: logoutAsync } = useLogoutMutation()
+
+const logout = () => {
+  logoutAsync().then(() => {
+    window.location.href = '/'
+  })
+}
 </script>
 
 <template>
   <AppLayout hide-header>
-    <div class="flex flex-col">
-      <div class="text-3xl font-bold px-7 pt-4">Dashboard</div>
-      <div class="text-slate-400 px-7">{{ getRandomWelcomeBack() }}</div>
-      <div class="flex mt-5">
-        <div class="basis-1/3 shrink-0 px-7">
-          <div class="text-lg">Account Subscription</div>
-        </div>
-        <div class="basis-1/3 shrink-0 px-7">
-          <div class="text-lg">Platform Limitations</div>
-          <ul>
-            <li>1mb per message limit</li>
-          </ul>
-        </div>
-        <div class="basis-1/3 shrink-0 px-7">
-          <div class="text-lg">Changelog</div>
-          <div>v1.0.1</div>
-          <div>- text</div>
-        </div>
+    <div class="text-3xl font-bold px-7 pt-4">Dashboard</div>
+    <div class="text-slate-400 px-7">{{ getRandomWelcomeBack() }}</div>
+    <div class="flex items-start pt-10">
+      <div class="px-7">
+        <div class="text-lg font-semibold">Unique ID</div>
+        <div class="text-slate-500">{{ user?.id }}</div>
       </div>
+      <div class="px-7">
+        <div class="text-lg font-semibold">E-Mail</div>
+        <div class="text-slate-500">{{ user?.email }}</div>
+      </div>
+    </div>
+    <div class="px-7 pt-7">
+      <div class="text-lg font-semibold">Subscription</div>
+      <div class="text-slate-500">{{ user?.subscriptionId }}</div>
+      <Button
+        v-if="!user?.isSubscribed"
+        class="mt-3"
+        label="Upgrade Account"
+        size="small"
+        icon="pi pi-arrow-up"
+        severity="success"
+      ></Button>
+      <div v-else>
+        <i class="pi pi-check-circle text-green-600 mt-3 me-2"></i>Subscribed to
+        {{ user.subscriptionId }} plan.
+      </div>
+    </div>
+    <div class="px-7 pt-7">
+      <div class="text-lg font-semibold">Configuration</div>
+      <div class="text-slate-500">{{ user?.userConfig }}</div>
+    </div>
+    <div class="px-7 mt-16">
+      <Button label="Logout" @click="logout" outlined icon="pi pi-sign-out  "></Button>
     </div>
   </AppLayout>
 </template>

@@ -3,18 +3,29 @@ import { createApp } from 'vue'
 import Rc from './Rc.vue'
 import router from './router'
 import PrimeVue from 'primevue/config'
-import { VueQueryPlugin } from '@tanstack/vue-query'
+import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import ConfirmationService from 'primevue/confirmationservice'
 import DialogService from 'primevue/dialogservice'
 import ToastService from 'primevue/toastservice'
 import { NoirPreset } from '@/config/noirPreset'
 import Tooltip from 'primevue/tooltip'
-import queryClient from '@/config/queryClient'
 
 const app = createApp(Rc)
 
 app.use(router)
-app.use(VueQueryPlugin, { queryClient })
+
+app.use(VueQueryPlugin, {
+  queryClient: new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        staleTime: Infinity
+      }
+    }
+  })
+})
+
 app.use(ConfirmationService)
 app.use(DialogService)
 app.use(ToastService)

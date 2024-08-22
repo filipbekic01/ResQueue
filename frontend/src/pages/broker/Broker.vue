@@ -36,7 +36,7 @@ const applySearch = (value: string) => {
 const syncBroker = () => {
   confirm.require({
     message:
-      'Do you really want to sync with remote broker? You can turn off this dialog in settings.',
+      'Do you really want to sync with remote broker? You can turn off this dialog on dashboard.',
     icon: 'pi pi-info-circle',
     header: 'Sync Broker',
     rejectProps: {

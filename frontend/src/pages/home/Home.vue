@@ -6,7 +6,9 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const { user } = useIdentity()
+const {
+  query: { data: user }
+} = useIdentity()
 </script>
 
 <template>

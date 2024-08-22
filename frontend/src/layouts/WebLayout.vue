@@ -1,21 +1,13 @@
 <script setup lang="ts">
-import { useLogoutMutation } from '@/api/auth/logoutMutation'
 import { useIdentity } from '@/composables/identityComposable'
 import { RouterLink, useRoute, useRouter, type RouteLocationAsRelativeGeneric } from 'vue-router'
 
 const router = useRouter()
 
 const {
-  query: { data: user, refetch }
+  query: { data: user }
 } = useIdentity()
 const route = useRoute()
-
-const { mutateAsync: logoutAsync } = useLogoutMutation()
-
-const logout = async () => {
-  await logoutAsync()
-  await refetch()
-}
 
 const goToLogin = () => router.push({ name: 'login' })
 
@@ -25,7 +17,7 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
 <template>
   <div class="h-screen bg-[url('/vert.svg')] flex flex-col">
     <div class="gap-2 items-center center border-b border-b-100 bg-white sticky top-0">
-      <div class="w-[1024px] mx-auto flex items-">
+      <div class="w-[1024px] mx-auto flex">
         <RouterLink :to="{ name: 'home' }" class="flex items-center py-3 basis-1/3">
           <div class="flex items-center justify-end bg-black p-2 rounded-lg">
             <i class="pi pi-database text-white rotate-90" style="font-size: 1.5rem"></i>
@@ -69,7 +61,12 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
         </div>
         <div class="basis-1/3 flex justify-end gap-3 py-3 items-center">
           <template v-if="user">
-            <Button @click="logout" label="Logout" icon="pi pi-sign-out" text></Button>
+            <Button
+              @click="router.push({ name: 'app' })"
+              label="Dashboard"
+              icon="pi pi-arrow-right"
+              icon-pos="right"
+            ></Button>
           </template>
           <template v-else>
             <Button

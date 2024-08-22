@@ -1,8 +1,11 @@
 <script lang="ts" setup>
 import { useLoginMutation } from '@/api/auth/loginMutation'
 import { useIdentity } from '@/composables/identityComposable'
+import { useToast } from 'primevue/usetoast'
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+
+const toast = useToast()
 
 const email = ref('filip1994sm@gmail.com')
 const password = ref('Password1!')
@@ -22,22 +25,37 @@ const login = async (email: string, password: string) => {
 
   isLoading.value = true
 
-  try {
-    await loginAsync({
-      email,
-      password
-    })
-
-    await refetch()
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const goBack = () => {
-  router.push({
-    name: 'home'
+  loginAsync({
+    email,
+    password
   })
+    .then(() => {
+      refetch().then(() => {
+        router.push({
+          name: 'app'
+        })
+      })
+    })
+    .catch((e) => {
+      if (e.response?.data?.detail == 'LockedOut') {
+        toast.add({
+          severity: 'error',
+          summary: 'Login Failed',
+          detail: 'Too many attempts, try a bit later.',
+          life: 6000
+        })
+      } else {
+        toast.add({
+          severity: 'error',
+          summary: 'Login Failed',
+          detail: 'error',
+          life: 6000
+        })
+      }
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
 }
 
 watch(
@@ -92,6 +110,7 @@ watch(
           type="button"
           label="Log In"
           @click="login(email, password)"
+          :loading="isLoading"
           icon="pi pi-arrow-right"
           icon-pos="right"
         ></Button>
