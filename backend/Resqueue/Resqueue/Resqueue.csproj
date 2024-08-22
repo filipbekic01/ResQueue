@@ -13,4 +13,8 @@
         <PackageReference Include="Stripe.net" Version="45.8.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Features\Auth\" />
+    </ItemGroup>
+
 </Project>

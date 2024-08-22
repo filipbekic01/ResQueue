@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Resqueue.Dtos.Stripe;
 using Stripe;
@@ -6,7 +5,6 @@ using Stripe;
 namespace Resqueue.Features.Stripe.CreateSubscription;
 
 public record CreateSubscriptionRequest(
-    ClaimsPrincipal ClaimsPrincipal,
     CreateSubscriptionDto Dto
 );
 

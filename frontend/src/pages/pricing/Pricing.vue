@@ -1,6 +1,24 @@
 <script lang="ts" setup>
 import WebLayout from '@/layouts/WebLayout.vue'
 import PricingCard from './PricingCard.vue'
+import RegisterDialog from '@/dialogs/RegisterDialog.vue'
+import { useDialog } from 'primevue/usedialog'
+
+const dialog = useDialog()
+
+const openRegisterDialog = (plan?: string) =>
+  dialog.open(RegisterDialog, {
+    data: {
+      plan
+    },
+    props: {
+      header: 'Registration',
+      style: {
+        width: '30rem'
+      },
+      modal: true
+    }
+  })
 </script>
 
 <template>
@@ -19,6 +37,7 @@ import PricingCard from './PricingCard.vue'
         :price="0"
         severity="secondary"
         :recommended="false"
+        @get-started="openRegisterDialog(undefined)"
       />
 
       <PricingCard
@@ -26,8 +45,9 @@ import PricingCard from './PricingCard.vue'
         text="All features unlocked"
         :features="['Unlimited brokers (*)', '5GB Storage', 'Team Collaboration']"
         :price="7.99"
-        severity="success"
+        severity="info"
         :recommended="true"
+        @get-started="openRegisterDialog('essentials')"
       />
 
       <PricingCard
@@ -35,25 +55,26 @@ import PricingCard from './PricingCard.vue'
         text="All features unlocked"
         :features="['Unlimited brokers (*)', '100GB Storage', 'Team Collaboration']"
         :price="19.99"
-        severity="primary"
+        severity="primray"
         :recommended="false"
+        @get-started="openRegisterDialog('ultimate')"
       />
     </div>
 
-    <div class="mx-16 text-sm text-gray-500 pt-24">
+    <div class="mx-16 text-sm text-slate-500 pt-24">
       While we strive to keep our services accessible, the reality is that maintaining high-quality
       offerings comes with costs. From hosting and databases to ongoing development, these expenses
       are essential for us to continue delivering the tools you rely on. Your support through our
       payment plans allows us to cover these costs and keep improving. We sincerely appreciate your
       contributions and thank you for helping us grow.
     </div>
-    <div class="mx-16 text-sm text-gray-500 mt-4">
+    <div class="mx-16 text-sm text-slate-500 mt-4">
       Support is provided through our dedicated Discord channel and active community forums, with
       the option for on-premise, one-to-one direct support through these channels. For custom plan
       requests, don’t hesitate to reach out through any of our support channels—we're more than
       happy to assist you.
     </div>
-    <div class="mx-16 text-sm text-gray-500 mt-4">
+    <div class="mx-16 text-sm text-slate-500 mt-4">
       (*) While "unlimited" means you can add as many brokers as you need, it still refers to a
       practical, though extensive, capacity within the system.
     </div>

@@ -8,7 +8,7 @@ import WebLayout from '@/layouts/WebLayout.vue'
       <div class="flex flex-col items-center grow">
         <div class="text-4xl font-bold">Support Center</div>
         <div class="mt-4 text-xl">Reach out for assistance with any questions or concerns.</div>
-        <div class="mt-4 text-gray-500 mb-8">
+        <div class="mt-4 text-slate-500 mb-8">
           For now, we only support Discord as our main community discussion platform.
         </div>
         <Button

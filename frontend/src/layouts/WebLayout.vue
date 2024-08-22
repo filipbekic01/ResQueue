@@ -3,13 +3,11 @@ import { useLoginMutation } from '@/api/auth/loginMutation'
 import { useLogoutMutation } from '@/api/auth/logoutMutation'
 import { useMeQuery } from '@/api/auth/meQuery'
 import { useIdentity } from '@/composables/identityComposable'
-import RegisterDialog from '@/dialogs/RegisterDialog.vue'
 import Dialog from 'primevue/dialog'
-import { useDialog } from 'primevue/usedialog'
 import { ref } from 'vue'
-import { RouterLink, useRoute, type RouteLocationAsRelativeGeneric } from 'vue-router'
+import { RouterLink, useRoute, useRouter, type RouteLocationAsRelativeGeneric } from 'vue-router'
 
-const dialog = useDialog()
+const router = useRouter()
 
 const { user } = useIdentity()
 const { refetch } = useMeQuery()
@@ -45,17 +43,6 @@ const logout = () => {
 }
 
 const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
-
-const openRegisterDialog = () =>
-  dialog.open(RegisterDialog, {
-    props: {
-      header: 'Registration',
-      style: {
-        width: '30rem'
-      },
-      modal: true
-    }
-  })
 </script>
 
 <template>
@@ -102,8 +89,8 @@ const openRegisterDialog = () =>
             :class="[
               'text-lg px-2 h-full flex items-center border-b',
               {
-                'border-gray-200': !isRoute({ name: 'home' }),
-                'border-gray-500': isRoute({ name: 'home' })
+                'border-slate-200': !isRoute({ name: 'home' }),
+                'border-slate-500': isRoute({ name: 'home' })
               }
             ]"
             :to="{ name: 'home' }"
@@ -113,8 +100,8 @@ const openRegisterDialog = () =>
             :class="[
               'text-lg px-2 h-full flex items-center border-b',
               {
-                'border-gray-200': !isRoute({ name: 'pricing' }),
-                'border-gray-500': isRoute({ name: 'pricing' })
+                'border-slate-200': !isRoute({ name: 'pricing' }),
+                'border-slate-500': isRoute({ name: 'pricing' })
               }
             ]"
             :to="{ name: 'pricing' }"
@@ -124,8 +111,8 @@ const openRegisterDialog = () =>
             :class="[
               'text-lg px-2 h-full flex items-center border-b',
               {
-                'border-gray-200': !isRoute({ name: 'support' }),
-                'border-gray-500': isRoute({ name: 'support' })
+                'border-slate-200': !isRoute({ name: 'support' }),
+                'border-slate-500': isRoute({ name: 'support' })
               }
             ]"
             :to="{ name: 'support' }"
@@ -135,9 +122,6 @@ const openRegisterDialog = () =>
         <div class="basis-1/3 flex justify-end gap-3 py-3 items-center">
           <template v-if="user">
             <Button @click="logout" label="Logout" icon="pi pi-sign-out" text></Button>
-            <RouterLink :to="{ name: 'app' }">
-              <Button label="Dashboard" icon="pi pi-arrow-right" icon-pos="right"></Button>
-            </RouterLink>
           </template>
           <template v-else>
             <Button
@@ -149,9 +133,9 @@ const openRegisterDialog = () =>
               text
             ></Button>
             <Button
-              @click="openRegisterDialog"
+              @click="router.push({ name: 'pricing' })"
               class="p-2 cursor-pointer"
-              label="Register"
+              label="Free Registration"
               icon="pi pi-user-plus"
             ></Button>
           </template>
@@ -161,7 +145,7 @@ const openRegisterDialog = () =>
     <div class="w-[1024px] grow mx-auto px-8">
       <slot></slot>
     </div>
-    <div class="bg-white border-t border-gray-100 mt-16 py-4 text-center">
+    <div class="bg-white border-t border-slate-100 mt-16 py-4 text-center">
       Developed in Republic of Serbia, Novi Sad
     </div>
   </div>

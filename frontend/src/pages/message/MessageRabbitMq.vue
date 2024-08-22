@@ -17,11 +17,11 @@ const { rabbitMqMessage } = useRabbitMqMessage(computed(() => props.message))
 
 <template>
   <div class="mx-5 my-3 rounded-lg">
-    <!-- <div class="font-semibold bg-gray-100 rounded-lg px-2 mb-1">Message</div> -->
+    <!-- <div class="font-semibold bg-slate-100 rounded-lg px-2 mb-1">Message</div> -->
     <div class="mb-4 flex items-center">
       <div>
         <div class="text-2xl">Message</div>
-        <div class="text-gray-500">
+        <div class="text-slate-500">
           Pulled {{ formatDistanceToNow(message.createdAt) }} • Updated
           {{ message.updatedAt ? formatDistanceToNow(message.updatedAt) : 'never' }}
         </div>
@@ -89,11 +89,11 @@ const { rabbitMqMessage } = useRabbitMqMessage(computed(() => props.message))
             <div
               v-for="(hdrV, hKey) in message.rabbitmqMetadata.properties.headers"
               :key="hKey"
-              class="even:bg-gray-100/50 px-2 rounded ms-4"
+              class="even:bg-slate-100/50 px-2 rounded ms-4"
             >
               <div class="flex">
                 <div class="w-96 shrink-0 basis-96">{{ hKey }}</div>
-                <div class="text-gray-500">
+                <div class="text-slate-500">
                   <template v-if="hKey === 'MT-Fault-Message'"> ... </template>
                   <template v-else-if="hKey === 'MT-Fault-StackTrace'"> ... </template>
                   <template v-else>
