@@ -33,7 +33,7 @@ const staticRoutes = computed<ResqueueRoute[]>(() => [
   {
     id: 0,
     label: 'Dashboard',
-    icon: 'pi pi-objects-shape',
+    icon: 'pi pi-th-large',
     to: {
       name: 'app'
     }

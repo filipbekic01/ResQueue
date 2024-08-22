@@ -6,4 +6,5 @@ export interface UserDto {
   userConfig: UserConfigDto
   isSubscribed: boolean
   subscriptionId: string
+  subscriptionPlan: string
 }
