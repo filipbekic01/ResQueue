@@ -10,13 +10,13 @@ const dialog = useDialog()
 const router = useRouter()
 
 const {
-  query: { data: user, isPending }
+  query: { data: user }
 } = useIdentity()
 
 const openRegisterDialog = (plan?: string) => {
   if (user.value?.isSubscribed) {
     router.push({
-      name: 'dashboard'
+      name: 'app'
     })
 
     return

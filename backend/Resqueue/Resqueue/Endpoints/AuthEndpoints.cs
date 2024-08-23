@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Resqueue.Dtos;
@@ -29,6 +30,7 @@ public static class AuthEndpoints
                 SubscriptionId = user.SubscriptionId,
                 IsSubscribed = user.IsSubscribed,
                 SubscriptionPlan = user.SubscriptionPlan,
+                EmailConfirmed = user.EmailConfirmed,
                 UserConfig = new UserConfigDto
                 {
                     showBrokerSyncConfirm = user.UserConfig.showBrokerSyncConfirm,
@@ -38,7 +40,8 @@ public static class AuthEndpoints
         }).RequireAuthorization();
 
         group.MapPost("register",
-            async (UserManager<User> userManager, [FromBody] RegisterDto dto, ICreateSubscriptionFeature feature) =>
+            async (UserManager<User> userManager, [FromBody] RegisterDto dto, ICreateSubscriptionFeature feature,
+                IEmailSender<User> emailSender, LinkGenerator linkGenerator, HttpContext httpContext) =>
             {
                 if (!string.IsNullOrWhiteSpace(dto.Email) && !new EmailAddressAttribute().IsValid(dto.Email))
                 {
@@ -59,21 +62,26 @@ public static class AuthEndpoints
                     return Results.Problem(errors);
                 }
 
-                var featureResult = await feature.ExecuteAsync(new CreateSubscriptionRequest(
-                    UserId: user.Id.ToString(),
-                    new(
-                        CustomerEmail: user.Email,
-                        PaymentMethodId: dto.PaymentMethodId,
-                        Plan: dto.Plan
-                    )
-                ));
-
-                if (!featureResult.IsSuccess)
+                if (!string.IsNullOrEmpty(dto.PaymentMethodId) && !string.IsNullOrEmpty(dto.Plan))
                 {
-                    await userManager.DeleteAsync(user);
+                    var featureResult = await feature.ExecuteAsync(new CreateSubscriptionRequest(
+                        UserId: user.Id.ToString(),
+                        new(
+                            CustomerEmail: user.Email,
+                            PaymentMethodId: dto.PaymentMethodId,
+                            Plan: dto.Plan
+                        )
+                    ));
 
-                    return Results.Problem(featureResult.Problem?.Detail,
-                        statusCode: featureResult.Problem?.Status ?? 500);
+                    if (!featureResult.IsSuccess)
+                    {
+                        await userManager.DeleteAsync(user);
+
+                        // todo: remove from stripe if created by accident
+
+                        return Results.Problem(featureResult.Problem?.Detail,
+                            statusCode: featureResult.Problem?.Status ?? 500);
+                    }
                 }
 
                 return Results.Ok();

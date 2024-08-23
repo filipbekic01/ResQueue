@@ -1,15 +1,13 @@
+using MailKit;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Resqueue.Dtos;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Resqueue.Endpoints;
-using Resqueue.Features.Broker;
 using Resqueue.Features.Broker.SyncBroker;
 using Resqueue.Features.Broker.UpdateBroker;
 using Resqueue.Features.Messages.ArchiveMessages;
 using Resqueue.Features.Messages.PublishMessages;
 using Resqueue.Features.Messages.ReviewMessages;
 using Resqueue.Features.Messages.SyncMessages;
-using Resqueue.Features.Stripe;
 using Resqueue.Features.Stripe.CreateSubscription;
 using Resqueue.Features.Stripe.EventHandler;
 using Resqueue.Models;
@@ -21,6 +19,10 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        var settingsSection = builder.Configuration.GetRequiredSection("Settings");
+        builder.Services.Configure<Settings>(settingsSection);
+        var settings = settingsSection.Get<Settings>()!;
 
         builder.Services.AddCors(corsOptions =>
         {
@@ -35,10 +37,12 @@ public class Program
 
         builder.Services.AddHttpClient();
 
-        builder.Services.AddMongoDb();
+        builder.Services.AddMongoDb(settings);
+
         builder.Services.AddSingleton<IEmailSender<User>, DummyEmailSender>();
 
         builder.Services.AddSingleton<RabbitmqConnectionFactory>();
+
         builder.Services.AddTransient<ISyncBrokerFeature, SyncBrokerFeature>();
         builder.Services.AddTransient<IUpdateBrokerFeature, UpdateBrokerFeature>();
 

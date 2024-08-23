@@ -1,13 +1,33 @@
+using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using MimeKit;
 using Resqueue.Models;
 
 namespace Resqueue;
 
-public class DummyEmailSender : IEmailSender<User>
+public class DummyEmailSender(
+    IOptions<Settings> settings
+) : IEmailSender<User>
 {
-    public Task SendConfirmationLinkAsync(User user, string email, string confirmationLink)
+    public async Task SendConfirmationLinkAsync(User user, string email, string confirmationLink)
     {
-        return Task.CompletedTask;
+        var message = new MimeMessage();
+        message.From.Add(new MailboxAddress("ResQueue", "resqueue@no-reply.io"));
+        message.To.Add(new MailboxAddress(user.UserName, email));
+        message.Subject = "Confirm your email";
+
+        message.Body = new TextPart("html")
+        {
+            Text = $"Please confirm your account by clicking this link: <a href='{confirmationLink}'>Confirm Email</a>"
+        };
+
+        using var client = new SmtpClient();
+        await client.ConnectAsync(settings.Value.SmtpHost, settings.Value.SmtpPort, SecureSocketOptions.StartTls);
+        await client.AuthenticateAsync(settings.Value.SmtpUsername, settings.Value.SmtpPassword);
+        await client.SendAsync(message);
+        await client.DisconnectAsync(true);
     }
 
     public Task SendPasswordResetLinkAsync(User user, string email, string resetLink)
@@ -15,8 +35,22 @@ public class DummyEmailSender : IEmailSender<User>
         return Task.CompletedTask;
     }
 
-    public Task SendPasswordResetCodeAsync(User user, string email, string resetCode)
+    public async Task SendPasswordResetCodeAsync(User user, string email, string resetCode)
     {
-        return Task.CompletedTask;
+        var message = new MimeMessage();
+        message.From.Add(new MailboxAddress("ResQueue", "resqueue@no-reply.io"));
+        message.To.Add(new MailboxAddress(user.UserName, email));
+        message.Subject = "Your password reset code";
+
+        message.Body = new TextPart("html")
+        {
+            Text = $"Your password reset code is: {resetCode}"
+        };
+
+        using var client = new SmtpClient();
+        await client.ConnectAsync(settings.Value.SmtpHost, settings.Value.SmtpPort, SecureSocketOptions.StartTls);
+        await client.AuthenticateAsync(settings.Value.SmtpUsername, settings.Value.SmtpPassword);
+        await client.SendAsync(message);
+        await client.DisconnectAsync(true);
     }
 }

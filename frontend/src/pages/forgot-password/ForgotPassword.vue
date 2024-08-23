@@ -1,0 +1,146 @@
+<script lang="ts" setup>
+import { useForgotPasswordMutation } from '@/api/auth/forgotPassword'
+import { useResetPasswordMutation } from '@/api/auth/resetPassword'
+import { useToast } from 'primevue/usetoast'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const toast = useToast()
+const router = useRouter()
+
+const email = ref('filip1994sm@gmail.com')
+const resetCode = ref('')
+const newPassword = ref('')
+
+const { mutateAsync: forgotPasswordAsync } = useForgotPasswordMutation()
+const { mutateAsync: resetPasswordAsync, isPending: isResetPasswordPending } =
+  useResetPasswordMutation()
+
+const isLoading = ref(false)
+const isEmailSent = ref(false)
+const forgotPassword = async () => {
+  if (isLoading.value) {
+    return
+  }
+
+  isLoading.value = true
+
+  forgotPasswordAsync({
+    email: email.value
+  })
+    .then(() => {
+      toast.add({
+        severity: 'success',
+        summary: 'Recovery Process Initiated',
+        detail: 'A recovery email has been successfully sent.',
+        life: 6000
+      })
+
+      isEmailSent.value = true
+    })
+    .catch(() => {
+      toast.add({
+        severity: 'error',
+        summary: 'Recovery Process Unsuccessful',
+        detail: 'The recovery email could not be sent. Please try again later.',
+        life: 6000
+      })
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
+}
+
+const resetPassword = () => {
+  if (!resetCode.value || !newPassword.value) {
+    toast.add({
+      severity: 'error',
+      summary: 'Input Missing',
+      detail: 'Reset code and new password must be present.',
+      life: 6000
+    })
+    return
+  }
+
+  resetPasswordAsync({
+    email: email.value,
+    resetCode: resetCode.value,
+    newPassword: newPassword.value
+  }).then(() => {
+    router.push({ name: 'login' })
+  })
+}
+</script>
+
+<template>
+  <div class="flex flex-col grow items-center mt-16 h-screen">
+    <RouterLink :to="{ name: 'home' }" class="flex items-center py-3 mb-4">
+      <div class="flex items-center justify-end bg-black p-2 rounded-lg">
+        <i class="pi pi-database text-white rotate-90" style="font-size: 1.5rem"></i>
+      </div>
+      <div class="text-2xl font-semibold px-2">
+        ResQueue
+        <span class="text-gray-500 font-normal"><i class="pi pi-angle-right"></i> Recovery</span>
+      </div>
+    </RouterLink>
+    <div class="flex flex-col bg-white shadow border rounded-lg p-8 w-96">
+      <div class="flex flex-col gap-4 mb-4">
+        <label for="email" class="font-semibold w-24 white">E-Mail</label>
+        <InputText
+          v-model="email"
+          :disabled="isEmailSent"
+          id="email"
+          class="flex-auto"
+          type="email"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="flex flex-col gap-4 mb-4" v-if="isEmailSent">
+        <label for="resetCode" class="font-semibold w-24 white">Reset Code</label>
+        <InputText
+          v-model="resetCode"
+          id="resetCode"
+          placeholder="******"
+          class="flex-auto"
+          type="text"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="flex flex-col gap-4 mb-4" v-if="resetCode.length">
+        <label for="newPassword" class="font-semibold w-24 whitespace-nowrap">New Password</label>
+        <InputText
+          v-model="newPassword"
+          id="newPassword"
+          class="flex-auto"
+          type="password"
+          autocomplete="off"
+          placeholder="******"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <Button
+          v-if="!isEmailSent"
+          type="button"
+          label="Send Recovery E-Mail"
+          @click="forgotPassword"
+          :loading="isLoading"
+          icon="pi pi-send"
+          icon-pos="right"
+        ></Button>
+
+        <Button
+          v-else
+          type="button"
+          label="Reset Password"
+          @click="resetPassword"
+          icon="pi pi-refresh"
+          icon-pos="right"
+          :loading="isResetPasswordPending"
+        ></Button>
+      </div>
+    </div>
+  </div>
+</template>

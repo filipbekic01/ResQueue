@@ -7,10 +7,8 @@ namespace Resqueue;
 
 public static class MongoDbExtensions
 {
-    public static IServiceCollection AddMongoDb(this IServiceCollection services)
+    public static IServiceCollection AddMongoDb(this IServiceCollection services, Settings settings)
     {
-        const string mongoOptionsConnectionString = "mongodb://localhost:27018";
-
         services.AddIdentityMongoDbProvider<User, Role, ObjectId>(opt =>
             {
                 opt.Password.RequiredLength = 6;
@@ -19,12 +17,11 @@ public static class MongoDbExtensions
                 opt.Password.RequireNonAlphanumeric = false;
                 opt.Password.RequireUppercase = false;
             },
-            mongoOptions => { mongoOptions.ConnectionString = $"{mongoOptionsConnectionString}/identity"; });
+            mongoOptions => { mongoOptions.ConnectionString = $"{settings.MongoDBConnectionString}/identity"; });
 
-        services.AddSingleton<IMongoClient, MongoClient>(_ =>
+        services.AddSingleton<IMongoClient, MongoClient>(sp =>
         {
-            var settings = MongoClientSettings.FromConnectionString(mongoOptionsConnectionString);
-            return new MongoClient(settings);
+            return new MongoClient(MongoClientSettings.FromConnectionString(settings.MongoDBConnectionString));
         });
 
         services.AddScoped(sp =>

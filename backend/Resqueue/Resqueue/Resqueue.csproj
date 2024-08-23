@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <PackageReference Include="AspNetCore.Identity.Mongo" Version="8.3.3" />
+        <PackageReference Include="MailKit" Version="4.7.1.1" />
         <PackageReference Include="MongoDB.Driver" Version="2.27.0" />
         <PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
         <PackageReference Include="Stripe.net" Version="45.8.0" />

@@ -10,6 +10,7 @@ import BrokerQueues from '@/pages/broker/queues/BrokerQueues.vue'
 import BrokerTopics from '@/pages/broker/topics/BrokerTopics.vue'
 import BrokerOverview from '@/pages/broker/overview/BrokerOverview.vue'
 import Login from '@/pages/login/Login.vue'
+import ForgotPassword from '@/pages/forgot-password/ForgotPassword.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,6 +24,11 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: Login
+    },
+    {
+      path: '/forgot-password',
+      name: 'forgot-passowrd',
+      component: ForgotPassword
     },
     {
       path: '/support',

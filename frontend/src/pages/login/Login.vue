@@ -48,12 +48,11 @@ const login = async (email: string, password: string) => {
         toast.add({
           severity: 'error',
           summary: 'Login Failed',
-          detail: 'error',
+          detail: 'Failed attempt to login.',
           life: 6000
         })
       }
-    })
-    .finally(() => {
+
       isLoading.value = false
     })
 }
@@ -115,7 +114,9 @@ watch(
           icon-pos="right"
         ></Button>
         <div class="flex justify-center mt-3 text-gray-400">
-          <RouterLink :to="'home'" class="hover:text-blue-500">Forgot account password?</RouterLink>
+          <RouterLink :to="'forgot-password'" class="hover:text-blue-500"
+            >Forgot account password?</RouterLink
+          >
         </div>
       </div>
     </div>
