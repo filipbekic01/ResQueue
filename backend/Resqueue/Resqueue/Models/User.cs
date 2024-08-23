@@ -4,9 +4,11 @@ namespace Resqueue.Models;
 
 public class User : MongoUser
 {
-    public string SubscriptionPlan { get; set; }
-    public string? SubscriptionId { get; set; }
-    public bool IsSubscribed { get; set; } = false;
+    public string? StripeId { get; set; }
+    public string? PaymentType { get; set; }
+    public string? PaymentLastFour { get; set; }
+
+    public List<Subscription> Subscriptions { get; set; } = new();
 
     public UserConfig UserConfig { get; set; } = new()
     {

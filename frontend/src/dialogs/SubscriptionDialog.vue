@@ -6,14 +6,13 @@ import Button from 'primevue/button'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
 import { useToast } from 'primevue/usetoast'
 import { inject, ref, type Ref } from 'vue'
+import { format } from 'date-fns'
 
 const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 
 const toast = useToast()
 
-const {
-  query: { data: user }
-} = useIdentity()
+const { activeSubscription } = useIdentity()
 
 const { mutateAsync: cancelSubscriptionAsync, isPending } = useCancelSubscriptionMutation()
 
@@ -43,26 +42,34 @@ const cancel = () => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-3">
-    <div class="flex flex-col">
-      <div class="font-bold">Subscription ID</div>
-      <div>{{ user?.subscriptionId }}</div>
-    </div>
+  <div v-if="activeSubscription" class="flex flex-col gap-3">
     <div class="flex flex-col">
       <div class="font-bold">Subscription Plan</div>
-      <div>{{ user?.subscriptionPlan }}</div>
+      <div>{{ activeSubscription.type === 'essentials' ? 'Essentials' : 'Ultimate' }}</div>
+      <div class="text-gray-400">{{ activeSubscription.stripeId }}</div>
+    </div>
+
+    <div class="flex flex-col">
+      <div class="font-bold">Started At</div>
+      <div>{{ format(activeSubscription.createdAt, 'MMMM dd, yyyy') }}</div>
+    </div>
+
+    <div class="flex flex-col">
+      <div class="font-bold">Next Billing Date</div>
+      <div>{{ format(activeSubscription.endsAt, 'MMMM dd, yyyy') }}</div>
     </div>
 
     <label for="password" class="font-semibold white flex items-center border-t pt-3"
-      >Enter "{{ user?.subscriptionPlan }}" to enable cancel button</label
+      >Enter "{{ activeSubscription.type }}" to enable cancel button</label
     >
     <InputText v-model="protect" placeholder="What's the plan?" type="text"></InputText>
     <Button
       severity="danger"
-      :disabled="protect !== user?.subscriptionPlan || isPending"
+      :disabled="protect !== activeSubscription.type || isPending"
       :loading="isPending"
       label="Cancel Subscription"
       @click="cancel"
     ></Button>
   </div>
+  <div v-else>No active subscriptions.</div>
 </template>

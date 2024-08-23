@@ -29,7 +29,8 @@ const router = useRouter()
 const dialog = useDialog()
 
 const {
-  query: { data: user }
+  query: { data: user },
+  activeSubscription
 } = useIdentity()
 
 const toast = useToast()
@@ -116,7 +117,7 @@ const openSubscriptionManager = () => {
       <div>
         <div class="border-b border-slate-200 px-3 py-3">
           <div class="text-lg font-semibold">Subscription</div>
-          <div v-if="!user?.isSubscribed">
+          <div v-if="!activeSubscription">
             <div>
               <i class="pi pi-exclamation-circle text-orange-400 me-1"></i>Upgrade to unlock all
               features.
@@ -134,7 +135,7 @@ const openSubscriptionManager = () => {
             <a
               @click="openSubscriptionManager"
               class="border-b border-dashed border-gray-400 cursor-pointer hover:border-solid hover:border-blue-500 hover:text-blue-500"
-              >{{ user.subscriptionPlan === 'essentials' ? 'Essentials' : 'Ultimate' }}</a
+              >{{ activeSubscription.type === 'essentials' ? 'Essentials' : 'Ultimate' }}</a
             >
             plan
           </div>

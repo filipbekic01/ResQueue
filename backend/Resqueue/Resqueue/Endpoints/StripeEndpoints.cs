@@ -52,14 +52,14 @@ public static class StripeEndpoints
                     return Results.Unauthorized();
                 }
 
-                if (string.IsNullOrEmpty(user.SubscriptionId))
+                if (string.IsNullOrEmpty(user.StripeId))
                 {
                     return Results.BadRequest("User not subscribed");
                 }
 
                 var result = await feature.ExecuteAsync(new CancelSubscriptionRequest(
                     UserId: user.Id.ToString(),
-                    SubscriptionId: user.SubscriptionId
+                    SubscriptionId: user.StripeId
                 ));
 
                 return result.IsSuccess

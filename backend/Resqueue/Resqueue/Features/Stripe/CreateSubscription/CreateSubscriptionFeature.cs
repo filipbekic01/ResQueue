@@ -5,6 +5,8 @@ using MongoDB.Driver;
 using Resqueue.Dtos.Stripe;
 using Resqueue.Models;
 using Stripe;
+using Subscription = Resqueue.Models.Subscription;
+using SubscriptionItem = Resqueue.Models.SubscriptionItem;
 
 namespace Resqueue.Features.Stripe.CreateSubscription;
 
@@ -69,11 +71,42 @@ public class CreateSubscriptionFeature(
             var subscriptionService = new SubscriptionService();
             var subscription = await subscriptionService.CreateAsync(subscriptionOptions);
 
+            var paymentMethodService = new PaymentMethodService();
+            var paymentMethod = await paymentMethodService.GetAsync(request.Dto.PaymentMethodId);
+
+            var paymentType = paymentMethod.Card?.Brand; // e.g., "visa", "mastercard"
+            var paymentLastFour = paymentMethod.Card?.Last4; // Last four digits of the card
+
+            var dt = DateTime.UtcNow;
+
+            var subscriptionEntity = new Subscription
+            {
+                StripeId = subscription.Id,
+                StripeStatus = subscription.Status,
+                StripePrice = priceId,
+                Type = request.Dto.Plan.ToLower(),
+                Quantity = subscription.Items.Data[0].Quantity,
+                TrialEndsAt = subscription.TrialEnd,
+                EndsAt = subscription.CurrentPeriodEnd,
+                CreatedAt = dt,
+                UpdatedAt = dt,
+                SubscriptionItems = subscription.Items.Data.Select(item => new SubscriptionItem
+                {
+                    StripeId = item.Id,
+                    StripeProduct = item.Price.ProductId,
+                    StripePrice = item.Price.Id,
+                    Quantity = item.Quantity,
+                    CreatedAt = dt,
+                    UpdatedAt = dt
+                }).ToList()
+            };
+
             var filter = Builders<User>.Filter.Eq(q => q.Id, ObjectId.Parse(request.UserId));
             var update = Builders<User>.Update
-                .Set(q => q.SubscriptionId, subscription.Id)
-                .Set(q => q.SubscriptionPlan, request.Dto.Plan.ToLower())
-                .Set(q => q.IsSubscribed, true);
+                .Set(q => q.StripeId, customer.Id)
+                .Set(q => q.PaymentType, paymentType)
+                .Set(q => q.PaymentLastFour, paymentLastFour)
+                .AddToSet(q => q.Subscriptions, subscriptionEntity);
 
             await usersCollection.UpdateOneAsync(filter, update);
 

@@ -1,3 +1,4 @@
+import type { SubscriptionDto } from './subscriptionDto'
 import type { UserConfigDto } from './userConfigDto'
 
 export interface UserDto {
@@ -5,7 +6,8 @@ export interface UserDto {
   email: string
   userConfig: UserConfigDto
   emailConfirmed: boolean
-  isSubscribed: boolean
-  subscriptionId: string
-  subscriptionPlan: string
+  stripeId?: string | null
+  paymentType?: string | null
+  paymentLastFour?: string | null
+  subscriptions: SubscriptionDto[]
 }

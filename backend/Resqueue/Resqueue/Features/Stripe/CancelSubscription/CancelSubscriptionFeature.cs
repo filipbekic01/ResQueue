@@ -4,6 +4,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using Resqueue.Models;
 using Stripe;
+using Subscription = Resqueue.Models.Subscription;
 
 namespace Resqueue.Features.Stripe.CancelSubscription;
 
@@ -26,13 +27,24 @@ public class CancelSubscriptionFeature(
         try
         {
             var subscriptionService = new SubscriptionService();
-            await subscriptionService.CancelAsync(request.SubscriptionId);
+            var subscription = await subscriptionService.UpdateAsync(request.SubscriptionId,
+                new SubscriptionUpdateOptions
+                {
+                    CancelAtPeriodEnd = true
+                });
 
-            var filter = Builders<User>.Filter.Eq(q => q.Id, ObjectId.Parse(request.UserId));
+            // Update the subscription status in the user's document
+            var filter = Builders<User>.Filter.And(
+                Builders<User>.Filter.Eq(q => q.Id, ObjectId.Parse(request.UserId)),
+                Builders<User>.Filter.ElemMatch(q => q.Subscriptions,
+                    Builders<Subscription>.Filter.Eq(s => s.StripeId, request.SubscriptionId))
+            );
+
             var update = Builders<User>.Update
-                .Set(q => q.SubscriptionId, null)
-                .Set(q => q.SubscriptionPlan, null)
-                .Set(q => q.IsSubscribed, false);
+                .Set(q => q.Subscriptions[-1].StripeStatus,
+                    subscription.Status) // -1 refers to the matched array element
+                .Set(q => q.Subscriptions[-1].EndsAt,
+                    subscription.CurrentPeriodEnd);
 
             await usersCollection.UpdateOneAsync(filter, update);
 

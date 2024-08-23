@@ -27,10 +27,31 @@ public static class AuthEndpoints
             {
                 Id = user.Id.ToString(),
                 Email = user.Email!,
-                SubscriptionId = user.SubscriptionId,
-                IsSubscribed = user.IsSubscribed,
-                SubscriptionPlan = user.SubscriptionPlan,
                 EmailConfirmed = user.EmailConfirmed,
+                StripeId = user.StripeId,
+                PaymentType = user.PaymentType,
+                PaymentLastFour = user.PaymentLastFour,
+                Subscriptions = user.Subscriptions.Select(sub => new SubscriptionDto
+                {
+                    Type = sub.Type,
+                    StripeId = sub.StripeId,
+                    StripeStatus = sub.StripeStatus,
+                    StripePrice = sub.StripePrice,
+                    Quantity = sub.Quantity,
+                    TrialEndsAt = sub.TrialEndsAt,
+                    EndsAt = sub.EndsAt,
+                    CreatedAt = sub.CreatedAt,
+                    UpdatedAt = sub.UpdatedAt,
+                    SubscriptionItems = sub.SubscriptionItems.Select(item => new SubscriptionItemDto
+                    {
+                        StripeId = item.StripeId,
+                        StripeProduct = item.StripeProduct,
+                        StripePrice = item.StripePrice,
+                        Quantity = item.Quantity,
+                        CreatedAt = item.CreatedAt,
+                        UpdatedAt = item.UpdatedAt
+                    }).ToList()
+                }).ToList(),
                 UserConfig = new UserConfigDto
                 {
                     showBrokerSyncConfirm = user.UserConfig.showBrokerSyncConfirm,
