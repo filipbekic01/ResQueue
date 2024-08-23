@@ -5,7 +5,7 @@ import { extractErrorMessage } from '@/utils/errorUtil'
 import Button from 'primevue/button'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
 import { useToast } from 'primevue/usetoast'
-import { inject, type Ref } from 'vue'
+import { inject, ref, type Ref } from 'vue'
 
 const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 
@@ -15,7 +15,9 @@ const {
   query: { data: user }
 } = useIdentity()
 
-const { mutateAsync: cancelSubscriptionAsync } = useCancelSubscriptionMutation()
+const { mutateAsync: cancelSubscriptionAsync, isPending } = useCancelSubscriptionMutation()
+
+const protect = ref('')
 
 const cancel = () => {
   cancelSubscriptionAsync()
@@ -50,10 +52,15 @@ const cancel = () => {
       <div class="font-bold">Subscription Plan</div>
       <div>{{ user?.subscriptionPlan }}</div>
     </div>
+
+    <label for="password" class="font-semibold white flex items-center border-t pt-3"
+      >Enter "{{ user?.subscriptionPlan }}" to enable cancel button</label
+    >
+    <InputText v-model="protect" placeholder="What's the plan?" type="text"></InputText>
     <Button
-      class="mt-3"
       severity="danger"
-      outlined
+      :disabled="protect !== user?.subscriptionPlan || isPending"
+      :loading="isPending"
       label="Cancel Subscription"
       @click="cancel"
     ></Button>

@@ -46,7 +46,6 @@ public static class StripeEndpoints
         group.MapPost("cancel-subscription",
             async (UserManager<User> userManager, ICancelSubscriptionFeature feature, HttpContext httpContext) =>
             {
-                return Results.BadRequest("fuck it");
                 var user = await userManager.GetUserAsync(httpContext.User);
                 if (user == null)
                 {
