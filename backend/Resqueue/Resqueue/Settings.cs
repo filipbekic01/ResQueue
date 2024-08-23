@@ -6,6 +6,8 @@ public class Settings
     public int SmtpPort { get; set; }
     public string SmtpUsername { get; set; }
     public string SmtpPassword { get; set; }
-    
+
     public string MongoDBConnectionString { get; set; }
+
+    public string StripeSecret { get; set; }
 }

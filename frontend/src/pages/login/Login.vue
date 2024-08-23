@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useLoginMutation } from '@/api/auth/loginMutation'
 import { useIdentity } from '@/composables/identityComposable'
+import { extractErrorMessage } from '@/utils/errorUtil'
 import { useToast } from 'primevue/usetoast'
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -37,21 +38,12 @@ const login = async (email: string, password: string) => {
       })
     })
     .catch((e) => {
-      if (e.response?.data?.detail == 'LockedOut') {
-        toast.add({
-          severity: 'error',
-          summary: 'Login Failed',
-          detail: 'Too many attempts, try a bit later.',
-          life: 6000
-        })
-      } else {
-        toast.add({
-          severity: 'error',
-          summary: 'Login Failed',
-          detail: 'Failed attempt to login.',
-          life: 6000
-        })
-      }
+      toast.add({
+        severity: 'error',
+        summary: 'Login Failed',
+        detail: extractErrorMessage(e),
+        life: 6000
+      })
 
       isLoading.value = false
     })

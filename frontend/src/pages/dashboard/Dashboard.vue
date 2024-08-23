@@ -2,8 +2,10 @@
 import { useLogoutMutation } from '@/api/auth/logoutMutation'
 import { useResendConfirmatioEmailMutation } from '@/api/auth/resendConfirmationEmailMutation'
 import { useIdentity } from '@/composables/identityComposable'
+import SubscriptionDialog from '@/dialogs/SubscriptionDialog.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Checkbox from 'primevue/checkbox'
+import { useDialog } from 'primevue/usedialog'
 import { useToast } from 'primevue/usetoast'
 import { useRouter } from 'vue-router'
 
@@ -24,6 +26,7 @@ const randomIndex = Math.floor(Math.random() * messages.length)
 const message = messages[randomIndex]
 
 const router = useRouter()
+const dialog = useDialog()
 
 const {
   query: { data: user }
@@ -65,6 +68,18 @@ const resendConfirmationEmail = () => {
 const updateUserConfig = (prop: string, value: any) => {
   console.log(prop, value)
 }
+
+const openSubscriptionManager = () => {
+  dialog.open(SubscriptionDialog, {
+    props: {
+      header: 'Subscription Manager',
+      style: {
+        width: '25rem'
+      },
+      modal: true
+    }
+  })
+}
 </script>
 
 <template>
@@ -101,7 +116,6 @@ const updateUserConfig = (prop: string, value: any) => {
       <div>
         <div class="border-b border-slate-200 px-3 py-3">
           <div class="text-lg font-semibold">Subscription</div>
-          <div class="text-slate-500">{{ user?.subscriptionId }}</div>
           <div v-if="!user?.isSubscribed">
             <div>
               <i class="pi pi-exclamation-circle text-orange-400 me-1"></i>Upgrade to unlock all
@@ -116,8 +130,13 @@ const updateUserConfig = (prop: string, value: any) => {
             ></Button>
           </div>
           <div v-else>
-            <i class="pi pi-check-circle text-green-600 mt-3 me-2"></i>Subscribed to
-            {{ user.subscriptionPlan === 'essentials' ? 'Essentials' : 'Ultimate' }} plan
+            <i class="pi pi-check-circle text-green-600 me-2"></i>Subscribed to
+            <a
+              @click="openSubscriptionManager"
+              class="border-b border-dashed border-gray-400 cursor-pointer hover:border-solid hover:border-blue-500 hover:text-blue-500"
+              >{{ user.subscriptionPlan === 'essentials' ? 'Essentials' : 'Ultimate' }}</a
+            >
+            plan
           </div>
         </div>
       </div>

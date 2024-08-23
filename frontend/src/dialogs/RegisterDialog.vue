@@ -2,6 +2,7 @@
 import { useLoginMutation } from '@/api/auth/loginMutation'
 import { useRegisterMutation } from '@/api/auth/registerMutation'
 import { useIdentity } from '@/composables/identityComposable'
+import { extractErrorMessage } from '@/utils/errorUtil'
 import { loadStripe, type Stripe, type StripeCardElement } from '@stripe/stripe-js'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
 import Message from 'primevue/message'
@@ -77,7 +78,7 @@ const register = async () => {
       toast.add({
         severity: 'error',
         summary: 'Registration Problem',
-        detail: e,
+        detail: extractErrorMessage(e),
         life: 6000
       })
     }
@@ -100,17 +101,10 @@ const register = async () => {
       })
     })
     .catch((e) => {
-      let error = e.message
-
-      if (e.response?.data?.errors && Object.keys(e.response.data.errors).length) {
-        const firstKey = Object.keys(e.response.data.errors)[0]
-        error = e.response.data.errors[firstKey][0]
-      }
-
       toast.add({
         severity: 'error',
         summary: 'Registration Problem',
-        detail: error,
+        detail: extractErrorMessage(e),
         life: 6000
       })
     })

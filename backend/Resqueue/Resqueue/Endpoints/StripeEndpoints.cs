@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Resqueue.Dtos.Stripe;
+using Resqueue.Features.Stripe.CancelSubscription;
 using Resqueue.Features.Stripe.CreateSubscription;
 using Resqueue.Features.Stripe.EventHandler;
 using Resqueue.Models;
@@ -39,6 +40,31 @@ public static class StripeEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
+                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+            }).RequireAuthorization();
+
+        group.MapPost("cancel-subscription",
+            async (UserManager<User> userManager, ICancelSubscriptionFeature feature, HttpContext httpContext) =>
+            {
+                return Results.BadRequest("fuck it");
+                var user = await userManager.GetUserAsync(httpContext.User);
+                if (user == null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                if (string.IsNullOrEmpty(user.SubscriptionId))
+                {
+                    return Results.BadRequest("User not subscribed");
+                }
+
+                var result = await feature.ExecuteAsync(new CancelSubscriptionRequest(
+                    UserId: user.Id.ToString(),
+                    SubscriptionId: user.SubscriptionId
+                ));
+
+                return result.IsSuccess
+                    ? Results.Ok(new { Message = "Subscription cancelled successfully" })
                     : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
             }).RequireAuthorization();
 

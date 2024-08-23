@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Resqueue.Dtos.Stripe;
@@ -15,13 +16,13 @@ public record CreateSubscriptionRequest(
 public record CreateSubscriptionResponse();
 
 public class CreateSubscriptionFeature(
-    IMongoCollection<User> usersCollection
+    IMongoCollection<User> usersCollection,
+    IOptions<Settings> settings
 ) : ICreateSubscriptionFeature
 {
     public async Task<OperationResult<CreateSubscriptionResponse>> ExecuteAsync(CreateSubscriptionRequest request)
     {
-        StripeConfiguration.ApiKey =
-            "sk_test_51PpxV4KE6sxW2owadyGKDtUF7cDjpCEtD83stbkfbzd7FqPfleW0pWKEmJR6BGr7oLnwIjRAQPCFxQsnMDYOr79h00cKaT8nO1";
+        StripeConfiguration.ApiKey = settings.Value.StripeSecret;
 
         var dc = new Dictionary<string, string>
         {
