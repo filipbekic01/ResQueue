@@ -5,6 +5,7 @@ import { useIdentity } from '@/composables/identityComposable'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Checkbox from 'primevue/checkbox'
 import { useToast } from 'primevue/usetoast'
+import { useRouter } from 'vue-router'
 
 const messages = [
   'Great to see you again!',
@@ -21,6 +22,8 @@ const messages = [
 
 const randomIndex = Math.floor(Math.random() * messages.length)
 const message = messages[randomIndex]
+
+const router = useRouter()
 
 const {
   query: { data: user }
@@ -106,9 +109,9 @@ const updateUserConfig = (prop: string, value: any) => {
             </div>
             <Button
               class="mt-3"
-              label="Subscribe"
-              size="small"
-              icon="pi pi-check"
+              label="Subscribe Now"
+              icon="pi pi-arrow-right"
+              @click="router.push({ name: 'pricing' })"
               icon-pos="right"
             ></Button>
           </div>

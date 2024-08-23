@@ -40,8 +40,7 @@ public static class AuthEndpoints
         }).RequireAuthorization();
 
         group.MapPost("register",
-            async (UserManager<User> userManager, [FromBody] RegisterDto dto, ICreateSubscriptionFeature feature,
-                IEmailSender<User> emailSender, LinkGenerator linkGenerator, HttpContext httpContext) =>
+            async (UserManager<User> userManager, [FromBody] RegisterDto dto, ICreateSubscriptionFeature feature) =>
             {
                 if (!string.IsNullOrWhiteSpace(dto.Email) && !new EmailAddressAttribute().IsValid(dto.Email))
                 {

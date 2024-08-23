@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useIdentity } from '@/composables/identityComposable'
 import Tag from 'primevue/tag'
 
 defineProps<{
@@ -13,6 +14,10 @@ defineProps<{
 const emit = defineEmits<{
   (e: 'get-started'): void
 }>()
+
+const {
+  query: { data: user }
+} = useIdentity()
 </script>
 
 <template>
@@ -41,6 +46,7 @@ const emit = defineEmits<{
     <Button
       :outlined="tier.toLowerCase() !== 'essentials'"
       label="Get Started"
+      :disabled="tier.toLowerCase() === 'free' && !!user"
       @click="emit('get-started')"
     ></Button>
   </div>

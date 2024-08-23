@@ -4,30 +4,44 @@ import PricingCard from './PricingCard.vue'
 import RegisterDialog from '@/dialogs/RegisterDialog.vue'
 import { useDialog } from 'primevue/usedialog'
 import { useIdentity } from '@/composables/identityComposable'
-import { useRouter } from 'vue-router'
+import SubscribeDialog from '@/dialogs/SubscribeDialog.vue'
 
 const dialog = useDialog()
-const router = useRouter()
 
 const {
   query: { data: user }
 } = useIdentity()
 
-const openRegisterDialog = (plan?: string) => {
-  if (user.value?.isSubscribed) {
-    router.push({
-      name: 'app'
-    })
-
-    return
+const openDialog = (plan?: string) => {
+  if (!user.value) {
+    openRegisterDialog(plan)
+  } else {
+    openSubscriptionDialog(plan)
   }
+}
 
+const openRegisterDialog = (plan?: string) => {
   dialog.open(RegisterDialog, {
     data: {
       plan: plan
     },
     props: {
       header: 'Registration',
+      style: {
+        width: '30rem'
+      },
+      modal: true
+    }
+  })
+}
+
+const openSubscriptionDialog = (plan?: string) => {
+  dialog.open(SubscribeDialog, {
+    data: {
+      plan: plan
+    },
+    props: {
+      header: 'Start New Subscription',
       style: {
         width: '30rem'
       },
@@ -53,7 +67,7 @@ const openRegisterDialog = (plan?: string) => {
         :price="0"
         severity="secondary"
         :recommended="false"
-        @get-started="openRegisterDialog(undefined)"
+        @get-started="openDialog(undefined)"
       />
 
       <PricingCard
@@ -63,7 +77,7 @@ const openRegisterDialog = (plan?: string) => {
         :price="7.99"
         severity="primary"
         :recommended="true"
-        @get-started="openRegisterDialog('essentials')"
+        @get-started="openDialog('essentials')"
       />
 
       <PricingCard
@@ -73,7 +87,7 @@ const openRegisterDialog = (plan?: string) => {
         :price="19.99"
         severity="primray"
         :recommended="false"
-        @get-started="openRegisterDialog('ultimate')"
+        @get-started="openDialog('ultimate')"
       />
     </div>
 

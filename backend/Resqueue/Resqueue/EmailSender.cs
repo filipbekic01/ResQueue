@@ -16,7 +16,7 @@ public class DummyEmailSender(
         var message = new MimeMessage();
         message.From.Add(new MailboxAddress("ResQueue", "resqueue@no-reply.io"));
         message.To.Add(new MailboxAddress(user.UserName, email));
-        message.Subject = "Confirm your email";
+        message.Subject = "ResQueue — Account Confirmation";
 
         message.Body = new TextPart("html")
         {
@@ -40,7 +40,7 @@ public class DummyEmailSender(
         var message = new MimeMessage();
         message.From.Add(new MailboxAddress("ResQueue", "resqueue@no-reply.io"));
         message.To.Add(new MailboxAddress(user.UserName, email));
-        message.Subject = "Your password reset code";
+        message.Subject = "ResQueue — Reset Password Code";
 
         message.Body = new TextPart("html")
         {
