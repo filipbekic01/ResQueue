@@ -71,11 +71,15 @@ const openSubscriptionManager = () => {
 
 const showEditFullName = ref(false)
 const updateUserFullNameAsync = (value: string) => {
+  showEditFullName.value = false
+
   if (!user.value) {
     return
   }
 
-  showEditFullName.value = false
+  if (value == user.value.fullName) {
+    return
+  }
 
   updateUserAsync({
     fullName: value,
@@ -134,6 +138,7 @@ const updateUserFullNameAsync = (value: string) => {
             </div>
           </div>
           <Button
+            v-if="!user?.emailConfirmed"
             @click="resendConfirmationEmail"
             icon="pi pi-send"
             class="ms-auto"
@@ -165,6 +170,7 @@ const updateUserFullNameAsync = (value: string) => {
             <Button
               label="Subscribe"
               icon="pi pi-arrow-right"
+              v-if="!activeSubscription"
               @click="router.push({ name: 'pricing' })"
               icon-pos="right"
               class="ms-auto"

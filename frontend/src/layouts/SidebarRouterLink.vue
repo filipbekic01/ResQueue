@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { useIdentity } from '@/composables/identityComposable'
+import { computed } from 'vue'
 import { useRoute, type RouteLocationAsRelativeGeneric } from 'vue-router'
 
 export interface ResqueueRoute {
@@ -8,7 +10,7 @@ export interface ResqueueRoute {
   to: RouteLocationAsRelativeGeneric
 }
 
-defineProps<{
+const props = defineProps<{
   id: number
   label: string
   icon: string
@@ -16,6 +18,10 @@ defineProps<{
 }>()
 
 const route = useRoute()
+const {
+  activeSubscription,
+  query: { data: user }
+} = useIdentity()
 
 const isRoute = (to: RouteLocationAsRelativeGeneric) => {
   if (route.path?.toString().startsWith('/app/broker')) {
@@ -28,6 +34,20 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => {
 
   return route.name === to.name
 }
+
+const showWarning = computed(() => {
+  if (props.label === 'Control Panel') {
+    if (!user.value?.emailConfirmed) {
+      return true
+    }
+
+    if (!activeSubscription) {
+      return true
+    }
+  }
+
+  return false
+})
 </script>
 
 <template>
@@ -53,5 +73,6 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => {
       ]"
     ></i>
     <span>{{ label }}</span>
+    <i v-if="showWarning" class="ms-auto text-orange-400 pi pi-exclamation-circle"></i>
   </RouterLink>
 </template>

@@ -11,6 +11,7 @@ import BrokerTopics from '@/pages/broker/topics/BrokerTopics.vue'
 import BrokerOverview from '@/pages/broker/overview/BrokerOverview.vue'
 import Login from '@/pages/login/Login.vue'
 import ForgotPassword from '@/pages/forgot-password/ForgotPassword.vue'
+import Updates from '@/pages/updates/Updates.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,6 +45,11 @@ const router = createRouter({
       path: '/app',
       name: 'app',
       component: ControlPanel
+    },
+    {
+      path: '/app/updates',
+      name: 'updates',
+      component: Updates
     },
     {
       path: '/app/brokers/:brokerId',
