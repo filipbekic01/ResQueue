@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
 using Resqueue.Dtos;
 using Resqueue.Features.Stripe.CreateSubscription;
 using Resqueue.Filters;
@@ -26,6 +26,7 @@ public static class AuthEndpoints
             return Results.Ok(new UserDto()
             {
                 Id = user.Id.ToString(),
+                FullName = user.FullName,
                 Email = user.Email!,
                 EmailConfirmed = user.EmailConfirmed,
                 StripeId = user.StripeId,
@@ -54,8 +55,8 @@ public static class AuthEndpoints
                 }).ToList(),
                 UserConfig = new UserConfigDto
                 {
-                    showBrokerSyncConfirm = user.UserConfig.showBrokerSyncConfirm,
-                    showMessagesSyncConfirm = user.UserConfig.showMessagesSyncConfirm
+                    ShowBrokerSyncConfirm = user.UserConfig.showBrokerSyncConfirm,
+                    ShowMessagesSyncConfirm = user.UserConfig.showMessagesSyncConfirm
                 }
             });
         }).RequireAuthorization();
@@ -106,6 +107,50 @@ public static class AuthEndpoints
 
                 return Results.Ok();
             }).AllowAnonymousOnly();
+
+        group.MapPatch("me",
+            async (HttpContext httpContext, UserManager<User> userManager, [FromBody] UpdateUserDto dto,
+                IMongoCollection<User> usersCollection) =>
+            {
+                var user = await userManager.GetUserAsync(httpContext.User);
+                if (user == null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                var filter = Builders<User>.Filter.Eq(u => u.Id, user.Id);
+                var update = Builders<User>.Update.Combine();
+
+                // Update FullName if provided
+                if (!string.IsNullOrEmpty(dto.FullName))
+                {
+                    update = Builders<User>.Update.Set(u => u.FullName, dto.FullName);
+                }
+
+                // Update UserConfig if provided
+                if (dto.Config != null)
+                {
+                    update = Builders<User>.Update.Combine(
+                        update,
+                        Builders<User>.Update.Set(u => u.UserConfig.showBrokerSyncConfirm,
+                            dto.Config.ShowBrokerSyncConfirm),
+                        Builders<User>.Update.Set(u => u.UserConfig.showMessagesSyncConfirm,
+                            dto.Config.ShowMessagesSyncConfirm)
+                    );
+                }
+
+                if (update != Builders<User>.Update.Combine()) // Check if there's any update to apply
+                {
+                    var result = await usersCollection.UpdateOneAsync(filter, update);
+
+                    if (result.ModifiedCount == 0)
+                    {
+                        return Results.Problem("Failed to update user.");
+                    }
+                }
+
+                return Results.Ok();
+            }).RequireAuthorization();
 
         group.MapPost("logout", async (SignInManager<User> signInManager,
                 [FromBody] object empty) =>

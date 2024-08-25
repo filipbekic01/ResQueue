@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { useIdentity } from '@/composables/identityComposable'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import CreateBrokerDialog from '@/dialogs/CreateBrokerDialog.vue'
 import { useDialog } from 'primevue/usedialog'
 import Button from 'primevue/button'
 import { computed } from 'vue'
 import type { ResqueueRoute } from './SidebarRouterLink.vue'
 import SidebarRouterLink from './SidebarRouterLink.vue'
+import { useToast } from 'primevue/usetoast'
 
 withDefaults(
   defineProps<{
@@ -23,6 +24,9 @@ const {
 } = useIdentity()
 const { data: brokers } = useBrokersQuery()
 
+const router = useRouter()
+const route = useRoute()
+const toast = useToast()
 const dialog = useDialog()
 
 const openCreateBrokerDialog = () => {
@@ -32,7 +36,7 @@ const openCreateBrokerDialog = () => {
 const staticRoutes = computed<ResqueueRoute[]>(() => [
   {
     id: 0,
-    label: 'Dashboard',
+    label: 'Control Panel',
     icon: 'pi pi-th-large',
     to: {
       name: 'app'
@@ -58,20 +62,40 @@ const brokerRoutes = computed<ResqueueRoute[]>(() => {
 
   return routes
 })
+
+const openFullNameEditPage = () => {
+  if (route.name === 'app') {
+    toast.add({
+      severity: 'secondary',
+      summary: 'Set Full Name',
+      detail: 'Please provide your full name below.',
+      life: 6000
+    })
+  } else {
+    router.push({ name: 'app' })
+  }
+}
 </script>
 
 <template>
   <div class="flex h-screen gap-2 p-2 bg-gray-100" v-if="user">
-    <div class="basis-70 w-70 basis-70 shrink-0 flex flex-col">
+    <div class="basis-72 w-72 shrink-0 flex flex-col">
       <div class="flex flex-row gap-3 items-center py-3 px-2 ms-2 me-3 border-b border-slate-200">
         <RouterLink :to="{ name: 'home' }">
           <div class="grow flex items-center justify-end bg-black p-2.5 rounded-lg">
             <i class="pi pi-database text-white rotate-90" style="font-size: 1.5rem"></i>
           </div>
         </RouterLink>
-        <div class="flex flex-col grow">
-          <span class="font-bold"> Filip Bekic</span>
-          <span>{{ user.email }}</span>
+        <div class="flex flex-col grow leading-5 overflow-hidden">
+          <span class="font-bold" v-if="user.fullName">{{ user.fullName }}</span>
+          <div v-else class="overflow-hidden flex">
+            <span
+              @click="openFullNameEditPage"
+              class="whitespace-nowrap overflow-ellipsis overflow-hidden border-dashed border-slate-500 font-bold text-blue-500 cursor-pointer hover:text-blue-400 hover:border-blue-500 hover:border-solid"
+              >Set full name<i class="pi pi-pencil ms-2" style="font-size: 0.85rem"></i
+            ></span>
+          </div>
+          <span class="overflow-ellipsis overflow-hidden whitespace-nowrap">{{ user.email }}</span>
         </div>
       </div>
 

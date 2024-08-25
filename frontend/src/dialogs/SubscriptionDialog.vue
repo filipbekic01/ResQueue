@@ -42,6 +42,7 @@ const cancel = () => {
 </script>
 
 <template>
+  <!-- make this be list!!!!!!!! make this be list!!!!!!!! make this be list!!!!!!!! v -->
   <div v-if="activeSubscription" class="flex flex-col gap-3">
     <div class="flex flex-col">
       <div class="font-bold">Subscription Plan</div>

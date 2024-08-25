@@ -11,11 +11,13 @@ public static class MongoDbExtensions
     {
         services.AddIdentityMongoDbProvider<User, Role, ObjectId>(opt =>
             {
-                opt.Password.RequiredLength = 6;
+                opt.Password.RequiredLength = 4;
                 opt.Password.RequireDigit = false;
                 opt.Password.RequireLowercase = false;
                 opt.Password.RequireNonAlphanumeric = false;
                 opt.Password.RequireUppercase = false;
+                
+                opt.User.RequireUniqueEmail = true;
             },
             mongoOptions => { mongoOptions.ConnectionString = $"{settings.MongoDBConnectionString}/identity"; });
 

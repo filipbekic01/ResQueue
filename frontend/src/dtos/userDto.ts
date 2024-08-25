@@ -3,6 +3,7 @@ import type { UserConfigDto } from './userConfigDto'
 
 export interface UserDto {
   id: string
+  fullName: string
   email: string
   userConfig: UserConfigDto
   emailConfirmed: boolean

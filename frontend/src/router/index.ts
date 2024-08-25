@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Broker from '../pages/broker/Broker.vue'
-import Dashboard from '../pages/dashboard/Dashboard.vue'
+import ControlPanel from '../pages/control-panel/ControlPanel.vue'
 import Messages from '../pages/messages/Messages.vue'
 import Message from '../pages/message/Message.vue'
 import Home from '../pages/home/Home.vue'
@@ -43,7 +43,7 @@ const router = createRouter({
     {
       path: '/app',
       name: 'app',
-      component: Dashboard
+      component: ControlPanel
     },
     {
       path: '/app/brokers/:brokerId',

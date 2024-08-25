@@ -18,3 +18,48 @@ html {
     25px 25px,
     25px 25px;
 }
+
+.p-tooltip {
+  .p-tooltip-text {
+    @apply bg-black;
+    @apply text-gray-100;
+    @apply text-sm;
+  }
+
+  &.p-tooltip-top {
+    @apply -translate-y-3;
+  }
+  &.p-tooltip-left {
+    @apply -translate-x-3;
+  }
+  &.p-tooltip-bottom {
+    @apply translate-y-3;
+  }
+  &.p-tooltip-right {
+    @apply translate-x-3;
+  }
+}
+
+.p-tooltip-top {
+  .p-tooltip-arrow {
+    border-top-color: #000000 !important;
+  }
+}
+
+.p-tooltip-left {
+  .p-tooltip-arrow {
+    border-left-color: #000000 !important;
+  }
+}
+
+.p-tooltip-bottom {
+  .p-tooltip-arrow {
+    border-bottom-color: #000000 !important;
+  }
+}
+
+.p-tooltip-right {
+  .p-tooltip-arrow {
+    border-right-color: #000000 !important;
+  }
+}

@@ -2,6 +2,7 @@
 import { useLoginMutation } from '@/api/auth/loginMutation'
 import { useRegisterMutation } from '@/api/auth/registerMutation'
 import { useIdentity } from '@/composables/identityComposable'
+import router from '@/router'
 import { extractErrorMessage } from '@/utils/errorUtil'
 import { loadStripe, type Stripe, type StripeCardElement } from '@stripe/stripe-js'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
@@ -97,6 +98,9 @@ const register = async () => {
       }).then(() => {
         refetch().then(() => {
           dialogRef?.value.close()
+          router.push({
+            name: 'app'
+          })
         })
       })
     })
@@ -160,8 +164,18 @@ onMounted(() => {
   </div>
   <div class="flex flex-col gap-4 mb-4">
     <label for="password" class="font-semibold white flex items-center"
-      >Password <i class="pi pi-eye ms-2 cursor-pointer" @click="togglePasswordType"></i
-    ></label>
+      >Password
+      <i
+        class="pi ms-2 cursor-pointer"
+        :class="[
+          {
+            'pi-eye': passwordType === 'text',
+            'pi-eye-slash': passwordType === 'password'
+          }
+        ]"
+        @click="togglePasswordType"
+      ></i>
+    </label>
     <InputText
       id="password"
       placeholder="********"

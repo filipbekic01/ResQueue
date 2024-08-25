@@ -1,5 +1,10 @@
 <script lang="ts" setup>
 import WebLayout from '@/layouts/WebLayout.vue'
+
+const openDiscord = () => {
+  const discordInviteLink = 'discord://discord.gg/age9EsKx5N'
+  window.location.href = discordInviteLink
+}
 </script>
 
 <template>
@@ -13,6 +18,7 @@ import WebLayout from '@/layouts/WebLayout.vue'
         </div>
         <img src="/help.svg" class="my-14 w-40 opacity-25" />
         <Button
+          @click="openDiscord"
           style="background-color: rgb(79 70 229); border-color: rgb(79 70 229)"
           label="Discord Channel"
           icon="pi pi-discord"
