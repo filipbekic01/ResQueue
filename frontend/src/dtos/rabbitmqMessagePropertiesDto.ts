@@ -1,4 +1,4 @@
-export type HeaderValue = string | number | HeaderValue[]
+export type HeaderValue = string | number | boolean | HeaderValue[]
 
 export interface RabbitmqMessagePropertiesDto {
   appId?: string
