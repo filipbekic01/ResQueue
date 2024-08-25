@@ -3,13 +3,13 @@ import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { useMessageQuery } from '@/api/messages/messageQuery'
 import { usePublishMessagesMutation } from '@/api/messages/publishMessagesMutation'
 import { useExchanges } from '@/composables/exchangesComposable'
-import { BROKER_SYSTEMS } from '@/constants/brokerSystems'
 import AppLayout from '@/layouts/AppLayout.vue'
+import { formatDistanceToNow } from 'date-fns'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import MessageRabbitMq from './MessageRabbitMq.vue'
+import RabbitMqMetadata from './RabbitMqMetadata.vue'
 
 const props = defineProps<{
   brokerId: string
@@ -30,6 +30,9 @@ const { data: message } = useMessageQuery(computed(() => props.messageId))
 const { mutateAsync: publishMessagesAsync } = usePublishMessagesMutation()
 
 const selectedExchange = ref()
+
+const options = ref(['Formatted', 'Raw View'])
+const optValue = ref('Formatted')
 
 const publishMessages = (event: any) => {
   confirm.require({
@@ -107,7 +110,6 @@ const isMasstransitFramework = computed(() =>
         {{ message?.id }}
       </div>
     </template>
-
     <div class="flex gap-2 px-4 py-2 items-start border-b">
       <Button outlined @click="backToMessages" icon="pi pi-arrow-left" label="Messages"></Button>
       <Select
@@ -125,10 +127,36 @@ const isMasstransitFramework = computed(() =>
         icon="pi pi-send"
       ></Button>
     </div>
-    <!-- <ScrollPanel class="flex" v-if="message"> -->
-    <div class="flex overflow-auto" v-if="message">
-      <MessageRabbitMq v-if="broker?.system === BROKER_SYSTEMS.RABBIT_MQ" :message="message" />
-    </div>
-    <!-- </ScrollPanel> -->
+
+    <template v-if="message">
+      <div class="my-3 rounded-lg">
+        <div class="mx-5 mb-4 flex items-center">
+          <div>
+            <div class="text-2xl">Message</div>
+            <div class="text-slate-500">
+              Pulled {{ formatDistanceToNow(message.createdAt) }} • Updated
+              {{ message.updatedAt ? formatDistanceToNow(message.updatedAt) : 'never' }}
+            </div>
+          </div>
+
+          <SelectButton
+            class="ms-auto"
+            v-model="optValue"
+            :options="options"
+            aria-labelledby="basic"
+          />
+        </div>
+
+        <div class="flex flex-col overflow-auto bg-gray-100/50 rounded">
+          <div class="font-semibold my-1 px-2 rounded-lg">Metadata</div>
+          <RabbitMqMetadata v-if="message.rabbitmqMetadata" :metadata="message.rabbitmqMetadata" />
+        </div>
+
+        <div class="bg-gray-100/50 rounded">
+          <div class="font-semibold my-1 rounded-lg">Body</div>
+          <div class="text-gray-500">{{ message.body }}</div>
+        </div>
+      </div>
+    </template>
   </AppLayout>
 </template>
