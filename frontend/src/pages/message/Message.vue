@@ -164,7 +164,7 @@ const isMasstransitFramework = computed(() =>
 
         <div class="bg-gray-100/50 rounded ps-5">
           <div class="font-semibold my-1 rounded-lg">Body</div>
-          <pre class="text-gray-500">{{ message.body }}</pre>
+          <div class="text-gray-500 whitespace-break-spaces">{{ message.body }}</div>
         </div>
       </div>
     </template>
