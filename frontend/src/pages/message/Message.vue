@@ -118,7 +118,7 @@ const isMasstransitFramework = computed(() =>
       <Select
         v-model="selectedExchange"
         :options="formattedExchanges"
-        optionLabel="name"
+        optionLabel="parsed.name"
         placeholder="Select an Exchange"
         class="w-96 ms-auto"
         :virtualScrollerOptions="{ itemSize: 38, style: 'width:900px' }"
