@@ -10,6 +10,9 @@ import { useToast } from 'primevue/usetoast'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import RabbitMqMetadata from './RabbitMqMetadata.vue'
+import RawMetadata from './RawMetadata.vue'
+
+type FormatOption = 'Formatted' | 'Raw View'
 
 const props = defineProps<{
   brokerId: string
@@ -31,8 +34,8 @@ const { mutateAsync: publishMessagesAsync } = usePublishMessagesMutation()
 
 const selectedExchange = ref()
 
-const options = ref(['Formatted', 'Raw View'])
-const optValue = ref('Formatted')
+const formatOptions = ref<FormatOption[]>(['Formatted', 'Raw View'])
+const selectedFormatOption = ref<FormatOption>('Formatted')
 
 const publishMessages = (event: any) => {
   confirm.require({
@@ -141,20 +144,27 @@ const isMasstransitFramework = computed(() =>
 
           <SelectButton
             class="ms-auto"
-            v-model="optValue"
-            :options="options"
+            v-model="selectedFormatOption"
+            :options="formatOptions"
             aria-labelledby="basic"
           />
         </div>
 
         <div class="flex flex-col overflow-auto bg-gray-100/50 rounded">
-          <div class="font-semibold my-1 px-2 rounded-lg">Metadata</div>
-          <RabbitMqMetadata v-if="message.rabbitmqMetadata" :metadata="message.rabbitmqMetadata" />
+          <div class="font-semibold my-1 px-5 rounded-lg">Metadata</div>
+          <RawMetadata
+            v-if="message.rabbitmqMetadata && selectedFormatOption === 'Raw View'"
+            :metadata="message.rabbitmqMetadata"
+          />
+          <RabbitMqMetadata
+            v-else-if="message.rabbitmqMetadata"
+            :metadata="message.rabbitmqMetadata"
+          />
         </div>
 
-        <div class="bg-gray-100/50 rounded">
+        <div class="bg-gray-100/50 rounded ps-5">
           <div class="font-semibold my-1 rounded-lg">Body</div>
-          <div class="text-gray-500">{{ message.body }}</div>
+          <pre class="text-gray-500">{{ message.body }}</pre>
         </div>
       </div>
     </template>
