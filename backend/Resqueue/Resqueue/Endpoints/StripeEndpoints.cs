@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Resqueue.Dtos;
 using Resqueue.Dtos.Stripe;
 using Resqueue.Features.Stripe.CancelSubscription;
 using Resqueue.Features.Stripe.CreateSubscription;
@@ -44,22 +45,11 @@ public static class StripeEndpoints
             }).RequireAuthorization();
 
         group.MapPost("cancel-subscription",
-            async (UserManager<User> userManager, ICancelSubscriptionFeature feature, HttpContext httpContext) =>
+            async (ICancelSubscriptionFeature feature, HttpContext httpContext, [FromBody] CancelSubscriptionDto dto) =>
             {
-                var user = await userManager.GetUserAsync(httpContext.User);
-                if (user == null)
-                {
-                    return Results.Unauthorized();
-                }
-
-                if (string.IsNullOrEmpty(user.StripeId))
-                {
-                    return Results.BadRequest("User not subscribed");
-                }
-
                 var result = await feature.ExecuteAsync(new CancelSubscriptionRequest(
-                    UserId: user.Id.ToString(),
-                    SubscriptionId: user.StripeId
+                    ClaimsPrincipal: httpContext.User,
+                    Dto: dto
                 ));
 
                 return result.IsSuccess
@@ -67,7 +57,7 @@ public static class StripeEndpoints
                     : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
             }).RequireAuthorization();
 
-        group.MapGet("event-handler", async (HttpContext httpContext, IEventHandlerFeature feature) =>
+        group.MapPost("event-handler", async (HttpContext httpContext, IEventHandlerFeature feature) =>
         {
             var json = await new StreamReader(httpContext.Request.Body).ReadToEndAsync();
 

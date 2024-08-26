@@ -7,6 +7,7 @@ import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
 import { useToast } from 'primevue/usetoast'
 import { inject, ref, type Ref } from 'vue'
 import { format } from 'date-fns'
+import Message from 'primevue/message'
 
 const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 
@@ -19,7 +20,11 @@ const { mutateAsync: cancelSubscriptionAsync, isPending } = useCancelSubscriptio
 const protect = ref('')
 
 const cancel = () => {
-  cancelSubscriptionAsync()
+  if (!activeSubscription.value) {
+    return
+  }
+
+  cancelSubscriptionAsync({ subscriptionId: activeSubscription.value.stripeId })
     .then(() => {
       dialogRef?.value.close()
 
@@ -42,7 +47,6 @@ const cancel = () => {
 </script>
 
 <template>
-  <!-- make this be list!!!!!!!! make this be list!!!!!!!! make this be list!!!!!!!! v -->
   <div v-if="activeSubscription" class="flex flex-col gap-3">
     <div class="flex flex-col">
       <div class="font-bold">Subscription Plan</div>
@@ -55,10 +59,15 @@ const cancel = () => {
       <div>{{ format(activeSubscription.createdAt, 'MMMM dd, yyyy') }}</div>
     </div>
 
-    <div class="flex flex-col">
-      <div class="font-bold">Next Billing Date</div>
+    <div class="flex flex-col" v-if="activeSubscription.endsAt">
+      <div class="font-bold">Ends At</div>
       <div>{{ format(activeSubscription.endsAt, 'MMMM dd, yyyy') }}</div>
+      <Message class="mt-3" severity="info">
+        Your subscription will remain active until the end of the current month. No further charges
+        will apply after that.
+      </Message>
     </div>
+    <div v-else>The subscription is billed on a monthly basis.</div>
 
     <label for="password" class="font-semibold white flex items-center border-t pt-3"
       >Enter "{{ activeSubscription.type }}" to enable cancel button</label

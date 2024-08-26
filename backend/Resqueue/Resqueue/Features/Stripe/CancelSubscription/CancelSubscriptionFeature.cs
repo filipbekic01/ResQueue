@@ -1,7 +1,11 @@
+using System.Net;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Resqueue.Dtos;
 using Resqueue.Models;
 using Stripe;
 using Subscription = Resqueue.Models.Subscription;
@@ -9,42 +13,56 @@ using Subscription = Resqueue.Models.Subscription;
 namespace Resqueue.Features.Stripe.CancelSubscription;
 
 public record CancelSubscriptionRequest(
-    string UserId,
-    string SubscriptionId
+    ClaimsPrincipal ClaimsPrincipal,
+    CancelSubscriptionDto Dto
 );
 
 public record CancelSubscriptionResponse();
 
 public class CancelSubscriptionFeature(
     IMongoCollection<User> usersCollection,
-    IOptions<Settings> settings
+    IOptions<Settings> settings,
+    UserManager<User> userManager
 ) : ICancelSubscriptionFeature
 {
     public async Task<OperationResult<CancelSubscriptionResponse>> ExecuteAsync(CancelSubscriptionRequest request)
     {
         StripeConfiguration.ApiKey = settings.Value.StripeSecret;
 
+        var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
+        if (user is null)
+        {
+            return OperationResult<CancelSubscriptionResponse>.Failure(new ProblemDetails
+            {
+                Detail = "Unauthorized",
+                Status = StatusCodes.Status401Unauthorized
+            });
+        }
+
+        var userSub = user.Subscriptions.FirstOrDefault(x => x.StripeId == request.Dto.SubscriptionId);
+        if (userSub is null)
+        {
+            return OperationResult<CancelSubscriptionResponse>.Failure(new ProblemDetails
+            {
+                Detail = "Invalid subscription",
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
         try
         {
             var subscriptionService = new SubscriptionService();
-            var subscription = await subscriptionService.UpdateAsync(request.SubscriptionId,
+            var subscription = await subscriptionService.UpdateAsync(userSub.StripeId,
                 new SubscriptionUpdateOptions
                 {
                     CancelAtPeriodEnd = true
                 });
 
-            // Update the subscription status in the user's document
-            var filter = Builders<User>.Filter.And(
-                Builders<User>.Filter.Eq(q => q.Id, ObjectId.Parse(request.UserId)),
-                Builders<User>.Filter.ElemMatch(q => q.Subscriptions,
-                    Builders<Subscription>.Filter.Eq(s => s.StripeId, request.SubscriptionId))
-            );
+            userSub.StripeStatus = subscription.Status;
+            userSub.EndsAt = subscription.CurrentPeriodEnd;
 
-            var update = Builders<User>.Update
-                .Set(q => q.Subscriptions[-1].StripeStatus,
-                    subscription.Status) // -1 refers to the matched array element
-                .Set(q => q.Subscriptions[-1].EndsAt,
-                    subscription.CurrentPeriodEnd);
+            var filter = Builders<User>.Filter.Eq(q => q.Id, user.Id);
+            var update = Builders<User>.Update.Set(q => q.Subscriptions, user.Subscriptions);
 
             await usersCollection.UpdateOneAsync(filter, update);
 

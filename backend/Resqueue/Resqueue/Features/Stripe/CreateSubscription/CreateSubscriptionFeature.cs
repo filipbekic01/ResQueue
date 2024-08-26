@@ -86,8 +86,7 @@ public class CreateSubscriptionFeature(
                 StripePrice = priceId,
                 Type = request.Dto.Plan.ToLower(),
                 Quantity = subscription.Items.Data[0].Quantity,
-                TrialEndsAt = subscription.TrialEnd,
-                EndsAt = subscription.CurrentPeriodEnd,
+                EndsAt = null,
                 CreatedAt = dt,
                 UpdatedAt = dt,
                 SubscriptionItems = subscription.Items.Data.Select(item => new SubscriptionItem

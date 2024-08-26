@@ -39,7 +39,6 @@ public static class AuthEndpoints
                     StripeStatus = sub.StripeStatus,
                     StripePrice = sub.StripePrice,
                     Quantity = sub.Quantity,
-                    TrialEndsAt = sub.TrialEndsAt,
                     EndsAt = sub.EndsAt,
                     CreatedAt = sub.CreatedAt,
                     UpdatedAt = sub.UpdatedAt,

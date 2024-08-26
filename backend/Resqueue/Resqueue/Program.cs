@@ -1,6 +1,6 @@
-using MailKit;
+using AspNetCore.Identity.Mongo;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
+using MongoDB.Bson;
 using Resqueue.Endpoints;
 using Resqueue.Features.Broker.SyncBroker;
 using Resqueue.Features.Broker.UpdateBroker;
@@ -12,6 +12,7 @@ using Resqueue.Features.Stripe.CancelSubscription;
 using Resqueue.Features.Stripe.CreateSubscription;
 using Resqueue.Features.Stripe.EventHandler;
 using Resqueue.Models;
+using Resueue.Extensions;
 
 namespace Resqueue;
 
@@ -37,6 +38,19 @@ public class Program
         });
 
         builder.Services.AddHttpClient();
+
+        builder.Services.AddIdentityMongoDbProvider<User, Role, ObjectId>(opt =>
+                {
+                    opt.Password.RequiredLength = 4;
+                    opt.Password.RequireDigit = false;
+                    opt.Password.RequireLowercase = false;
+                    opt.Password.RequireNonAlphanumeric = false;
+                    opt.Password.RequireUppercase = false;
+
+                    opt.User.RequireUniqueEmail = true;
+                },
+                mongoOptions => { mongoOptions.ConnectionString = $"{settings.MongoDBConnectionString}/identity"; })
+            .AddUserManager<ResqueueUserManager>();
 
         builder.Services.AddMongoDb(settings);
 
