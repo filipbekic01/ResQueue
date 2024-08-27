@@ -30,7 +30,15 @@ const toast = useToast()
 const dialog = useDialog()
 
 const openCreateBrokerDialog = () => {
-  dialog.open(CreateBrokerDialog, {})
+  dialog.open(CreateBrokerDialog, {
+    props: {
+      header: 'Add Broker',
+      style: {
+        width: '30rem'
+      },
+      modal: true
+    }
+  })
 }
 
 const staticRoutes = computed<ResqueueRoute[]>(() => [

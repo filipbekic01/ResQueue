@@ -3,6 +3,5 @@ export interface CreateBrokerDto {
   username: string
   password: string
   port: number
-  url: string
-  framework: string
+  host: string
 }

@@ -56,14 +56,6 @@ public static class BrokerEndpoints
                     return Results.Unauthorized();
                 }
 
-                if (!string.IsNullOrEmpty(dto.Framework))
-                {
-                    if (dto.Framework.ToLower() != Frameworks.MASS_TRANSIT)
-                    {
-                        return Results.BadRequest("Invalid framework.");
-                    }
-                }
-
                 var dateTime = DateTime.UtcNow;
 
                 var broker = new Broker
@@ -75,7 +67,6 @@ public static class BrokerEndpoints
                     Password = dto.Password,
                     Port = dto.Port,
                     Host = dto.Host,
-                    Framework = string.IsNullOrEmpty(dto.Framework) ? Frameworks.NONE : dto.Framework.ToLower(),
                     CreatedAt = dateTime,
                     UpdatedAt = dateTime
                 };

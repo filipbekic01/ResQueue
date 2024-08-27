@@ -14,11 +14,13 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
     "@primevue/themes": "^4.0.4",
     "@stripe/stripe-js": "^4.3.0",
     "@tanstack/vue-query": "^5.52.0",
     "axios": "^1.7.4",
     "date-fns": "^3.6.0",
+    "prettier-plugin-tailwindcss": "^0.6.6",
     "primeicons": "^7.0.0",
     "primevue": "^4.0.4",
     "quill": "^2.0.2",
