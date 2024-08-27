@@ -9,11 +9,11 @@ const { mutateAsync: createBrokerAsync } = useCreateBrokerMutation()
 const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 
 const newBroker = reactive<CreateBrokerDto>({
-  name: 'local',
+  name: 'md-local',
   username: 'rabbitmq',
   password: 'rabbitmq',
   port: 15671,
-  url: 'https://localhost'
+  host: 'https://localhost'
 })
 
 const createBroker = () => {
@@ -44,7 +44,7 @@ const createBroker = () => {
   </div>
   <div class="flex items-center gap-4 mb-8">
     <label for="url" class="font-semibold w-24">URL</label>
-    <InputText id="url" v-model="newBroker.url" class="flex-auto" autocomplete="off" />
+    <InputText id="url" v-model="newBroker.host" class="flex-auto" autocomplete="off" />
   </div>
   <div class="flex items-center gap-4 mb-8">
     <label for="port" class="font-semibold w-24">Port</label>

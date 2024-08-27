@@ -85,10 +85,6 @@ const backToMessages = () => {
     }
   })
 }
-
-const isMasstransitFramework = computed(() =>
-  Object.keys(message.value?.rabbitmqMetadata?.properties.headers ?? {})?.includes('MT-Host')
-)
 </script>
 
 <template>
