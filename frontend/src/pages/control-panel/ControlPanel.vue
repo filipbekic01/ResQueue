@@ -80,7 +80,8 @@ const openSubscriptionManager = () => {
       style: {
         width: '25rem'
       },
-      modal: true
+      modal: true,
+      draggable: false
     }
   })
 }

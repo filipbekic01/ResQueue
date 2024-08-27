@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import { useCreateBrokerMutation } from '@/api/broker/createBrokerMutation'
+import { useTestConnectionMutation } from '@/api/broker/testConnectionRequest'
 import type { CreateBrokerDto } from '@/dtos/createBrokerDto'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
+import { useToast } from 'primevue/usetoast'
 import { inject, reactive, type Ref } from 'vue'
 
-const { mutateAsync: createBrokerAsync } = useCreateBrokerMutation()
+const toast = useToast()
+
+const { mutateAsync: createBrokerAsync, isPending: isCreateBrokerPending } =
+  useCreateBrokerMutation()
+const { mutateAsync: testConnectionAsync, isPending: isTestConnectionPending } =
+  useTestConnectionMutation()
 
 const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 
@@ -17,45 +24,84 @@ const newBroker = reactive<CreateBrokerDto>({
 })
 
 const createBroker = () => {
-  createBrokerAsync(newBroker).then(() => {
-    dialogRef?.value.close()
+  createBrokerAsync(newBroker).then((data) => {
+    dialogRef?.value.close(data)
   })
+}
+
+const testConnection = () => {
+  testConnectionAsync(newBroker)
+    .then(() => {
+      toast.add({
+        severity: 'success',
+        summary: 'Connection Successful',
+        detail: 'The broker connection was established successfully.',
+        life: 6000
+      })
+    })
+    .catch(() => {
+      toast.add({
+        severity: 'error',
+        summary: 'Connection Failed',
+        detail: 'Unable to connect to the broker with the provided details.',
+        life: 6000
+      })
+    })
 }
 </script>
 
 <template>
-  <div class="flex flex-col gap-3">
-    <div class="flex grow flex-col items-start gap-2">
+  <div class="flex flex-col gap-3 mb-5">
+    <div class="flex grow flex-col gap-2">
       <label for="name" class="font-semibold">Name</label>
       <InputText v-model="newBroker.name" id="name" autocomplete="off" />
     </div>
-    <div class="flex flex-col gap-2">
-      <label for="username" class="font-semibold">Username</label>
-      <InputText v-model="newBroker.username" id="username" autocomplete="off" />
-    </div>
-    <div class="flex flex-col gap-2">
-      <label for="password" class="font-semibold">Password</label>
-      <InputText id="password" v-model="newBroker.password" type="password" autocomplete="off" />
-    </div>
-    <div class="flex items-center gap-4">
-      <div class="flex basis-2/3 flex-col gap-2">
-        <label for="url" class="font-semibold">Host</label>
-        <InputText id="url" v-model="newBroker.host" autocomplete="off" />
+    <label class="font-semibold">Connection Details</label>
+    <div class="flex flex-col border border-slate-200 rounded-xl p-4 gap-3">
+      <div class="flex flex-col gap-2">
+        <label for="username" class="font-semibold">Username</label>
+        <InputText v-model="newBroker.username" id="username" autocomplete="off" />
       </div>
-      <div class="flex basis-1/3 flex-col gap-2">
-        <label for="port" class="font-semibold">Port</label>
-        <InputNumber
-          :use-grouping="false"
-          id="port"
-          v-model="newBroker.port"
-          type="password"
-          autocomplete="off"
-        />
+      <div class="flex flex-col gap-2">
+        <label for="password" class="font-semibold">Password</label>
+        <InputText id="password" v-model="newBroker.password" type="password" autocomplete="off" />
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="flex basis-1/2 flex-col gap-2">
+          <label for="url" class="font-semibold">Host</label>
+          <InputText id="url" v-model="newBroker.host" autocomplete="off" />
+        </div>
+        <div class="flex basis-1/2 flex-col gap-2">
+          <label for="port" class="font-semibold flex"
+            >Port<label class="ms-auto text-slate-500 font-normal">80, 443, 15671...</label></label
+          >
+          <InputNumber
+            :use-grouping="false"
+            id="port"
+            v-model="newBroker.port"
+            type="password"
+            autocomplete="off"
+          />
+        </div>
       </div>
     </div>
   </div>
-  <div class="flex justify-end gap-2">
-    <Button type="button" label="Cancel" severity="secondary" @click="dialogRef?.close()"></Button>
-    <Button type="button" label="Create broker" @click="createBroker"></Button>
+  <div class="flex justify-between gap-2">
+    <Button
+      type="button"
+      label="Test Connection"
+      icon="pi pi-arrow-right-arrow-left"
+      outlined
+      :loading="isTestConnectionPending"
+      @click="testConnection"
+    ></Button>
+    <Button
+      type="button"
+      label="Add Broker"
+      icon="pi pi-arrow-right"
+      icon-pos="right"
+      @click="createBroker"
+      :loading="isCreateBrokerPending"
+    ></Button>
   </div>
 </template>

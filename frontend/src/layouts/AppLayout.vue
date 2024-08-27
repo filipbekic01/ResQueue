@@ -2,6 +2,7 @@
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { useIdentity } from '@/composables/identityComposable'
 import CreateBrokerDialog from '@/dialogs/CreateBrokerDialog.vue'
+import type { BrokerDto } from '@/dtos/brokerDto'
 import Button from 'primevue/button'
 import { useDialog } from 'primevue/usedialog'
 import { useToast } from 'primevue/usetoast'
@@ -34,9 +35,24 @@ const openCreateBrokerDialog = () => {
     props: {
       header: 'Add Broker',
       style: {
-        width: '30rem'
+        width: '32rem'
       },
-      modal: true
+      modal: true,
+      draggable: false
+    },
+    onClose: (opts) => {
+      if (!opts?.data) {
+        return
+      }
+
+      var broker: BrokerDto = opts.data
+
+      router.push({
+        name: 'queues',
+        params: {
+          brokerId: broker.id
+        }
+      })
     }
   })
 }

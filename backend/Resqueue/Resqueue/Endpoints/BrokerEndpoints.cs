@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -29,7 +30,9 @@ public static class BrokerEndpoints
                 }
 
                 var filter = Builders<Broker>.Filter.Eq(b => b.UserId, user.Id);
-                var brokers = await collection.Find(filter).ToListAsync();
+                var sort = Builders<Broker>.Sort.Descending(b => b.Id);
+
+                var brokers = await collection.Find(filter).Sort(sort).ToListAsync();
                 var dtos = brokers.Select(x => new BrokerDto(
                     x.Id.ToString(),
                     x.System,
@@ -73,7 +76,18 @@ public static class BrokerEndpoints
 
                 await collection.InsertOneAsync(broker);
 
-                return Results.Ok();
+                return Results.Ok(new BrokerDto(
+                    broker.Id.ToString(),
+                    broker.System,
+                    broker.Name,
+                    broker.Port,
+                    broker.Host,
+                    broker.Framework,
+                    broker.CreatedAt,
+                    broker.UpdatedAt,
+                    broker.SyncedAt,
+                    broker.DeletedAt
+                ));
             });
 
         group.MapPost("{id}/sync",
@@ -88,6 +102,32 @@ public static class BrokerEndpoints
                     ? Results.Ok(result.Value)
                     : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
             }).AddRetryFilter();
+
+        group.MapPost("/test-connection",
+            async ([FromBody] CreateBrokerDto dto) =>
+            {
+                using var httpClient = new HttpClient();
+
+                var url = $"https://{dto.Host}:{dto.Port}/api/whoami";
+
+                var authToken = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{dto.Username}:{dto.Password}"));
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authToken);
+
+                try
+                {
+                    var response = await httpClient.GetAsync(url);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return Results.Ok();
+                    }
+
+                    return Results.Problem("Failed to connect to the host.");
+                }
+                catch (Exception ex)
+                {
+                    return Results.Problem($"Failed to connect to the host: {ex.Message}");
+                }
+            });
 
         group.MapPut("/{id}",
             async (string id, [FromBody] UpdateBrokerDto dto, UserManager<User> userManager,

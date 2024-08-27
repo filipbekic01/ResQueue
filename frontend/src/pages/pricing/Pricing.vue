@@ -30,7 +30,8 @@ const openRegisterDialog = (plan?: string) => {
       style: {
         width: '30rem'
       },
-      modal: true
+      modal: true,
+      draggable: false
     }
   })
 }
@@ -45,7 +46,8 @@ const openSubscriptionDialog = (plan?: string) => {
       style: {
         width: '30rem'
       },
-      modal: true
+      modal: true,
+      draggable: false
     }
   })
 }

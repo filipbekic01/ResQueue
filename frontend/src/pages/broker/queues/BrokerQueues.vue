@@ -8,10 +8,6 @@ import Paginator, { type PageState } from 'primevue/paginator'
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-const emit = defineEmits<{
-  (e: 'request-sync'): void
-}>()
-
 const props = defineProps<{
   brokerId: string
 }>()
@@ -136,7 +132,7 @@ const updateSort = (e: DataTableSortEvent) => {
       <img src="/ebox.svg" class="w-72 opacity-50 pb-5" />
       <div class="text-lg">No Queues</div>
       <div class="">Make sure you sync the broker.</div>
-      <Button @click="emit('request-sync')" label="Sync" icon="pi pi-sync" class="mt-3"></Button>
+      <Button label="Sync" icon="pi pi-sync" class="mt-3"></Button>
     </div>
   </template>
 
