@@ -2,12 +2,12 @@
 import { useCancelSubscriptionMutation } from '@/api/stripe/cancelSubscriptionMutation'
 import { useIdentity } from '@/composables/identityComposable'
 import { extractErrorMessage } from '@/utils/errorUtil'
+import { format } from 'date-fns'
 import Button from 'primevue/button'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
+import Message from 'primevue/message'
 import { useToast } from 'primevue/usetoast'
 import { inject, ref, type Ref } from 'vue'
-import { format } from 'date-fns'
-import Message from 'primevue/message'
 
 const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 

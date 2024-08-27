@@ -1,14 +1,14 @@
 import './assets/main.scss'
-import { createApp } from 'vue'
-import Rc from './Rc.vue'
-import router from './router'
-import PrimeVue from 'primevue/config'
+import { NoirPreset } from '@/config/noirPreset'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
+import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
 import DialogService from 'primevue/dialogservice'
 import ToastService from 'primevue/toastservice'
-import { NoirPreset } from '@/config/noirPreset'
 import Tooltip from 'primevue/tooltip'
+import { createApp } from 'vue'
+import Rc from './Rc.vue'
+import router from './router'
 
 const app = createApp(Rc)
 

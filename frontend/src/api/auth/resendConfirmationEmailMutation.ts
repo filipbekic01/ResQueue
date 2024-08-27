@@ -1,7 +1,7 @@
-import axios from 'axios'
-import { useMutation } from '@tanstack/vue-query'
 import { API_URL } from '@/constants/api'
 import type { ResendConfirmationEmailDto } from '@/dtos/auth/resendConfirmationEmailDto'
+import { useMutation } from '@tanstack/vue-query'
+import axios from 'axios'
 
 export function useResendConfirmatioEmailMutation() {
   return useMutation({

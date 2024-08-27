@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
-import Column from 'primevue/column'
-import DataTable, { type DataTableSortEvent } from 'primevue/datatable'
-import { computed, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import Paginator, { type PageState } from 'primevue/paginator'
 import { usePaginatedQueuesQuery } from '@/api/queues/paginatedQueuesQuery'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
+import Column from 'primevue/column'
+import DataTable, { type DataTableSortEvent } from 'primevue/datatable'
+import Paginator, { type PageState } from 'primevue/paginator'
+import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const emit = defineEmits<{
   (e: 'request-sync'): void

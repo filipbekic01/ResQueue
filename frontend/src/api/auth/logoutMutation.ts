@@ -1,6 +1,6 @@
-import axios from 'axios'
-import { useMutation } from '@tanstack/vue-query'
 import { API_URL } from '@/constants/api'
+import { useMutation } from '@tanstack/vue-query'
+import axios from 'axios'
 
 export function useLogoutMutation() {
   return useMutation({

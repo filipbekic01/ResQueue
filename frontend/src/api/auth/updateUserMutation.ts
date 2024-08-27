@@ -1,7 +1,7 @@
-import axios from 'axios'
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { API_URL } from '@/constants/api'
 import type { UpdateUserDto } from '@/dtos/updateUserDto'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import axios from 'axios'
 
 export function useUpdateUserMutation() {
   const queryClient = useQueryClient()

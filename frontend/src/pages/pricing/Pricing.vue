@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import WebLayout from '@/layouts/WebLayout.vue'
-import PricingCard from './PricingCard.vue'
-import RegisterDialog from '@/dialogs/RegisterDialog.vue'
-import { useDialog } from 'primevue/usedialog'
 import { useIdentity } from '@/composables/identityComposable'
+import RegisterDialog from '@/dialogs/RegisterDialog.vue'
 import SubscribeDialog from '@/dialogs/SubscribeDialog.vue'
+import WebLayout from '@/layouts/WebLayout.vue'
+import { useDialog } from 'primevue/usedialog'
+import PricingCard from './PricingCard.vue'
 
 const dialog = useDialog()
 

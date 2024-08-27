@@ -2,11 +2,11 @@
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { useSyncBrokerMutation } from '@/api/broker/syncBrokerMutation'
 import AppLayout from '@/layouts/AppLayout.vue'
+import { formatDistanceToNow } from 'date-fns'
+import Select from 'primevue/select'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { computed } from 'vue'
-import { formatDistanceToNow } from 'date-fns'
-import Select from 'primevue/select'
 import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps<{

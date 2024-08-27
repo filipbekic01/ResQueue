@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
-import { useIdentity } from './composables/identityComposable'
+import ConfirmDialog from 'primevue/confirmdialog'
 import DynamicDialog from 'primevue/dynamicdialog'
 import Toast from 'primevue/toast'
-import ConfirmDialog from 'primevue/confirmdialog'
+import { RouterView } from 'vue-router'
+import { useIdentity } from './composables/identityComposable'
 
 const {
   query: { data: _ }
