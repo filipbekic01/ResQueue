@@ -1,24 +1,31 @@
 <script lang="ts" setup>
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
+import { useDeleteBrokerMutation } from '@/api/broker/deleteBrokerMutation'
 import { useTestConnectionMutation } from '@/api/broker/testConnectionRequest'
 import { useUpdateBrokerMutation } from '@/api/broker/updateBrokerMutation'
 import type { UpdateBrokerDto } from '@/dtos/updateBrokerDto'
 import { extractErrorMessage } from '@/utils/errorUtil'
 import ToggleSwitch from 'primevue/toggleswitch'
+import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps<{
   brokerId: string
 }>()
 
 const toast = useToast()
+const router = useRouter()
+const confirm = useConfirm()
 const { data: brokers } = useBrokersQuery()
 
 const { mutateAsync: updateBrokerAsync, isPending: isUpdateBrokerPending } =
   useUpdateBrokerMutation()
 const { mutateAsync: testConnectionAsync, isPending: isTestConnectionPending } =
   useTestConnectionMutation()
+const { mutateAsync: deleteBrokerAsync, isPending: isDeleteBrokerPending } =
+  useDeleteBrokerMutation()
 
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
 
@@ -114,6 +121,35 @@ const updateQuickSearches = (value: string) => {
 }
 
 const updateCredentials = ref(false)
+
+const deleteBroker = () => {
+  confirm.require({
+    header: `Delete Broker`,
+    message: `Do you want to delete ${broker.value?.name} broker?`,
+    icon: 'pi pi-exclamation-circle',
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Delete',
+      severity: 'danger'
+    },
+    accept: () => {
+      if (!broker.value) {
+        return
+      }
+
+      deleteBrokerAsync(broker.value.id).then(() => {
+        router.push({
+          name: 'app'
+        })
+      })
+    },
+    reject: () => {}
+  })
+}
 </script>
 
 <template>
@@ -155,27 +191,27 @@ const updateCredentials = ref(false)
       </div>
 
       <div class="flex flex-col rounded-xl gap-3">
-        <div class="flex flex-col gap-2">
-          <label for="username">Username</label>
-          <InputText
-            placeholder="Enter username"
-            v-model="brokerEditable.username"
-            id="username"
-            autocomplete="off"
-            :disabled="!updateCredentials"
-          />
-        </div>
-        <div class="flex flex-col gap-2">
-          <label for="password">Password</label>
-          <InputText
-            placeholder="*******"
-            id="password"
-            v-model="brokerEditable.password"
-            :disabled="!updateCredentials"
-            type="password"
-            autocomplete="off"
-          />
-        </div>
+        <template v-if="updateCredentials">
+          <div class="flex flex-col gap-2">
+            <label for="username">Username</label>
+            <InputText
+              placeholder="Enter username"
+              v-model="brokerEditable.username"
+              id="username"
+              autocomplete="off"
+            />
+          </div>
+          <div class="flex flex-col gap-2">
+            <label for="password">Password</label>
+            <InputText
+              placeholder="*******"
+              id="password"
+              v-model="brokerEditable.password"
+              type="password"
+              autocomplete="off"
+            />
+          </div>
+        </template>
         <div class="flex items-center gap-4">
           <div class="flex basis-1/2 flex-col gap-2">
             <label for="url">Host</label>
@@ -210,7 +246,14 @@ const updateCredentials = ref(false)
 
     <div class="flex gap-2 mt-2">
       <Button
-        type="button"
+        label="Delete Broker"
+        icon="pi pi-trash"
+        severity="danger"
+        outlined
+        @click="deleteBroker"
+        :loading="isDeleteBrokerPending"
+      ></Button>
+      <Button
         label="Update Broker"
         icon="pi pi-arrow-right"
         icon-pos="right"

@@ -29,7 +29,10 @@ public static class BrokerEndpoints
                     return Results.Unauthorized();
                 }
 
-                var filter = Builders<Broker>.Filter.Eq(b => b.UserId, user.Id);
+                var filter = Builders<Broker>.Filter.And(
+                    Builders<Broker>.Filter.Eq(b => b.UserId, user.Id),
+                    Builders<Broker>.Filter.Eq(b => b.DeletedAt, null));
+
                 var sort = Builders<Broker>.Sort.Descending(b => b.Id);
 
                 var brokers = await collection.Find(filter).Sort(sort).ToListAsync();
@@ -168,9 +171,11 @@ public static class BrokerEndpoints
                     Builders<Broker>.Filter.Eq(b => b.UserId, user.Id)
                 );
 
-                var result = await collection.DeleteOneAsync(filter);
+                var update = Builders<Broker>.Update.Set(b => b.DeletedAt, DateTime.UtcNow);
 
-                return result.DeletedCount == 0 ? Results.NotFound() : Results.Ok();
+                await collection.UpdateOneAsync(filter, update);
+
+                return Results.Ok();
             });
 
         return group;
