@@ -153,16 +153,16 @@ const deleteBroker = () => {
 </script>
 
 <template>
-  <div v-if="brokerEditable" class="p-7 flex flex-col max-w-[36rem] gap-7">
-    <div class="rounded-xl border-gray-200 border p-5 flex flex-col gap-3">
-      <div class="font-medium text-lg">Broker Settings</div>
+  <div v-if="brokerEditable" class="flex max-w-[36rem] flex-col gap-7 p-7">
+    <div class="flex flex-col gap-3 rounded-xl border border-gray-200 p-5">
+      <div class="text-lg font-medium">Broker Settings</div>
       <div class="flex flex-col gap-3">
         <div class="flex flex-col gap-2">
           <label for="name" class="">Name</label>
           <InputText v-model="brokerEditable.name" id="name" autocomplete="off" />
         </div>
       </div>
-      <div class="flex flex-col gap-3 grow">
+      <div class="flex grow flex-col gap-3">
         <div class="">Quick Search Suggestions</div>
         <div class="flex flex-col gap-3">
           <InputText
@@ -184,13 +184,13 @@ const deleteBroker = () => {
       </div>
     </div>
     <div class="flex flex-col gap-3 rounded-xl border border-gray-200 p-5">
-      <div class="font-medium flex text-lg items-center gap-2">
+      <div class="flex items-center gap-2 text-lg font-medium">
         Connection Details
         <ToggleSwitch v-model="updateCredentials" class="ms-auto"></ToggleSwitch>
         <label class="text-base font-normal">Credentials</label>
       </div>
 
-      <div class="flex flex-col rounded-xl gap-3">
+      <div class="flex flex-col gap-3 rounded-xl">
         <template v-if="updateCredentials">
           <div class="flex flex-col gap-2">
             <label for="username">Username</label>
@@ -219,7 +219,7 @@ const deleteBroker = () => {
           </div>
           <div class="flex basis-1/2 flex-col gap-2">
             <label for="port" class="flex"
-              >Port<label class="ms-auto text-slate-500 font-normal"
+              >Port<label class="ms-auto font-normal text-slate-500"
                 >80, 443, 15671...</label
               ></label
             >

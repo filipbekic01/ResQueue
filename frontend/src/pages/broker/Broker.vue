@@ -72,17 +72,17 @@ const updateTabValue = (a: any) => router.push({ name: a })
 <template>
   <AppLayout hide-header>
     <template v-if="broker">
-      <div class="flex px-4 pt-4 pb-2">
+      <div class="flex px-4 pb-2 pt-4">
         <div
-          class="w-24 h-24 rounded-2xl bg-[#FF6600] items-center justify-center flex text-2xl text-white"
+          class="flex h-24 w-24 items-center justify-center rounded-2xl bg-[#FF6600] text-2xl text-white"
         >
           <img src="/rmq.svg" class="w-16" />
         </div>
 
-        <div class="flex flex-col ps-3 justify-center">
+        <div class="flex flex-col justify-center ps-3">
           <div class="font-semibold">RabbitMQ</div>
-          <div class="font-bold text-3xl pb-1">{{ broker.name }}</div>
-          <div class="flex gap-2 text-slate-500 items-center">
+          <div class="pb-1 text-3xl font-bold">{{ broker.name }}</div>
+          <div class="flex items-center gap-2 text-slate-500">
             <i
               class="pi pi-sync"
               :class="[
@@ -95,13 +95,13 @@ const updateTabValue = (a: any) => router.push({ name: a })
             <div v-if="!isPendingSyncBroker">
               <template v-if="broker.syncedAt">
                 Synced
-                <span class="underline hover:text-blue-500 cursor-pointer" @click="syncBroker">{{
+                <span class="cursor-pointer underline hover:text-blue-500" @click="syncBroker">{{
                   formatDistanceToNow(broker.syncedAt)
                 }}</span>
                 ago
               </template>
               <template v-else>
-                <span class="underline hover:text-blue-500 cursor-pointer" @click="syncBroker">
+                <span class="cursor-pointer underline hover:text-blue-500" @click="syncBroker">
                   Click to sync broker
                 </span>
               </template>
@@ -115,12 +115,12 @@ const updateTabValue = (a: any) => router.push({ name: a })
           <Tab value="overview">Overview</Tab>
           <Tab value="topics">Topics</Tab>
           <Tab value="queues">Queues</Tab>
-          <div class="flex px-3 gap-3 grow items-center">
+          <div class="flex grow items-center gap-3 px-3">
             <div class="ms-auto text-slate-500">Filters</div>
 
             <i
               v-if="route.query.search"
-              class="pi pi-times me-1 text-slate-400 cursor-pointer hover:text-slate-600"
+              class="pi pi-times me-1 cursor-pointer text-slate-400 hover:text-slate-600"
               @click="applySearch('')"
             ></i>
             <i v-else class="pi pi-filter me-1 text-slate-400"></i>

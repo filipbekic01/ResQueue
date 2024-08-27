@@ -4,7 +4,7 @@ import AppLayout from '@/layouts/AppLayout.vue'
 
 <template>
   <AppLayout hide-header>
-    <div class="text-3xl font-bold px-7 pt-5">System Updates</div>
-    <div class="text-slate-400 px-7">Stay informed with the latest updates and enhancements.</div>
+    <div class="px-7 pt-5 text-3xl font-bold">System Updates</div>
+    <div class="px-7 text-slate-400">Stay informed with the latest updates and enhancements.</div>
   </AppLayout>
 </template>

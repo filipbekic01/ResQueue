@@ -84,7 +84,7 @@ const updateSort = (e: DataTableSortEvent) => {
       :sort-order="route.query.sortOrder ? parseInt(route.query.sortOrder.toString()) : undefined"
       @sort="updateSort"
     >
-      <Column sortable field="name" header="Name" class="w-[60%] overflow-ellipsis overflow-hidden">
+      <Column sortable field="name" header="Name" class="w-[60%] overflow-hidden overflow-ellipsis">
         <template #body="{ data }">
           <span
             @click="selectQueue(data)"
@@ -104,16 +104,16 @@ const updateSort = (e: DataTableSortEvent) => {
 
       <Column field="pulled" header="Pld" class="w-[0%]">
         <template #body="{ data }">
-          <div class="flex gap-1 items-center">
-            <i class="text-xs text-slate-500 pi pi-inbox"></i>{{ data.parsed['messages'] }}
+          <div class="flex items-center gap-1">
+            <i class="pi pi-inbox text-xs text-slate-500"></i>{{ data.parsed['messages'] }}
           </div>
         </template>
       </Column>
 
       <Column sortable field="parsed.messages" header="Msgs" class="w-[0%]">
         <template #body="{ data }">
-          <div class="flex gap-1 items-center">
-            <i class="text-xs text-emerald-500 pi pi-arrow-down"></i>{{ data.parsed['messages'] }}
+          <div class="flex items-center gap-1">
+            <i class="pi pi-arrow-down text-xs text-emerald-500"></i>{{ data.parsed['messages'] }}
           </div>
         </template>
       </Column>
@@ -128,8 +128,8 @@ const updateSort = (e: DataTableSortEvent) => {
     </DataTable>
   </template>
   <template v-else>
-    <div class="flex items-center flex-col mt-24 grow">
-      <img src="/ebox.svg" class="w-72 opacity-50 pb-5" />
+    <div class="mt-24 flex grow flex-col items-center">
+      <img src="/ebox.svg" class="w-72 pb-5 opacity-50" />
       <div class="text-lg">No Queues</div>
       <div class="">Make sure you sync the broker.</div>
       <Button label="Sync" icon="pi pi-sync" class="mt-3"></Button>

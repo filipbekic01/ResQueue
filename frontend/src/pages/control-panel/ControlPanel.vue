@@ -106,18 +106,18 @@ const updateUserFullNameAsync = (value?: string) => {
 
 <template>
   <AppLayout hide-header>
-    <div class="text-3xl font-bold px-7 pt-5">Control Panel</div>
-    <div class="text-slate-400 px-7">Manage settings and access your account details.</div>
-    <div class="p-7 flex flex-col gap-7 max-w-[60rem]">
+    <div class="px-7 pt-5 text-3xl font-bold">Control Panel</div>
+    <div class="px-7 text-slate-400">Manage settings and access your account details.</div>
+    <div class="flex max-w-[60rem] flex-col gap-7 p-7">
       <div class="flex items-start gap-7">
-        <div class="grow basis-1/2 border border-gray-200 rounded-xl p-5">
+        <div class="grow basis-1/2 rounded-xl border border-gray-200 p-5">
           <div class="text-lg font-medium">E-Mail Address</div>
           <div class="text-slate-500">{{ user?.email }}</div>
         </div>
-        <div class="grow basis-1/2 border rounded-xl border-gray-200 p-5 flex items-center">
+        <div class="flex grow basis-1/2 items-center rounded-xl border border-gray-200 p-5">
           <div>
             <div class="text-lg font-medium">Full Name</div>
-            <div class="text-slate-500 flex items-center">
+            <div class="flex items-center text-slate-500">
               {{ user?.fullName ? user?.fullName : 'Not set' }}
             </div>
           </div>
@@ -141,10 +141,10 @@ const updateUserFullNameAsync = (value?: string) => {
         </div>
       </div>
       <div class="flex items-start gap-7">
-        <div class="grow basis-1/2 border border-gray-200 rounded-xl p-5 flex items-center">
+        <div class="flex grow basis-1/2 items-center rounded-xl border border-gray-200 p-5">
           <div>
-            <div class="text-lg font-medium whitespace-nowrap">Account Security</div>
-            <div v-if="user?.emailConfirmed" class="flex gap-2 items-center">
+            <div class="whitespace-nowrap text-lg font-medium">Account Security</div>
+            <div v-if="user?.emailConfirmed" class="flex items-center gap-2">
               <i class="pi pi-check-circle text-green-500"></i>
               <span> Your account is validated via e-mail.</span>
             </div>
@@ -163,7 +163,7 @@ const updateUserFullNameAsync = (value?: string) => {
             outlined
           ></Button>
         </div>
-        <div class="border basis-1/2 border-slate-200 p-5 rounded-xl">
+        <div class="basis-1/2 rounded-xl border border-slate-200 p-5">
           <div class="flex items-center">
             <div>
               <div class="text-lg font-medium">Subscription</div>
@@ -174,10 +174,10 @@ const updateUserFullNameAsync = (value?: string) => {
                 </div>
               </div>
               <div v-else>
-                <i class="pi pi-check-circle text-green-600 me-2"></i>Subscribed to
+                <i class="pi pi-check-circle me-2 text-green-600"></i>Subscribed to
                 <a
                   @click="openSubscriptionManager"
-                  class="border-b border-dashed border-gray-400 cursor-pointer hover:border-solid hover:border-blue-500 hover:text-blue-500"
+                  class="cursor-pointer border-b border-dashed border-gray-400 hover:border-solid hover:border-blue-500 hover:text-blue-500"
                   >{{ activeSubscription.type === 'essentials' ? 'Essentials' : 'Ultimate' }}
                   <i class="pi pi-pencil" style="font-size: 0.8rem"></i
                 ></a>
@@ -196,10 +196,10 @@ const updateUserFullNameAsync = (value?: string) => {
         </div>
       </div>
       <div>
-        <div class="border border-gray-200 rounded-xl p-5">
+        <div class="rounded-xl border border-gray-200 p-5">
           <div class="text-lg font-medium">Configuration</div>
 
-          <div class="text-slate-600 flex flex-col gap-3 mt-4">
+          <div class="mt-4 flex flex-col gap-3 text-slate-600">
             <div class="flex items-center gap-3">
               <ToggleSwitch
                 :disabled="isUpdateUserPending"

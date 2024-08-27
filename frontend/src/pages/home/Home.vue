@@ -14,13 +14,13 @@ const {
 <template>
   <WebLayout>
     <div class="flex px-8 py-24">
-      <div class="flex flex-col justify-center items-center grow">
-        <div class="text-4xl font-bold mx-auto">Effortless Queue Healing</div>
+      <div class="flex grow flex-col items-center justify-center">
+        <div class="mx-auto text-4xl font-bold">Effortless Queue Healing</div>
         <div class="mx-auto mt-4 text-xl">
           Dead-Letter Queue (DLQ) Management • Manage and Re(s)queue with Ease
         </div>
 
-        <div class="flex mt-8">
+        <div class="mt-8 flex">
           <Button
             v-if="!user"
             size="large"
@@ -41,10 +41,10 @@ const {
       </div>
     </div>
 
-    <div class="flex gap-4 items-center">
-      <div class="shadow bg-white border-slate-400 flex-1 text-slate-700 rounded-2xl p-4">
-        <div class="text-xl font-bold flex gap-2 items-center">
-          <div class="bg-[#ff6600] rounded-lg w-8 p-1.5">
+    <div class="flex items-center gap-4">
+      <div class="flex-1 rounded-2xl border-slate-400 bg-white p-4 text-slate-700 shadow">
+        <div class="flex items-center gap-2 text-xl font-bold">
+          <div class="w-8 rounded-lg bg-[#ff6600] p-1.5">
             <img src="/rmq.svg" />
           </div>
           RabbitMQ
@@ -52,9 +52,9 @@ const {
         </div>
       </div>
 
-      <div class="shadow bg-white border-slate-400 flex-1 text-slate-700 rounded-2xl p-4">
-        <div class="text-xl font-bold flex gap-2 items-center">
-          <div class="bg-[#007FFF] rounded-lg w-8 p-1.5">
+      <div class="flex-1 rounded-2xl border-slate-400 bg-white p-4 text-slate-700 shadow">
+        <div class="flex items-center gap-2 text-xl font-bold">
+          <div class="w-8 rounded-lg bg-[#007FFF] p-1.5">
             <img src="/azure.svg" />
           </div>
           Azure Service Bus
@@ -66,9 +66,9 @@ const {
         </div>
       </div>
 
-      <div class="shadow bg-white border-slate-400 flex-1 text-slate-700 rounded-2xl p-4">
-        <div class="text-xl font-bold flex gap-2 items-center">
-          <div class="bg-[#fff] rounded-lg w-8 p-1.5 border border-slate-300">
+      <div class="flex-1 rounded-2xl border-slate-400 bg-white p-4 text-slate-700 shadow">
+        <div class="flex items-center gap-2 text-xl font-bold">
+          <div class="w-8 rounded-lg border border-slate-300 bg-[#fff] p-1.5">
             <img src="/aws.svg" />
           </div>
           Amazon SQS
@@ -81,54 +81,54 @@ const {
       </div>
     </div>
 
-    <div class="flex gap-4 mt-16">
-      <div class="shadow bg-white border-slate-400 flex-1 text-slate-700 rounded-2xl p-6">
+    <div class="mt-16 flex gap-4">
+      <div class="flex-1 rounded-2xl border-slate-400 bg-white p-6 text-slate-700 shadow">
         <div class="text-xl font-bold">
           <i class="pi pi-th-large mr-3" style="font-size: 1.15rem"></i>Connect Multiple Brokers
         </div>
-        <div class="mt-3 ms-8 text-lg">
+        <div class="ms-8 mt-3 text-lg">
           Seamlessly manage and connect multiple brokers, ensuring a unified and efficient queue
           management experience.
         </div>
       </div>
-      <div class="shadow bg-white border-slate-400 flex-1 text-slate-700 rounded-2xl p-6">
+      <div class="flex-1 rounded-2xl border-slate-400 bg-white p-6 text-slate-700 shadow">
         <div class="text-xl font-bold">
           <i class="pi pi-send mr-3" style="font-size: 1.15rem"></i>Requeue Any Message
         </div>
-        <div class="mt-3 ms-8 text-lg">
+        <div class="ms-8 mt-3 text-lg">
           Enjoy the flexibility to requeue any message, not just the first one in the stack,
           ensuring greater control over your workflow.
         </div>
       </div>
     </div>
-    <div class="flex gap-4 mt-4">
-      <div class="shadow bg-white border-slate-400 flex-1 text-slate-700 rounded-2xl p-6">
+    <div class="mt-4 flex gap-4">
+      <div class="flex-1 rounded-2xl border-slate-400 bg-white p-6 text-slate-700 shadow">
         <div class="text-xl font-bold">
           <i class="pi pi-paperclip mr-3" style="font-size: 1.15rem"></i>Message IDs for Easy
           Sharing
         </div>
-        <div class="mt-3 ms-8 text-lg">
+        <div class="ms-8 mt-3 text-lg">
           Each message is assigned a unique ID, making it simple to share and collaborate with
           colleagues.
         </div>
       </div>
-      <div class="shadow bg-white border-slate-400 flex-1 text-slate-700 rounded-2xl p-6">
+      <div class="flex-1 rounded-2xl border-slate-400 bg-white p-6 text-slate-700 shadow">
         <div class="text-xl font-bold">
           <i class="pi pi-check-circle mr-3" style="font-size: 1.15rem"></i>Mark Messages as
           Reviewed
         </div>
-        <div class="mt-3 ms-8 text-lg">
+        <div class="ms-8 mt-3 text-lg">
           Improve organization by marking messages as reviewed, making it easier to keep track of
           processed queues.
         </div>
       </div>
     </div>
 
-    <div class="text-center mt-20 mb-8 text-lg">Our Clients</div>
+    <div class="mb-8 mt-20 text-center text-lg">Our Clients</div>
 
     <div class="flex items-center justify-center">
       <a href="https://mydesigns.io" target="_blank">
-        <img src="/md.svg" class="opacity-100 w-64 cursor-pointer" />
+        <img src="/md.svg" class="w-64 cursor-pointer opacity-100" />
       </a>
     </div>
   </WebLayout>

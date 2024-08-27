@@ -123,8 +123,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4 mb-4">
-    <label for="email" class="font-semibold white">Account E-Mail</label>
+  <div class="mb-4 flex flex-col gap-4">
+    <label for="email" class="white font-semibold">Account E-Mail</label>
     <InputText
       :model-value="user?.email"
       placeholder="E-mail address"
@@ -137,10 +137,10 @@ onMounted(() => {
   </div>
   <div
     v-if="dialogRef?.data.plan"
-    class="flex flex-col gap-4 p-4 rounded-xl border border-slate-300"
+    class="flex flex-col gap-4 rounded-xl border border-slate-300 p-4"
   >
-    <label for="card-element" class="font-semibold white flex items-center"> Credit Card </label>
-    <div class="border border-slate-300 p-3 rounded-md" id="card-element"></div>
+    <label for="card-element" class="white flex items-center font-semibold"> Credit Card </label>
+    <div class="rounded-md border border-slate-300 p-3" id="card-element"></div>
     <Message severity="secondary" pt:text:class="flex grow gap-2 "
       >Plan:
       <span class="">{{ dialogRef.data.plan === 'essentials' ? 'Essentials' : 'Ultimate' }}</span
@@ -151,13 +151,13 @@ onMounted(() => {
   </div>
   <Message severity="secondary" v-else
     >Registering for a free account limits features.<br /><span
-      class="border-b border-slate-400 hover:border-slate-800 border-dashed cursor-pointer"
+      class="cursor-pointer border-b border-dashed border-slate-400 hover:border-slate-800"
       @click="dialogRef?.close()"
       >Upgrade to unlock full access.</span
     ></Message
   >
 
-  <div class="flex items-center gap-2 mt-8 flex-col">
+  <div class="mt-8 flex flex-col items-center gap-2">
     <Button
       type="button"
       label="Subscribe"

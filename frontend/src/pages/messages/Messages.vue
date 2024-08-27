@@ -228,19 +228,19 @@ const syncLabel = computed(() => {
   <AppLayout>
     <template #prepend>
       <div
-        class="w-[42px] h-[42px] rounded-xl bg-[#FF6600] items-center justify-center flex text-2xl text-white cursor-pointer active:scale-95"
+        class="flex h-[42px] w-[42px] cursor-pointer items-center justify-center rounded-xl bg-[#FF6600] text-2xl text-white active:scale-95"
         @click="backToBroker"
       >
         <img src="/rmq.svg" class="w-7 select-none" />
       </div>
     </template>
     <template #title
-      ><span class="hover:underline cursor-pointer" @click="backToBroker">{{
+      ><span class="cursor-pointer hover:underline" @click="backToBroker">{{
         broker?.name
       }}</span></template
     >
     <template #description>{{ rabbitMqQueue?.parsed.name }}</template>
-    <div class="flex gap-2 px-4 py-2 items-start border-b">
+    <div class="flex items-start gap-2 border-b px-4 py-2">
       <Button @click="backToBroker" outlined label="Broker" icon="pi pi-arrow-left"></Button>
       <Button
         @click="() => syncMessages()"
@@ -269,7 +269,7 @@ const syncLabel = computed(() => {
         :options="formattedExchanges"
         optionLabel="parsed.name"
         placeholder="Select an Exchange"
-        class="w-96 ms-auto"
+        class="ms-auto w-96"
         :virtualScrollerOptions="{ itemSize: 38, style: 'width:900px' }"
       ></Select>
       <Button
@@ -296,7 +296,7 @@ const syncLabel = computed(() => {
             <div class="flex">
               <span
                 @click="openMessage(data.id)"
-                class="border-dashed border-slate-600 border-b hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
+                class="border-b border-dashed border-slate-600 hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
                 >{{ data.id }}</span
               >
             </div>
@@ -338,8 +338,8 @@ const syncLabel = computed(() => {
       ></Paginator>
     </template>
     <template v-else>
-      <div class="flex items-center flex-col mt-24 grow">
-        <img src="/ebox.svg" class="w-56 opacity-50 pb-5" />
+      <div class="mt-24 flex grow flex-col items-center">
+        <img src="/ebox.svg" class="w-56 pb-5 opacity-50" />
         <div class="text-lg">No Messages</div>
         <div class="">Make sure you pull the messages.</div>
       </div>

@@ -52,7 +52,7 @@ const testConnection = () => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4 mb-5">
+  <div class="mb-5 flex flex-col gap-4">
     <div class="flex grow flex-col gap-2">
       <label for="name" class="font-semibold">Name</label>
       <InputText v-model="newBroker.name" id="name" autocomplete="off" />
@@ -72,8 +72,8 @@ const testConnection = () => {
         <InputText id="url" v-model="newBroker.host" autocomplete="off" />
       </div>
       <div class="flex basis-1/2 flex-col gap-2">
-        <label for="port" class="font-semibold flex"
-          >Port<label class="ms-auto text-slate-500 font-normal">80, 443, 15671...</label></label
+        <label for="port" class="flex font-semibold"
+          >Port<label class="ms-auto font-normal text-slate-500">80, 443, 15671...</label></label
         >
         <InputNumber
           :use-grouping="false"

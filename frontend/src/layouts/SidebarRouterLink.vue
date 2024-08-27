@@ -54,10 +54,10 @@ const showWarning = computed(() => {
   <RouterLink
     :key="id"
     :to="to"
-    class="w-full flex items-center py-2.5 px-4 text-slate-700 rounded-lg hover:bg-white"
+    class="flex w-full items-center rounded-lg px-4 py-2.5 text-slate-700 hover:bg-white"
     :class="[
       {
-        'bg-white shadow font-semibold': isRoute(to),
+        'bg-white font-semibold shadow': isRoute(to),
         'font-medium': !isRoute(to)
       }
     ]"
@@ -73,6 +73,6 @@ const showWarning = computed(() => {
       ]"
     ></i>
     <span>{{ label }}</span>
-    <i v-if="showWarning" class="ms-auto text-orange-400 pi pi-exclamation-circle"></i>
+    <i v-if="showWarning" class="pi pi-exclamation-circle ms-auto text-orange-400"></i>
   </RouterLink>
 </template>

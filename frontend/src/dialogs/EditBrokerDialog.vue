@@ -24,16 +24,16 @@ const createBroker = () => {
 </script>
 
 <template>
-  <div class="flex items-center gap-4 mb-4">
-    <label for="name" class="font-semibold w-24">Name</label>
+  <div class="mb-4 flex items-center gap-4">
+    <label for="name" class="w-24 font-semibold">Name</label>
     <InputText v-model="newBroker.name" id="name" class="flex-auto" autocomplete="off" />
   </div>
-  <div class="flex items-center gap-4 mb-4">
-    <label for="username" class="font-semibold w-24">Username</label>
+  <div class="mb-4 flex items-center gap-4">
+    <label for="username" class="w-24 font-semibold">Username</label>
     <InputText v-model="newBroker.username" id="username" class="flex-auto" autocomplete="off" />
   </div>
-  <div class="flex items-center gap-4 mb-8">
-    <label for="password" class="font-semibold w-24">Password</label>
+  <div class="mb-8 flex items-center gap-4">
+    <label for="password" class="w-24 font-semibold">Password</label>
     <InputText
       id="password"
       v-model="newBroker.password"
@@ -42,12 +42,12 @@ const createBroker = () => {
       autocomplete="off"
     />
   </div>
-  <div class="flex items-center gap-4 mb-8">
-    <label for="url" class="font-semibold w-24">URL</label>
+  <div class="mb-8 flex items-center gap-4">
+    <label for="url" class="w-24 font-semibold">URL</label>
     <InputText id="url" v-model="newBroker.host" class="flex-auto" autocomplete="off" />
   </div>
-  <div class="flex items-center gap-4 mb-8">
-    <label for="port" class="font-semibold w-24">Port</label>
+  <div class="mb-8 flex items-center gap-4">
+    <label for="port" class="w-24 font-semibold">Port</label>
     <InputNumber
       :use-grouping="false"
       id="port"

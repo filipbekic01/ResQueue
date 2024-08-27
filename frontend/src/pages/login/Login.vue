@@ -65,19 +65,19 @@ watch(
 </script>
 
 <template>
-  <div class="flex flex-col grow items-center mt-16 h-screen">
-    <RouterLink :to="{ name: 'home' }" class="flex items-center py-3 mb-4">
-      <div class="flex items-center justify-end bg-black p-2 rounded-lg">
-        <i class="pi pi-database text-white rotate-90" style="font-size: 1.5rem"></i>
+  <div class="mt-16 flex h-screen grow flex-col items-center">
+    <RouterLink :to="{ name: 'home' }" class="mb-4 flex items-center py-3">
+      <div class="flex items-center justify-end rounded-lg bg-black p-2">
+        <i class="pi pi-database rotate-90 text-white" style="font-size: 1.5rem"></i>
       </div>
-      <div class="text-2xl font-semibold px-2">
+      <div class="px-2 text-2xl font-semibold">
         ResQueue
-        <span class="text-gray-500 font-normal"><i class="pi pi-angle-right"></i> Login</span>
+        <span class="font-normal text-gray-500"><i class="pi pi-angle-right"></i> Login</span>
       </div>
     </RouterLink>
-    <div class="flex flex-col bg-white shadow border rounded-lg p-8 w-96">
-      <div class="flex flex-col gap-4 mb-4">
-        <label for="username" class="font-semibold w-24 white">E-Mail</label>
+    <div class="flex w-96 flex-col rounded-lg border bg-white p-8 shadow">
+      <div class="mb-4 flex flex-col gap-4">
+        <label for="username" class="white w-24 font-semibold">E-Mail</label>
         <InputText
           v-model="email"
           id="username"
@@ -86,8 +86,8 @@ watch(
           autocomplete="off"
         />
       </div>
-      <div class="flex flex-col gap-4 mb-8">
-        <label for="email" class="font-semibold w-24 white">Password</label>
+      <div class="mb-8 flex flex-col gap-4">
+        <label for="email" class="white w-24 font-semibold">Password</label>
         <InputText
           id="email"
           v-model="password"
@@ -105,7 +105,7 @@ watch(
           icon="pi pi-arrow-right"
           icon-pos="right"
         ></Button>
-        <div class="flex justify-center mt-3 text-gray-400">
+        <div class="mt-3 flex justify-center text-gray-400">
           <RouterLink :to="'forgot-password'" class="hover:text-blue-500"
             >Forgot account password?</RouterLink
           >

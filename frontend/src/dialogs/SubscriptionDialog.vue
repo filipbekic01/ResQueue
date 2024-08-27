@@ -69,7 +69,7 @@ const cancel = () => {
     </div>
     <div v-else>The subscription is billed on a monthly basis.</div>
 
-    <label for="password" class="font-semibold white flex items-center border-t pt-3"
+    <label for="password" class="white flex items-center border-t pt-3 font-semibold"
       >Enter "{{ activeSubscription.type }}" to enable cancel button</label
     >
     <InputText v-model="protect" placeholder="What's the plan?" type="text"></InputText>

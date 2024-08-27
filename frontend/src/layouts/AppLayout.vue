@@ -110,35 +110,35 @@ const openFullNameEditPage = () => {
 </script>
 
 <template>
-  <div class="flex h-screen gap-2 p-2 bg-gray-100" v-if="user">
-    <div class="basis-72 w-72 shrink-0 flex flex-col">
-      <div class="flex flex-row gap-3 items-center py-3 px-2 ms-2 me-3 border-b border-slate-200">
+  <div class="flex h-screen gap-2 bg-gray-100 p-2" v-if="user">
+    <div class="flex w-72 shrink-0 basis-72 flex-col">
+      <div class="me-3 ms-2 flex flex-row items-center gap-3 border-b border-slate-200 px-2 py-3">
         <RouterLink :to="{ name: 'home' }">
-          <div class="grow flex items-center justify-end bg-black p-2.5 rounded-lg">
-            <i class="pi pi-database text-white rotate-90" style="font-size: 1.5rem"></i>
+          <div class="flex grow items-center justify-end rounded-lg bg-black p-2.5">
+            <i class="pi pi-database rotate-90 text-white" style="font-size: 1.5rem"></i>
           </div>
         </RouterLink>
-        <div class="flex flex-col grow leading-5 overflow-hidden">
+        <div class="flex grow flex-col overflow-hidden leading-5">
           <span class="font-bold" v-if="user.fullName">{{ user.fullName }}</span>
-          <div v-else class="overflow-hidden flex">
+          <div v-else class="flex overflow-hidden">
             <span
               @click="openFullNameEditPage"
-              class="whitespace-nowrap overflow-ellipsis overflow-hidden border-dashed border-slate-500 font-bold text-blue-500 cursor-pointer hover:text-blue-400 hover:border-blue-500 hover:border-solid"
+              class="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap border-dashed border-slate-500 font-bold text-blue-500 hover:border-solid hover:border-blue-500 hover:text-blue-400"
               >Set full name<i class="pi pi-pencil ms-2" style="font-size: 0.85rem"></i
             ></span>
           </div>
-          <span class="overflow-ellipsis overflow-hidden whitespace-nowrap">{{ user.email }}</span>
+          <span class="overflow-hidden overflow-ellipsis whitespace-nowrap">{{ user.email }}</span>
         </div>
       </div>
 
-      <div class="flex flex-col ms-2 me-3 gap-2 mt-4 grow mb-1">
+      <div class="mb-1 me-3 ms-2 mt-4 flex grow flex-col gap-2">
         <SidebarRouterLink
           v-for="staticRoute in staticRoutes"
           :key="staticRoute.id"
           v-bind="staticRoute"
         />
 
-        <div class="border-b border-slate-200 my-2"></div>
+        <div class="my-2 border-b border-slate-200"></div>
 
         <SidebarRouterLink
           v-for="brokerRoute in brokerRoutes"
@@ -159,7 +159,7 @@ const openFullNameEditPage = () => {
       </div>
     </div>
 
-    <div class="bg-white flex flex-col grow rounded-2xl border border-slate-200 overflow-auto">
+    <div class="flex grow flex-col overflow-auto rounded-2xl border border-slate-200 bg-white">
       <div class="border-b px-4 py-3" v-if="!hideHeader">
         <div class="flex gap-2">
           <div><slot name="prepend"></slot></div>

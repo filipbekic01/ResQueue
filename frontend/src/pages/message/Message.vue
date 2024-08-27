@@ -91,14 +91,14 @@ const backToMessages = () => {
   <AppLayout>
     <template #prepend>
       <div
-        class="w-[42px] h-[42px] rounded-xl bg-[#FF6600] items-center justify-center flex text-2xl text-white cursor-pointer active:scale-95"
+        class="flex h-[42px] w-[42px] cursor-pointer items-center justify-center rounded-xl bg-[#FF6600] text-2xl text-white active:scale-95"
         @click="backToBroker"
       >
         <img src="/rmq.svg" class="w-7 select-none" />
       </div>
     </template>
     <template #title
-      ><span class="hover:underline cursor-pointer" @click="backToBroker">{{
+      ><span class="cursor-pointer hover:underline" @click="backToBroker">{{
         broker?.name
       }}</span></template
     >
@@ -109,14 +109,14 @@ const backToMessages = () => {
         {{ message?.id }}
       </div>
     </template>
-    <div class="flex gap-2 px-4 py-2 items-start border-b">
+    <div class="flex items-start gap-2 border-b px-4 py-2">
       <Button outlined @click="backToMessages" icon="pi pi-arrow-left" label="Messages"></Button>
       <Select
         v-model="selectedExchange"
         :options="formattedExchanges"
         optionLabel="parsed.name"
         placeholder="Select an Exchange"
-        class="w-96 ms-auto"
+        class="ms-auto w-96"
         :virtualScrollerOptions="{ itemSize: 38, style: 'width:900px' }"
       ></Select>
       <Button
@@ -146,8 +146,8 @@ const backToMessages = () => {
           />
         </div>
 
-        <div class="flex flex-col overflow-auto bg-gray-100/50 rounded">
-          <div class="font-semibold my-1 px-5 rounded-lg">Metadata</div>
+        <div class="flex flex-col overflow-auto rounded bg-gray-100/50">
+          <div class="my-1 rounded-lg px-5 font-semibold">Metadata</div>
           <RawMetadata
             v-if="message.rabbitmqMetadata && selectedFormatOption === 'Raw View'"
             :metadata="message.rabbitmqMetadata"
@@ -158,9 +158,9 @@ const backToMessages = () => {
           />
         </div>
 
-        <div class="bg-gray-100/50 rounded ps-5">
-          <div class="font-semibold my-1 rounded-lg">Body</div>
-          <div class="text-gray-500 whitespace-break-spaces">{{ message.body }}</div>
+        <div class="rounded bg-gray-100/50 ps-5">
+          <div class="my-1 rounded-lg font-semibold">Body</div>
+          <div class="whitespace-break-spaces text-gray-500">{{ message.body }}</div>
         </div>
       </div>
     </template>

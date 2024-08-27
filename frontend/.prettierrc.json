@@ -5,5 +5,5 @@
   "singleQuote": true,
   "printWidth": 100,
   "trailingComma": "none",
-  "plugins": ["prettier-plugin-tailwindcss", "@ianvs/prettier-plugin-sort-imports"]
+  "plugins": ["@ianvs/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"]
 }

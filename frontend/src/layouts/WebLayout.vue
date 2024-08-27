@@ -15,19 +15,19 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
 </script>
 
 <template>
-  <div class="h-screen bg-[url('/vert.svg')] flex flex-col">
-    <div class="gap-2 items-center center border-b border-b-100 bg-white sticky top-0">
-      <div class="w-[1024px] mx-auto flex">
-        <RouterLink :to="{ name: 'home' }" class="flex items-center py-3 basis-1/3">
-          <div class="flex items-center justify-end bg-black p-2 rounded-lg">
-            <i class="pi pi-database text-white rotate-90" style="font-size: 1.5rem"></i>
+  <div class="flex h-screen flex-col bg-[url('/vert.svg')]">
+    <div class="center border-b-100 sticky top-0 items-center gap-2 border-b bg-white">
+      <div class="mx-auto flex w-[1024px]">
+        <RouterLink :to="{ name: 'home' }" class="flex basis-1/3 items-center py-3">
+          <div class="flex items-center justify-end rounded-lg bg-black p-2">
+            <i class="pi pi-database rotate-90 text-white" style="font-size: 1.5rem"></i>
           </div>
-          <div class="text-xl font-semibold px-2">ResQueue</div>
+          <div class="px-2 text-xl font-semibold">ResQueue</div>
         </RouterLink>
-        <div class="basis-1/3 flex gap-3 items-center grow justify-center -mb-px">
+        <div class="-mb-px flex grow basis-1/3 items-center justify-center gap-3">
           <RouterLink
             :class="[
-              'text-lg px-2 h-full flex items-center border-b',
+              'flex h-full items-center border-b px-2 text-lg',
               {
                 'border-slate-200': !isRoute({ name: 'home' }),
                 'border-slate-500': isRoute({ name: 'home' })
@@ -38,7 +38,7 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
           >
           <RouterLink
             :class="[
-              'text-lg px-2 h-full flex items-center border-b',
+              'flex h-full items-center border-b px-2 text-lg',
               {
                 'border-slate-200': !isRoute({ name: 'pricing' }),
                 'border-slate-500': isRoute({ name: 'pricing' })
@@ -49,7 +49,7 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
           >
           <RouterLink
             :class="[
-              'text-lg px-2 h-full flex items-center border-b',
+              'flex h-full items-center border-b px-2 text-lg',
               {
                 'border-slate-200': !isRoute({ name: 'support' }),
                 'border-slate-500': isRoute({ name: 'support' })
@@ -59,7 +59,7 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
             >Support</RouterLink
           >
         </div>
-        <div class="basis-1/3 flex justify-end gap-3 py-3 items-center">
+        <div class="flex basis-1/3 items-center justify-end gap-3 py-3">
           <template v-if="user">
             <Button
               @click="router.push({ name: 'app' })"
@@ -72,14 +72,14 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
             <Button
               outlined
               @click="goToLogin"
-              class="p-2 cursor-pointer"
+              class="cursor-pointer p-2"
               label="Login"
               icon="pi pi-sign-in"
               text
             ></Button>
             <Button
               @click="router.push({ name: 'pricing' })"
-              class="p-2 cursor-pointer"
+              class="cursor-pointer p-2"
               label="Free Registration"
               icon="pi pi-user-plus"
               :disabled="route.name === 'pricing'"
@@ -89,10 +89,10 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
         </div>
       </div>
     </div>
-    <div class="w-[1024px] grow mx-auto px-8">
+    <div class="mx-auto w-[1024px] grow px-8">
       <slot></slot>
     </div>
-    <div class="bg-white border-t border-slate-100 mt-16 py-4 text-center">
+    <div class="mt-16 border-t border-slate-100 bg-white py-4 text-center">
       Developed in Republic of Serbia, Novi Sad
     </div>
   </div>

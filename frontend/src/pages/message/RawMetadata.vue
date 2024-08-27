@@ -7,5 +7,5 @@ const json = computed(() => JSON.stringify(props.metadata, null, 2))
 </script>
 
 <template>
-  <div class="px-5 whitespace-break-spaces">{{ json }}</div>
+  <div class="whitespace-break-spaces px-5">{{ json }}</div>
 </template>

@@ -73,19 +73,19 @@ const resetPassword = () => {
 </script>
 
 <template>
-  <div class="flex flex-col grow items-center mt-16 h-screen">
-    <RouterLink :to="{ name: 'home' }" class="flex items-center py-3 mb-4">
-      <div class="flex items-center justify-end bg-black p-2 rounded-lg">
-        <i class="pi pi-database text-white rotate-90" style="font-size: 1.5rem"></i>
+  <div class="mt-16 flex h-screen grow flex-col items-center">
+    <RouterLink :to="{ name: 'home' }" class="mb-4 flex items-center py-3">
+      <div class="flex items-center justify-end rounded-lg bg-black p-2">
+        <i class="pi pi-database rotate-90 text-white" style="font-size: 1.5rem"></i>
       </div>
-      <div class="text-2xl font-semibold px-2">
+      <div class="px-2 text-2xl font-semibold">
         ResQueue
-        <span class="text-gray-500 font-normal"><i class="pi pi-angle-right"></i> Recovery</span>
+        <span class="font-normal text-gray-500"><i class="pi pi-angle-right"></i> Recovery</span>
       </div>
     </RouterLink>
-    <div class="flex flex-col bg-white shadow border rounded-lg p-8 w-96">
-      <div class="flex flex-col gap-4 mb-4">
-        <label for="email" class="font-semibold w-24 white">E-Mail</label>
+    <div class="flex w-96 flex-col rounded-lg border bg-white p-8 shadow">
+      <div class="mb-4 flex flex-col gap-4">
+        <label for="email" class="white w-24 font-semibold">E-Mail</label>
         <InputText
           v-model="email"
           :disabled="isEmailSent"
@@ -96,8 +96,8 @@ const resetPassword = () => {
         />
       </div>
 
-      <div class="flex flex-col gap-4 mb-4" v-if="isEmailSent">
-        <label for="resetCode" class="font-semibold w-24 white">Reset Code</label>
+      <div class="mb-4 flex flex-col gap-4" v-if="isEmailSent">
+        <label for="resetCode" class="white w-24 font-semibold">Reset Code</label>
         <InputText
           v-model="resetCode"
           id="resetCode"
@@ -108,8 +108,8 @@ const resetPassword = () => {
         />
       </div>
 
-      <div class="flex flex-col gap-4 mb-4" v-if="resetCode.length">
-        <label for="newPassword" class="font-semibold w-24 whitespace-nowrap">New Password</label>
+      <div class="mb-4 flex flex-col gap-4" v-if="resetCode.length">
+        <label for="newPassword" class="w-24 whitespace-nowrap font-semibold">New Password</label>
         <InputText
           v-model="newPassword"
           id="newPassword"
