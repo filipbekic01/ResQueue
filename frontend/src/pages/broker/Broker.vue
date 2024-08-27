@@ -72,7 +72,7 @@ const updateTabValue = (a: any) => router.push({ name: a })
 <template>
   <AppLayout hide-header>
     <template v-if="broker">
-      <div class="flex p-4">
+      <div class="flex px-4 pt-4 pb-2">
         <div
           class="w-24 h-24 rounded-2xl bg-[#FF6600] items-center justify-center flex text-2xl text-white"
         >

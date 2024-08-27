@@ -52,39 +52,38 @@ const testConnection = () => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-3 mb-5">
+  <div class="flex flex-col gap-4 mb-5">
     <div class="flex grow flex-col gap-2">
       <label for="name" class="font-semibold">Name</label>
       <InputText v-model="newBroker.name" id="name" autocomplete="off" />
     </div>
-    <label class="font-semibold">Connection Details</label>
-    <div class="flex flex-col border border-slate-200 rounded-xl p-4 gap-3">
-      <div class="flex flex-col gap-2">
-        <label for="username" class="font-semibold">Username</label>
-        <InputText v-model="newBroker.username" id="username" autocomplete="off" />
+    <!-- <div class="flex flex-col border border-slate-200 rounded-xl p-4 gap-3"> -->
+    <div class="flex flex-col gap-2">
+      <label for="username" class="font-semibold">Username</label>
+      <InputText v-model="newBroker.username" id="username" autocomplete="off" />
+    </div>
+    <div class="flex flex-col gap-2">
+      <label for="password" class="font-semibold">Password</label>
+      <InputText id="password" v-model="newBroker.password" type="password" autocomplete="off" />
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="flex basis-1/2 flex-col gap-2">
+        <label for="url" class="font-semibold">Host</label>
+        <InputText id="url" v-model="newBroker.host" autocomplete="off" />
       </div>
-      <div class="flex flex-col gap-2">
-        <label for="password" class="font-semibold">Password</label>
-        <InputText id="password" v-model="newBroker.password" type="password" autocomplete="off" />
+      <div class="flex basis-1/2 flex-col gap-2">
+        <label for="port" class="font-semibold flex"
+          >Port<label class="ms-auto text-slate-500 font-normal">80, 443, 15671...</label></label
+        >
+        <InputNumber
+          :use-grouping="false"
+          id="port"
+          v-model="newBroker.port"
+          type="password"
+          autocomplete="off"
+        />
       </div>
-      <div class="flex items-center gap-4">
-        <div class="flex basis-1/2 flex-col gap-2">
-          <label for="url" class="font-semibold">Host</label>
-          <InputText id="url" v-model="newBroker.host" autocomplete="off" />
-        </div>
-        <div class="flex basis-1/2 flex-col gap-2">
-          <label for="port" class="font-semibold flex"
-            >Port<label class="ms-auto text-slate-500 font-normal">80, 443, 15671...</label></label
-          >
-          <InputNumber
-            :use-grouping="false"
-            id="port"
-            v-model="newBroker.port"
-            type="password"
-            autocomplete="off"
-          />
-        </div>
-      </div>
+      <!-- </div> -->
     </div>
   </div>
   <div class="flex gap-2">

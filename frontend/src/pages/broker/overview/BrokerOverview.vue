@@ -153,9 +153,9 @@ const deleteBroker = () => {
 </script>
 
 <template>
-  <div v-if="brokerEditable" class="p-5 flex flex-col max-w-[36rem] gap-5">
-    <div class="pt-3 rounded-xl border-gray-200 border p-5 flex flex-col gap-3">
-      <div class="font-semibold text-lg">Broker Settings</div>
+  <div v-if="brokerEditable" class="p-7 flex flex-col max-w-[36rem] gap-7">
+    <div class="rounded-xl border-gray-200 border p-5 flex flex-col gap-3">
+      <div class="font-medium text-lg">Broker Settings</div>
       <div class="flex flex-col gap-3">
         <div class="flex flex-col gap-2">
           <label for="name" class="">Name</label>
@@ -184,7 +184,7 @@ const deleteBroker = () => {
       </div>
     </div>
     <div class="flex flex-col gap-3 rounded-xl border border-gray-200 p-5">
-      <div class="font-semibold flex text-lg items-center gap-2">
+      <div class="font-medium flex text-lg items-center gap-2">
         Connection Details
         <ToggleSwitch v-model="updateCredentials" class="ms-auto"></ToggleSwitch>
         <label class="text-base font-normal">Credentials</label>
@@ -244,7 +244,7 @@ const deleteBroker = () => {
       ></Button>
     </div>
 
-    <div class="flex gap-2 mt-2">
+    <div class="flex">
       <Button
         label="Delete Broker"
         icon="pi pi-trash"

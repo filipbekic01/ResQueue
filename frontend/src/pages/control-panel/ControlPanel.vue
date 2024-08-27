@@ -108,15 +108,15 @@ const updateUserFullNameAsync = (value?: string) => {
   <AppLayout hide-header>
     <div class="text-3xl font-bold px-7 pt-5">Control Panel</div>
     <div class="text-slate-400 px-7">Manage settings and access your account details.</div>
-    <div class="p-7 flex flex-col gap-7 xl:w-2/3">
+    <div class="p-7 flex flex-col gap-7 max-w-[60rem]">
       <div class="flex items-start gap-7">
-        <div class="grow basis-1/2 border-b border-slate-200 p-3">
-          <div class="text-lg font-semibold">E-Mail Address</div>
+        <div class="grow basis-1/2 border border-gray-200 rounded-xl p-5">
+          <div class="text-lg font-medium">E-Mail Address</div>
           <div class="text-slate-500">{{ user?.email }}</div>
         </div>
-        <div class="grow basis-1/2 border-b border-slate-200 p-3 flex items-center">
+        <div class="grow basis-1/2 border rounded-xl border-gray-200 p-5 flex items-center">
           <div>
-            <div class="text-lg font-semibold">Full Name</div>
+            <div class="text-lg font-medium">Full Name</div>
             <div class="text-slate-500 flex items-center">
               {{ user?.fullName ? user?.fullName : 'Not set' }}
             </div>
@@ -141,16 +141,16 @@ const updateUserFullNameAsync = (value?: string) => {
         </div>
       </div>
       <div class="flex items-start gap-7">
-        <div class="grow basis-1/2 border-b border-slate-200 p-3 flex items-center">
+        <div class="grow basis-1/2 border border-gray-200 rounded-xl p-5 flex items-center">
           <div>
-            <div class="text-lg font-semibold whitespace-nowrap">Account Security</div>
+            <div class="text-lg font-medium whitespace-nowrap">Account Security</div>
             <div v-if="user?.emailConfirmed" class="flex gap-2 items-center">
               <i class="pi pi-check-circle text-green-500"></i>
               <span> Your account is validated via e-mail.</span>
             </div>
             <div v-else class="flex items-center gap-2">
               <i class="pi pi-exclamation-circle text-orange-400"></i>
-              Please confirm your account via e-mail.
+              Validate account via e-mail.
             </div>
           </div>
           <Button
@@ -163,10 +163,10 @@ const updateUserFullNameAsync = (value?: string) => {
             outlined
           ></Button>
         </div>
-        <div class="border-b basis-1/2 border-slate-200 p-3">
+        <div class="border basis-1/2 border-slate-200 p-5 rounded-xl">
           <div class="flex items-center">
             <div>
-              <div class="text-lg font-semibold">Subscription</div>
+              <div class="text-lg font-medium">Subscription</div>
               <div v-if="!activeSubscription">
                 <div class="flex items-center gap-2">
                   <i class="pi pi-exclamation-circle text-orange-400"></i>Upgrade to unlock all
@@ -178,9 +178,10 @@ const updateUserFullNameAsync = (value?: string) => {
                 <a
                   @click="openSubscriptionManager"
                   class="border-b border-dashed border-gray-400 cursor-pointer hover:border-solid hover:border-blue-500 hover:text-blue-500"
-                  >{{ activeSubscription.type === 'essentials' ? 'Essentials' : 'Ultimate' }}</a
-                >
-                plan
+                  >{{ activeSubscription.type === 'essentials' ? 'Essentials' : 'Ultimate' }}
+                  <i class="pi pi-pencil" style="font-size: 0.8rem"></i
+                ></a>
+                plan.
               </div>
             </div>
             <Button
@@ -195,12 +196,11 @@ const updateUserFullNameAsync = (value?: string) => {
         </div>
       </div>
       <div>
-        <div class="border-b border-slate-200 p-3">
-          <div class="text-lg font-semibold">Configuration</div>
+        <div class="border border-gray-200 rounded-xl p-5">
+          <div class="text-lg font-medium">Configuration</div>
 
-          <div class="mt-3">Dialogs</div>
-          <div class="text-slate-600 flex flex-col gap-2 mt-2">
-            <div class="flex items-center gap-1.5">
+          <div class="text-slate-600 flex flex-col gap-3 mt-4">
+            <div class="flex items-center gap-3">
               <ToggleSwitch
                 :disabled="isUpdateUserPending"
                 :model-value="user?.userConfig.showBrokerSyncConfirm"
@@ -208,7 +208,7 @@ const updateUserFullNameAsync = (value?: string) => {
               ></ToggleSwitch>
               Show broker sync confirmation dialog
             </div>
-            <div class="flex items-center gap-1.5">
+            <div class="flex items-center gap-3">
               <ToggleSwitch
                 :disabled="isUpdateUserPending"
                 :model-value="user?.userConfig.showMessagesSyncConfirm"
