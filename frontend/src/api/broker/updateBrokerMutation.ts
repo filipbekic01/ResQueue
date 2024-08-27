@@ -13,7 +13,7 @@ export function useUpdateBrokerMutation() {
 
   return useMutation({
     mutationFn: (request: UpdateBrokerRequest) =>
-      axios.put(`${API_URL}/brokers/${request.brokerId}`, request.broker, {
+      axios.patch(`${API_URL}/brokers/${request.brokerId}`, request.broker, {
         withCredentials: true
       }),
     onSuccess: () => {

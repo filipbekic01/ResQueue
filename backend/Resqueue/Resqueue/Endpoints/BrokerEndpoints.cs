@@ -39,7 +39,9 @@ public static class BrokerEndpoints
                     x.Name,
                     x.Port,
                     x.Host,
-                    x.Framework,
+                    new BrokerSettingsDto(
+                        QuickSearches: x.Settings.QuickSearches
+                    ),
                     x.CreatedAt,
                     x.UpdatedAt,
                     x.SyncedAt,
@@ -82,7 +84,9 @@ public static class BrokerEndpoints
                     broker.Name,
                     broker.Port,
                     broker.Host,
-                    broker.Framework,
+                    new BrokerSettingsDto(
+                        QuickSearches: broker.Settings.QuickSearches
+                    ),
                     broker.CreatedAt,
                     broker.UpdatedAt,
                     broker.SyncedAt,
@@ -129,8 +133,8 @@ public static class BrokerEndpoints
                 }
             });
 
-        group.MapPut("/{id}",
-            async (string id, [FromBody] UpdateBrokerDto dto, UserManager<User> userManager,
+        group.MapPatch("/{id}",
+            async (string id, [FromBody] UpdateBrokerDto dto,
                 HttpContext httpContext, IUpdateBrokerFeature updateBrokerFeature) =>
             {
                 var result = await updateBrokerFeature.ExecuteAsync(new UpdateBrokerFeatureRequest(

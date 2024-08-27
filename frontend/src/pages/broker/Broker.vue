@@ -133,9 +133,13 @@ const updateTabValue = (a: any) => router.push({ name: a })
             ></InputText>
 
             <ButtonGroup>
-              <Button label="error" outlined @click="applySearch('error')"></Button>
-              <Button label="fail" outlined @click="applySearch('fail')"></Button>
-              <Button label="dead" outlined @click="applySearch('dead')"></Button>
+              <Button
+                v-for="qs in broker.settings.quickSearches"
+                :key="qs"
+                :label="qs"
+                outlined
+                @click="applySearch(qs)"
+              ></Button>
             </ButtonGroup>
             <Select></Select>
           </div>

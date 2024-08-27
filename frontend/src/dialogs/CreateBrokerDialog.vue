@@ -2,6 +2,7 @@
 import { useCreateBrokerMutation } from '@/api/broker/createBrokerMutation'
 import { useTestConnectionMutation } from '@/api/broker/testConnectionRequest'
 import type { CreateBrokerDto } from '@/dtos/createBrokerDto'
+import { extractErrorMessage } from '@/utils/errorUtil'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
 import { useToast } from 'primevue/usetoast'
 import { inject, reactive, type Ref } from 'vue'
@@ -39,11 +40,11 @@ const testConnection = () => {
         life: 6000
       })
     })
-    .catch(() => {
+    .catch((e) => {
       toast.add({
         severity: 'error',
         summary: 'Connection Failed',
-        detail: 'Unable to connect to the broker with the provided details.',
+        detail: extractErrorMessage(e),
         life: 6000
       })
     })
@@ -86,12 +87,13 @@ const testConnection = () => {
       </div>
     </div>
   </div>
-  <div class="flex justify-between gap-2">
+  <div class="flex gap-2">
     <Button
       type="button"
+      class="grow"
       label="Test Connection"
       icon="pi pi-arrow-right-arrow-left"
-      outlined
+      severity="secondary"
       :loading="isTestConnectionPending"
       @click="testConnection"
     ></Button>

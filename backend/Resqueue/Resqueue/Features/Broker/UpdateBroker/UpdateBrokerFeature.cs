@@ -19,35 +19,37 @@ public class UpdateBrokerFeature(
 {
     public async Task<OperationResult<UpdateBrokerFeatureResponse>> ExecuteAsync(UpdateBrokerFeatureRequest request)
     {
-        if (!ObjectId.TryParse(request.Id, out var idObjectId))
-        {
-            return OperationResult<UpdateBrokerFeatureResponse>.Failure(new ProblemDetails()
-            {
-                Detail = "Invalid broker ID"
-            });
-        }
-
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user == null)
         {
             return OperationResult<UpdateBrokerFeatureResponse>.Failure(new ProblemDetails()
             {
-                Detail = "Unauthorized access",
+                Detail = "Unauthorized",
                 Status = StatusCodes.Status401Unauthorized
             });
         }
 
         var filter = Builders<Models.Broker>.Filter.And(
-            Builders<Models.Broker>.Filter.Eq(b => b.Id, idObjectId),
+            Builders<Models.Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Id)),
             Builders<Models.Broker>.Filter.Eq(b => b.UserId, user.Id)
         );
 
         var update = Builders<Models.Broker>.Update
-            .Set(b => b.Username, request.Dto.Username)
-            .Set(b => b.Password, request.Dto.Password)
             .Set(b => b.Port, request.Dto.Port)
-            .Set(b => b.UpdatedAt, DateTime.UtcNow)
-            .Set(b => b.Host, request.Dto.Host);
+            .Set(b => b.Host, request.Dto.Host)
+            .Set(b => b.Name, request.Dto.Name)
+            .Set(b => b.Settings, new BrokerSettings()
+            {
+                QuickSearches = request.Dto.Settings.QuickSearches
+            })
+            .Set(b => b.UpdatedAt, DateTime.UtcNow);
+
+        if (!string.IsNullOrEmpty(request.Dto.Username) && !string.IsNullOrEmpty(request.Dto.Password))
+        {
+            update = update
+                .Set(b => b.Username, request.Dto.Username)
+                .Set(b => b.Password, request.Dto.Password);
+        }
 
         await brokersCollection.UpdateOneAsync(filter, update);
 

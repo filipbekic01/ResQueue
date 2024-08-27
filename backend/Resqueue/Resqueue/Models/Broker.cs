@@ -13,7 +13,7 @@ public class Broker
     public string Password { get; set; }
     public int Port { get; set; }
     public string Host { get; set; }
-    public string Framework { get; set; }
+    public BrokerSettings Settings { get; set; } = new();
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public DateTime? SyncedAt { get; set; }
