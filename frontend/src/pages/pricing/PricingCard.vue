@@ -25,8 +25,8 @@ const {
     class="relative basis-1/3 rounded-xl border border-slate-200 bg-white p-8 text-center"
     :class="[
       {
-        'scale-105 border border-slate-400': recommended,
-        'border-slate-200': !recommended
+        'scale-105 border border-slate-300 shadow-lg': recommended,
+        'border-slate-200 shadow': !recommended
       }
     ]"
   >

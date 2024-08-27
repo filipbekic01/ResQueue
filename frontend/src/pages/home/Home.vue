@@ -17,7 +17,7 @@ const {
       <div class="flex grow flex-col items-center justify-center">
         <div class="mx-auto text-4xl font-bold">Effortless Queue Healing</div>
         <div class="mx-auto mt-4 text-xl">
-          Dead-Letter Queue (DLQ) Management • Manage and Re(s)queue with Ease
+          Dead-Letter Queue Management — Manage and Rescue with Ease
         </div>
 
         <div class="mt-8 flex">
@@ -25,6 +25,7 @@ const {
             v-if="!user"
             size="large"
             label="Begin Your Journey"
+            raised
             icon="pi pi-arrow-right"
             icon-pos="right"
             @click="router.push({ name: 'pricing' })"
@@ -33,6 +34,7 @@ const {
             ><Button
               size="large"
               label="Go to Dashboard"
+              raised
               icon="pi pi-arrow-right"
               icon-pos="right"
             ></Button

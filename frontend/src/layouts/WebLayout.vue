@@ -15,8 +15,8 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
 </script>
 
 <template>
-  <div class="flex h-screen flex-col bg-[url('/vert.svg')]">
-    <div class="center border-b-100 sticky top-0 items-center gap-2 border-b bg-white">
+  <div class="flex flex-col">
+    <div class="center sticky top-0 z-10 items-center gap-2 border-b bg-white">
       <div class="mx-auto flex w-[1024px]">
         <RouterLink :to="{ name: 'home' }" class="flex basis-1/3 items-center py-3">
           <div class="flex items-center justify-end rounded-lg bg-black p-2">
@@ -91,9 +91,9 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
     </div>
     <div class="mx-auto w-[1024px] grow px-8">
       <slot></slot>
-    </div>
-    <div class="mt-16 border-t border-slate-100 bg-white py-4 text-center">
-      Developed in Republic of Serbia, Novi Sad
+      <div class="mt-16 border-t py-5 text-center text-slate-500">
+        Republic of Serbia, Novi Sad &copy; 2024
+      </div>
     </div>
   </div>
 </template>

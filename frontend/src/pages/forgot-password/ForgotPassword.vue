@@ -83,7 +83,7 @@ const resetPassword = () => {
         <span class="font-normal text-gray-500"><i class="pi pi-angle-right"></i> Recovery</span>
       </div>
     </RouterLink>
-    <div class="flex w-96 flex-col rounded-lg border bg-white p-8 shadow">
+    <div class="flex w-96 flex-col rounded-xl border bg-white p-8 shadow-md">
       <div class="mb-4 flex flex-col gap-4">
         <label for="email" class="white w-24 font-semibold">E-Mail</label>
         <InputText
