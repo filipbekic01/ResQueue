@@ -140,12 +140,7 @@ public static class AuthEndpoints
 
                 if (update != Builders<User>.Update.Combine()) // Check if there's any update to apply
                 {
-                    var result = await usersCollection.UpdateOneAsync(filter, update);
-
-                    if (result.ModifiedCount == 0)
-                    {
-                        return Results.Problem("Failed to update user.");
-                    }
+                    await usersCollection.UpdateOneAsync(filter, update);
                 }
 
                 return Results.Ok();

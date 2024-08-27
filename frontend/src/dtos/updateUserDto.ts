@@ -1,6 +1,6 @@
 import type { UserConfigDto } from './userConfigDto'
 
 export interface UpdateUserDto {
-  fullName: string
+  fullName?: string
   config: UserConfigDto
 }

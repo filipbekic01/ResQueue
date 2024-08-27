@@ -37,6 +37,7 @@ declare module 'vue' {
     Tabs: typeof import('primevue/tabs')['default']
     Tag: typeof import('primevue/tag')['default']
     Toast: typeof import('primevue/toast')['default']
+    ToggleSwitch: typeof import('primevue/toggleswitch')['default']
     Tree: typeof import('primevue/tree')['default']
   }
   export interface ComponentCustomProperties {

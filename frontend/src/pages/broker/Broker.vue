@@ -79,9 +79,10 @@ const updateTabValue = (a: any) => router.push({ name: a })
           <img src="/rmq.svg" class="w-16" />
         </div>
 
-        <div class="flex flex-col ps-3">
-          <div class="font-bold text-3xl">{{ broker.name }}</div>
-          <div class="flex gap-2 text-slate-500 mt-auto items-center">
+        <div class="flex flex-col ps-3 justify-center">
+          <div class="font-semibold">RabbitMQ</div>
+          <div class="font-bold text-3xl pb-1">{{ broker.name }}</div>
+          <div class="flex gap-2 text-slate-500 items-center">
             <i
               class="pi pi-sync"
               :class="[

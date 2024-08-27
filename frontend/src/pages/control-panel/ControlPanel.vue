@@ -5,7 +5,6 @@ import { useUpdateUserMutation } from '@/api/auth/updateUserMutation'
 import { useIdentity } from '@/composables/identityComposable'
 import SubscriptionDialog from '@/dialogs/SubscriptionDialog.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
-import Checkbox from 'primevue/checkbox'
 import { useDialog } from 'primevue/usedialog'
 import { useToast } from 'primevue/usetoast'
 import { ref } from 'vue'
@@ -52,9 +51,26 @@ const resendConfirmationEmail = () => {
     })
   }
 }
+const updateUserConfigShowBrokerSyncConfirm = (value: boolean) => {
+  if (!user.value) {
+    return
+  }
 
-const updateUserConfig = (prop: string, value: any) => {
-  console.log(prop, value)
+  updateUserAsync({
+    fullName: user.value.fullName,
+    config: { ...user.value.userConfig, showBrokerSyncConfirm: value }
+  })
+}
+
+const updateUserConfigShowMessagesSyncConfirm = (value: boolean) => {
+  if (!user.value) {
+    return
+  }
+
+  updateUserAsync({
+    fullName: user.value.fullName,
+    config: { ...user.value.userConfig, showMessagesSyncConfirm: value }
+  })
 }
 
 const openSubscriptionManager = () => {
@@ -68,9 +84,8 @@ const openSubscriptionManager = () => {
     }
   })
 }
-
 const showEditFullName = ref(false)
-const updateUserFullNameAsync = (value: string) => {
+const updateUserFullNameAsync = (value?: string) => {
   showEditFullName.value = false
 
   if (!user.value) {
@@ -185,15 +200,20 @@ const updateUserFullNameAsync = (value: string) => {
           <div class="mt-3">Dialogs</div>
           <div class="text-slate-600 flex flex-col gap-2 mt-2">
             <div class="flex items-center gap-1.5">
-              <Checkbox
-                :model-value="user?.userConfig.showBrokerSyncConfirm ?? false"
-                @update:model-value="updateUserConfig"
-              ></Checkbox>
-              Show broker sync confirm dialog
+              <ToggleSwitch
+                :disabled="isUpdateUserPending"
+                :model-value="user?.userConfig.showBrokerSyncConfirm"
+                @update:model-value="(value) => updateUserConfigShowBrokerSyncConfirm(value)"
+              ></ToggleSwitch>
+              Show broker sync confirmation dialog
             </div>
             <div class="flex items-center gap-1.5">
-              <Checkbox :model-value="user?.userConfig.showMessagesSyncConfirm"></Checkbox> Show
-              message sync confirm dialog
+              <ToggleSwitch
+                :disabled="isUpdateUserPending"
+                :model-value="user?.userConfig.showMessagesSyncConfirm"
+                @update:model-value="(value) => updateUserConfigShowMessagesSyncConfirm(value)"
+              ></ToggleSwitch>
+              Show message sync confirmation dialog
             </div>
           </div>
         </div>

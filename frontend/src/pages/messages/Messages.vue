@@ -57,7 +57,7 @@ const rabbitMqQueue = computed(() => rabbitMqQueues.value[0] ?? undefined)
 
 const backToBroker = () =>
   router.push({
-    name: 'broker',
+    name: 'queues',
     params: {
       brokerId: props.brokerId
     }
