@@ -21,6 +21,7 @@ import ButtonGroup from 'primevue/buttongroup'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import type { PageState } from 'primevue/paginator'
+import SelectButton from 'primevue/selectbutton'
 import Tag from 'primevue/tag'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
@@ -221,14 +222,14 @@ const archiveMessages = () => {
       outlined: true
     },
     acceptProps: {
-      label: 'Publish',
-      severity: ''
+      label: 'Archive',
+      severity: 'danger'
     },
     accept: () => {
       archiveMessagesAsync(selectedMessageIds.value).then(() => {
         toast.add({
           severity: 'info',
-          summary: 'Archived messages',
+          summary: 'Archived Messages',
           detail: `Messages successfully reviewed!`,
           life: 3000
         })
@@ -285,6 +286,32 @@ const syncBrokerRequest = () => {
     })
   })
 }
+
+const expandedRows = ref({})
+
+const expandAll = () => {
+  expandedRows.value =
+    paginatedMessages.value?.items.reduce((acc: any, p) => (acc[p.id] = true) && acc, {}) ?? {}
+}
+const collapseAll = () => {
+  expandedRows.value = {}
+}
+
+const allExpanded = computed(
+  () => Object.keys(expandedRows.value).length === paginatedMessages.value?.items.length
+)
+
+const formatPayload = ref('raw')
+const formatOptions = [
+  {
+    label: 'Raw',
+    value: 'raw'
+  },
+  {
+    label: 'JSON',
+    value: 'formatted'
+  }
+]
 </script>
 
 <template>
@@ -338,6 +365,16 @@ const syncBrokerRequest = () => {
         icon="pi pi-trash"
       ></Button>
 
+      <SelectButton
+        v-tooltip.top="'Payload format'"
+        v-model="formatPayload"
+        :options="formatOptions"
+        option-label="label"
+        option-value="value"
+        class="ms-auto"
+        aria-labelledby="basic"
+      />
+
       <Select
         v-model="selectedExchange"
         :options="formattedExchanges"
@@ -363,8 +400,24 @@ const syncBrokerRequest = () => {
         v-model:selection="selectedMessages"
         :value="paginatedMessages?.items"
         data-key="id"
+        v-model:expandedRows="expandedRows"
+        pt:bodyCell:class="bg-red-400"
       >
         <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+        <Column expander class="w-[0%]">
+          <template #header>
+            <i
+              v-if="!allExpanded"
+              class="pi pi-plus grow cursor-pointer text-center font-bold"
+              @click="expandAll"
+            ></i
+            ><i
+              v-else
+              class="pi pi-minus grow cursor-pointer text-center font-bold"
+              @click="collapseAll"
+            ></i>
+          </template>
+        </Column>
 
         <Column field="id" header="Message" class="w-[0%]">
           <template #body="{ data }">
@@ -404,6 +457,11 @@ const syncBrokerRequest = () => {
             </div></template
           >
         </Column>
+
+        <template #expansion="slotProps">
+          <pre v-if="formatPayload === 'formatted'" class="text-sm">{{ slotProps }}</pre>
+          <div v-else>{{ slotProps }}</div>
+        </template>
       </DataTable>
       <Paginator
         @page="changePage"
