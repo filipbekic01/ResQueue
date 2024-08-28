@@ -17,7 +17,8 @@ html {
   //   50px 50px,
   //   25px 25px,
   //   25px 25px;
-  background: radial-gradient(circle at center top, white, #f1f5f9);
+  background-image: radial-gradient(circle at top center, white, #f1f5f9); // f1f5f9
+  background-color: #f1f5f9;
 }
 
 body {
