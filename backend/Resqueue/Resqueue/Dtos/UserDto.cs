@@ -11,6 +11,6 @@ public class UserDto
     public string? PaymentType { get; set; }
     public string? PaymentLastFour { get; set; }
 
-    public UserConfigDto UserConfig { get; set; } = null!;
+    public UserSettingsDto Settings { get; set; } = null!;
     public List<SubscriptionDto> Subscriptions { get; set; } = [];
 }

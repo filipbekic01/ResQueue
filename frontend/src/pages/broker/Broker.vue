@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { useSyncBrokerMutation } from '@/api/broker/syncBrokerMutation'
+import { useIdentity } from '@/composables/identityComposable'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { formatDistanceToNow } from 'date-fns'
 import Select from 'primevue/select'
@@ -18,6 +19,10 @@ const toast = useToast()
 const router = useRouter()
 const route = useRoute()
 
+const {
+  query: { data: user }
+} = useIdentity()
+
 const { mutateAsync: syncBrokerAsync, isPending: isPendingSyncBroker } = useSyncBrokerMutation()
 
 const { data: brokers } = useBrokersQuery()
@@ -34,6 +39,11 @@ const applySearch = (value: string) => {
 }
 
 const syncBroker = () => {
+  if (!user.value?.settings.showSyncConfirmDialogs) {
+    syncBrokerRequest()
+    return
+  }
+
   confirm.require({
     message:
       'Do you really want to sync with remote broker? You can turn off this dialog on dashboard.',
@@ -48,21 +58,23 @@ const syncBroker = () => {
       label: 'Sync Broker',
       severity: ''
     },
-    accept: () => {
-      if (!broker.value) {
-        return
-      }
-
-      syncBrokerAsync(broker.value?.id).then(() => {
-        toast.add({
-          severity: 'info',
-          summary: 'Sync Completed!',
-          detail: `Broker ${broker.value?.name} synced!`,
-          life: 3000
-        })
-      })
-    },
+    accept: () => syncBrokerRequest(),
     reject: () => {}
+  })
+}
+
+const syncBrokerRequest = () => {
+  if (!broker.value) {
+    return
+  }
+
+  syncBrokerAsync(broker.value?.id).then(() => {
+    toast.add({
+      severity: 'info',
+      summary: 'Sync Completed!',
+      detail: `Broker ${broker.value?.name} synced!`,
+      life: 3000
+    })
   })
 }
 

@@ -52,10 +52,9 @@ public static class AuthEndpoints
                         UpdatedAt = item.UpdatedAt
                     }).ToList()
                 }).ToList(),
-                UserConfig = new UserConfigDto
+                Settings = new UserSettingsDto
                 {
-                    ShowBrokerSyncConfirm = user.UserConfig.showBrokerSyncConfirm,
-                    ShowMessagesSyncConfirm = user.UserConfig.showMessagesSyncConfirm
+                    ShowSyncConfirmDialogs = user.Settings.ShowSyncConfirmDialogs,
                 }
             });
         }).RequireAuthorization();
@@ -127,14 +126,12 @@ public static class AuthEndpoints
                 }
 
                 // Update UserConfig if provided
-                if (dto.Config != null)
+                if (dto.Settings != null)
                 {
                     update = Builders<User>.Update.Combine(
                         update,
-                        Builders<User>.Update.Set(u => u.UserConfig.showBrokerSyncConfirm,
-                            dto.Config.ShowBrokerSyncConfirm),
-                        Builders<User>.Update.Set(u => u.UserConfig.showMessagesSyncConfirm,
-                            dto.Config.ShowMessagesSyncConfirm)
+                        Builders<User>.Update.Set(u => u.Settings.ShowSyncConfirmDialogs,
+                            dto.Settings.ShowSyncConfirmDialogs)
                     );
                 }
 

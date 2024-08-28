@@ -1,6 +1,6 @@
-import type { UserConfigDto } from './userConfigDto'
+import type { UserSettingsDto } from './userSettings'
 
 export interface UpdateUserDto {
   fullName?: string
-  config: UserConfigDto
+  settings: UserSettingsDto
 }

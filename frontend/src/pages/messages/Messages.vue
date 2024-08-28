@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
+import { useSyncBrokerMutation } from '@/api/broker/syncBrokerMutation'
 import { useArchiveMessagesMutation } from '@/api/messages/archiveMessagesMutation'
 import { usePaginatedMessagesQuery } from '@/api/messages/paginatedMessagesQuery'
 import { usePublishMessagesMutation } from '@/api/messages/publishMessagesMutation'
@@ -10,11 +11,13 @@ import {
 } from '@/api/messages/useReviewMessagesMutation'
 import { useQueueQuery } from '@/api/queues/queueQuery'
 import { useExchanges } from '@/composables/exchangesComposable'
+import { useIdentity } from '@/composables/identityComposable'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
 import type { RabbitMqMessageDto } from '@/dtos/rabbitMqMessageDto'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { formatDistanceToNow } from 'date-fns'
 import Button from 'primevue/button'
+import ButtonGroup from 'primevue/buttongroup'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import type { PageState } from 'primevue/paginator'
@@ -34,10 +37,23 @@ const router = useRouter()
 const confirm = useConfirm()
 const toast = useToast()
 
-const { mutateAsync: syncMessagesAsync } = useSyncMessagesMutation()
-const { mutateAsync: publishMessagesAsync } = usePublishMessagesMutation()
-const { mutateAsync: reviewMessagesAsync } = useReviewMessagesMutation()
-const { mutateAsync: archiveMessagesAsync } = useArchiveMessagesMutation()
+const {
+  query: { data: user }
+} = useIdentity()
+
+const { mutateAsync: syncMessagesAsync, isPending: isSyncMessagesPending } =
+  useSyncMessagesMutation()
+
+const { mutateAsync: publishMessagesAsync, isPending: isPublishMessagesPending } =
+  usePublishMessagesMutation()
+
+const { mutateAsync: reviewMessagesAsync, isPending: isReviewMessagesPending } =
+  useReviewMessagesMutation()
+
+const { mutateAsync: archiveMessagesAsync, isPending: isArchiveMessagesPending } =
+  useArchiveMessagesMutation()
+
+const { mutateAsync: syncBrokerAsync, isPending: isSyncBrokerPending } = useSyncBrokerMutation()
 
 const pageIndex = ref(0)
 
@@ -55,15 +71,16 @@ const queues = computed(() => (queue.value ? [queue.value] : undefined))
 const { rabbitMqQueues } = useRabbitMqQueues(queues)
 const rabbitMqQueue = computed(() => rabbitMqQueues.value[0] ?? undefined)
 
-const backToBroker = () =>
-  router.push({
-    name: 'queues',
-    params: {
-      brokerId: props.brokerId
-    }
-  })
+const backToBroker = () => {
+  router.back()
+}
 
 const syncMessages = () => {
+  if (!user.value?.settings.showSyncConfirmDialogs) {
+    syncMessagesRequest()
+    return
+  }
+
   confirm.require({
     header: 'Sync Messages',
     message: 'Do you want to import new messages?',
@@ -77,17 +94,22 @@ const syncMessages = () => {
       label: 'Sync Messages',
       severity: ''
     },
-    accept: () => {
-      syncMessagesAsync(props.queueId).then(() => {
-        toast.add({
-          severity: 'info',
-          summary: 'Sync Completed!',
-          detail: `Messages for queue ${queue.value?.id} synced!`,
-          life: 3000
-        })
-      })
-    },
+    accept: () => syncMessagesRequest(),
     reject: () => {}
+  })
+}
+
+const syncMessagesRequest = () => {
+  syncMessagesAsync({
+    brokerId: props.brokerId,
+    queueId: props.queueId
+  }).then(() => {
+    toast.add({
+      severity: 'info',
+      summary: 'Sync Completed!',
+      detail: `Messages for queue ${queue.value?.id} synced!`,
+      life: 3000
+    })
   })
 }
 
@@ -222,6 +244,46 @@ const changePage = (e: PageState) => {
 const syncLabel = computed(() => {
   return `Pull (${rabbitMqQueue.value?.parsed.messages})`
 })
+
+const syncBroker = () => {
+  if (!user.value?.settings.showSyncConfirmDialogs) {
+    syncBrokerRequest()
+    return
+  }
+
+  confirm.require({
+    message:
+      'Do you really want to sync with remote broker? You can turn off this dialog on dashboard.',
+    icon: 'pi pi-info-circle',
+    header: 'Sync Broker',
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Sync Broker',
+      severity: ''
+    },
+    accept: () => syncBrokerRequest(),
+    reject: () => {}
+  })
+}
+
+const syncBrokerRequest = () => {
+  if (!broker.value) {
+    return
+  }
+
+  syncBrokerAsync(broker.value?.id).then(() => {
+    toast.add({
+      severity: 'info',
+      summary: 'Sync Completed!',
+      detail: `Broker ${broker.value?.name} synced!`,
+      life: 3000
+    })
+  })
+}
 </script>
 
 <template>
@@ -242,24 +304,35 @@ const syncLabel = computed(() => {
     <template #description>{{ rabbitMqQueue?.parsed.name }}</template>
     <div class="flex items-start gap-2 border-b px-4 py-2">
       <Button @click="backToBroker" outlined label="Broker" icon="pi pi-arrow-left"></Button>
-      <Button
-        @click="() => syncMessages()"
-        outlined
-        :label="syncLabel"
-        icon="pi pi-download"
-      ></Button>
-      <Button outlined label="Refresh Table" icon="pi pi-refresh"></Button>
+      <ButtonGroup>
+        <Button
+          @click="() => syncMessages()"
+          outlined
+          :label="syncLabel"
+          :loading="isSyncMessagesPending"
+          icon="pi pi-download"
+        ></Button>
+        <Button
+          @click="syncBroker()"
+          outlined
+          :loading="isSyncBrokerPending"
+          label="Sync"
+          icon="pi pi-sync"
+        ></Button>
+      </ButtonGroup>
       <Button
         @click="() => reviewMessages()"
         outlined
-        :disabled="!selectedMessages.length"
+        :loading="isReviewMessagesPending"
+        :disabled="isReviewMessagesPending || !selectedMessages.length"
         :label="reviewMessagesLabel"
         icon="pi pi-check"
       ></Button>
       <Button
         @click="() => archiveMessages()"
         outlined
-        :disabled="!selectedMessages.length"
+        :loading="isArchiveMessagesPending"
+        :disabled="isArchiveMessagesPending || !selectedMessages.length"
         severity="danger"
         icon="pi pi-trash"
       ></Button>
@@ -274,7 +347,8 @@ const syncLabel = computed(() => {
       ></Select>
       <Button
         @click="publishMessages"
-        :disabled="!selectedMessageIds.length"
+        :loading="isPublishMessagesPending"
+        :disabled="isPublishMessagesPending || !selectedMessageIds.length"
         label="Requeue"
         icon="pi pi-send"
         icon-pos="right"

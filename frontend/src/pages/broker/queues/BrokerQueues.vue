@@ -1,7 +1,10 @@
 <script lang="ts" setup>
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
+import { useFavoriteQueueMutation } from '@/api/queues/favoriteQueueMutation'
 import { usePaginatedQueuesQuery } from '@/api/queues/paginatedQueuesQuery'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
+import type { QueueDto } from '@/dtos/queueDto'
+import Button from 'primevue/button'
 import Column from 'primevue/column'
 import DataTable, { type DataTableSortEvent } from 'primevue/datatable'
 import Paginator, { type PageState } from 'primevue/paginator'
@@ -17,6 +20,7 @@ const route = useRoute()
 
 const { data: brokers } = useBrokersQuery()
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
+const { mutateAsync: favoriteQueueAsync } = useFavoriteQueueMutation()
 
 const pageIndex = ref(0)
 const changePage = (e: PageState) => {
@@ -66,6 +70,15 @@ const updateSort = (e: DataTableSortEvent) => {
     }
   })
 }
+
+const toggleFavorite = (data: QueueDto) => {
+  favoriteQueueAsync({
+    queueId: data.id,
+    dto: {
+      isFavorite: !data.isFavorite
+    }
+  })
+}
 </script>
 
 <template>
@@ -84,6 +97,21 @@ const updateSort = (e: DataTableSortEvent) => {
       :sort-order="route.query.sortOrder ? parseInt(route.query.sortOrder.toString()) : undefined"
       @sort="updateSort"
     >
+      <Column field="favorite" header="" class="w-[0%] overflow-hidden overflow-ellipsis">
+        <template #body="{ data }">
+          <i
+            class="pi pi-thumbtack cursor-pointer"
+            :class="[
+              {
+                'text-slate-300': !data.isFavorite,
+                'text-slate-700': data.isFavorite
+              }
+            ]"
+            @click="toggleFavorite(data)"
+          ></i>
+        </template>
+      </Column>
+
       <Column sortable field="name" header="Name" class="w-[60%] overflow-hidden overflow-ellipsis">
         <template #body="{ data }">
           <span
@@ -110,7 +138,7 @@ const updateSort = (e: DataTableSortEvent) => {
         </template>
       </Column>
 
-      <Column sortable field="parsed.messages" header="Msgs" class="w-[0%]">
+      <Column sortable sort-field="messages" field="parsed.messages" header="Msgs" class="w-[0%]">
         <template #body="{ data }">
           <div class="flex items-center gap-1">
             <i class="pi pi-arrow-down text-xs text-emerald-500"></i>{{ data.parsed['messages'] }}

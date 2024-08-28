@@ -51,25 +51,14 @@ const resendConfirmationEmail = () => {
     })
   }
 }
-const updateUserConfigShowBrokerSyncConfirm = (value: boolean) => {
+const updateUserSettingsShowSyncConfirmDialogs = (value: boolean) => {
   if (!user.value) {
     return
   }
 
   updateUserAsync({
     fullName: user.value.fullName,
-    config: { ...user.value.userConfig, showBrokerSyncConfirm: value }
-  })
-}
-
-const updateUserConfigShowMessagesSyncConfirm = (value: boolean) => {
-  if (!user.value) {
-    return
-  }
-
-  updateUserAsync({
-    fullName: user.value.fullName,
-    config: { ...user.value.userConfig, showMessagesSyncConfirm: value }
+    settings: { ...user.value.settings, showSyncConfirmDialogs: value }
   })
 }
 
@@ -99,7 +88,7 @@ const updateUserFullNameAsync = (value?: string) => {
 
   updateUserAsync({
     fullName: value,
-    config: { ...user.value.userConfig }
+    settings: { ...user.value.settings }
   })
 }
 </script>
@@ -203,18 +192,10 @@ const updateUserFullNameAsync = (value?: string) => {
             <div class="flex items-center gap-3">
               <ToggleSwitch
                 :disabled="isUpdateUserPending"
-                :model-value="user?.userConfig.showBrokerSyncConfirm"
-                @update:model-value="(value) => updateUserConfigShowBrokerSyncConfirm(value)"
+                :model-value="user?.settings.showSyncConfirmDialogs"
+                @update:model-value="(value) => updateUserSettingsShowSyncConfirmDialogs(value)"
               ></ToggleSwitch>
-              Show broker sync confirmation dialog
-            </div>
-            <div class="flex items-center gap-3">
-              <ToggleSwitch
-                :disabled="isUpdateUserPending"
-                :model-value="user?.userConfig.showMessagesSyncConfirm"
-                @update:model-value="(value) => updateUserConfigShowMessagesSyncConfirm(value)"
-              ></ToggleSwitch>
-              Show message sync confirmation dialog
+              Show sync confirmation dialogs
             </div>
           </div>
         </div>

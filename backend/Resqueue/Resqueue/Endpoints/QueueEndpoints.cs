@@ -35,6 +35,8 @@ public static class QueueEndpoints
                 {
                     Id = x.Id.ToString(),
                     RawData = x.RawData.ToString(),
+                    TotalMessages = x.TotalMessages,
+                    IsFavorite = x.IsFavorite,
                     CreatedAt = x.CreatedAt
                 }).ToList());
             });
@@ -83,12 +85,19 @@ public static class QueueEndpoints
 
                 var filter = Builders<Queue>.Filter.And(filters);
 
-                var sort = Builders<Queue>.Sort.Descending(q => q.Id);
+                var sort = Builders<Queue>.Sort.Descending(q => q.IsFavorite);
+
                 if (sortField is not null && sortOrder is not null)
                 {
-                    sort = sortOrder == 1
+                    var secondarySort = sortOrder == 1
                         ? Builders<Queue>.Sort.Ascending($"RawData.{sortField}")
                         : Builders<Queue>.Sort.Descending($"RawData.{sortField}");
+
+                    sort = Builders<Queue>.Sort.Combine(sort, secondarySort);
+                }
+                else
+                {
+                    sort = Builders<Queue>.Sort.Combine(sort, Builders<Queue>.Sort.Descending(q => q.Id));
                 }
 
                 var totalItems = await collection.CountDocumentsAsync(filter);
@@ -106,6 +115,8 @@ public static class QueueEndpoints
                     {
                         Id = x.Id.ToString(),
                         RawData = x.RawData.ToString(),
+                        TotalMessages = x.TotalMessages,
+                        IsFavorite = x.IsFavorite,
                         CreatedAt = x.CreatedAt
                     }).ToList(),
                     PageIndex = pageIndex,
@@ -115,6 +126,29 @@ public static class QueueEndpoints
                 };
 
                 return Results.Ok(result);
+            });
+
+        group.MapPost("{id}/favorite",
+            async (IMongoCollection<Queue> collection, UserManager<User> userManager,
+                HttpContext httpContext, [FromBody] FavoriteQueueDto dto,
+                string id) =>
+            {
+                var user = await userManager.GetUserAsync(httpContext.User);
+                if (user == null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                var filter = Builders<Queue>.Filter.And(
+                    Builders<Queue>.Filter.Eq(q => q.Id, ObjectId.Parse(id)),
+                    Builders<Queue>.Filter.Eq(q => q.UserId, user.Id)
+                );
+
+                var update = Builders<Queue>.Update.Set(q => q.IsFavorite, dto.IsFavorite);
+
+                await collection.UpdateOneAsync(filter, update);
+
+                return Results.Ok();
             });
 
         return group;

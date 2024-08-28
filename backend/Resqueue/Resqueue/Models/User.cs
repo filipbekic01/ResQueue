@@ -12,9 +12,8 @@ public class User : MongoUser
 
     public List<Subscription> Subscriptions { get; set; } = [];
 
-    public UserConfig UserConfig { get; set; } = new()
+    public UserSettings Settings { get; set; } = new()
     {
-        showBrokerSyncConfirm = true,
-        showMessagesSyncConfirm = true
+        ShowSyncConfirmDialogs = true,
     };
 }

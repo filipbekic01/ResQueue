@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Resqueue.Dtos;
+using Resqueue.Features.Broker.SyncBroker;
 using Resqueue.Features.Messages.ArchiveMessages;
 using Resqueue.Features.Messages.PublishMessages;
 using Resqueue.Features.Messages.ReviewMessages;
@@ -89,12 +90,25 @@ public static class MessageEndpoints
             });
 
         group.MapPost("sync",
-            async (ISyncMessagesFeature syncMessagesFeature, HttpContext httpContext, [FromQuery] string queueId) =>
+            async (ISyncMessagesFeature syncMessagesFeature, ISyncBrokerFeature syncBrokerFeature,
+                HttpContext httpContext, [FromBody] SyncMessagesDto dto) =>
             {
                 var result = await syncMessagesFeature.ExecuteAsync(new SyncMessagesFeatureRequest(
                     ClaimsPrincipal: httpContext.User,
-                    QueueId: queueId
+                    QueueId: dto.QueueId
                 ));
+
+                await Task.Delay(10000);
+
+                var result2 = await syncBrokerFeature.ExecuteAsync(new(
+                    ClaimsPrincipal: httpContext.User,
+                    Id: dto.BrokerId
+                ));
+
+                if (!result2.IsSuccess)
+                {
+                    Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+                }
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
