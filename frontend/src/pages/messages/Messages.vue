@@ -105,10 +105,10 @@ const syncMessagesRequest = () => {
     queueId: props.queueId
   }).then(() => {
     toast.add({
-      severity: 'info',
+      severity: 'success',
       summary: 'Sync Completed!',
       detail: `Messages for queue ${queue.value?.id} synced!`,
-      life: 3000
+      life: 1000
     })
   })
 }
@@ -166,6 +166,7 @@ const reviewMessages = () => {
 
 const publishMessages = () => {
   confirm.require({
+    header: 'Publish Messages',
     message: `Do you want to publish ${selectedMessages.value.length} messages?`,
     icon: 'pi pi-info-circle',
     rejectProps: {
@@ -277,10 +278,10 @@ const syncBrokerRequest = () => {
 
   syncBrokerAsync(broker.value?.id).then(() => {
     toast.add({
-      severity: 'info',
+      severity: 'success',
       summary: 'Sync Completed!',
       detail: `Broker ${broker.value?.name} synced!`,
-      life: 3000
+      life: 1000
     })
   })
 }

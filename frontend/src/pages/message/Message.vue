@@ -37,9 +37,9 @@ const selectedExchange = ref()
 const formatOptions = ref<FormatOption[]>(['Formatted', 'Raw View'])
 const selectedFormatOption = ref<FormatOption>('Formatted')
 
-const publishMessages = (event: any) => {
+const publishMessages = () => {
   confirm.require({
-    target: event.currentTarget,
+    header: 'Publish Messages',
     message: `Do you want to publish this message?`,
     icon: 'pi pi-info-circle',
     rejectProps: {
@@ -119,12 +119,7 @@ const backToMessages = () => {
         class="ms-auto w-96"
         :virtualScrollerOptions="{ itemSize: 38, style: 'width:900px' }"
       ></Select>
-      <Button
-        @click="(e) => publishMessages(e)"
-        label="Requeue"
-        iconPos="right"
-        icon="pi pi-send"
-      ></Button>
+      <Button @click="publishMessages()" label="Requeue" iconPos="right" icon="pi pi-send"></Button>
     </div>
 
     <template v-if="message">

@@ -70,10 +70,10 @@ const syncBrokerRequest = () => {
 
   syncBrokerAsync(broker.value?.id).then(() => {
     toast.add({
-      severity: 'info',
+      severity: 'success',
       summary: 'Sync Completed!',
       detail: `Broker ${broker.value?.name} synced!`,
-      life: 3000
+      life: 1000
     })
   })
 }
