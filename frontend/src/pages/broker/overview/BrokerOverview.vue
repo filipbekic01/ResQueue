@@ -163,7 +163,15 @@ const deleteBroker = () => {
         </div>
       </div>
       <div class="flex grow flex-col gap-3">
-        <div class="">Dead-Letter Queue Suffix</div>
+        <div class="flex items-center">
+          Dead-Letter Queue Suffix
+          <i
+            v-tooltip="
+              'Used for various features, including the automatic discovery of topic (exchange) destinations.'
+            "
+            class="pi pi-question-circle ms-2 cursor-pointer text-gray-400"
+          ></i>
+        </div>
         <div class="flex flex-col gap-3">
           <InputText
             placeholder="Set custom suffix"
@@ -173,7 +181,13 @@ const deleteBroker = () => {
         </div>
       </div>
       <div class="flex grow flex-col gap-3">
-        <div class="">Quick Search Suggestions</div>
+        <div class="flex items-center">
+          Quick Search Suggestions
+          <i
+            v-tooltip="'Helps you quickly search through queues.'"
+            class="pi pi-question-circle ms-2 cursor-pointer text-gray-400"
+          ></i>
+        </div>
         <div class="flex flex-col gap-3">
           <InputText
             placeholder="Add new option"
