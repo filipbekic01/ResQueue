@@ -15,10 +15,10 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
 </script>
 
 <template>
-  <div class="flex flex-col">
+  <div class="flex min-h-screen flex-col">
     <div class="center sticky top-0 z-10 items-center gap-2 border-b bg-white">
       <div class="mx-auto flex w-[1024px]">
-        <RouterLink :to="{ name: 'home' }" class="flex basis-1/3 items-center py-3">
+        <RouterLink :to="{ name: 'home' }" class="flex grow-0 basis-1/3 items-center py-3">
           <div class="flex items-center justify-end rounded-lg bg-black p-2">
             <i class="pi pi-database rotate-90 text-white" style="font-size: 1.5rem"></i>
           </div>

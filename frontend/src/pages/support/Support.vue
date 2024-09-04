@@ -9,7 +9,7 @@ const openDiscord = () => {
 
 <template>
   <WebLayout>
-    <div class="flex grow px-8 py-14">
+    <div class="flex grow px-8 pt-14">
       <div class="flex grow flex-col items-center rounded-xl bg-white pb-16 pt-8 shadow-md">
         <div class="text-4xl font-bold">Support Center</div>
         <div class="mt-4 text-xl">Reach out for assistance with any questions or concerns.</div>

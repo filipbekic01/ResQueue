@@ -4,7 +4,6 @@ import { useSyncBrokerMutation } from '@/api/broker/syncBrokerMutation'
 import { useIdentity } from '@/composables/identityComposable'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { formatDistanceToNow } from 'date-fns'
-import Select from 'primevue/select'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { computed } from 'vue'
@@ -127,8 +126,8 @@ const updateTabValue = (a: any) => router.push({ name: a })
           <Tab value="overview">Overview</Tab>
           <Tab value="topics">Topics</Tab>
           <Tab value="queues">Queues</Tab>
-          <div class="flex grow items-center gap-3 px-3">
-            <div class="ms-auto text-slate-500">Filters</div>
+          <div v-if="route.name === 'queues'" class="flex grow items-center gap-3 px-3">
+            <div class="ms-auto text-slate-600">Filters</div>
 
             <i
               v-if="route.query.search"
@@ -153,7 +152,6 @@ const updateTabValue = (a: any) => router.push({ name: a })
                 @click="applySearch(qs)"
               ></Button>
             </ButtonGroup>
-            <Select></Select>
           </div>
         </TabList>
       </Tabs>

@@ -98,8 +98,6 @@ public static class MessageEndpoints
                     QueueId: dto.QueueId
                 ));
 
-                await Task.Delay(10000);
-
                 var result2 = await syncBrokerFeature.ExecuteAsync(new(
                     ClaimsPrincipal: httpContext.User,
                     Id: dto.BrokerId

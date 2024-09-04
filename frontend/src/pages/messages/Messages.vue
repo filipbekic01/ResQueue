@@ -25,7 +25,7 @@ import SelectButton from 'primevue/selectbutton'
 import Tag from 'primevue/tag'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{
@@ -127,7 +127,29 @@ const openMessage = (id: string) => {
 
 const selectedMessages = ref<RabbitMqMessageDto[]>([])
 const selectedMessageIds = computed(() => selectedMessages.value.map((x) => x.id))
+
 const selectedExchange = ref()
+watch(
+  () => formattedExchanges.value,
+  (v) => {
+    if (!broker.value || !v || selectedExchange.value) {
+      return
+    }
+
+    selectedExchange.value = formattedExchanges.value.find(
+      (x) =>
+        x.parsed.name ==
+        rabbitMqQueue.value.parsed.name.replace(
+          broker.value?.settings.deadLetterQueueSuffix ?? '',
+          ''
+        ),
+      ''
+    )
+  },
+  {
+    immediate: true
+  }
+)
 
 const reviewMessages = () => {
   const notReviewedIds =
@@ -379,8 +401,10 @@ const formatOptions = [
         v-model="selectedExchange"
         :options="formattedExchanges"
         optionLabel="parsed.name"
-        placeholder="Select an Exchange"
-        class="ms-auto w-96"
+        placeholder="Select an exchange"
+        class="w-96"
+        filter
+        severity="danger"
         :virtualScrollerOptions="{ itemSize: 38, style: 'width:900px' }"
       ></Select>
       <Button

@@ -7,7 +7,7 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import { formatDistanceToNow } from 'date-fns'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import RabbitMqMetadata from './RabbitMqMetadata.vue'
 import RawMetadata from './RawMetadata.vue'
@@ -33,6 +33,30 @@ const { data: message } = useMessageQuery(computed(() => props.messageId))
 const { mutateAsync: publishMessagesAsync } = usePublishMessagesMutation()
 
 const selectedExchange = ref()
+
+watch(
+  () => formattedExchanges.value,
+  (v) => {
+    if (
+      !broker.value ||
+      !v ||
+      selectedExchange.value ||
+      !message.value?.rabbitmqMetadata?.routingKey
+    ) {
+      return
+    }
+
+    const name = message.value.rabbitmqMetadata.routingKey.replace(
+      broker.value?.settings.deadLetterQueueSuffix ?? '',
+      ''
+    )
+
+    selectedExchange.value = formattedExchanges.value.find((x) => x.parsed.name === name)
+  },
+  {
+    immediate: true
+  }
+)
 
 const formatOptions = ref<FormatOption[]>(['Formatted', 'Raw View'])
 const selectedFormatOption = ref<FormatOption>('Formatted')
@@ -115,8 +139,9 @@ const backToMessages = () => {
         v-model="selectedExchange"
         :options="formattedExchanges"
         optionLabel="parsed.name"
-        placeholder="Select an Exchange"
+        placeholder="Select an exchange"
         class="ms-auto w-96"
+        filter
         :virtualScrollerOptions="{ itemSize: 38, style: 'width:900px' }"
       ></Select>
       <Button @click="publishMessages()" label="Requeue" iconPos="right" icon="pi pi-send"></Button>
@@ -128,7 +153,7 @@ const backToMessages = () => {
           <div>
             <div class="text-2xl">Message</div>
             <div class="text-slate-500">
-              Pulled {{ formatDistanceToNow(message.createdAt) }} • Updated
+              Pulled {{ formatDistanceToNow(message.createdAt) }} ago • Updated
               {{ message.updatedAt ? formatDistanceToNow(message.updatedAt) : 'never' }}
             </div>
           </div>

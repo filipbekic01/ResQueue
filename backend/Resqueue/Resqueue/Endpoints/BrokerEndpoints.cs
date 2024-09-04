@@ -43,7 +43,8 @@ public static class BrokerEndpoints
                     x.Port,
                     x.Host,
                     new BrokerSettingsDto(
-                        QuickSearches: x.Settings.QuickSearches
+                        QuickSearches: x.Settings.QuickSearches,
+                        DeadLetterQueueSuffix: x.Settings.DeadLetterQueueSuffix
                     ),
                     x.CreatedAt,
                     x.UpdatedAt,
@@ -88,7 +89,8 @@ public static class BrokerEndpoints
                     broker.Port,
                     broker.Host,
                     new BrokerSettingsDto(
-                        QuickSearches: broker.Settings.QuickSearches
+                        QuickSearches: broker.Settings.QuickSearches,
+                        DeadLetterQueueSuffix: broker.Settings.DeadLetterQueueSuffix
                     ),
                     broker.CreatedAt,
                     broker.UpdatedAt,

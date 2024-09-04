@@ -163,6 +163,16 @@ const deleteBroker = () => {
         </div>
       </div>
       <div class="flex grow flex-col gap-3">
+        <div class="">Dead-Letter Queue Suffix</div>
+        <div class="flex flex-col gap-3">
+          <InputText
+            placeholder="Set custom suffix"
+            v-model="brokerEditable.settings.deadLetterQueueSuffix"
+            @change="(e) => addQuickSearch((e.target as any).value)"
+          ></InputText>
+        </div>
+      </div>
+      <div class="flex grow flex-col gap-3">
         <div class="">Quick Search Suggestions</div>
         <div class="flex flex-col gap-3">
           <InputText

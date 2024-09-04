@@ -1,13 +1,17 @@
 <script lang="ts" setup>
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
+import { useSyncBrokerMutation } from '@/api/broker/syncBrokerMutation'
 import { useFavoriteQueueMutation } from '@/api/queues/favoriteQueueMutation'
 import { usePaginatedQueuesQuery } from '@/api/queues/paginatedQueuesQuery'
+import { useIdentity } from '@/composables/identityComposable'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
 import type { QueueDto } from '@/dtos/queueDto'
 import Button from 'primevue/button'
 import Column from 'primevue/column'
 import DataTable, { type DataTableSortEvent } from 'primevue/datatable'
 import Paginator, { type PageState } from 'primevue/paginator'
+import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'primevue/usetoast'
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -17,10 +21,57 @@ const props = defineProps<{
 
 const router = useRouter()
 const route = useRoute()
+const toast = useToast()
+const confirm = useConfirm()
+
+const {
+  query: { data: user }
+} = useIdentity()
 
 const { data: brokers } = useBrokersQuery()
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
 const { mutateAsync: favoriteQueueAsync } = useFavoriteQueueMutation()
+const { mutateAsync: syncBrokerAsync, isPending: isPendingSyncBroker } = useSyncBrokerMutation()
+
+const syncBroker = () => {
+  if (!user.value?.settings.showSyncConfirmDialogs) {
+    syncBrokerRequest()
+    return
+  }
+
+  confirm.require({
+    message:
+      'Do you really want to sync with remote broker? You can turn off this dialog on dashboard.',
+    icon: 'pi pi-info-circle',
+    header: 'Sync Broker',
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Sync Broker',
+      severity: ''
+    },
+    accept: () => syncBrokerRequest(),
+    reject: () => {}
+  })
+}
+
+const syncBrokerRequest = () => {
+  if (!broker.value) {
+    return
+  }
+
+  syncBrokerAsync(broker.value?.id).then(() => {
+    toast.add({
+      severity: 'success',
+      summary: 'Sync Completed!',
+      detail: `Broker ${broker.value?.name} synced!`,
+      life: 1000
+    })
+  })
+}
 
 const pageIndex = ref(0)
 const changePage = (e: PageState) => {
@@ -122,7 +173,7 @@ const toggleFavorite = (data: QueueDto) => {
         </template>
       </Column>
 
-      <Column field="parsed.consumers" header="Cons" class="w-[0%]">
+      <Column field="parsed.consumers" header="Consumers" class="w-[0%]">
         <template #body="{ data }">
           <div class="text-end">
             {{ data.parsed['consumers'] }}
@@ -130,17 +181,17 @@ const toggleFavorite = (data: QueueDto) => {
         </template>
       </Column>
 
-      <Column field="pulled" header="Pld" class="w-[0%]">
+      <Column field="pulled" header="Pulled" class="w-[0%]">
         <template #body="{ data }">
-          <div class="flex items-center gap-1">
+          <div class="flex items-center justify-start gap-1">
             <i class="pi pi-inbox text-xs text-slate-500"></i>{{ data.parsed['messages'] }}
           </div>
         </template>
       </Column>
 
-      <Column sortable sort-field="messages" field="parsed.messages" header="Msgs" class="w-[0%]">
+      <Column sortable sort-field="messages" field="parsed.messages" header="Avail." class="w-[0%]">
         <template #body="{ data }">
-          <div class="flex items-center gap-1">
+          <div class="flex items-center justify-start gap-1">
             <i class="pi pi-arrow-down text-xs text-emerald-500"></i>{{ data.parsed['messages'] }}
           </div>
         </template>
@@ -155,12 +206,26 @@ const toggleFavorite = (data: QueueDto) => {
       </Column>
     </DataTable>
   </template>
+  <template v-else-if="route.query.search">
+    <div class="mt-24 flex grow flex-col items-center">
+      <!-- <img src="/ebox.svg" class="w-72 pb-5 opacity-50" /> -->
+      <i class="pi pi-filter-slash pb-6 opacity-25" style="font-size: 2rem"></i>
+      <div class="text-lg">No Results</div>
+      <div class="">No queues found for given filters</div>
+    </div>
+  </template>
   <template v-else>
     <div class="mt-24 flex grow flex-col items-center">
-      <img src="/ebox.svg" class="w-72 pb-5 opacity-50" />
+      <i class="pi pi-arrow-right-arrow-left pb-6 opacity-25" style="font-size: 2rem"></i>
       <div class="text-lg">No Queues</div>
-      <div class="">Make sure you sync the broker.</div>
-      <Button label="Sync" icon="pi pi-sync" class="mt-3"></Button>
+      <div class="">Make sure you sync the broker</div>
+      <Button
+        :loading="isPendingSyncBroker"
+        @click="syncBroker"
+        label="Sync"
+        icon="pi pi-sync"
+        class="mt-3"
+      ></Button>
     </div>
   </template>
 
