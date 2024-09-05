@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useCancelSubscriptionMutation } from '@/api/stripe/cancelSubscriptionMutation'
 import { useIdentity } from '@/composables/identityComposable'
-import { extractErrorMessage } from '@/utils/errorUtil'
+import { extractErrorMessage } from '@/utils/errorUtils'
 import { format } from 'date-fns'
 import Button from 'primevue/button'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'

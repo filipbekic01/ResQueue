@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useLoginMutation } from '@/api/auth/loginMutation'
 import { useIdentity } from '@/composables/identityComposable'
-import { extractErrorMessage } from '@/utils/errorUtil'
+import { extractErrorMessage } from '@/utils/errorUtils'
 import { useToast } from 'primevue/usetoast'
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'

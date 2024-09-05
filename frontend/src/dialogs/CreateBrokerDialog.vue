@@ -2,7 +2,7 @@
 import { useCreateBrokerMutation } from '@/api/broker/createBrokerMutation'
 import { useTestConnectionMutation } from '@/api/broker/testConnectionRequest'
 import type { CreateBrokerDto } from '@/dtos/createBrokerDto'
-import { extractErrorMessage } from '@/utils/errorUtil'
+import { extractErrorMessage } from '@/utils/errorUtils'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
 import { useToast } from 'primevue/usetoast'
 import { inject, reactive, type Ref } from 'vue'

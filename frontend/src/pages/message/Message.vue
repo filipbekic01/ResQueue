@@ -2,17 +2,19 @@
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { useMessageQuery } from '@/api/messages/messageQuery'
 import { usePublishMessagesMutation } from '@/api/messages/publishMessagesMutation'
+import { useQueueQuery } from '@/api/queues/queueQuery'
+import type { FormatOption } from '@/components/SelectFormat.vue'
+import SelectFormat from '@/components/SelectFormat.vue'
+import SelectStructure, { type StructureOption } from '@/components/SelectStructure.vue'
 import { useExchanges } from '@/composables/exchangesComposable'
+import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
+import FormattedMessage from '@/features/formatted-message/FormattedMessage.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { formatDistanceToNow } from 'date-fns'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import RabbitMqMetadata from './RabbitMqMetadata.vue'
-import RawMetadata from './RawMetadata.vue'
-
-type FormatOption = 'Formatted' | 'Raw View'
 
 const props = defineProps<{
   brokerId: string
@@ -29,6 +31,12 @@ const { data: brokers } = useBrokersQuery()
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
 const { formattedExchanges } = useExchanges(props.brokerId)
 const { data: message } = useMessageQuery(computed(() => props.messageId))
+
+// todo: simplify
+const { data: queue } = useQueueQuery(computed(() => props.queueId))
+const queues = computed(() => (queue.value ? [queue.value] : undefined))
+const { rabbitMqQueues } = useRabbitMqQueues(queues)
+const rabbitMqQueue = computed(() => rabbitMqQueues.value[0] ?? undefined)
 
 const { mutateAsync: publishMessagesAsync } = usePublishMessagesMutation()
 
@@ -58,8 +66,8 @@ watch(
   }
 )
 
-const formatOptions = ref<FormatOption[]>(['Formatted', 'Raw View'])
-const selectedFormatOption = ref<FormatOption>('Formatted')
+const selectedFormatOption = ref<FormatOption>('json')
+const selectedMessageStructure = ref<StructureOption>('both')
 
 const publishMessages = () => {
   confirm.require({
@@ -100,7 +108,7 @@ const backToBroker = () =>
     }
   })
 
-const backToMessages = () => {
+const backToMessages = () =>
   router.push({
     name: 'messages',
     params: {
@@ -108,7 +116,6 @@ const backToMessages = () => {
       queueId: props.queueId
     }
   })
-}
 </script>
 
 <template>
@@ -128,19 +135,23 @@ const backToMessages = () => {
     >
     <template #description>
       <div class="flex items-center">
-        <span class="cursor-pointer hover:underline" @click="backToMessages">Messages</span>
+        <span class="cursor-pointer hover:underline" @click="backToMessages">{{
+          rabbitMqQueue.parsed.name
+        }}</span>
         <i class="pi pi-angle-right mx-1"></i>
         {{ message?.id }}
       </div>
     </template>
     <div class="flex items-start gap-2 border-b px-4 py-2">
       <Button outlined @click="backToMessages" icon="pi pi-arrow-left" label="Messages"></Button>
+      <SelectStructure v-model="selectedMessageStructure" class="ms-auto" />
+      <SelectFormat v-model="selectedFormatOption" />
       <Select
         v-model="selectedExchange"
         :options="formattedExchanges"
         optionLabel="parsed.name"
         placeholder="Select an exchange"
-        class="ms-auto w-96"
+        class="w-96"
         filter
         :virtualScrollerOptions="{ itemSize: 38, style: 'width:900px' }"
       ></Select>
@@ -149,38 +160,20 @@ const backToMessages = () => {
 
     <template v-if="message">
       <div class="my-3 rounded-lg">
-        <div class="mx-5 mb-4 flex items-center">
-          <div>
-            <div class="text-2xl">Message</div>
-            <div class="text-slate-500">
-              Pulled {{ formatDistanceToNow(message.createdAt) }} ago • Updated
-              {{ message.updatedAt ? formatDistanceToNow(message.updatedAt) : 'never' }}
-            </div>
+        <div class="mx-0 mb-4 flex items-center border-b px-5 pb-2">
+          Message
+          <div class="ms-auto text-slate-500">
+            Pulled {{ formatDistanceToNow(message.createdAt) }} ago • Updated
+            {{ message.updatedAt ? formatDistanceToNow(message.updatedAt) : 'never' }}
           </div>
-
-          <SelectButton
-            class="ms-auto"
-            v-model="selectedFormatOption"
-            :options="formatOptions"
-            aria-labelledby="basic"
-          />
         </div>
 
-        <div class="flex flex-col overflow-auto rounded bg-gray-100/50">
-          <div class="my-1 rounded-lg px-5 font-semibold">Metadata</div>
-          <RawMetadata
-            v-if="message.rabbitmqMetadata && selectedFormatOption === 'Raw View'"
-            :metadata="message.rabbitmqMetadata"
+        <div class="px-5">
+          <FormattedMessage
+            :message="message"
+            :format="selectedFormatOption"
+            :structure="selectedMessageStructure"
           />
-          <RabbitMqMetadata
-            v-else-if="message.rabbitmqMetadata"
-            :metadata="message.rabbitmqMetadata"
-          />
-        </div>
-
-        <div class="rounded bg-gray-100/50 ps-5">
-          <div class="my-1 rounded-lg font-semibold">Body</div>
-          <div class="whitespace-break-spaces text-gray-500">{{ message.body }}</div>
         </div>
       </div>
     </template>

@@ -127,14 +127,14 @@ const updateTabValue = (a: any) => router.push({ name: a })
           <Tab value="topics">Topics</Tab>
           <Tab value="queues">Queues</Tab>
           <div v-if="route.name === 'queues'" class="flex grow items-center gap-3 px-3">
-            <div class="ms-auto text-slate-600">Filters</div>
-
+            <!-- <div class="ms-auto text-slate-600">Filters</div> -->
+            <div class="ms-auto"></div>
             <i
               v-if="route.query.search"
               class="pi pi-times me-1 cursor-pointer text-slate-400 hover:text-slate-600"
               @click="applySearch('')"
             ></i>
-            <i v-else class="pi pi-filter me-1 text-slate-400"></i>
+            <i v-else class="pi pi-search me-1 text-slate-400"></i>
             <InputText
               class="max-w-96"
               placeholder="Search"

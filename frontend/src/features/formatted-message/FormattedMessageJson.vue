@@ -1,0 +1,31 @@
+<script setup lang="ts">
+import type { FormatOption } from '@/components/SelectFormat.vue'
+import type { StructureOption } from '@/components/SelectStructure.vue'
+import { highlightJson } from '@/utils/jsonUtils'
+import { computed } from 'vue'
+
+const props = defineProps<{
+  message: any
+  format: FormatOption
+  structure: StructureOption
+}>()
+
+const meta = computed(() =>
+  highlightJson(JSON.parse(JSON.stringify(props.message?.rabbitmqMetadata ?? {})))
+)
+
+const body = computed(() => highlightJson(props.message?.body ?? {}))
+</script>
+
+<template>
+  <div class="flex flex-col gap-2">
+    <div v-if="structure === 'meta' || structure === 'both'">
+      <div class="mb-1 border-b pb-1" v-if="structure === 'both'">Meta</div>
+      <div class="whitespace-break-spaces" v-html="meta"></div>
+    </div>
+    <div v-if="structure === 'body' || structure === 'both'">
+      <div class="mb-2 border-b pb-1" v-if="structure === 'both'">Body</div>
+      <div class="whitespace-break-spaces" v-html="body"></div>
+    </div>
+  </div>
+</template>

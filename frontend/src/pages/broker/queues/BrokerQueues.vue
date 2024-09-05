@@ -150,16 +150,17 @@ const toggleFavorite = (data: QueueDto) => {
     >
       <Column field="favorite" header="" class="w-[0%] overflow-hidden overflow-ellipsis">
         <template #body="{ data }">
-          <i
-            class="pi pi-thumbtack cursor-pointer"
-            :class="[
-              {
-                'text-slate-300': !data.isFavorite,
-                'text-slate-700': data.isFavorite
-              }
-            ]"
-            @click="toggleFavorite(data)"
-          ></i>
+          <Button text size="small" @click="toggleFavorite(data)"
+            ><i
+              class="pi pi-thumbtack"
+              :class="[
+                {
+                  'rotate-12 text-slate-400': !data.isFavorite,
+                  'text-slate-700': data.isFavorite
+                }
+              ]"
+            ></i
+          ></Button>
         </template>
       </Column>
 

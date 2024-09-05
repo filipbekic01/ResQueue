@@ -10,10 +10,14 @@ import {
   type ReviewMessagesRequest
 } from '@/api/messages/useReviewMessagesMutation'
 import { useQueueQuery } from '@/api/queues/queueQuery'
+import SelectFormat, { type FormatOption } from '@/components/SelectFormat.vue'
+import type { StructureOption } from '@/components/SelectStructure.vue'
+import SelectStructure from '@/components/SelectStructure.vue'
 import { useExchanges } from '@/composables/exchangesComposable'
 import { useIdentity } from '@/composables/identityComposable'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
 import type { RabbitMqMessageDto } from '@/dtos/rabbitMqMessageDto'
+import FormattedMessage from '@/features/formatted-message/FormattedMessage.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { formatDistanceToNow } from 'date-fns'
 import Button from 'primevue/button'
@@ -21,7 +25,7 @@ import ButtonGroup from 'primevue/buttongroup'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import type { PageState } from 'primevue/paginator'
-import SelectButton from 'primevue/selectbutton'
+import type { PopoverMethods } from 'primevue/popover'
 import Tag from 'primevue/tag'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
@@ -129,22 +133,20 @@ const selectedMessages = ref<RabbitMqMessageDto[]>([])
 const selectedMessageIds = computed(() => selectedMessages.value.map((x) => x.id))
 
 const selectedExchange = ref()
+
 watch(
   () => formattedExchanges.value,
   (v) => {
-    if (!broker.value || !v || selectedExchange.value) {
+    if (!broker.value || !v || selectedExchange.value || !rabbitMqQueue.value) {
       return
     }
 
-    selectedExchange.value = formattedExchanges.value.find(
-      (x) =>
-        x.parsed.name ==
-        rabbitMqQueue.value.parsed.name.replace(
-          broker.value?.settings.deadLetterQueueSuffix ?? '',
-          ''
-        ),
+    const name = rabbitMqQueue.value.parsed.name.replace(
+      broker.value?.settings.deadLetterQueueSuffix ?? '',
       ''
     )
+
+    selectedExchange.value = formattedExchanges.value.find((x) => x.parsed.name == name, '')
   },
   {
     immediate: true
@@ -309,6 +311,38 @@ const syncBrokerRequest = () => {
   })
 }
 
+const idPopovers = ref<PopoverMethods[]>([])
+
+const toggleIdPopover = (e: Event) => {
+  idPopovers.value[0]?.toggle(e)
+}
+
+const popoverCopyToClipboard = (text: string) => {
+  navigator.clipboard.writeText(text)
+  toast.add({
+    summary: 'Clipboard Action Successful',
+    detail: 'Text has been copied to the clipboard successfully.',
+    life: 3000
+  })
+
+  idPopovers.value.forEach((x) => {
+    x.hide()
+  })
+}
+
+const popoverCopyLinkToClipboard = (id: string) => {
+  const link = router.resolve({
+    name: 'message',
+    params: {
+      brokerId: broker.value?.id,
+      queueId: queue.value?.id,
+      messageId: id
+    }
+  })
+
+  popoverCopyToClipboard(`${window.location.origin}${link.href}`)
+}
+
 const expandedRows = ref({})
 
 const expandAll = () => {
@@ -323,17 +357,8 @@ const allExpanded = computed(
   () => Object.keys(expandedRows.value).length === paginatedMessages.value?.items.length
 )
 
-const formatPayload = ref('raw')
-const formatOptions = [
-  {
-    label: 'Raw',
-    value: 'raw'
-  },
-  {
-    label: 'JSON',
-    value: 'formatted'
-  }
-]
+const selectedMessageFormat = ref<FormatOption>('raw')
+const selectedMessageStructure = ref<StructureOption>('body')
 </script>
 
 <template>
@@ -387,22 +412,15 @@ const formatOptions = [
         icon="pi pi-trash"
       ></Button>
 
-      <SelectButton
-        v-tooltip.top="'Payload format'"
-        v-model="formatPayload"
-        :options="formatOptions"
-        option-label="label"
-        option-value="value"
-        class="ms-auto"
-        aria-labelledby="basic"
-      />
+      <SelectStructure v-model="selectedMessageStructure" class="ms-auto" />
+      <SelectFormat v-model="selectedMessageFormat" />
 
       <Select
         v-model="selectedExchange"
         :options="formattedExchanges"
         optionLabel="parsed.name"
         placeholder="Select an exchange"
-        class="w-96"
+        class="w-72"
         filter
         severity="danger"
         :virtualScrollerOptions="{ itemSize: 38, style: 'width:900px' }"
@@ -420,6 +438,37 @@ const formatOptions = [
       <div class="p-5"><i class="pi pi-spinner pi-spin me-2"></i>Loading queues...</div>
     </template>
     <template v-else-if="paginatedMessages?.items.length">
+      <Popover v-for="it in paginatedMessages?.items" :key="it.id" ref="idPopovers">
+        <div class="mb-2">Copy any part of message to clipboard.</div>
+        <div class="flex flex-row items-center gap-2">
+          <Button @click="popoverCopyToClipboard(it.id)" outlined size="small" label="ID"></Button>
+          <Button
+            @click="popoverCopyToClipboard(JSON.stringify(it.rabbitmqMetadata))"
+            outlined
+            size="small"
+            label="Meta"
+          ></Button>
+          <Button
+            @click="popoverCopyToClipboard(JSON.stringify(it))"
+            outlined
+            size="small"
+            label="Body"
+          ></Button>
+          <Button
+            @click="popoverCopyToClipboard(JSON.stringify(it))"
+            outlined
+            size="small"
+            label="Whole Message"
+          ></Button>
+        </div>
+        <div
+          class="mt-2 cursor-pointer text-blue-500 hover:text-blue-400"
+          @click="popoverCopyLinkToClipboard(it.id)"
+        >
+          <i class="pi pi-link"></i> Copy link to the message
+        </div>
+      </Popover>
+
       <DataTable
         v-model:selection="selectedMessages"
         :value="paginatedMessages?.items"
@@ -442,15 +491,25 @@ const formatOptions = [
             ></i>
           </template>
         </Column>
-
         <Column field="id" header="Message" class="w-[0%]">
           <template #body="{ data }">
-            <div class="flex">
+            <div class="flex items-center gap-2">
+              <Button
+                text
+                size="small"
+                :pt="{
+                  root: {
+                    style: {}
+                  }
+                }"
+                @click="(e) => toggleIdPopover(e, data.id)"
+                ><i class="pi pi-copy"></i
+              ></Button>
               <span
                 @click="openMessage(data.id)"
-                class="border-b border-dashed border-slate-600 hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
-                >{{ data.id }}</span
-              >
+                class="text border-b border-dashed border-slate-600 hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
+                >{{ data.id.slice(-8) }}
+              </span>
             </div>
           </template>
         </Column>
@@ -482,9 +541,12 @@ const formatOptions = [
           >
         </Column>
 
-        <template #expansion="slotProps">
-          <pre v-if="formatPayload === 'formatted'" class="text-sm">{{ slotProps }}</pre>
-          <div v-else>{{ slotProps }}</div>
+        <template #expansion="{ data }">
+          <FormattedMessage
+            :message="data"
+            :format="selectedMessageFormat"
+            :structure="selectedMessageStructure"
+          />
         </template>
       </DataTable>
       <Paginator
