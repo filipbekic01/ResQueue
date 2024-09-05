@@ -62,9 +62,22 @@ const showWarning = computed(() => {
       }
     ]"
   >
+    <img
+      v-if="icon === 'pi pi-rabbitmq'"
+      src="/rmq.svg"
+      style="width: 1.125rem"
+      :class="[
+        'mr-3 rounded p-1',
+        {
+          'bg-slate-900': isRoute(to),
+          'bg-slate-600': !isRoute(to)
+        }
+      ]"
+    />
     <i
       class="mr-3 text-slate-600"
       style="font-size: 1.125rem"
+      v-else
       :class="[
         icon,
         {

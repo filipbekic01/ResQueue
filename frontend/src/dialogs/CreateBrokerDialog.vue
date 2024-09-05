@@ -53,9 +53,15 @@ const testConnection = () => {
 
 <template>
   <div class="mb-5 flex flex-col gap-4">
-    <div class="flex grow flex-col gap-2">
-      <label for="name" class="font-semibold">Name</label>
-      <InputText v-model="newBroker.name" id="name" autocomplete="off" />
+    <div class="flex grow gap-2">
+      <div class="flex grow flex-col gap-2">
+        <label for="name" class="font-semibold">Name</label>
+        <InputText v-model="newBroker.name" id="name" autocomplete="off" />
+      </div>
+      <div class="flex grow flex-col gap-2">
+        <label for="broker" class="font-semibold">Broker</label>
+        <InputText :model-value="'RabbitMQ'" disabled id="broker" autocomplete="off" />
+      </div>
     </div>
     <!-- <div class="flex flex-col border border-slate-200 rounded-xl p-4 gap-3"> -->
     <div class="flex flex-col gap-2">
@@ -73,7 +79,7 @@ const testConnection = () => {
       </div>
       <div class="flex basis-1/2 flex-col gap-2">
         <label for="port" class="flex font-semibold"
-          >Port<label class="ms-auto font-normal text-slate-500">80, 443, 15671...</label></label
+          >Port<span class="ms-auto font-normal text-slate-500">80, 443, 15671...</span></label
         >
         <InputNumber
           :use-grouping="false"

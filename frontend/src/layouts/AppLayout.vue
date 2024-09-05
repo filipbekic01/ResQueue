@@ -66,14 +66,6 @@ const staticRoutes = computed<ResqueueRoute[]>(() => [
       name: 'app'
     }
   }
-  // {
-  //   id: 0,
-  //   label: 'Updates',
-  //   icon: 'pi pi-history',
-  //   to: {
-  //     name: 'updates'
-  //   }
-  // }
 ])
 
 const brokerRoutes = computed<ResqueueRoute[]>(() => {
@@ -83,7 +75,7 @@ const brokerRoutes = computed<ResqueueRoute[]>(() => {
     brokers.value?.map((broker) => ({
       id: ++id,
       label: broker.name ?? '',
-      icon: 'pi pi-sort',
+      icon: `pi pi-${broker.system}`,
       to: {
         name: 'queues',
         params: {

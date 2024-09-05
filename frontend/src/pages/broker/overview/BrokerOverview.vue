@@ -153,122 +153,121 @@ const deleteBroker = () => {
 </script>
 
 <template>
-  <div v-if="brokerEditable" class="flex max-w-[36rem] flex-col gap-7 p-7">
-    <div class="flex flex-col gap-3 rounded-xl border border-gray-200 p-5">
-      <div class="text-lg font-medium">Broker Settings</div>
-      <div class="flex flex-col gap-3">
-        <div class="flex flex-col gap-2">
-          <label for="name" class="">Name</label>
-          <InputText v-model="brokerEditable.name" id="name" autocomplete="off" />
+  <div v-if="brokerEditable" class="flex max-w-[65rem] flex-col gap-7 p-7">
+    <div class="flex flex-row gap-7">
+      <div class="flex w-1/2 grow basis-1/2 flex-col gap-3 rounded-xl border border-gray-200 p-5">
+        <div class="text-lg font-medium">Broker Settings</div>
+        <div class="flex flex-col gap-3">
+          <div class="flex flex-col gap-2">
+            <label for="name" class="">Name</label>
+            <InputText v-model="brokerEditable.name" id="name" autocomplete="off" />
+          </div>
+        </div>
+        <div class="flex grow flex-col gap-3">
+          <div class="flex items-center">
+            Dead-Letter Queue Suffix
+            <i
+              v-tooltip="
+                'Used for various features, including the automatic discovery of topic (exchange) destinations.'
+              "
+              class="pi pi-question-circle ms-2 cursor-pointer text-gray-400"
+            ></i>
+          </div>
+          <div class="flex flex-col gap-3">
+            <InputText
+              placeholder="Set custom suffix"
+              v-model="brokerEditable.settings.deadLetterQueueSuffix"
+              @change="(e) => addQuickSearch((e.target as any).value)"
+            ></InputText>
+          </div>
+        </div>
+        <div class="flex grow flex-col gap-3">
+          <div class="flex items-center">
+            Quick Search Suggestions
+            <i
+              v-tooltip="'Helps you quickly search through queues.'"
+              class="pi pi-question-circle ms-2 cursor-pointer text-gray-400"
+            ></i>
+          </div>
+          <div class="flex flex-col gap-3">
+            <InputText
+              placeholder="Add new option"
+              v-model="addQuickSearchModel"
+              @change="(e) => addQuickSearch((e.target as any).value)"
+            ></InputText>
+            <ButtonGroup>
+              <Button
+                v-for="qs in brokerEditable.settings.quickSearches"
+                :key="qs"
+                @click="updateQuickSearches(qs)"
+                :label="qs"
+                v-tooltip.top="'Click to remove'"
+                outlined
+              ></Button>
+            </ButtonGroup>
+          </div>
         </div>
       </div>
-      <div class="flex grow flex-col gap-3">
-        <div class="flex items-center">
-          Dead-Letter Queue Suffix
-          <i
-            v-tooltip="
-              'Used for various features, including the automatic discovery of topic (exchange) destinations.'
-            "
-            class="pi pi-question-circle ms-2 cursor-pointer text-gray-400"
-          ></i>
+      <div class="flex w-1/2 grow basis-1/2 flex-col gap-3 rounded-xl border border-gray-200 p-5">
+        <div class="flex items-center gap-2 text-lg font-medium">
+          Connection Details
+          <ToggleSwitch v-model="updateCredentials" class="ms-auto"></ToggleSwitch>
+          <label class="text-base font-normal">Credentials</label>
         </div>
-        <div class="flex flex-col gap-3">
-          <InputText
-            placeholder="Set custom suffix"
-            v-model="brokerEditable.settings.deadLetterQueueSuffix"
-            @change="(e) => addQuickSearch((e.target as any).value)"
-          ></InputText>
+
+        <div class="flex flex-col gap-3 rounded-xl">
+          <template v-if="updateCredentials">
+            <div class="flex flex-col gap-2">
+              <label for="username">Username</label>
+              <InputText
+                placeholder="Enter username"
+                v-model="brokerEditable.username"
+                id="username"
+                autocomplete="off"
+              />
+            </div>
+            <div class="flex flex-col gap-2">
+              <label for="password">Password</label>
+              <InputText
+                placeholder="*******"
+                id="password"
+                v-model="brokerEditable.password"
+                type="password"
+                autocomplete="off"
+              />
+            </div>
+          </template>
+          <div class="flex items-center gap-4">
+            <div class="flex basis-1/2 flex-col gap-2">
+              <label for="url">Host</label>
+              <InputText id="url" v-model="brokerEditable.host" autocomplete="off" />
+            </div>
+            <div class="flex basis-1/2 flex-col gap-2">
+              <label for="port" class="flex"
+                >Port<label class="ms-auto font-normal text-slate-500">...80, 443</label></label
+              >
+              <InputNumber
+                :use-grouping="false"
+                id="port"
+                v-model="brokerEditable.port"
+                type="password"
+                autocomplete="off"
+              />
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="flex grow flex-col gap-3">
-        <div class="flex items-center">
-          Quick Search Suggestions
-          <i
-            v-tooltip="'Helps you quickly search through queues.'"
-            class="pi pi-question-circle ms-2 cursor-pointer text-gray-400"
-          ></i>
-        </div>
-        <div class="flex flex-col gap-3">
-          <InputText
-            placeholder="Add new option"
-            v-model="addQuickSearchModel"
-            @change="(e) => addQuickSearch((e.target as any).value)"
-          ></InputText>
-          <ButtonGroup>
-            <Button
-              v-for="qs in brokerEditable.settings.quickSearches"
-              :key="qs"
-              @click="updateQuickSearches(qs)"
-              :label="qs"
-              v-tooltip.top="'Click to remove'"
-              outlined
-            ></Button>
-          </ButtonGroup>
-        </div>
+        <Button
+          v-if="updateCredentials"
+          type="button"
+          label="Test Connection"
+          icon="pi pi-arrow-right-arrow-left"
+          severity="secondary"
+          :loading="isTestConnectionPending"
+          @click="testConnection"
+        ></Button>
       </div>
     </div>
-    <div class="flex flex-col gap-3 rounded-xl border border-gray-200 p-5">
-      <div class="flex items-center gap-2 text-lg font-medium">
-        Connection Details
-        <ToggleSwitch v-model="updateCredentials" class="ms-auto"></ToggleSwitch>
-        <label class="text-base font-normal">Credentials</label>
-      </div>
-
-      <div class="flex flex-col gap-3 rounded-xl">
-        <template v-if="updateCredentials">
-          <div class="flex flex-col gap-2">
-            <label for="username">Username</label>
-            <InputText
-              placeholder="Enter username"
-              v-model="brokerEditable.username"
-              id="username"
-              autocomplete="off"
-            />
-          </div>
-          <div class="flex flex-col gap-2">
-            <label for="password">Password</label>
-            <InputText
-              placeholder="*******"
-              id="password"
-              v-model="brokerEditable.password"
-              type="password"
-              autocomplete="off"
-            />
-          </div>
-        </template>
-        <div class="flex items-center gap-4">
-          <div class="flex basis-1/2 flex-col gap-2">
-            <label for="url">Host</label>
-            <InputText id="url" v-model="brokerEditable.host" autocomplete="off" />
-          </div>
-          <div class="flex basis-1/2 flex-col gap-2">
-            <label for="port" class="flex"
-              >Port<label class="ms-auto font-normal text-slate-500"
-                >80, 443, 15671...</label
-              ></label
-            >
-            <InputNumber
-              :use-grouping="false"
-              id="port"
-              v-model="brokerEditable.port"
-              type="password"
-              autocomplete="off"
-            />
-          </div>
-        </div>
-      </div>
-      <Button
-        v-if="updateCredentials"
-        type="button"
-        label="Test Connection"
-        icon="pi pi-arrow-right-arrow-left"
-        severity="secondary"
-        :loading="isTestConnectionPending"
-        @click="testConnection"
-      ></Button>
-    </div>
-
-    <div class="flex">
+    <div class="flex max-w-[65rem]">
       <Button
         label="Delete Broker"
         icon="pi pi-trash"
