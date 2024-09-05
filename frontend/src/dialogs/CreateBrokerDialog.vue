@@ -37,7 +37,7 @@ const testConnection = () => {
         severity: 'success',
         summary: 'Connection Successful',
         detail: 'The broker connection was established successfully.',
-        life: 6000
+        life: 3000
       })
     })
     .catch((e) => {
@@ -45,7 +45,7 @@ const testConnection = () => {
         severity: 'error',
         summary: 'Connection Failed',
         detail: extractErrorMessage(e),
-        life: 6000
+        life: 3000
       })
     })
 }

@@ -93,7 +93,7 @@ const openFullNameEditPage = () => {
       severity: 'secondary',
       summary: 'Set Full Name',
       detail: 'Please provide your full name below.',
-      life: 6000
+      life: 3000
     })
   } else {
     router.push({ name: 'app' })

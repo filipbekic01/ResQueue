@@ -42,7 +42,7 @@ const login = async (email: string, password: string) => {
         severity: 'error',
         summary: 'Login Failed',
         detail: extractErrorMessage(e),
-        life: 6000
+        life: 3000
       })
 
       isLoading.value = false

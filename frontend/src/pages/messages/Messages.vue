@@ -109,7 +109,7 @@ const syncMessagesRequest = () => {
       severity: 'success',
       summary: 'Sync Completed!',
       detail: `Messages for queue ${queue.value?.id} synced!`,
-      life: 1000
+      life: 3000
     })
   })
 }
@@ -304,7 +304,7 @@ const syncBrokerRequest = () => {
       severity: 'success',
       summary: 'Sync Completed!',
       detail: `Broker ${broker.value?.name} synced!`,
-      life: 1000
+      life: 3000
     })
   })
 }

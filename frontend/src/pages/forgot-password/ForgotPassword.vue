@@ -33,7 +33,7 @@ const forgotPassword = async () => {
         severity: 'success',
         summary: 'Recovery Process Initiated',
         detail: 'A recovery email has been successfully sent.',
-        life: 6000
+        life: 3000
       })
 
       isEmailSent.value = true
@@ -43,7 +43,7 @@ const forgotPassword = async () => {
         severity: 'error',
         summary: 'Recovery Process Unsuccessful',
         detail: 'The recovery email could not be sent. Please try again later.',
-        life: 6000
+        life: 3000
       })
     })
     .finally(() => {
@@ -57,7 +57,7 @@ const resetPassword = () => {
       severity: 'error',
       summary: 'Input Missing',
       detail: 'Reset code and new password must be present.',
-      life: 6000
+      life: 3000
     })
     return
   }

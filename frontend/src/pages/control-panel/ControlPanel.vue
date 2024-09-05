@@ -39,7 +39,7 @@ const resendConfirmationEmail = () => {
         severity: 'success',
         summary: 'Confirmation Sent',
         detail: 'Please check your e-mail inbox.',
-        life: 6000
+        life: 3000
       })
     })
   } else {
@@ -47,7 +47,7 @@ const resendConfirmationEmail = () => {
       severity: 'error',
       summary: 'E-Mail Missing',
       detail: 'Could not detect your e-mail address.',
-      life: 6000
+      life: 3000
     })
   }
 }

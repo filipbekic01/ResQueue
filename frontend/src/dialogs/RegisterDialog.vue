@@ -47,7 +47,7 @@ const register = async () => {
         severity: 'error',
         summary: 'Registration Problem',
         detail: 'Payment initialization error.',
-        life: 6000
+        life: 3000
       })
       isRegisterLoading.value = false
       return
@@ -67,7 +67,7 @@ const register = async () => {
           severity: 'error',
           summary: 'Registration Problem',
           detail: 'Payment processing error.',
-          life: 6000
+          life: 3000
         })
         isRegisterLoading.value = false
         return
@@ -80,7 +80,7 @@ const register = async () => {
         severity: 'error',
         summary: 'Registration Problem',
         detail: extractErrorMessage(e),
-        life: 6000
+        life: 3000
       })
     }
   }
@@ -109,7 +109,7 @@ const register = async () => {
         severity: 'error',
         summary: 'Registration Problem',
         detail: extractErrorMessage(e),
-        life: 6000
+        life: 3000
       })
     })
     .finally(() => {

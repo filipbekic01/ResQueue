@@ -32,7 +32,7 @@ const cancel = () => {
         severity: 'warn',
         summary: 'Subscription Cancelled',
         detail: 'Subscription is successfully cancelled',
-        life: 6000
+        life: 3000
       })
     })
     .catch((e) => {
@@ -40,7 +40,7 @@ const cancel = () => {
         severity: 'error',
         summary: 'Cancellation Failed',
         detail: extractErrorMessage(e),
-        life: 6000
+        life: 3000
       })
     })
 }

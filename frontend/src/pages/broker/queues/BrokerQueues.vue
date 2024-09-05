@@ -68,7 +68,7 @@ const syncBrokerRequest = () => {
       severity: 'success',
       summary: 'Sync Completed!',
       detail: `Broker ${broker.value?.name} synced!`,
-      life: 1000
+      life: 3000
     })
   })
 }
