@@ -502,7 +502,7 @@ const selectedMessageStructure = ref<StructureOption>('body')
                     style: {}
                   }
                 }"
-                @click="(e) => toggleIdPopover(e, data.id)"
+                @click="(e) => toggleIdPopover(e)"
                 ><i class="pi pi-copy"></i
               ></Button>
               <span
