@@ -12,6 +12,7 @@ declare module 'vue' {
     Column: typeof import('primevue/column')['default']
     copy: typeof import('./src/components/SelectFormat copy.vue')['default']
     DataTable: typeof import('primevue/datatable')['default']
+    Fieldset: typeof import('primevue/fieldset')['default']
     InputGroup: typeof import('primevue/inputgroup')['default']
     InputGroupAddon: typeof import('primevue/inputgroupaddon')['default']
     InputNumber: typeof import('primevue/inputnumber')['default']

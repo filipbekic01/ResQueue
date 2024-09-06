@@ -1,6 +1,6 @@
 import type { QueueDto } from './queueDto'
 
-export interface RabbitMqQueueDto extends QueueDto {
+export interface RabbitMQQueueDto extends QueueDto {
   parsed: {
     messages: number
     name: string

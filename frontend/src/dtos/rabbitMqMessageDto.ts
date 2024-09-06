@@ -1,6 +1,6 @@
 import type { MessageDto } from './messageDto'
 
-export interface RabbitMqMessageDto extends MessageDto {
+export interface RabbitMQMessageDto extends MessageDto {
   parsed: {
     payload_bytes: number
     redelivered: boolean

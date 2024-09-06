@@ -1,10 +1,10 @@
-import type { RabbitmqMessageMetadataDto } from './rabbitmqMessageMetadataDto'
+import type { RabbitMQMessageMetadataDto } from './rabbitMQMessageMetaDto'
 
 export interface MessageDto {
   id: string
   body: any
   bodyEncoding: 'json' | 'base64'
-  rabbitmqMetadata?: RabbitmqMessageMetadataDto
+  rabbitmqMetadata?: RabbitMQMessageMetadataDto
   summary: string
   isReviewed: boolean
   createdAt: string

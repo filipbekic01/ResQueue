@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { RabbitMqMessageDto } from '@/dtos/rabbitMqMessageDto'
+import type { RabbitMqMessageDto } from '@/dtos/rabbitMQMessageDto'
 import { ref, watch } from 'vue'
 
 // const props = defineProps<{

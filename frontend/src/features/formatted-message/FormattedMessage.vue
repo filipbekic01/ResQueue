@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { FormatOption } from '@/components/SelectFormat.vue'
 import type { StructureOption } from '@/components/SelectStructure.vue'
+import FormattedMessageClean from './FormattedMessageClean.vue'
 import FormattedMessageJson from './FormattedMessageJson.vue'
 import FormattedMessageRaw from './FormattedMessageRaw.vue'
 
@@ -27,7 +28,12 @@ defineProps<{
       :structure="structure"
     />
 
-    <!-- <RawMetadata v-else-if="format === 'clean'" :metadata="message.rabbitmqMetadata" /> -->
+    <FormattedMessageClean
+      v-else-if="format === 'clean'"
+      :message="message"
+      :format="format"
+      :structure="structure"
+    />
 
     <template v-else>Invalid message format.</template>
   </div>

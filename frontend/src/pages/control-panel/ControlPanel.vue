@@ -5,6 +5,7 @@ import { useUpdateUserMutation } from '@/api/auth/updateUserMutation'
 import { useIdentity } from '@/composables/identityComposable'
 import SubscriptionDialog from '@/dialogs/SubscriptionDialog.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
+import { format } from 'date-fns'
 import { useDialog } from 'primevue/usedialog'
 import { useToast } from 'primevue/usetoast'
 import { ref } from 'vue'
@@ -171,6 +172,10 @@ const updateUserFullNameAsync = (value?: string) => {
                   <i class="pi pi-pencil" style="font-size: 0.8rem"></i
                 ></a>
                 plan.
+              </div>
+              <div v-if="user?.subscriptions[0].endsAt" class="text-red-800">
+                Cancelled — grace period until
+                {{ format(user?.subscriptions[0].endsAt, 'yyyy/mm/dd') }}
               </div>
             </div>
             <Button

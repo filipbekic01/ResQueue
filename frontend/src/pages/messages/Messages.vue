@@ -16,9 +16,10 @@ import SelectStructure from '@/components/SelectStructure.vue'
 import { useExchanges } from '@/composables/exchangesComposable'
 import { useIdentity } from '@/composables/identityComposable'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
-import type { RabbitMqMessageDto } from '@/dtos/rabbitMqMessageDto'
+import type { RabbitMQMessageDto } from '@/dtos/rabbitMQMessageDto'
 import FormattedMessage from '@/features/formatted-message/FormattedMessage.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
+import { messageSummary } from '@/utils/messageUtils'
 import { formatDistanceToNow } from 'date-fns'
 import Button from 'primevue/button'
 import ButtonGroup from 'primevue/buttongroup'
@@ -129,7 +130,7 @@ const openMessage = (id: string) => {
   })
 }
 
-const selectedMessages = ref<RabbitMqMessageDto[]>([])
+const selectedMessages = ref<RabbitMQMessageDto[]>([])
 const selectedMessageIds = computed(() => selectedMessages.value.map((x) => x.id))
 
 const selectedExchange = ref()
@@ -515,14 +516,15 @@ const selectedMessageStructure = ref<StructureOption>('body')
         </Column>
         <Column field="flags" class="w-[0%]">
           <template #body="{ data }">
-            <div class="flex gap-2">
+            <div class="flex items-center gap-2">
               <Tag v-if="data.isReviewed" icon="pi pi-check"></Tag>
             </div>
           </template>
         </Column>
+
         <Column field="summary" header="Summary">
           <template #body="{ data }">
-            {{ data.summary ?? 'No summary available for this message.' }}
+            {{ messageSummary(data) }}
           </template>
         </Column>
 

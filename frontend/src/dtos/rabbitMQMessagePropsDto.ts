@@ -1,6 +1,6 @@
 export type HeaderValue = string | number | boolean | HeaderValue[]
 
-export interface RabbitmqMessagePropertiesDto {
+export interface RabbitMQMessagePropsDto {
   appId?: string
   clusterId?: string
   contentEncoding?: string

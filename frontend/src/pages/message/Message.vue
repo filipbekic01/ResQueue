@@ -59,14 +59,14 @@ watch(
       ''
     )
 
-    selectedExchange.value = formattedExchanges.value.find((x) => x.parsed.name === name)
+    selectedExchange.value = formattedExchanges.value.find((x) => x?.parsed.name === name)
   },
   {
     immediate: true
   }
 )
 
-const selectedFormatOption = ref<FormatOption>('json')
+const selectedFormatOption = ref<FormatOption>('clean')
 const selectedMessageStructure = ref<StructureOption>('both')
 
 const publishMessages = () => {
@@ -136,7 +136,7 @@ const backToMessages = () =>
     <template #description>
       <div class="flex items-center">
         <span class="cursor-pointer hover:underline" @click="backToMessages">{{
-          rabbitMqQueue.parsed.name
+          rabbitMqQueue?.parsed.name
         }}</span>
         <i class="pi pi-angle-right mx-1"></i>
         {{ message?.id }}
@@ -159,12 +159,14 @@ const backToMessages = () =>
     </div>
 
     <template v-if="message">
-      <div class="my-3 rounded-lg">
-        <div class="mx-0 mb-4 flex items-center border-b px-5 pb-2">
-          Message
-          <div class="ms-auto text-slate-500">
-            Pulled {{ formatDistanceToNow(message.createdAt) }} ago • Updated
-            {{ message.updatedAt ? formatDistanceToNow(message.updatedAt) : 'never' }}
+      <div class="mb-5 rounded-lg">
+        <div class="pb mx-0 mb-1 mt-3 flex items-center px-5">
+          <span class="text-lg font-medium">Message</span>
+          <div class="ms-auto flex gap-3">
+            <span class="text-slate-500"
+              >updated
+              {{ message.updatedAt ? formatDistanceToNow(message.updatedAt) : 'never' }} ago</span
+            >created {{ formatDistanceToNow(message.createdAt) }} ago
           </div>
         </div>
 
