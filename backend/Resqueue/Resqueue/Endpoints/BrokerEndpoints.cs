@@ -44,7 +44,9 @@ public static class BrokerEndpoints
                     x.Host,
                     new BrokerSettingsDto(
                         QuickSearches: x.Settings.QuickSearches,
-                        DeadLetterQueueSuffix: x.Settings.DeadLetterQueueSuffix
+                        DeadLetterQueueSuffix: x.Settings.DeadLetterQueueSuffix,
+                        MessageFormat: x.Settings.MessageFormat,
+                        MessageStructure: x.Settings.MessageStructure
                     ),
                     x.CreatedAt,
                     x.UpdatedAt,
@@ -90,7 +92,9 @@ public static class BrokerEndpoints
                     broker.Host,
                     new BrokerSettingsDto(
                         QuickSearches: broker.Settings.QuickSearches,
-                        DeadLetterQueueSuffix: broker.Settings.DeadLetterQueueSuffix
+                        DeadLetterQueueSuffix: broker.Settings.DeadLetterQueueSuffix,
+                        MessageFormat: broker.Settings.MessageFormat,
+                        MessageStructure: broker.Settings.MessageStructure
                     ),
                     broker.CreatedAt,
                     broker.UpdatedAt,

@@ -41,7 +41,9 @@ public class UpdateBrokerFeature(
             .Set(b => b.Settings, new BrokerSettings()
             {
                 QuickSearches = request.Dto.Settings.QuickSearches,
-                DeadLetterQueueSuffix = request.Dto.Settings.DeadLetterQueueSuffix
+                DeadLetterQueueSuffix = request.Dto.Settings.DeadLetterQueueSuffix,
+                MessageFormat = request.Dto.Settings.MessageFormat,
+                MessageStructure = request.Dto.Settings.MessageStructure
             })
             .Set(b => b.UpdatedAt, DateTime.UtcNow);
 
