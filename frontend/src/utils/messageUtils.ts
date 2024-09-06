@@ -11,25 +11,29 @@ export function messageSummary(message: MessageDto) {
 
   const headers = message.rabbitmqMetadata.properties.headers
 
+  let lastHope = 'Summary not available.'
+
   for (const key in headers) {
     const readyKey = key.trim().toLowerCase()
-    console.log(readyKey)
 
     if (readyKey.includes('mt-fault-message')) {
-      return 'mt-fault-message'
+      return headers[key]
     } else if (readyKey.includes('nservicebus.exceptioninfo.message')) {
-      return 'nservicebus.exceptioninfo.message'
+      return headers[key]
     } else if (readyKey.includes('x-death')) {
-      return 'x-death'
-    } else if (
-      readyKey.includes('error') ||
-      readyKey.includes('fault') ||
-      readyKey.includes('fail') ||
-      readyKey.includes('exception')
+      return headers[key]
+    }
+
+    if (
+      (readyKey.includes('error') ||
+        readyKey.includes('fault') ||
+        readyKey.includes('fail') ||
+        readyKey.includes('exception')) &&
+      !readyKey.includes('trace')
     ) {
-      return 'errorfaultfailexception'
+      lastHope = String(headers[key])
     }
   }
 
-  return ''
+  return lastHope
 }

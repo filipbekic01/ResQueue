@@ -360,6 +360,18 @@ const allExpanded = computed(
 
 const selectedMessageFormat = ref<FormatOption>('raw')
 const selectedMessageStructure = ref<StructureOption>('body')
+watch(
+  () => broker.value,
+  (broker) => {
+    if (broker?.settings.messageFormat && broker?.settings.messageStructure) {
+      selectedMessageFormat.value = broker.settings.messageFormat
+      selectedMessageStructure.value = broker.settings.messageStructure
+    }
+  },
+  {
+    immediate: true
+  }
+)
 </script>
 
 <template>
@@ -524,7 +536,7 @@ const selectedMessageStructure = ref<StructureOption>('body')
 
         <Column field="summary" header="Summary">
           <template #body="{ data }">
-            {{ messageSummary(data) }}
+            {{ messageSummary({ ...data }) }}
           </template>
         </Column>
 

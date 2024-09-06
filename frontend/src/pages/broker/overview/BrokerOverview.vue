@@ -3,6 +3,8 @@ import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { useDeleteBrokerMutation } from '@/api/broker/deleteBrokerMutation'
 import { useTestConnectionMutation } from '@/api/broker/testConnectionRequest'
 import { useUpdateBrokerMutation } from '@/api/broker/updateBrokerMutation'
+import SelectFormat from '@/components/SelectFormat.vue'
+import SelectStructure from '@/components/SelectStructure.vue'
 import type { UpdateBrokerDto } from '@/dtos/updateBrokerDto'
 import { extractErrorMessage } from '@/utils/errorUtils'
 import ToggleSwitch from 'primevue/toggleswitch'
@@ -205,6 +207,32 @@ const deleteBroker = () => {
                 outlined
               ></Button>
             </ButtonGroup>
+          </div>
+        </div>
+
+        <div class="flex grow flex-col gap-3">
+          <div class="flex items-center">
+            Default Message Format
+            <i
+              v-tooltip="'Helps you quickly search through queues.'"
+              class="pi pi-question-circle ms-2 cursor-pointer text-gray-400"
+            ></i>
+          </div>
+          <div class="flex flex-col gap-3">
+            <SelectFormat v-model="brokerEditable.settings.messageFormat" />
+          </div>
+        </div>
+
+        <div class="flex grow flex-col gap-3">
+          <div class="flex items-center">
+            Default Message Structure
+            <i
+              v-tooltip="'Helps you quickly search through queues.'"
+              class="pi pi-question-circle ms-2 cursor-pointer text-gray-400"
+            ></i>
+          </div>
+          <div class="flex flex-col gap-3">
+            <SelectStructure v-model="brokerEditable.settings.messageStructure" />
           </div>
         </div>
       </div>

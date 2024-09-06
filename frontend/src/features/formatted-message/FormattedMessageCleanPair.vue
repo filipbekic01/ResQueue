@@ -22,9 +22,9 @@ const showPair = computed(() => !!props.value?.toString() || !!slots['default'])
   <div
     class="flex items-start overflow-hidden"
     :class="{
-      'bg-gray-50': true,
-      'border-s-2 border-red-500 ps-1': isError,
-      'border-s-2 border-gray-500 ps-1': !isError
+      '': true,
+      'border-s border-red-400 bg-red-50 ps-1': isError,
+      'border-s border-gray-400 bg-gray-50 ps-1': !isError
     }"
     v-if="showPair"
   >

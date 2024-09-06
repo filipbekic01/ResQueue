@@ -33,12 +33,12 @@ export function highlightJson(json: any, colorOptions: HighlightColorOptions = {
 
   const colors: HighlightColorOptions = {
     ...{
-      keyColor: '#1e3a8a', // Tailwind Blue-800 for keys
-      numberColor: '#16a34a', // Tailwind Green-600 for numbers
-      stringColor: '#dc2626', // Tailwind Red-600 for strings
-      trueColor: '#22c55e', // Tailwind Green-500 for true
-      falseColor: '#ef4444', // Tailwind Red-500 for false
-      nullColor: '#1e3a8a' // Same as key color (Tailwind Blue-800)
+      keyColor: '#0451a5', // Visual Studio Code Blue for keys
+      numberColor: '#b5cea8', // Visual Studio Code Light greenish for numbers
+      stringColor: '#a31515', // Visual Studio Code Dark red for strings
+      trueColor: '#098658', // Visual Studio Code Green for true
+      falseColor: '#b31b1b', // Visual Studio Code Red for false
+      nullColor: '#3a3d41' // Visual Studio Code Greyish color for null
     },
     ...colorOptions
   }

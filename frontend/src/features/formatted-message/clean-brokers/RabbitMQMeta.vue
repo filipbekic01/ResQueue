@@ -1,22 +1,22 @@
 <script lang="ts" setup>
-import type { RabbitMQMessageMetadataDto } from '@/dtos/rabbitMQMessageMetaDto'
-import FormattedMessageCleanDivider from '../FormattedMessageCleanDivider.vue'
+import type { RabbitMQMessageMetaDto } from '@/dtos/rabbitMQMessageMetaDto'
 import FormattedMessageCleanPair from '../FormattedMessageCleanPair.vue'
+import FormattedMessageDivider from '../FormattedMessageDivider.vue'
 import RabbitMQHeaderValue from './RabbitMQHeaderValue.vue'
 
 defineProps<{
-  metadata: RabbitMQMessageMetadataDto
+  metadata: RabbitMQMessageMetaDto
 }>()
 </script>
 
 <template>
-  <FormattedMessageCleanDivider label="Broker" />
+  <FormattedMessageDivider label="Broker" />
 
   <FormattedMessageCleanPair label="Redelivered" :value="metadata.redelivered" />
   <FormattedMessageCleanPair label="Exchange" :value="metadata.exchange" />
   <FormattedMessageCleanPair label="Routing Key" :value="metadata.routingKey" />
 
-  <FormattedMessageCleanDivider label="Properties" />
+  <FormattedMessageDivider label="Properties" />
 
   <FormattedMessageCleanPair label="App Id" :value="metadata.properties.appId" />
   <FormattedMessageCleanPair label="Cluster Id" :value="metadata.properties.clusterId" />
@@ -35,7 +35,7 @@ defineProps<{
   <FormattedMessageCleanPair label="Type" :value="metadata.properties.type" />
   <FormattedMessageCleanPair label="User Id" :value="metadata.properties.userId" />
 
-  <FormattedMessageCleanDivider label="Headers" />
+  <FormattedMessageDivider label="Headers" />
 
   <FormattedMessageCleanPair
     v-for="(value, key) in metadata.properties.headers"

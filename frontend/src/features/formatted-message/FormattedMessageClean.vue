@@ -4,7 +4,7 @@ import type { StructureOption } from '@/components/SelectStructure.vue'
 import { highlightJson } from '@/utils/jsonUtils'
 import { computed } from 'vue'
 import RabbitMQMeta from './clean-brokers/RabbitMQMeta.vue'
-import FormattedMessageCleanDivider from './FormattedMessageCleanDivider.vue'
+import FormattedMessageDivider from './FormattedMessageDivider.vue'
 
 const props = defineProps<{
   message: any
@@ -28,7 +28,7 @@ const tryParseJson = computed(() => {
     <RabbitMQMeta v-if="message.rabbitmqMetadata" :metadata="message.rabbitmqMetadata" />
     <!-- ... -->
 
-    <FormattedMessageCleanDivider label="Body" />
+    <FormattedMessageDivider label="Body" />
 
     <div class="whitespace-break-spaces" v-html="tryParseJson"></div>
   </div>
