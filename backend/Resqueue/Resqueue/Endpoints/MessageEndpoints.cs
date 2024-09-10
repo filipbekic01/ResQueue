@@ -9,6 +9,7 @@ using Resqueue.Features.Messages.PublishMessages;
 using Resqueue.Features.Messages.ReviewMessages;
 using Resqueue.Features.Messages.SyncMessages;
 using Resqueue.Filters;
+using Resqueue.Mappers;
 using Resqueue.Models;
 
 namespace Resqueue.Endpoints;

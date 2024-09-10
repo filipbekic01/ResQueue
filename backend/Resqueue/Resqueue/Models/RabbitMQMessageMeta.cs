@@ -1,9 +1,9 @@
 namespace Resqueue.Models;
 
-public class RabbitmqMessageMetadata
+public class RabbitMQMessageMeta
 {
     public required bool Redelivered { get; set; }
     public required string Exchange { get; set; }
     public required string RoutingKey { get; set; }
-    public required RabbitmqMessageProperties Properties { get; set; }
+    public required RabbitMQMessageProperties Properties { get; set; }
 }

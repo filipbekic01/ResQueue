@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Options;
 
 namespace Resqueue.Models;
 
-public class RabbitmqMessageProperties
+public class RabbitMQMessageProperties
 {
     [BsonIgnoreIfNull] public string? AppId { get; set; }
     [BsonIgnoreIfNull] public string? ClusterId { get; set; }

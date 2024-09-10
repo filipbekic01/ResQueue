@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Resqueue.Dtos;
+using Resqueue.Mappers;
 using Resqueue.Models;
 
 namespace Resqueue.Features.Messages.SyncMessages;
@@ -61,7 +62,7 @@ public class SyncMessagesFeature(
         using var channel = connection.CreateModel();
         while (channel.BasicGet(queue.RawData.GetValue("name").AsString, false) is { } res)
         {
-            var message = RabbitmqMessageMapper.ToDocument(queue.Id, user.Id, res);
+            var message = RabbitMQMessageMapper.ToDocument(queue.Id, user.Id, res);
             await messagesCollection.InsertOneAsync(message);
 
             channel.BasicAck(res.DeliveryTag, false);

@@ -4,13 +4,13 @@ using MongoDB.Bson;
 using RabbitMQ.Client;
 using Resqueue.Models;
 
-namespace Resqueue.Dtos;
+namespace Resqueue.Mappers;
 
-public static class RabbitmqMessageMapper
+public static class RabbitMQMessageMapper
 {
     public static Message ToDocument(ObjectId queueId, ObjectId userId, BasicGetResult res)
     {
-        var props = new RabbitmqMessageProperties();
+        var props = new RabbitMQMessageProperties();
 
         if (res.BasicProperties.IsAppIdPresent())
         {
@@ -91,7 +91,7 @@ public static class RabbitmqMessageMapper
         {
             QueueId = queueId,
             UserId = userId,
-            RabbitmqMetadata = new()
+            RabbitMQMeta = new()
             {
                 Redelivered = res.Redelivered,
                 Exchange = res.Exchange,
@@ -113,6 +113,7 @@ public static class RabbitmqMessageMapper
         => value switch
         {
             byte[] bytes => Encoding.UTF8.GetString(bytes),
+            AmqpTimestamp timestamp => timestamp.ToString(),
             IEnumerable list => list.Cast<object>().Select(WithBytesConvertedToString).ToList(),
             _ => value
         };

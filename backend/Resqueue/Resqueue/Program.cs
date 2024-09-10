@@ -12,7 +12,6 @@ using Resqueue.Features.Stripe.CancelSubscription;
 using Resqueue.Features.Stripe.CreateSubscription;
 using Resqueue.Features.Stripe.EventHandler;
 using Resqueue.Models;
-using Resueue.Extensions;
 
 namespace Resqueue;
 

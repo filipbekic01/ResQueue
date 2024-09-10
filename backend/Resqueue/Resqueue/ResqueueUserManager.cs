@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Resqueue.Models;
 
-namespace Resueue.Extensions;
+namespace Resqueue;
 
 public class ResqueueUserManager : UserManager<User>
 {

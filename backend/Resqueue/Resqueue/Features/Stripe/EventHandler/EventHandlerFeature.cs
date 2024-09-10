@@ -3,7 +3,6 @@ using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Resqueue.Models;
-using Resueue.Extensions;
 using Stripe;
 using Subscription = Stripe.Subscription;
 

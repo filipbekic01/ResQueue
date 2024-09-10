@@ -1,8 +1,9 @@
 using System.Text.Json.Nodes;
 using MongoDB.Bson;
+using Resqueue.Dtos;
 using Resqueue.Models;
 
-namespace Resqueue.Dtos;
+namespace Resqueue.Mappers;
 
 public static class MessageMapper
 {
@@ -30,8 +31,8 @@ public static class MessageMapper
             Id = message.Id.ToString(),
             Body = body,
             BodyEncoding = bodyEncoding,
-            RabbitmqMetadata = message.RabbitmqMetadata is not null
-                ? MapRabbitmqMetadataToDto(message.RabbitmqMetadata)
+            RabbitmqMetadata = message.RabbitMQMeta is not null
+                ? MapRabbitmqMetadataToDto(message.RabbitMQMeta)
                 : null,
             CreatedAt = message.CreatedAt,
             UpdatedAt = message.UpdatedAt,
@@ -39,29 +40,29 @@ public static class MessageMapper
         };
     }
 
-    static RabbitmqMessageMetadataDto MapRabbitmqMetadataToDto(RabbitmqMessageMetadata metadata)
+    static RabbitmqMessageMetadataDto MapRabbitmqMetadataToDto(RabbitMQMessageMeta meta)
     {
         return new()
         {
-            Redelivered = metadata.Redelivered,
-            Exchange = metadata.Exchange,
-            RoutingKey = metadata.RoutingKey,
+            Redelivered = meta.Redelivered,
+            Exchange = meta.Exchange,
+            RoutingKey = meta.RoutingKey,
             Properties = new()
             {
-                AppId = metadata.Properties.AppId,
-                ClusterId = metadata.Properties.ClusterId,
-                ContentEncoding = metadata.Properties.ContentEncoding,
-                ContentType = metadata.Properties.ContentType,
-                CorrelationId = metadata.Properties.CorrelationId,
-                DeliveryMode = metadata.Properties.DeliveryMode,
-                Expiration = metadata.Properties.Expiration,
-                Headers = metadata.Properties.Headers,
-                MessageId = metadata.Properties.MessageId,
-                Priority = metadata.Properties.Priority,
-                ReplyTo = metadata.Properties.ReplyTo,
-                Timestamp = metadata.Properties.Timestamp,
-                Type = metadata.Properties.Type,
-                UserId = metadata.Properties.UserId,
+                AppId = meta.Properties.AppId,
+                ClusterId = meta.Properties.ClusterId,
+                ContentEncoding = meta.Properties.ContentEncoding,
+                ContentType = meta.Properties.ContentType,
+                CorrelationId = meta.Properties.CorrelationId,
+                DeliveryMode = meta.Properties.DeliveryMode,
+                Expiration = meta.Properties.Expiration,
+                Headers = meta.Properties.Headers,
+                MessageId = meta.Properties.MessageId,
+                Priority = meta.Properties.Priority,
+                ReplyTo = meta.Properties.ReplyTo,
+                Timestamp = meta.Properties.Timestamp,
+                Type = meta.Properties.Type,
+                UserId = meta.Properties.UserId,
             },
         };
     }

@@ -85,71 +85,71 @@ public class PublishMessagesFeature(
         {
             var props = channel.CreateBasicProperties();
 
-            if (message.RabbitmqMetadata is not null)
+            if (message.RabbitMQMeta is not null)
             {
-                if (message.RabbitmqMetadata.Properties.AppId is not null)
+                if (message.RabbitMQMeta.Properties.AppId is not null)
                 {
-                    props.AppId = message.RabbitmqMetadata.Properties.AppId;
+                    props.AppId = message.RabbitMQMeta.Properties.AppId;
                 }
 
-                if (message.RabbitmqMetadata.Properties.ClusterId is not null)
+                if (message.RabbitMQMeta.Properties.ClusterId is not null)
                 {
-                    props.ClusterId = message.RabbitmqMetadata.Properties.ClusterId;
+                    props.ClusterId = message.RabbitMQMeta.Properties.ClusterId;
                 }
 
-                if (message.RabbitmqMetadata.Properties.ContentEncoding is not null)
+                if (message.RabbitMQMeta.Properties.ContentEncoding is not null)
                 {
-                    props.ContentEncoding = message.RabbitmqMetadata.Properties.ContentEncoding;
+                    props.ContentEncoding = message.RabbitMQMeta.Properties.ContentEncoding;
                 }
 
-                if (message.RabbitmqMetadata.Properties.ContentType is not null)
+                if (message.RabbitMQMeta.Properties.ContentType is not null)
                 {
-                    props.ContentType = message.RabbitmqMetadata.Properties.ContentType;
+                    props.ContentType = message.RabbitMQMeta.Properties.ContentType;
                 }
 
-                if (message.RabbitmqMetadata.Properties.DeliveryMode is not null)
+                if (message.RabbitMQMeta.Properties.DeliveryMode is not null)
                 {
-                    props.DeliveryMode = message.RabbitmqMetadata.Properties.DeliveryMode.Value;
+                    props.DeliveryMode = message.RabbitMQMeta.Properties.DeliveryMode.Value;
                 }
 
-                if (message.RabbitmqMetadata.Properties.Expiration is not null)
+                if (message.RabbitMQMeta.Properties.Expiration is not null)
                 {
-                    props.Expiration = message.RabbitmqMetadata.Properties.Expiration;
+                    props.Expiration = message.RabbitMQMeta.Properties.Expiration;
                 }
 
-                if (message.RabbitmqMetadata.Properties.Headers is not null)
+                if (message.RabbitMQMeta.Properties.Headers is not null)
                 {
-                    props.Headers = message.RabbitmqMetadata.Properties.Headers;
+                    props.Headers = message.RabbitMQMeta.Properties.Headers;
                 }
 
-                if (message.RabbitmqMetadata.Properties.MessageId is not null)
+                if (message.RabbitMQMeta.Properties.MessageId is not null)
                 {
-                    props.MessageId = message.RabbitmqMetadata.Properties.MessageId;
+                    props.MessageId = message.RabbitMQMeta.Properties.MessageId;
                 }
 
-                if (message.RabbitmqMetadata.Properties.Priority is not null)
+                if (message.RabbitMQMeta.Properties.Priority is not null)
                 {
-                    props.Priority = message.RabbitmqMetadata.Properties.Priority.Value;
+                    props.Priority = message.RabbitMQMeta.Properties.Priority.Value;
                 }
 
-                if (message.RabbitmqMetadata.Properties.ReplyTo is not null)
+                if (message.RabbitMQMeta.Properties.ReplyTo is not null)
                 {
-                    props.ReplyTo = message.RabbitmqMetadata.Properties.ReplyTo;
+                    props.ReplyTo = message.RabbitMQMeta.Properties.ReplyTo;
                 }
 
-                if (message.RabbitmqMetadata.Properties.Timestamp is not null)
+                if (message.RabbitMQMeta.Properties.Timestamp is not null)
                 {
-                    props.Timestamp = new(message.RabbitmqMetadata.Properties.Timestamp.Value);
+                    props.Timestamp = new(message.RabbitMQMeta.Properties.Timestamp.Value);
                 }
 
-                if (message.RabbitmqMetadata.Properties.Type is not null)
+                if (message.RabbitMQMeta.Properties.Type is not null)
                 {
-                    props.Type = message.RabbitmqMetadata.Properties.Type;
+                    props.Type = message.RabbitMQMeta.Properties.Type;
                 }
 
-                if (message.RabbitmqMetadata.Properties.UserId is not null)
+                if (message.RabbitMQMeta.Properties.UserId is not null)
                 {
-                    props.UserId = message.RabbitmqMetadata.Properties.UserId;
+                    props.UserId = message.RabbitMQMeta.Properties.UserId;
                 }
             }
 

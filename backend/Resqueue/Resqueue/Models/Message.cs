@@ -9,7 +9,7 @@ public class Message
     public ObjectId UserId { get; set; }
     public ObjectId QueueId { get; set; }
     public required BsonValue Body { get; set; }
-    public RabbitmqMessageMetadata? RabbitmqMetadata { get; set; }
+    public RabbitMQMessageMeta? RabbitMQMeta { get; set; }
     public string Summary { get; set; }
     public bool IsReviewed { get; set; } = false;
     public DateTime CreatedAt { get; set; }
