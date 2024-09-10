@@ -13,7 +13,6 @@ public class MessageDto
     public string BodyEncoding { get; set; }
 
     public RabbitmqMessageMetadataDto? RabbitmqMetadata { get; set; }
-    public string Summary { get; set; }
     public bool IsReviewed { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }

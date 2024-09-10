@@ -1,5 +1,5 @@
 import type { QueueDto } from '@/dtos/queueDto'
-import type { RabbitMQQueueDto } from '@/dtos/rabbitMqQueueDto'
+import type { RabbitMQQueueDto } from '@/dtos/rabbitMQQueueDto'
 import { computed, type Ref } from 'vue'
 
 export function useRabbitMqQueues(queues: Ref<QueueDto[]> | Ref<undefined>) {

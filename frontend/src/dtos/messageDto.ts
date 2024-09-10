@@ -5,7 +5,6 @@ export interface MessageDto {
   body: any
   bodyEncoding: 'json' | 'base64'
   rabbitmqMetadata?: RabbitMQMessageMetaDto
-  summary: string
   isReviewed: boolean
   createdAt: string
   updatedAt: string
