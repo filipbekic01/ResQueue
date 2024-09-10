@@ -6,6 +6,7 @@ export interface BrokerDto {
   name: string
   port: number
   host: string
+  vHost: string
   settings: BrokerSettingsDto
   createdAt: string
   updatedAt: string

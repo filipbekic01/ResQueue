@@ -4,5 +4,6 @@ public record BrokerSettingsDto(
     List<string> QuickSearches,
     string DeadLetterQueueSuffix,
     string MessageFormat,
-    string MessageStructure
+    string MessageStructure,
+    string QueueTrimPrefix
 );

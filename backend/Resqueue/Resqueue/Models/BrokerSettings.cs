@@ -6,4 +6,5 @@ public class BrokerSettings
     public string DeadLetterQueueSuffix { get; set; } = "_error";
     public string MessageFormat { get; set; } = "clean";
     public string MessageStructure { get; set; } = "both";
+    public string QueueTrimPrefix { get; set; } = "";
 }

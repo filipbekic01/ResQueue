@@ -6,5 +6,6 @@ export interface UpdateBrokerDto {
   password: string
   port: number
   host: string
+  vHost: string
   settings: BrokerSettingsDto
 }

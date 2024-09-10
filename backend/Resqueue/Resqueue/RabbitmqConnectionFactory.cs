@@ -12,6 +12,7 @@ public class RabbitmqConnectionFactory
         Port = 5671,
         UserName = broker.Username,
         Password = broker.Password,
+        VirtualHost = broker.VHost,
         Ssl = new SslOption("resqueue")
         {
             AcceptablePolicyErrors = SslPolicyErrors.RemoteCertificateNameMismatch,

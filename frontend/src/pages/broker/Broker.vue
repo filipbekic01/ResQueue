@@ -85,14 +85,14 @@ const updateTabValue = (a: any) => router.push({ name: a })
     <template v-if="broker">
       <div class="flex px-4 pb-2 pt-4">
         <div
-          class="flex h-24 w-24 items-center justify-center rounded-2xl bg-[#FF6600] text-2xl text-white"
+          class="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#FF6600] text-2xl text-white"
         >
-          <img src="/rmq.svg" class="w-16" />
+          <img src="/rmq.svg" class="w-14" />
         </div>
 
         <div class="flex flex-col justify-center ps-3">
           <div class="font-semibold">RabbitMQ</div>
-          <div class="pb-1 text-3xl font-bold">{{ broker.name }}</div>
+          <div class="text-2xl font-bold">{{ broker.name }}</div>
           <div class="flex items-center gap-2 text-slate-500">
             <i
               class="pi pi-sync"

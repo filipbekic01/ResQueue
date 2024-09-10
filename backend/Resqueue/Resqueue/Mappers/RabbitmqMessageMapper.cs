@@ -101,7 +101,6 @@ public static class RabbitMQMessageMapper
             Body = BsonDocument.TryParse(Encoding.UTF8.GetString(res.Body.Span), out var doc)
                 ? doc
                 : new BsonBinaryData(res.Body.ToArray()),
-            Summary = "Contextual summary of messages",
             CreatedAt = DateTime.UtcNow
         };
     }

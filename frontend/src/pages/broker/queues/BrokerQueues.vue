@@ -140,6 +140,7 @@ const toggleFavorite = (data: QueueDto) => {
     <DataTable
       scrollable
       data-key="id"
+      size="small"
       scroll-height="flex"
       :value="rabbitMqQueues"
       removable-sort
@@ -148,7 +149,7 @@ const toggleFavorite = (data: QueueDto) => {
       :sort-order="route.query.sortOrder ? parseInt(route.query.sortOrder.toString()) : undefined"
       @sort="updateSort"
     >
-      <Column field="favorite" header="" class="w-[0%] overflow-hidden overflow-ellipsis">
+      <Column field="favorite" header="" class="w-[0%]">
         <template #body="{ data }">
           <Button text size="small" @click="toggleFavorite(data)"
             ><i
@@ -164,36 +165,52 @@ const toggleFavorite = (data: QueueDto) => {
         </template>
       </Column>
 
-      <Column sortable field="name" header="Name" class="w-[60%] overflow-hidden overflow-ellipsis">
+      <Column field="pulled" header="Inbox" class="w-[0%]">
         <template #body="{ data }">
-          <span
+          {{ data.parsed['messages'] }}
+        </template>
+      </Column>
+
+      <Column sortable field="name" header="Name" class="max-w-[0]">
+        <template #body="{ data }">
+          <div
             @click="selectQueue(data)"
-            class="hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
-            >{{ data.parsed['name'] }}</span
+            :title="data.parsed['name']"
+            class="overflow-hidden overflow-ellipsis hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
+            :class="[
+              {
+                'text-gray-500': !data.parsed['messages']
+              }
+            ]"
           >
-        </template>
-      </Column>
-
-      <Column field="parsed.consumers" header="Consumers" class="w-[0%]">
-        <template #body="{ data }">
-          <div class="text-end">
-            {{ data.parsed['consumers'] }}
+            {{ data.parsed['name'] }}
           </div>
         </template>
       </Column>
 
-      <Column field="pulled" header="Pulled" class="w-[0%]">
+      <Column
+        sortable
+        sort-field="messages"
+        field="parsed.messages"
+        header="Messages"
+        class="w-[0%]"
+      >
         <template #body="{ data }">
-          <div class="flex items-center justify-start gap-1">
-            <i class="pi pi-inbox text-xs text-slate-500"></i>{{ data.parsed['messages'] }}
-          </div>
-        </template>
-      </Column>
-
-      <Column sortable sort-field="messages" field="parsed.messages" header="Avail." class="w-[0%]">
-        <template #body="{ data }">
-          <div class="flex items-center justify-start gap-1">
-            <i class="pi pi-arrow-down text-xs text-emerald-500"></i>{{ data.parsed['messages'] }}
+          <div
+            class="flex items-center justify-start gap-3"
+            v-tooltip.left="`${data.parsed['consumers']} consumers`"
+          >
+            <i
+              class="pi pi-circle-fill text-xs"
+              :class="[
+                {
+                  'text-emerald-400': data.parsed['consumers'],
+                  'text-gray-400': !data.parsed['consumers']
+                }
+              ]"
+              style="font-size: 0.625rem"
+            ></i>
+            {{ data.parsed['messages'] }}
           </div>
         </template>
       </Column>

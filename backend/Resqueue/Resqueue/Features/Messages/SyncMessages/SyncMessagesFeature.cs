@@ -65,7 +65,7 @@ public class SyncMessagesFeature(
             var message = RabbitMQMessageMapper.ToDocument(queue.Id, user.Id, res);
             await messagesCollection.InsertOneAsync(message);
 
-            channel.BasicAck(res.DeliveryTag, false);
+            // channel.BasicAck(res.DeliveryTag, false);
         }
 
         return OperationResult<SyncMessagesFeatureResponse>.Success(new SyncMessagesFeatureResponse());

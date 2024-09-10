@@ -46,6 +46,7 @@ watch(
       username: '',
       password: '',
       port: value.port,
+      vHost: value.vHost,
       settings: JSON.parse(JSON.stringify(value.settings))
     }
   },
@@ -167,12 +168,30 @@ const deleteBroker = () => {
         </div>
         <div class="flex grow flex-col gap-3">
           <div class="flex items-center">
+            Hide Queue Name Prefix
+            <i
+              v-tooltip="
+                'Enter a common prefix to hide it in the table, making queue names shorter and easier to navigate. For example, hiding a repeating namespace can reduce clutter.'
+              "
+              class="pi pi-question-circle me-2 ms-auto cursor-pointer text-gray-400"
+            ></i>
+          </div>
+          <div class="flex flex-col gap-3">
+            <InputText
+              placeholder="Set custom suffix"
+              v-model="brokerEditable.settings.queueTrimPrefix"
+              @change="(e) => addQuickSearch((e.target as any).value)"
+            ></InputText>
+          </div>
+        </div>
+        <div class="flex grow flex-col gap-3">
+          <div class="flex items-center">
             Dead-Letter Queue Suffix
             <i
               v-tooltip="
                 'Used for various features, including the automatic discovery of topic (exchange) destinations.'
               "
-              class="pi pi-question-circle ms-2 cursor-pointer text-gray-400"
+              class="pi pi-question-circle me-2 ms-auto cursor-pointer text-gray-400"
             ></i>
           </div>
           <div class="flex flex-col gap-3">
@@ -188,7 +207,7 @@ const deleteBroker = () => {
             Quick Search Suggestions
             <i
               v-tooltip="'Helps you quickly search through queues.'"
-              class="pi pi-question-circle ms-2 cursor-pointer text-gray-400"
+              class="pi pi-question-circle me-2 ms-auto cursor-pointer text-gray-400"
             ></i>
           </div>
           <div class="flex flex-col gap-3">
@@ -215,7 +234,7 @@ const deleteBroker = () => {
             Default Message Format
             <i
               v-tooltip="'Helps you quickly search through queues.'"
-              class="pi pi-question-circle ms-2 cursor-pointer text-gray-400"
+              class="pi pi-question-circle me-2 ms-auto cursor-pointer text-gray-400"
             ></i>
           </div>
           <div class="flex flex-col gap-3">
@@ -228,7 +247,7 @@ const deleteBroker = () => {
             Default Message Structure
             <i
               v-tooltip="'Helps you quickly search through queues.'"
-              class="pi pi-question-circle ms-2 cursor-pointer text-gray-400"
+              class="pi pi-question-circle me-2 ms-auto cursor-pointer text-gray-400"
             ></i>
           </div>
           <div class="flex flex-col gap-3">
@@ -266,9 +285,15 @@ const deleteBroker = () => {
             </div>
           </template>
           <div class="flex items-center gap-4">
-            <div class="flex basis-1/2 flex-col gap-2">
+            <div class="flex grow flex-col gap-2">
               <label for="url">Host</label>
               <InputText id="url" v-model="brokerEditable.host" autocomplete="off" />
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="flex basis-1/2 flex-col gap-2">
+              <label for="vhost">V-Host</label>
+              <InputText id="vhost" v-model="brokerEditable.vHost" autocomplete="off" />
             </div>
             <div class="flex basis-1/2 flex-col gap-2">
               <label for="port" class="flex"

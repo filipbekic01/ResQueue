@@ -6,4 +6,5 @@ export interface BrokerSettingsDto {
   deadLetterQueueSuffix: string
   messageFormat: FormatOption
   messageStructure: StructureOption
+  queueTrimPrefix: string
 }

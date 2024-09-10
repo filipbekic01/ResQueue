@@ -483,6 +483,7 @@ watch(
       </Popover>
 
       <DataTable
+        size="small"
         v-model:selection="selectedMessages"
         :value="paginatedMessages?.items"
         data-key="id"

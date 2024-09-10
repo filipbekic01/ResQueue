@@ -42,11 +42,13 @@ public static class BrokerEndpoints
                     x.Name,
                     x.Port,
                     x.Host,
+                    x.VHost,
                     new BrokerSettingsDto(
                         QuickSearches: x.Settings.QuickSearches,
                         DeadLetterQueueSuffix: x.Settings.DeadLetterQueueSuffix,
                         MessageFormat: x.Settings.MessageFormat,
-                        MessageStructure: x.Settings.MessageStructure
+                        MessageStructure: x.Settings.MessageStructure,
+                        QueueTrimPrefix: x.Settings.QueueTrimPrefix
                     ),
                     x.CreatedAt,
                     x.UpdatedAt,
@@ -78,6 +80,7 @@ public static class BrokerEndpoints
                     Password = dto.Password,
                     Port = dto.Port,
                     Host = dto.Host,
+                    VHost = dto.VHost,
                     CreatedAt = dateTime,
                     UpdatedAt = dateTime
                 };
@@ -90,11 +93,13 @@ public static class BrokerEndpoints
                     broker.Name,
                     broker.Port,
                     broker.Host,
+                    broker.VHost,
                     new BrokerSettingsDto(
                         QuickSearches: broker.Settings.QuickSearches,
                         DeadLetterQueueSuffix: broker.Settings.DeadLetterQueueSuffix,
                         MessageFormat: broker.Settings.MessageFormat,
-                        MessageStructure: broker.Settings.MessageStructure
+                        MessageStructure: broker.Settings.MessageStructure,
+                        QueueTrimPrefix: broker.Settings.QueueTrimPrefix
                     ),
                     broker.CreatedAt,
                     broker.UpdatedAt,

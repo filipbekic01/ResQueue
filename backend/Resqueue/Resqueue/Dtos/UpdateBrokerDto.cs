@@ -6,5 +6,6 @@ public record UpdateBrokerDto(
     string Password,
     int Port,
     string Host,
+    string VHost,
     BrokerSettingsDto Settings
 );

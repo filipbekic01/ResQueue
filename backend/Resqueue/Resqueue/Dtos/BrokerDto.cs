@@ -6,6 +6,7 @@ public record BrokerDto(
     string Name,
     int Port,
     string Host,
+    string VHost,
     BrokerSettingsDto Settings,
     DateTime CreatedAt,
     DateTime UpdatedAt,

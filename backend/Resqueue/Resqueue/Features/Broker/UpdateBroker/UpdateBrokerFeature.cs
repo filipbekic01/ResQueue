@@ -38,6 +38,7 @@ public class UpdateBrokerFeature(
             .Set(b => b.Port, request.Dto.Port)
             .Set(b => b.Host, request.Dto.Host)
             .Set(b => b.Name, request.Dto.Name)
+            .Set(b => b.VHost, request.Dto.VHost)
             .Set(b => b.Settings, new BrokerSettings()
             {
                 QuickSearches = request.Dto.Settings.QuickSearches,
