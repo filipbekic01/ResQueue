@@ -48,7 +48,9 @@ public static class BrokerEndpoints
                         DeadLetterQueueSuffix: x.Settings.DeadLetterQueueSuffix,
                         MessageFormat: x.Settings.MessageFormat,
                         MessageStructure: x.Settings.MessageStructure,
-                        QueueTrimPrefix: x.Settings.QueueTrimPrefix
+                        QueueTrimPrefix: x.Settings.QueueTrimPrefix,
+                        DefaultQueueSortField: x.Settings.DefaultQueueSortField,
+                        DefaultQueueSortOrder: x.Settings.DefaultQueueSortOrder
                     ),
                     x.CreatedAt,
                     x.UpdatedAt,
@@ -99,7 +101,9 @@ public static class BrokerEndpoints
                         DeadLetterQueueSuffix: broker.Settings.DeadLetterQueueSuffix,
                         MessageFormat: broker.Settings.MessageFormat,
                         MessageStructure: broker.Settings.MessageStructure,
-                        QueueTrimPrefix: broker.Settings.QueueTrimPrefix
+                        QueueTrimPrefix: broker.Settings.QueueTrimPrefix,
+                        DefaultQueueSortField: broker.Settings.DefaultQueueSortField,
+                        DefaultQueueSortOrder: broker.Settings.DefaultQueueSortOrder
                     ),
                     broker.CreatedAt,
                     broker.UpdatedAt,

@@ -21,12 +21,10 @@ const body = computed(() => highlightJson(props.message?.body ?? {}))
 <template>
   <div class="flex flex-col gap-2">
     <div v-if="structure === 'meta' || structure === 'both'">
-      <!-- <div class="mb-1 border-b pb-1" v-if="structure === 'both'">Meta</div> -->
       <FormattedMessageDivider label="Meta" />
       <div class="whitespace-break-spaces" v-html="meta"></div>
     </div>
     <div v-if="structure === 'body' || structure === 'both'">
-      <!-- <div class="mb-2 border-b pb-1" v-if="structure === 'both'">Body</div> -->
       <FormattedMessageDivider label="Body" />
       <div class="whitespace-break-spaces" v-html="body"></div>
     </div>

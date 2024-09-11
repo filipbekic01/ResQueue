@@ -535,9 +535,11 @@ watch(
           </template>
         </Column>
 
-        <Column field="summary" header="Summary">
+        <Column field="summary" header="Summary" class="max-w-[0] overflow-hidden">
           <template #body="{ data }">
-            {{ messageSummary({ ...data }) }}
+            <div class="overflow-hidden overflow-ellipsis text-nowrap">
+              {{ messageSummary({ ...data }) }}
+            </div>
           </template>
         </Column>
 

@@ -130,6 +130,17 @@ const toggleFavorite = (data: QueueDto) => {
     }
   })
 }
+
+const getName = (name: string) => {
+  if (
+    broker.value?.settings.queueTrimPrefix &&
+    name.startsWith(broker.value?.settings.queueTrimPrefix)
+  ) {
+    return name.slice(broker.value?.settings.queueTrimPrefix.length)
+  }
+
+  return name
+}
 </script>
 
 <template>
@@ -149,25 +160,22 @@ const toggleFavorite = (data: QueueDto) => {
       :sort-order="route.query.sortOrder ? parseInt(route.query.sortOrder.toString()) : undefined"
       @sort="updateSort"
     >
-      <Column field="favorite" header="" class="w-[0%]">
+      <Column field="inbox" sortable header="Inbox" class="w-[0%]">
         <template #body="{ data }">
-          <Button text size="small" @click="toggleFavorite(data)"
-            ><i
-              class="pi pi-thumbtack"
-              :class="[
-                {
-                  'rotate-12 text-slate-400': !data.isFavorite,
-                  'text-slate-700': data.isFavorite
-                }
-              ]"
-            ></i
-          ></Button>
-        </template>
-      </Column>
-
-      <Column field="pulled" header="Inbox" class="w-[0%]">
-        <template #body="{ data }">
-          {{ data.parsed['messages'] }}
+          <div class="flex items-center justify-between gap-2">
+            <Button text size="small" @click="toggleFavorite(data)"
+              ><i
+                class="pi pi-thumbtack"
+                :class="[
+                  {
+                    'rotate-12 text-slate-400': !data.isFavorite,
+                    'text-slate-700': data.isFavorite
+                  }
+                ]"
+              ></i
+            ></Button>
+            {{ data.parsed['messages'] }}
+          </div>
         </template>
       </Column>
 
@@ -183,7 +191,7 @@ const toggleFavorite = (data: QueueDto) => {
               }
             ]"
           >
-            {{ data.parsed['name'] }}
+            {{ getName(data.parsed['name']) }}
           </div>
         </template>
       </Column>

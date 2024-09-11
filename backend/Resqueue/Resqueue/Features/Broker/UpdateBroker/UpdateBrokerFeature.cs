@@ -44,7 +44,10 @@ public class UpdateBrokerFeature(
                 QuickSearches = request.Dto.Settings.QuickSearches,
                 DeadLetterQueueSuffix = request.Dto.Settings.DeadLetterQueueSuffix,
                 MessageFormat = request.Dto.Settings.MessageFormat,
-                MessageStructure = request.Dto.Settings.MessageStructure
+                MessageStructure = request.Dto.Settings.MessageStructure,
+                QueueTrimPrefix = request.Dto.Settings.QueueTrimPrefix,
+                DefaultQueueSortField = request.Dto.Settings.DefaultQueueSortField,
+                DefaultQueueSortOrder = request.Dto.Settings.DefaultQueueSortOrder
             })
             .Set(b => b.UpdatedAt, DateTime.UtcNow);
 

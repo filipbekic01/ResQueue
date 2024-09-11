@@ -22,14 +22,18 @@ const tryParseJson = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-1 overflow-hidden">
-    <!-- Amazon -->
-    <!-- Azure -->
-    <RabbitMQMeta v-if="message.rabbitmqMetadata" :metadata="message.rabbitmqMetadata" />
-    <!-- ... -->
+  <div class="flex flex-col overflow-hidden">
+    <template v-if="structure == 'meta' || structure == 'both'">
+      <FormattedMessageDivider label="Broker" />
+      <!-- Amazon -->
+      <!-- Azure -->
+      <RabbitMQMeta v-if="message.rabbitmqMetadata" :metadata="message.rabbitmqMetadata" />
+      <!-- ... -->
+    </template>
 
-    <FormattedMessageDivider label="Body" />
-
-    <div class="whitespace-break-spaces" v-html="tryParseJson"></div>
+    <template v-if="structure == 'body' || structure == 'both'">
+      <FormattedMessageDivider label="Body" />
+      <div class="whitespace-break-spaces" v-html="tryParseJson"></div>
+    </template>
   </div>
 </template>

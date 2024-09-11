@@ -10,8 +10,6 @@ defineProps<{
 </script>
 
 <template>
-  <FormattedMessageDivider label="Broker" />
-
   <FormattedMessageCleanPair label="Redelivered" :value="metadata.redelivered" />
   <FormattedMessageCleanPair label="Exchange" :value="metadata.exchange" />
   <FormattedMessageCleanPair label="Routing Key" :value="metadata.routingKey" />

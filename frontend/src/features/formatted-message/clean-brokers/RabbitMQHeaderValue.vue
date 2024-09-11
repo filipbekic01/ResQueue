@@ -26,11 +26,7 @@ const formatStackTrace = (trace: string | number | boolean) =>
   </div>
   <div v-else class="overflow-auto">
     <template v-if="headerKey === 'MT-Fault-StackTrace'">
-      <div
-        v-for="sline in formatStackTrace(modelValue)"
-        :key="sline"
-        class="whitespace-nowrap even:bg-gray-100"
-      >
+      <div v-for="sline in formatStackTrace(modelValue)" :key="sline" class="whitespace-nowrap">
         at {{ sline }}
       </div>
     </template>

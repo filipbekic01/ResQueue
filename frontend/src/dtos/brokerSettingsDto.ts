@@ -7,4 +7,6 @@ export interface BrokerSettingsDto {
   messageFormat: FormatOption
   messageStructure: StructureOption
   queueTrimPrefix: string
+  defaultQueueSortField?: string
+  defaultQueueSortOrder: number
 }

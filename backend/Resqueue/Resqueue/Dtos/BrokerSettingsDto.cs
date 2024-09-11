@@ -5,5 +5,7 @@ public record BrokerSettingsDto(
     string DeadLetterQueueSuffix,
     string MessageFormat,
     string MessageStructure,
-    string QueueTrimPrefix
+    string QueueTrimPrefix,
+    string? DefaultQueueSortField,
+    int DefaultQueueSortOrder
 );

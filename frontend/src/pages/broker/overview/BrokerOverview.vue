@@ -7,6 +7,7 @@ import SelectFormat from '@/components/SelectFormat.vue'
 import SelectStructure from '@/components/SelectStructure.vue'
 import type { UpdateBrokerDto } from '@/dtos/updateBrokerDto'
 import { extractErrorMessage } from '@/utils/errorUtils'
+import Select from 'primevue/select'
 import ToggleSwitch from 'primevue/toggleswitch'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
@@ -153,6 +154,32 @@ const deleteBroker = () => {
     reject: () => {}
   })
 }
+
+const defaultQueueSortFieldOptions = [
+  {
+    text: 'None',
+    value: undefined
+  },
+  {
+    text: 'Name',
+    value: 'name'
+  },
+  {
+    text: 'Messages',
+    value: 'messages'
+  }
+]
+
+const defaultQueueSortOrderOptions = [
+  {
+    text: 'Ascending',
+    value: 1
+  },
+  {
+    text: 'Descending',
+    value: -1
+  }
+]
 </script>
 
 <template>
@@ -178,9 +205,8 @@ const deleteBroker = () => {
           </div>
           <div class="flex flex-col gap-3">
             <InputText
-              placeholder="Set custom suffix"
+              placeholder="Enter prefix to hide"
               v-model="brokerEditable.settings.queueTrimPrefix"
-              @change="(e) => addQuickSearch((e.target as any).value)"
             ></InputText>
           </div>
         </div>
@@ -254,7 +280,41 @@ const deleteBroker = () => {
             <SelectStructure v-model="brokerEditable.settings.messageStructure" />
           </div>
         </div>
+
+        <div class="flex items-center gap-4">
+          <div class="flex grow basis-1/2 flex-col gap-2">
+            <label class="flex items-center"
+              >Default Queue Sort
+              <i
+                v-tooltip="
+                  'Set your preferred default sort order to streamline your experience and avoid adjusting it each time you access the queues table.'
+                "
+                class="pi pi-question-circle me-2 ms-auto cursor-pointer text-gray-400"
+              ></i
+            ></label>
+            <Select
+              placeholder="Select default queue table sort"
+              v-model="brokerEditable.settings.defaultQueueSortField"
+              :options="defaultQueueSortFieldOptions"
+              option-label="text"
+              option-value="value"
+            ></Select>
+          </div>
+          <div
+            class="flex basis-1/2 flex-col gap-2"
+            v-if="brokerEditable.settings.defaultQueueSortField"
+          >
+            <label>Default Sort Order</label>
+            <Select
+              v-model="brokerEditable.settings.defaultQueueSortOrder"
+              :options="defaultQueueSortOrderOptions"
+              option-label="text"
+              option-value="value"
+            ></Select>
+          </div>
+        </div>
       </div>
+
       <div class="flex w-1/2 grow basis-1/2 flex-col gap-3 rounded-xl border border-gray-200 p-5">
         <div class="flex items-center gap-2 text-lg font-medium">
           Connection Details
