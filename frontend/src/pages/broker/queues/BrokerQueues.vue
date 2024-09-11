@@ -12,7 +12,7 @@ import DataTable, { type DataTableSortEvent } from 'primevue/datatable'
 import Paginator, { type PageState } from 'primevue/paginator'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps<{
@@ -143,43 +143,40 @@ const getName = (name: string) => {
   return name
 }
 
-watch(
-  () => broker.value,
-  (br) => {
-    if (!br) {
-      return
-    }
-
-    if (route.query.filtersReady) {
-      return
-    }
-
-    if (!route.query.sortField || !route.query.sortOrder) {
-      if (br.settings.defaultQueueSortField && br.settings.defaultQueueSortOrder) {
-        router.push({
-          path: route.path,
-          query: {
-            ...route.query,
-            sortField: br.settings.defaultQueueSortField,
-            sortOrder: br.settings.defaultQueueSortOrder,
-            filtersReady: '1'
-          }
-        })
-      } else {
-        router.push({
-          path: route.path,
-          query: {
-            ...route.query,
-            filtersReady: '1'
-          }
-        })
-      }
-    }
-  },
-  {
-    immediate: true
+watchEffect(() => {
+  if (!broker.value) {
+    return
   }
-)
+
+  if (route.query.filtersReady) {
+    return
+  }
+
+  if (!route.query.sortField || !route.query.sortOrder) {
+    if (
+      broker.value.settings.defaultQueueSortField &&
+      broker.value.settings.defaultQueueSortOrder
+    ) {
+      router.push({
+        path: route.path,
+        query: {
+          ...route.query,
+          sortField: broker.value.settings.defaultQueueSortField,
+          sortOrder: broker.value.settings.defaultQueueSortOrder,
+          filtersReady: '1'
+        }
+      })
+    } else {
+      router.push({
+        path: route.path,
+        query: {
+          ...route.query,
+          filtersReady: '1'
+        }
+      })
+    }
+  }
+})
 </script>
 
 <template>
