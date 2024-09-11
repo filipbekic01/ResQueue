@@ -535,7 +535,8 @@ watch(
         v-model:selection="selectedMessages"
         :value="paginatedMessages?.items"
         data-key="id"
-        class="overflow-auto"
+        scrollable
+        class="grow overflow-auto"
         scroll-height="flex"
         v-model:expandedRows="expandedRows"
       >
