@@ -6,12 +6,14 @@ export function useExchanges(brokerId: MaybeRef<string>) {
 
   const formattedExchanges = computed(
     () =>
-      query.data.value?.map((q) => {
-        return {
-          ...q,
-          parsed: JSON.parse(q.rawData)
-        }
-      }) ?? []
+      query.data.value
+        ?.map((q) => {
+          return {
+            ...q,
+            parsed: JSON.parse(q.rawData)
+          }
+        })
+        .filter((x) => x.parsed['name']) ?? []
   )
 
   return {

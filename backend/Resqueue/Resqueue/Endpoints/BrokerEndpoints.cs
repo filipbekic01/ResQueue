@@ -50,7 +50,8 @@ public static class BrokerEndpoints
                         MessageStructure: x.Settings.MessageStructure,
                         QueueTrimPrefix: x.Settings.QueueTrimPrefix,
                         DefaultQueueSortField: x.Settings.DefaultQueueSortField,
-                        DefaultQueueSortOrder: x.Settings.DefaultQueueSortOrder
+                        DefaultQueueSortOrder: x.Settings.DefaultQueueSortOrder,
+                        DefaultQueueSearch: x.Settings.DefaultQueueSearch
                     ),
                     x.CreatedAt,
                     x.UpdatedAt,
@@ -103,7 +104,8 @@ public static class BrokerEndpoints
                         MessageStructure: broker.Settings.MessageStructure,
                         QueueTrimPrefix: broker.Settings.QueueTrimPrefix,
                         DefaultQueueSortField: broker.Settings.DefaultQueueSortField,
-                        DefaultQueueSortOrder: broker.Settings.DefaultQueueSortOrder
+                        DefaultQueueSortOrder: broker.Settings.DefaultQueueSortOrder,
+                        DefaultQueueSearch: broker.Settings.DefaultQueueSearch
                     ),
                     broker.CreatedAt,
                     broker.UpdatedAt,

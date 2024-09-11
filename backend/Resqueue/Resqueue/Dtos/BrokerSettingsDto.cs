@@ -7,5 +7,6 @@ public record BrokerSettingsDto(
     string MessageStructure,
     string QueueTrimPrefix,
     string? DefaultQueueSortField,
-    int DefaultQueueSortOrder
+    int DefaultQueueSortOrder,
+    string DefaultQueueSearch
 );

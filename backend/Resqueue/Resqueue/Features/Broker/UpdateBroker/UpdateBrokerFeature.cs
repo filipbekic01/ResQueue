@@ -47,7 +47,8 @@ public class UpdateBrokerFeature(
                 MessageStructure = request.Dto.Settings.MessageStructure,
                 QueueTrimPrefix = request.Dto.Settings.QueueTrimPrefix,
                 DefaultQueueSortField = request.Dto.Settings.DefaultQueueSortField,
-                DefaultQueueSortOrder = request.Dto.Settings.DefaultQueueSortOrder
+                DefaultQueueSortOrder = request.Dto.Settings.DefaultQueueSortOrder,
+                DefaultQueueSearch = request.Dto.Settings.DefaultQueueSearch
             })
             .Set(b => b.UpdatedAt, DateTime.UtcNow);
 

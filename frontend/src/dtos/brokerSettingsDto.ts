@@ -9,4 +9,5 @@ export interface BrokerSettingsDto {
   queueTrimPrefix: string
   defaultQueueSortField?: string
   defaultQueueSortOrder: number
+  defaultQueueSearch: string
 }

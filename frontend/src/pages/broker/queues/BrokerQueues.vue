@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { useSyncBrokerMutation } from '@/api/broker/syncBrokerMutation'
+import { useUpdateBrokerMutation } from '@/api/broker/updateBrokerMutation'
 import { useFavoriteQueueMutation } from '@/api/queues/favoriteQueueMutation'
 import { usePaginatedQueuesQuery } from '@/api/queues/paginatedQueuesQuery'
 import { useIdentity } from '@/composables/identityComposable'
@@ -32,6 +33,8 @@ const { data: brokers } = useBrokersQuery()
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
 const { mutateAsync: favoriteQueueAsync } = useFavoriteQueueMutation()
 const { mutateAsync: syncBrokerAsync, isPending: isPendingSyncBroker } = useSyncBrokerMutation()
+
+const { mutateAsync: updateBrokerAsync } = useUpdateBrokerMutation()
 
 const syncBroker = () => {
   if (!user.value?.settings.showSyncConfirmDialogs) {
@@ -113,6 +116,22 @@ const selectQueue = (data: any) => {
 }
 
 const updateSort = (e: DataTableSortEvent) => {
+  if (broker.value) {
+    updateBrokerAsync({
+      broker: {
+        ...broker.value,
+        settings: {
+          ...broker.value.settings,
+          defaultQueueSortOrder: e.sortOrder ? parseInt(e.sortOrder.toString()) : -1,
+          defaultQueueSortField: e.sortField ? e.sortField.toString() : undefined
+        },
+        username: '',
+        password: ''
+      },
+      brokerId: broker.value.id
+    })
+  }
+
   router.push({
     path: route.path,
     query: {
@@ -152,30 +171,36 @@ watchEffect(() => {
     return
   }
 
-  if (!route.query.sortField || !route.query.sortOrder) {
-    if (
+  let filters = {}
+
+  if (
+    !route.query.sortField ||
+    (!route.query.sortOrder &&
       broker.value.settings.defaultQueueSortField &&
-      broker.value.settings.defaultQueueSortOrder
-    ) {
-      router.push({
-        path: route.path,
-        query: {
-          ...route.query,
-          sortField: broker.value.settings.defaultQueueSortField,
-          sortOrder: broker.value.settings.defaultQueueSortOrder,
-          filtersReady: '1'
-        }
-      })
-    } else {
-      router.push({
-        path: route.path,
-        query: {
-          ...route.query,
-          filtersReady: '1'
-        }
-      })
+      broker.value.settings.defaultQueueSortOrder)
+  ) {
+    filters = {
+      ...filters,
+      sortField: broker.value.settings.defaultQueueSortField,
+      sortOrder: broker.value.settings.defaultQueueSortOrder
     }
   }
+
+  if (!route.query.search && broker.value.settings.defaultQueueSearch) {
+    filters = {
+      ...filters,
+      search: broker.value.settings.defaultQueueSearch
+    }
+  }
+
+  router.push({
+    path: route.path,
+    query: {
+      ...route.query,
+      ...filters,
+      filtersReady: '1'
+    }
+  })
 })
 </script>
 
@@ -187,7 +212,6 @@ watchEffect(() => {
     <DataTable
       scrollable
       data-key="id"
-      size="small"
       scroll-height="flex"
       :value="rabbitMqQueues"
       removable-sort

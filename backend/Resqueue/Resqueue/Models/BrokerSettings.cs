@@ -9,4 +9,5 @@ public class BrokerSettings
     public string QueueTrimPrefix { get; set; } = "";
     public string? DefaultQueueSortField { get; set; }
     public int DefaultQueueSortOrder { get; set; } = -1;
+    public string DefaultQueueSearch { get; set; } = "";
 }

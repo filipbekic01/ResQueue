@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { useSyncBrokerMutation } from '@/api/broker/syncBrokerMutation'
+import { useUpdateBrokerMutation } from '@/api/broker/updateBrokerMutation'
 import { useIdentity } from '@/composables/identityComposable'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { formatDistanceToNow } from 'date-fns'
@@ -26,8 +27,24 @@ const { mutateAsync: syncBrokerAsync, isPending: isPendingSyncBroker } = useSync
 
 const { data: brokers } = useBrokersQuery()
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
+const { mutateAsync: updateBrokerAsync } = useUpdateBrokerMutation()
 
 const applySearch = (value: string) => {
+  if (broker.value && value !== broker.value.settings.defaultQueueSearch) {
+    updateBrokerAsync({
+      broker: {
+        ...broker.value,
+        settings: {
+          ...broker.value.settings,
+          defaultQueueSearch: value
+        },
+        username: '',
+        password: ''
+      },
+      brokerId: broker.value.id
+    })
+  }
+
   router.push({
     path: route.path,
     query: {
@@ -85,14 +102,14 @@ const updateTabValue = (a: any) => router.push({ name: a })
     <template v-if="broker">
       <div class="flex px-4 pb-2 pt-4">
         <div
-          class="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#FF6600] text-2xl text-white"
+          class="flex h-24 w-24 items-center justify-center rounded-2xl bg-[#FF6600] text-2xl text-white"
         >
-          <img src="/rmq.svg" class="w-14" />
+          <img src="/rmq.svg" class="w-16" />
         </div>
 
         <div class="flex flex-col justify-center ps-3">
           <div class="font-semibold">RabbitMQ</div>
-          <div class="text-2xl font-bold">{{ broker.name }}</div>
+          <div class="pb-2 text-3xl font-bold">{{ broker.name }}</div>
           <div class="flex items-center gap-2 text-slate-500">
             <i
               class="pi pi-sync"
