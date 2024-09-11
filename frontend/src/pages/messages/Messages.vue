@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { useSyncBrokerMutation } from '@/api/broker/syncBrokerMutation'
+import { useUpdateBrokerMutation } from '@/api/broker/updateBrokerMutation'
 import { useArchiveMessagesMutation } from '@/api/messages/archiveMessagesMutation'
 import { usePaginatedMessagesQuery } from '@/api/messages/paginatedMessagesQuery'
 import { usePublishMessagesMutation } from '@/api/messages/publishMessagesMutation'
@@ -46,6 +47,8 @@ const toast = useToast()
 const {
   query: { data: user }
 } = useIdentity()
+
+const { mutateAsync: updateBrokerAsync } = useUpdateBrokerMutation()
 
 const { mutateAsync: syncMessagesAsync, isPending: isSyncMessagesPending } =
   useSyncMessagesMutation()
@@ -359,7 +362,45 @@ const allExpanded = computed(
 )
 
 const selectedMessageFormat = ref<FormatOption>('raw')
+const updateSelectedMessageFormat = (value: FormatOption) => {
+  if (broker.value) {
+    updateBrokerAsync({
+      broker: {
+        ...broker.value,
+        settings: {
+          ...broker.value.settings,
+          messageFormat: value
+        },
+        username: '',
+        password: ''
+      },
+      brokerId: broker.value.id
+    })
+  }
+
+  selectedMessageFormat.value = value
+}
+
 const selectedMessageStructure = ref<StructureOption>('body')
+const updateSelectedMessageStructure = (value: StructureOption) => {
+  if (broker.value) {
+    updateBrokerAsync({
+      broker: {
+        ...broker.value,
+        settings: {
+          ...broker.value.settings,
+          messageStructure: value
+        },
+        username: '',
+        password: ''
+      },
+      brokerId: broker.value.id
+    })
+  }
+
+  selectedMessageStructure.value = value
+}
+
 watch(
   () => broker.value,
   (broker) => {
@@ -425,8 +466,16 @@ watch(
         icon="pi pi-trash"
       ></Button>
 
-      <SelectStructure v-model="selectedMessageStructure" class="ms-auto" />
-      <SelectFormat v-model="selectedMessageFormat" />
+      <SelectStructure
+        :model-value="selectedMessageStructure"
+        @update:model-value="(e) => updateSelectedMessageStructure(e)"
+        class="ms-auto"
+      />
+
+      <SelectFormat
+        :model-value="selectedMessageFormat"
+        @update:model-value="(e) => updateSelectedMessageFormat(e)"
+      />
 
       <Select
         v-model="selectedExchange"
@@ -451,7 +500,7 @@ watch(
       <div class="p-5"><i class="pi pi-spinner pi-spin me-2"></i>Loading messages...</div>
     </template>
     <template v-else-if="paginatedMessages?.items.length">
-      <!-- <Popover v-for="it in paginatedMessages?.items" :key="it.id" ref="idPopovers">
+      <Popover v-for="it in paginatedMessages?.items" :key="it.id" ref="idPopovers">
         <div class="mb-2">Copy any part of message to clipboard.</div>
         <div class="flex flex-row items-center gap-2">
           <Button @click="popoverCopyToClipboard(it.id)" outlined size="small" label="ID"></Button>
@@ -480,7 +529,7 @@ watch(
         >
           <i class="pi pi-link"></i> Copy link to the message
         </div>
-      </Popover> -->
+      </Popover>
 
       <DataTable
         v-model:selection="selectedMessages"

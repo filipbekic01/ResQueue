@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
+import { useUpdateBrokerMutation } from '@/api/broker/updateBrokerMutation'
 import { useMessageQuery } from '@/api/messages/messageQuery'
 import { usePublishMessagesMutation } from '@/api/messages/publishMessagesMutation'
 import { useQueueQuery } from '@/api/queues/queueQuery'
@@ -26,6 +27,8 @@ const router = useRouter()
 
 const confirm = useConfirm()
 const toast = useToast()
+
+const { mutateAsync: updateBrokerAsync } = useUpdateBrokerMutation()
 
 const { data: brokers } = useBrokersQuery()
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
@@ -66,8 +69,45 @@ watch(
   }
 )
 
-const selectedFormatOption = ref<FormatOption>('clean')
-const selectedMessageStructure = ref<StructureOption>('both')
+const selectedMessageFormat = ref<FormatOption>('raw')
+const updateSelectedMessageFormat = (value: FormatOption) => {
+  if (broker.value) {
+    updateBrokerAsync({
+      broker: {
+        ...broker.value,
+        settings: {
+          ...broker.value.settings,
+          messageFormat: value
+        },
+        username: '',
+        password: ''
+      },
+      brokerId: broker.value.id
+    })
+  }
+
+  selectedMessageFormat.value = value
+}
+
+const selectedMessageStructure = ref<StructureOption>('body')
+const updateSelectedMessageStructure = (value: StructureOption) => {
+  if (broker.value) {
+    updateBrokerAsync({
+      broker: {
+        ...broker.value,
+        settings: {
+          ...broker.value.settings,
+          messageStructure: value
+        },
+        username: '',
+        password: ''
+      },
+      brokerId: broker.value.id
+    })
+  }
+
+  selectedMessageStructure.value = value
+}
 
 const publishMessages = () => {
   confirm.require({
@@ -116,6 +156,19 @@ const backToMessages = () =>
       queueId: props.queueId
     }
   })
+
+watch(
+  () => broker.value,
+  (broker) => {
+    if (broker?.settings.messageFormat && broker?.settings.messageStructure) {
+      selectedMessageFormat.value = broker.settings.messageFormat
+      selectedMessageStructure.value = broker.settings.messageStructure
+    }
+  },
+  {
+    immediate: true
+  }
+)
 </script>
 
 <template>
@@ -144,8 +197,16 @@ const backToMessages = () =>
     </template>
     <div class="flex items-start gap-2 border-b px-4 py-2">
       <Button outlined @click="backToMessages" icon="pi pi-arrow-left" label="Messages"></Button>
-      <SelectStructure v-model="selectedMessageStructure" class="ms-auto" />
-      <SelectFormat v-model="selectedFormatOption" />
+      <SelectStructure
+        :model-value="selectedMessageStructure"
+        @update:model-value="(e) => updateSelectedMessageStructure(e)"
+        class="ms-auto"
+      />
+      <SelectFormat
+        :model-value="selectedMessageFormat"
+        @update:model-value="(e) => updateSelectedMessageFormat(e)"
+      />
+
       <Select
         v-model="selectedExchange"
         :options="formattedExchanges"
@@ -173,7 +234,7 @@ const backToMessages = () =>
         <div class="px-5">
           <FormattedMessage
             :message="message"
-            :format="selectedFormatOption"
+            :format="selectedMessageFormat"
             :structure="selectedMessageStructure"
           />
         </div>
