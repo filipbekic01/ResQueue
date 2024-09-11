@@ -10,7 +10,8 @@ export const usePaginatedQueuesQuery = (
   pageIndex: MaybeRef<number>,
   search: MaybeRef<string | undefined>,
   sortField: MaybeRef<string | undefined>,
-  sortOrder: MaybeRef<string | undefined>
+  sortOrder: MaybeRef<string | undefined>,
+  enabled: MaybeRef<boolean>
 ) =>
   useQuery({
     queryKey: ['queues', brokerId, pageIndex, search, sortField, sortOrder],
@@ -29,5 +30,5 @@ export const usePaginatedQueuesQuery = (
 
       return response.data
     },
-    enabled: computed(() => !!toValue(brokerId))
+    enabled: computed(() => !!toValue(brokerId) && toValue(enabled))
   })

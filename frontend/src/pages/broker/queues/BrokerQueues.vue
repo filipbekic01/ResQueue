@@ -83,7 +83,8 @@ const { data: paginatedQueues, isPending } = usePaginatedQueuesQuery(
   pageIndex,
   computed(() => route.query.search?.toString()),
   computed(() => route.query.sortField?.toString()),
-  computed(() => route.query.sortOrder?.toString())
+  computed(() => route.query.sortOrder?.toString()),
+  computed(() => !!route.query.filtersReady)
 )
 
 const totalCountFrozen = ref(0)
@@ -141,6 +142,44 @@ const getName = (name: string) => {
 
   return name
 }
+
+watch(
+  () => broker.value,
+  (br) => {
+    if (!br) {
+      return
+    }
+
+    if (route.query.filtersReady) {
+      return
+    }
+
+    if (!route.query.sortField || !route.query.sortOrder) {
+      if (br.settings.defaultQueueSortField && br.settings.defaultQueueSortOrder) {
+        router.push({
+          path: route.path,
+          query: {
+            ...route.query,
+            sortField: br.settings.defaultQueueSortField,
+            sortOrder: br.settings.defaultQueueSortOrder,
+            filtersReady: '1'
+          }
+        })
+      } else {
+        router.push({
+          path: route.path,
+          query: {
+            ...route.query,
+            filtersReady: '1'
+          }
+        })
+      }
+    }
+  },
+  {
+    immediate: true
+  }
+)
 </script>
 
 <template>

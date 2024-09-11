@@ -20,7 +20,8 @@ app.use(VueQueryPlugin, {
       queries: {
         refetchOnMount: false,
         refetchOnWindowFocus: false,
-        staleTime: Infinity
+        staleTime: Infinity,
+        gcTime: 5 * 60 * 1000
       }
     }
   })
