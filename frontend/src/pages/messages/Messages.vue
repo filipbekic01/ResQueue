@@ -448,10 +448,10 @@ watch(
       />
     </div>
     <template v-if="isPending">
-      <div class="p-5"><i class="pi pi-spinner pi-spin me-2"></i>Loading queues...</div>
+      <div class="p-5"><i class="pi pi-spinner pi-spin me-2"></i>Loading messages...</div>
     </template>
     <template v-else-if="paginatedMessages?.items.length">
-      <Popover v-for="it in paginatedMessages?.items" :key="it.id" ref="idPopovers">
+      <!-- <Popover v-for="it in paginatedMessages?.items" :key="it.id" ref="idPopovers">
         <div class="mb-2">Copy any part of message to clipboard.</div>
         <div class="flex flex-row items-center gap-2">
           <Button @click="popoverCopyToClipboard(it.id)" outlined size="small" label="ID"></Button>
@@ -480,16 +480,21 @@ watch(
         >
           <i class="pi pi-link"></i> Copy link to the message
         </div>
-      </Popover>
+      </Popover> -->
 
       <DataTable
         v-model:selection="selectedMessages"
         :value="paginatedMessages?.items"
         data-key="id"
+        class="overflow-auto"
+        scroll-height="flex"
         v-model:expandedRows="expandedRows"
-        pt:bodyCell:class="bg-red-400"
       >
-        <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+        <Column
+          selectionMode="multiple"
+          class="w-0"
+          style="vertical-align: top; text-align: center"
+        ></Column>
         <Column expander class="w-[0%]">
           <template #header>
             <i

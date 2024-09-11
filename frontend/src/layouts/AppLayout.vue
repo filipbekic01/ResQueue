@@ -151,7 +151,7 @@ const openFullNameEditPage = () => {
       </div>
     </div>
 
-    <div class="flex grow flex-col overflow-auto rounded-2xl border border-slate-200 bg-white">
+    <div class="flex grow flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white">
       <div class="border-b px-4 py-3" v-if="!hideHeader">
         <div class="flex gap-2">
           <div><slot name="prepend"></slot></div>
@@ -165,7 +165,9 @@ const openFullNameEditPage = () => {
           </div>
         </div>
       </div>
-      <slot></slot>
+      <div class="flex grow flex-col overflow-auto">
+        <slot></slot>
+      </div>
     </div>
   </div>
   <template v-else> Loading...</template>
