@@ -6,9 +6,12 @@ import type { FormatOption } from '@/components/SelectFormat.vue'
 import { type StructureOption } from '@/components/SelectStructure.vue'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
 import FormattedMessage from '@/features/formatted-message/FormattedMessage.vue'
+import MessageCopy from '@/features/message-copy/MessageCopy.vue'
 import MessageActions from '@/features/message/MessageActions.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { formatDistanceToNow } from 'date-fns'
+import Button from 'primevue/button'
+import type { PopoverMethods } from 'primevue/popover'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -47,6 +50,16 @@ const backToMessages = () =>
       queueId: props.queueId
     }
   })
+
+const popover = ref<PopoverMethods>()
+
+const togglePopover = (e: Event) => {
+  popover.value?.show(e)
+}
+
+const handleCopied = () => {
+  popover.value?.hide()
+}
 </script>
 
 <template>
@@ -92,6 +105,23 @@ const backToMessages = () =>
       <div class="mb-5 rounded-lg">
         <div class="pb mx-0 mb-1 mt-3 flex items-center px-5">
           <span class="text-lg font-medium">Message</span>
+          <!-- <Button text icon="pi pi-copy" @click="togglePopover"></Button> -->
+          <div
+            class="ms-2 flex cursor-pointer items-center gap-1 hover:text-blue-500"
+            @click="togglePopover"
+          >
+            <i class="pi pi-copy"></i>copy
+          </div>
+          <Popover ref="popover">
+            <MessageCopy
+              v-if="broker && queue"
+              :broker="broker"
+              :queue="queue"
+              :message="message"
+              @copied="handleCopied"
+            />
+          </Popover>
+
           <div class="ms-auto flex gap-3">
             <span class="text-slate-500"
               >updated

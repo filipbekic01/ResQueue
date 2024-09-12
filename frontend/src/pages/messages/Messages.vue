@@ -10,6 +10,7 @@ import { useIdentity } from '@/composables/identityComposable'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
 import type { RabbitMQMessageDto } from '@/dtos/rabbitMQMessageDto'
 import FormattedMessage from '@/features/formatted-message/FormattedMessage.vue'
+import MessageCopy from '@/features/message-copy/MessageCopy.vue'
 import MessageActions from '@/features/message/MessageActions.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { messageSummary } from '@/utils/messageUtils'
@@ -176,32 +177,6 @@ const toggleIdPopover = (e: Event) => {
   idPopovers.value[0]?.toggle(e)
 }
 
-const popoverCopyToClipboard = (text: string) => {
-  navigator.clipboard.writeText(text)
-  toast.add({
-    summary: 'Clipboard Action Successful',
-    detail: 'Text has been copied to the clipboard successfully.',
-    life: 3000
-  })
-
-  idPopovers.value.forEach((x) => {
-    x.hide()
-  })
-}
-
-const popoverCopyLinkToClipboard = (id: string) => {
-  const link = router.resolve({
-    name: 'message',
-    params: {
-      brokerId: broker.value?.id,
-      queueId: queue.value?.id,
-      messageId: id
-    }
-  })
-
-  popoverCopyToClipboard(`${window.location.origin}${link.href}`)
-}
-
 const expandedRows = ref({})
 
 const expandAll = () => {
@@ -215,6 +190,12 @@ const collapseAll = () => {
 const allExpanded = computed(
   () => Object.keys(expandedRows.value).length === paginatedMessages.value?.items.length
 )
+
+const handleCopied = () => {
+  idPopovers.value.forEach((x) => {
+    x.hide()
+  })
+}
 
 const selectedMessageFormat = ref<FormatOption>('raw')
 const selectedMessageStructure = ref<StructureOption>('body')
@@ -283,34 +264,13 @@ watch(
     </template>
     <template v-else-if="paginatedMessages?.items.length">
       <Popover v-for="it in paginatedMessages?.items" :key="it.id" ref="idPopovers">
-        <div class="mb-2">Copy any part of message to clipboard.</div>
-        <div class="flex flex-row items-center gap-2">
-          <Button @click="popoverCopyToClipboard(it.id)" outlined size="small" label="ID"></Button>
-          <Button
-            @click="popoverCopyToClipboard(JSON.stringify(it.rabbitmqMetadata))"
-            outlined
-            size="small"
-            label="Meta"
-          ></Button>
-          <Button
-            @click="popoverCopyToClipboard(JSON.stringify(it))"
-            outlined
-            size="small"
-            label="Body"
-          ></Button>
-          <Button
-            @click="popoverCopyToClipboard(JSON.stringify(it))"
-            outlined
-            size="small"
-            label="Whole Message"
-          ></Button>
-        </div>
-        <div
-          class="mt-2 cursor-pointer text-blue-500 hover:text-blue-400"
-          @click="popoverCopyLinkToClipboard(it.id)"
-        >
-          <i class="pi pi-link"></i> Copy link to the message
-        </div>
+        <MessageCopy
+          v-if="broker && queue"
+          :broker="broker"
+          :queue="queue"
+          :message="it"
+          @copied="handleCopied"
+        />
       </Popover>
 
       <DataTable
