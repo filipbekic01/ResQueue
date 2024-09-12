@@ -59,3 +59,7 @@ html {
 .p-datatable-tbody > tr > td {
   padding: 0.4rem 0.5rem !important;
 }
+
+.p-datatable-row-expansion > td {
+  max-width: 0px !important;
+}

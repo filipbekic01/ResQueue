@@ -13,30 +13,28 @@ defineProps<{
 </script>
 
 <template>
-  <div class="flex flex-col">
-    <FormattedMessageRaw
-      v-if="format === 'raw'"
-      :message="message"
-      :format="format"
-      :structure="structure"
-    />
+  <FormattedMessageRaw
+    v-if="format === 'raw'"
+    :message="message"
+    :format="format"
+    :structure="structure"
+  />
 
-    <FormattedMessageJson
-      v-else-if="format === 'json'"
-      :message="message"
-      :format="format"
-      :structure="structure"
-    />
+  <FormattedMessageJson
+    v-else-if="format === 'json'"
+    :message="message"
+    :format="format"
+    :structure="structure"
+  />
 
-    <FormattedMessageClean
-      v-else-if="format === 'clean'"
-      :message="message"
-      :format="format"
-      :structure="structure"
-    />
+  <FormattedMessageClean
+    v-else-if="format === 'clean'"
+    :message="message"
+    :format="format"
+    :structure="structure"
+  />
 
-    <template v-else>Invalid message format.</template>
-  </div>
+  <template v-else>Invalid message format.</template>
 
   <!-- <div class="rounded bg-gray-100/50 ps-5">
     <div class="my-1 rounded-lg font-semibold">Body</div>

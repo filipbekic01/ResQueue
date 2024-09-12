@@ -30,7 +30,7 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
               'flex h-full items-center border-b px-2 text-lg',
               {
                 'border-slate-200': !isRoute({ name: 'home' }),
-                'border-slate-500': isRoute({ name: 'home' })
+                'border-slate-700': isRoute({ name: 'home' })
               }
             ]"
             :to="{ name: 'home' }"
@@ -41,7 +41,7 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
               'flex h-full items-center border-b px-2 text-lg',
               {
                 'border-slate-200': !isRoute({ name: 'pricing' }),
-                'border-slate-500': isRoute({ name: 'pricing' })
+                'border-slate-700': isRoute({ name: 'pricing' })
               }
             ]"
             :to="{ name: 'pricing' }"
@@ -52,7 +52,7 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
               'flex h-full items-center border-b px-2 text-lg',
               {
                 'border-slate-200': !isRoute({ name: 'support' }),
-                'border-slate-500': isRoute({ name: 'support' })
+                'border-slate-700': isRoute({ name: 'support' })
               }
             ]"
             :to="{ name: 'support' }"

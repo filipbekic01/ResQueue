@@ -31,7 +31,7 @@ const showPair = computed(() => !!props.value?.toString() || !!slots['default'])
     <div class="flex shrink-0 basis-80 items-center">
       {{ label }}
     </div>
-    <div class="text-slate-600">
+    <div class="overflow-auto whitespace-nowrap text-slate-600">
       <slot name="default">{{ value }}</slot>
     </div>
   </div>
