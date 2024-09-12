@@ -22,7 +22,7 @@ const newBroker = reactive<CreateBrokerDto>({
   password: 'rabbitmq',
   port: 15671,
   host: 'localhost',
-  vhost: '/'
+  vHost: '/'
 })
 
 const createBroker = () => {
@@ -80,7 +80,7 @@ const testConnection = () => {
     <div class="flex items-center gap-4">
       <div class="flex basis-1/2 flex-col gap-2">
         <label for="vhost" class="font-semibold">V-Host</label>
-        <InputText id="vhost" v-model="newBroker.vhost" autocomplete="off" />
+        <InputText id="vhost" v-model="newBroker.vHost" autocomplete="off" />
       </div>
       <div class="flex basis-1/2 flex-col gap-2">
         <label for="port" class="flex font-semibold"

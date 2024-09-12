@@ -13,7 +13,8 @@ const newBroker = reactive<CreateBrokerDto>({
   username: 'rabbitmq',
   password: 'rabbitmq',
   port: 15671,
-  host: 'https://localhost'
+  host: 'https://localhost',
+  vHost: '/'
 })
 
 const createBroker = () => {
