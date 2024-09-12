@@ -20,6 +20,7 @@ const toast = useToast()
 
 const popoverCopyToClipboard = (text: string) => {
   navigator.clipboard.writeText(text)
+
   toast.add({
     summary: 'Clipboard Action Successful',
     detail: 'Text has been copied to the clipboard successfully.',
@@ -40,6 +41,8 @@ const popoverCopyLinkToClipboard = (id: string) => {
   })
 
   popoverCopyToClipboard(`${window.location.origin}${link.href}`)
+
+  emit('copied')
 }
 </script>
 
