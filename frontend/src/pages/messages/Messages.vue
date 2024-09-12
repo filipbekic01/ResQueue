@@ -2,12 +2,10 @@
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { useSyncBrokerMutation } from '@/api/broker/syncBrokerMutation'
 import { usePaginatedMessagesQuery } from '@/api/messages/paginatedMessagesQuery'
-import { usePublishMessagesMutation } from '@/api/messages/publishMessagesMutation'
 import { useSyncMessagesMutation } from '@/api/messages/syncMessagesMutation'
 import { useQueueQuery } from '@/api/queues/queueQuery'
 import { type FormatOption } from '@/components/SelectFormat.vue'
 import type { StructureOption } from '@/components/SelectStructure.vue'
-import { useExchanges } from '@/composables/exchangesComposable'
 import { useIdentity } from '@/composables/identityComposable'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
 import type { RabbitMQMessageDto } from '@/dtos/rabbitMQMessageDto'
@@ -45,15 +43,12 @@ const {
 const { mutateAsync: syncMessagesAsync, isPending: isSyncMessagesPending } =
   useSyncMessagesMutation()
 
-const { mutateAsync: publishMessagesAsync, isPending: isPublishMessagesPending } =
-  usePublishMessagesMutation()
-
 const { mutateAsync: syncBrokerAsync, isPending: isSyncBrokerPending } = useSyncBrokerMutation()
 
 const pageIndex = ref(0)
 
 const { data: brokers } = useBrokersQuery()
-const { formattedExchanges } = useExchanges(computed(() => props.brokerId))
+
 const { data: paginatedMessages, isPending } = usePaginatedMessagesQuery(
   computed(() => props.queueId),
   pageIndex
@@ -126,58 +121,6 @@ const openMessage = (id: string) => {
 
 const selectedMessages = ref<RabbitMQMessageDto[]>([])
 const selectedMessageIds = computed(() => selectedMessages.value.map((x) => x.id))
-
-const selectedExchange = ref()
-
-watch(
-  () => formattedExchanges.value,
-  (v) => {
-    if (!broker.value || !v || selectedExchange.value || !rabbitMqQueue.value) {
-      return
-    }
-
-    const name = rabbitMqQueue.value.parsed.name.replace(
-      broker.value?.settings.deadLetterQueueSuffix ?? '',
-      ''
-    )
-
-    selectedExchange.value = formattedExchanges.value.find((x) => x.parsed.name == name, '')
-  },
-  {
-    immediate: true
-  }
-)
-
-const publishMessages = () => {
-  confirm.require({
-    header: 'Publish Messages',
-    message: `Do you want to publish ${selectedMessages.value.length} messages?`,
-    icon: 'pi pi-info-circle',
-    rejectProps: {
-      label: 'Cancel',
-      severity: 'secondary',
-      outlined: true
-    },
-    acceptProps: {
-      label: 'Publish',
-      severity: ''
-    },
-    accept: () => {
-      publishMessagesAsync({
-        exchangeId: selectedExchange.value.id,
-        messageIds: selectedMessages.value.map((x) => x.id)
-      }).then(() => {
-        toast.add({
-          severity: 'info',
-          summary: 'Publish completed',
-          detail: `Messages published to exchange ...`,
-          life: 3000
-        })
-      })
-    },
-    reject: () => {}
-  })
-}
 
 const changePage = (e: PageState) => {
   pageIndex.value = e.page
@@ -326,32 +269,14 @@ watch(
       </ButtonGroup>
 
       <MessageActions
-        v-if="broker && paginatedMessages?.items"
+        v-if="broker && paginatedMessages?.items && rabbitMqQueue"
         :broker="broker"
+        :rabbit-mq-queue="rabbitMqQueue"
         :selected-message-ids="selectedMessageIds"
         :messages="paginatedMessages?.items"
         v-model:message-structure="selectedMessageStructure"
         v-model:message-format="selectedMessageFormat"
       />
-
-      <Select
-        v-model="selectedExchange"
-        :options="formattedExchanges"
-        optionLabel="parsed.name"
-        placeholder="Select an exchange"
-        class="w-72"
-        filter
-        severity="danger"
-        :virtualScrollerOptions="{ itemSize: 38, style: 'width:900px' }"
-      ></Select>
-      <Button
-        @click="publishMessages"
-        :loading="isPublishMessagesPending"
-        :disabled="isPublishMessagesPending || !selectedMessageIds.length"
-        label="Requeue"
-        icon="pi pi-send"
-        icon-pos="right"
-      ></Button>
     </div>
     <template v-if="isPending">
       <div class="p-5"><i class="pi pi-spinner pi-spin me-2"></i>Loading messages...</div>

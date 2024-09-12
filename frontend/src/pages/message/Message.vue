@@ -1,19 +1,15 @@
 <script lang="ts" setup>
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { useMessageQuery } from '@/api/messages/messageQuery'
-import { usePublishMessagesMutation } from '@/api/messages/publishMessagesMutation'
 import { useQueueQuery } from '@/api/queues/queueQuery'
 import type { FormatOption } from '@/components/SelectFormat.vue'
 import { type StructureOption } from '@/components/SelectStructure.vue'
-import { useExchanges } from '@/composables/exchangesComposable'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
 import FormattedMessage from '@/features/formatted-message/FormattedMessage.vue'
 import MessageActions from '@/features/message/MessageActions.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { formatDistanceToNow } from 'date-fns'
-import { useConfirm } from 'primevue/useconfirm'
-import { useToast } from 'primevue/usetoast'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{
@@ -24,79 +20,16 @@ const props = defineProps<{
 
 const router = useRouter()
 
-const confirm = useConfirm()
-const toast = useToast()
-
 const { data: brokers } = useBrokersQuery()
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
-const { formattedExchanges } = useExchanges(props.brokerId)
 const { data: message } = useMessageQuery(computed(() => props.messageId))
 const { data: queue } = useQueueQuery(computed(() => props.queueId))
 const queues = computed(() => (queue.value ? [queue.value] : undefined))
 const { rabbitMqQueues } = useRabbitMqQueues(queues)
 const rabbitMqQueue = computed(() => rabbitMqQueues.value[0] ?? undefined)
 
-const { mutateAsync: publishMessagesAsync } = usePublishMessagesMutation()
-
-const selectedExchange = ref()
-
-watch(
-  () => formattedExchanges.value,
-  (v) => {
-    if (
-      !broker.value ||
-      !v ||
-      selectedExchange.value ||
-      !message.value?.rabbitmqMetadata?.routingKey
-    ) {
-      return
-    }
-
-    const name = message.value.rabbitmqMetadata.routingKey.replace(
-      broker.value?.settings.deadLetterQueueSuffix ?? '',
-      ''
-    )
-
-    selectedExchange.value = formattedExchanges.value.find((x) => x?.parsed.name === name)
-  },
-  {
-    immediate: true
-  }
-)
-
 const selectedMessageFormat = ref<FormatOption>('raw')
 const selectedMessageStructure = ref<StructureOption>('body')
-
-const publishMessages = () => {
-  confirm.require({
-    header: 'Publish Messages',
-    message: `Do you want to publish this message?`,
-    icon: 'pi pi-info-circle',
-    rejectProps: {
-      label: 'Cancel',
-      severity: 'secondary',
-      outlined: true
-    },
-    acceptProps: {
-      label: 'Requeue',
-      severity: ''
-    },
-    accept: () => {
-      publishMessagesAsync({
-        exchangeId: selectedExchange.value.id,
-        messageIds: [props.messageId]
-      }).then(() => {
-        toast.add({
-          severity: 'info',
-          summary: 'Publish Completed!',
-          detail: `Messages published to exchange _!`,
-          life: 3000
-        })
-      })
-    },
-    reject: () => {}
-  })
-}
 
 const backToBroker = () =>
   router.push({
@@ -114,19 +47,6 @@ const backToMessages = () =>
       queueId: props.queueId
     }
   })
-
-watch(
-  () => broker.value,
-  (broker) => {
-    if (broker?.settings.messageFormat && broker?.settings.messageStructure) {
-      selectedMessageFormat.value = broker.settings.messageFormat
-      selectedMessageStructure.value = broker.settings.messageStructure
-    }
-  },
-  {
-    immediate: true
-  }
-)
 </script>
 
 <template>
@@ -157,25 +77,15 @@ watch(
       <Button outlined @click="backToMessages" icon="pi pi-arrow-left" label="Messages"></Button>
 
       <MessageActions
-        v-if="broker && message"
+        v-if="broker && message && rabbitMqQueue"
         :broker="broker"
+        :rabbit-mq-queue="rabbitMqQueue"
         :selected-message-ids="[message.id]"
         :messages="[message]"
         v-model:message-format="selectedMessageFormat"
         v-model:message-structure="selectedMessageStructure"
         @archive:message="backToMessages"
       />
-
-      <Select
-        v-model="selectedExchange"
-        :options="formattedExchanges"
-        optionLabel="parsed.name"
-        placeholder="Select an exchange"
-        class="w-96"
-        filter
-        :virtualScrollerOptions="{ itemSize: 38, style: 'width:900px' }"
-      ></Select>
-      <Button @click="publishMessages()" label="Requeue" iconPos="right" icon="pi pi-send"></Button>
     </div>
 
     <template v-if="message">
