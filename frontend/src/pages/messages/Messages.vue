@@ -1,24 +1,18 @@
 <script lang="ts" setup>
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { useSyncBrokerMutation } from '@/api/broker/syncBrokerMutation'
-import { useUpdateBrokerMutation } from '@/api/broker/updateBrokerMutation'
-import { useArchiveMessagesMutation } from '@/api/messages/archiveMessagesMutation'
 import { usePaginatedMessagesQuery } from '@/api/messages/paginatedMessagesQuery'
 import { usePublishMessagesMutation } from '@/api/messages/publishMessagesMutation'
 import { useSyncMessagesMutation } from '@/api/messages/syncMessagesMutation'
-import {
-  useReviewMessagesMutation,
-  type ReviewMessagesRequest
-} from '@/api/messages/useReviewMessagesMutation'
 import { useQueueQuery } from '@/api/queues/queueQuery'
-import SelectFormat, { type FormatOption } from '@/components/SelectFormat.vue'
+import { type FormatOption } from '@/components/SelectFormat.vue'
 import type { StructureOption } from '@/components/SelectStructure.vue'
-import SelectStructure from '@/components/SelectStructure.vue'
 import { useExchanges } from '@/composables/exchangesComposable'
 import { useIdentity } from '@/composables/identityComposable'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
 import type { RabbitMQMessageDto } from '@/dtos/rabbitMQMessageDto'
 import FormattedMessage from '@/features/formatted-message/FormattedMessage.vue'
+import MessageActions from '@/features/message/MessageActions.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { messageSummary } from '@/utils/messageUtils'
 import { formatDistanceToNow } from 'date-fns'
@@ -48,19 +42,11 @@ const {
   query: { data: user }
 } = useIdentity()
 
-const { mutateAsync: updateBrokerAsync } = useUpdateBrokerMutation()
-
 const { mutateAsync: syncMessagesAsync, isPending: isSyncMessagesPending } =
   useSyncMessagesMutation()
 
 const { mutateAsync: publishMessagesAsync, isPending: isPublishMessagesPending } =
   usePublishMessagesMutation()
-
-const { mutateAsync: reviewMessagesAsync, isPending: isReviewMessagesPending } =
-  useReviewMessagesMutation()
-
-const { mutateAsync: archiveMessagesAsync, isPending: isArchiveMessagesPending } =
-  useArchiveMessagesMutation()
 
 const { mutateAsync: syncBrokerAsync, isPending: isSyncBrokerPending } = useSyncBrokerMutation()
 
@@ -162,42 +148,6 @@ watch(
   }
 )
 
-const reviewMessages = () => {
-  const notReviewedIds =
-    paginatedMessages.value?.items
-      ?.filter((x) => selectedMessageIds.value.includes(x.id))
-      .filter((x) => !x.isReviewed)
-      .map((x) => x.id) ?? []
-
-  const reviewedIds =
-    paginatedMessages.value?.items
-      ?.filter((x) => selectedMessageIds.value.includes(x.id))
-      .filter((x) => x.isReviewed)
-      .map((x) => x.id) ?? []
-
-  let request: ReviewMessagesRequest = {
-    idsToFalse: [],
-    idsToTrue: []
-  }
-
-  if (reviewedIds.length && !notReviewedIds.length) {
-    request.idsToFalse = reviewedIds
-  } else if (request.idsToFalse.length && request.idsToTrue.length) {
-    request.idsToTrue = notReviewedIds
-  } else {
-    request.idsToTrue = notReviewedIds
-  }
-
-  reviewMessagesAsync(request).then(() => {
-    toast.add({
-      severity: 'info',
-      summary: 'Marked as reviewed',
-      detail: `Messages successfully reviewed`,
-      life: 3000
-    })
-  })
-}
-
 const publishMessages = () => {
   confirm.require({
     header: 'Publish Messages',
@@ -221,49 +171,6 @@ const publishMessages = () => {
           severity: 'info',
           summary: 'Publish completed',
           detail: `Messages published to exchange ...`,
-          life: 3000
-        })
-      })
-    },
-    reject: () => {}
-  })
-}
-
-const reviewMessagesLabel = computed(() => {
-  let message = 'Mark as Reviewed'
-
-  if (
-    selectedMessageIds.value?.length >= 1 &&
-    paginatedMessages.value?.items
-      ?.filter((x) => selectedMessageIds.value.includes(x.id))
-      .every((x) => x.isReviewed)
-  ) {
-    message = 'Mark as Unreviewed'
-  }
-
-  return message
-})
-
-const archiveMessages = () => {
-  confirm.require({
-    header: 'Archive Messages',
-    message: `Do you want to archive ${selectedMessages.value.length} messages?`,
-    icon: 'pi pi-info-circle',
-    rejectProps: {
-      label: 'Cancel',
-      severity: 'secondary',
-      outlined: true
-    },
-    acceptProps: {
-      label: 'Archive',
-      severity: 'danger'
-    },
-    accept: () => {
-      archiveMessagesAsync(selectedMessageIds.value).then(() => {
-        toast.add({
-          severity: 'info',
-          summary: 'Archived Messages',
-          detail: `Messages successfully reviewed!`,
           life: 3000
         })
       })
@@ -367,44 +274,7 @@ const allExpanded = computed(
 )
 
 const selectedMessageFormat = ref<FormatOption>('raw')
-const updateSelectedMessageFormat = (value: FormatOption) => {
-  if (broker.value) {
-    updateBrokerAsync({
-      broker: {
-        ...broker.value,
-        settings: {
-          ...broker.value.settings,
-          messageFormat: value
-        },
-        username: '',
-        password: ''
-      },
-      brokerId: broker.value.id
-    })
-  }
-
-  selectedMessageFormat.value = value
-}
-
 const selectedMessageStructure = ref<StructureOption>('body')
-const updateSelectedMessageStructure = (value: StructureOption) => {
-  if (broker.value) {
-    updateBrokerAsync({
-      broker: {
-        ...broker.value,
-        settings: {
-          ...broker.value.settings,
-          messageStructure: value
-        },
-        username: '',
-        password: ''
-      },
-      brokerId: broker.value.id
-    })
-  }
-
-  selectedMessageStructure.value = value
-}
 
 watch(
   () => broker.value,
@@ -454,32 +324,14 @@ watch(
           icon="pi pi-sync"
         ></Button>
       </ButtonGroup>
-      <Button
-        @click="() => reviewMessages()"
-        outlined
-        :loading="isReviewMessagesPending"
-        :disabled="isReviewMessagesPending || !selectedMessages.length"
-        :label="reviewMessagesLabel"
-        icon="pi pi-check"
-      ></Button>
-      <Button
-        @click="() => archiveMessages()"
-        outlined
-        :loading="isArchiveMessagesPending"
-        :disabled="isArchiveMessagesPending || !selectedMessages.length"
-        severity="danger"
-        icon="pi pi-trash"
-      ></Button>
 
-      <SelectStructure
-        :model-value="selectedMessageStructure"
-        @update:model-value="(e) => updateSelectedMessageStructure(e)"
-        class="ms-auto"
-      />
-
-      <SelectFormat
-        :model-value="selectedMessageFormat"
-        @update:model-value="(e) => updateSelectedMessageFormat(e)"
+      <MessageActions
+        v-if="broker && paginatedMessages?.items"
+        :broker="broker"
+        :selected-message-ids="selectedMessageIds"
+        :messages="paginatedMessages?.items"
+        v-model:message-structure="selectedMessageStructure"
+        v-model:message-format="selectedMessageFormat"
       />
 
       <Select
@@ -499,7 +351,7 @@ watch(
         label="Requeue"
         icon="pi pi-send"
         icon-pos="right"
-      />
+      ></Button>
     </div>
     <template v-if="isPending">
       <div class="p-5"><i class="pi pi-spinner pi-spin me-2"></i>Loading messages...</div>

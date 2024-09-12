@@ -1,15 +1,14 @@
 <script lang="ts" setup>
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
-import { useUpdateBrokerMutation } from '@/api/broker/updateBrokerMutation'
 import { useMessageQuery } from '@/api/messages/messageQuery'
 import { usePublishMessagesMutation } from '@/api/messages/publishMessagesMutation'
 import { useQueueQuery } from '@/api/queues/queueQuery'
 import type { FormatOption } from '@/components/SelectFormat.vue'
-import SelectFormat from '@/components/SelectFormat.vue'
-import SelectStructure, { type StructureOption } from '@/components/SelectStructure.vue'
+import { type StructureOption } from '@/components/SelectStructure.vue'
 import { useExchanges } from '@/composables/exchangesComposable'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
 import FormattedMessage from '@/features/formatted-message/FormattedMessage.vue'
+import MessageActions from '@/features/message/MessageActions.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { formatDistanceToNow } from 'date-fns'
 import { useConfirm } from 'primevue/useconfirm'
@@ -28,14 +27,10 @@ const router = useRouter()
 const confirm = useConfirm()
 const toast = useToast()
 
-const { mutateAsync: updateBrokerAsync } = useUpdateBrokerMutation()
-
 const { data: brokers } = useBrokersQuery()
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
 const { formattedExchanges } = useExchanges(props.brokerId)
 const { data: message } = useMessageQuery(computed(() => props.messageId))
-
-// todo: simplify
 const { data: queue } = useQueueQuery(computed(() => props.queueId))
 const queues = computed(() => (queue.value ? [queue.value] : undefined))
 const { rabbitMqQueues } = useRabbitMqQueues(queues)
@@ -70,44 +65,7 @@ watch(
 )
 
 const selectedMessageFormat = ref<FormatOption>('raw')
-const updateSelectedMessageFormat = (value: FormatOption) => {
-  if (broker.value) {
-    updateBrokerAsync({
-      broker: {
-        ...broker.value,
-        settings: {
-          ...broker.value.settings,
-          messageFormat: value
-        },
-        username: '',
-        password: ''
-      },
-      brokerId: broker.value.id
-    })
-  }
-
-  selectedMessageFormat.value = value
-}
-
 const selectedMessageStructure = ref<StructureOption>('body')
-const updateSelectedMessageStructure = (value: StructureOption) => {
-  if (broker.value) {
-    updateBrokerAsync({
-      broker: {
-        ...broker.value,
-        settings: {
-          ...broker.value.settings,
-          messageStructure: value
-        },
-        username: '',
-        password: ''
-      },
-      brokerId: broker.value.id
-    })
-  }
-
-  selectedMessageStructure.value = value
-}
 
 const publishMessages = () => {
   confirm.require({
@@ -197,14 +155,15 @@ watch(
     </template>
     <div class="flex items-start gap-2 border-b px-4 py-2">
       <Button outlined @click="backToMessages" icon="pi pi-arrow-left" label="Messages"></Button>
-      <SelectStructure
-        :model-value="selectedMessageStructure"
-        @update:model-value="(e) => updateSelectedMessageStructure(e)"
-        class="ms-auto"
-      />
-      <SelectFormat
-        :model-value="selectedMessageFormat"
-        @update:model-value="(e) => updateSelectedMessageFormat(e)"
+
+      <MessageActions
+        v-if="broker && message"
+        :broker="broker"
+        :selected-message-ids="[message.id]"
+        :messages="[message]"
+        v-model:message-format="selectedMessageFormat"
+        v-model:message-structure="selectedMessageStructure"
+        @archive:message="backToMessages"
       />
 
       <Select
