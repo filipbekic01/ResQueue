@@ -101,43 +101,40 @@ const handleCopied = () => {
       />
     </div>
 
-    <template v-if="message">
-      <div class="mb-5 rounded-lg">
-        <div class="pb mx-0 mb-1 mt-3 flex items-center px-5">
-          <span class="text-lg font-medium">Message</span>
-          <!-- <Button text icon="pi pi-copy" @click="togglePopover"></Button> -->
-          <div
-            class="ms-2 flex cursor-pointer items-center gap-1 hover:text-blue-500"
-            @click="togglePopover"
-          >
-            <i class="pi pi-copy"></i>copy
-          </div>
-          <Popover ref="popover">
-            <MessageCopy
-              v-if="broker && queue"
-              :broker="broker"
-              :queue="queue"
-              :message="message"
-              @copied="handleCopied"
-            />
-          </Popover>
-
-          <div class="ms-auto flex gap-3">
-            <span class="text-slate-500"
-              >updated
-              {{ message.updatedAt ? formatDistanceToNow(message.updatedAt) : 'never' }} ago</span
-            >created {{ formatDistanceToNow(message.createdAt) }} ago
-          </div>
+    <div v-if="message" class="mb-5 overflow-auto rounded-lg">
+      <div class="pb mx-0 mb-1 mt-3 flex items-center px-5">
+        <span class="text-lg font-medium">Message</span>
+        <div
+          class="ms-2 flex cursor-pointer items-center gap-1 hover:text-blue-500"
+          @click="togglePopover"
+        >
+          <i class="pi pi-copy"></i>copy
         </div>
-
-        <div class="px-5">
-          <FormattedMessage
+        <Popover ref="popover">
+          <MessageCopy
+            v-if="broker && queue"
+            :broker="broker"
+            :queue="queue"
             :message="message"
-            :format="selectedMessageFormat"
-            :structure="selectedMessageStructure"
+            @copied="handleCopied"
           />
+        </Popover>
+
+        <div class="ms-auto flex gap-3">
+          <span class="text-slate-500"
+            >updated
+            {{ message.updatedAt ? formatDistanceToNow(message.updatedAt) : 'never' }} ago</span
+          >created {{ formatDistanceToNow(message.createdAt) }} ago
         </div>
       </div>
-    </template>
+
+      <div class="px-5">
+        <FormattedMessage
+          :message="message"
+          :format="selectedMessageFormat"
+          :structure="selectedMessageStructure"
+        />
+      </div>
+    </div>
   </AppLayout>
 </template>

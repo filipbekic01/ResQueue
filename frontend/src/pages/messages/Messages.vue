@@ -62,7 +62,7 @@ const queues = computed(() => (queue.value ? [queue.value] : undefined))
 const { rabbitMqQueues } = useRabbitMqQueues(queues)
 const rabbitMqQueue = computed(() => rabbitMqQueues.value[0] ?? undefined)
 
-const backToBroker = () => {
+const backToQueues = () => {
   router.push({
     name: 'queues',
     params: {
@@ -219,19 +219,19 @@ watch(
     <template #prepend>
       <div
         class="flex h-[42px] w-[42px] cursor-pointer items-center justify-center rounded-xl bg-[#FF6600] text-2xl text-white active:scale-95"
-        @click="backToBroker"
+        @click="backToQueues"
       >
         <img src="/rmq.svg" class="w-7 select-none" />
       </div>
     </template>
     <template #title
-      ><span class="cursor-pointer hover:underline" @click="backToBroker">{{
+      ><span class="cursor-pointer hover:underline" @click="backToQueues">{{
         broker?.name
       }}</span></template
     >
     <template #description>{{ rabbitMqQueue?.parsed.name }}</template>
     <div class="flex items-start gap-2 border-b px-4 py-2">
-      <Button @click="backToBroker" outlined label="Broker" icon="pi pi-arrow-left"></Button>
+      <Button @click="backToQueues" outlined label="Queues" icon="pi pi-arrow-left"></Button>
       <ButtonGroup>
         <Button
           @click="() => syncMessages()"
