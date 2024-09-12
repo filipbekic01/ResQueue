@@ -81,7 +81,12 @@ const { rabbitMqQueues } = useRabbitMqQueues(queues)
 const rabbitMqQueue = computed(() => rabbitMqQueues.value[0] ?? undefined)
 
 const backToBroker = () => {
-  router.back()
+  router.push({
+    name: 'queues',
+    params: {
+      brokerId: props.brokerId
+    }
+  })
 }
 
 const syncMessages = () => {

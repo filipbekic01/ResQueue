@@ -142,7 +142,7 @@ const publishMessages = () => {
 
 const backToBroker = () =>
   router.push({
-    name: 'broker',
+    name: 'queues',
     params: {
       brokerId: props.brokerId
     }
