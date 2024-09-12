@@ -1,0 +1,140 @@
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using Resqueue.Dtos;
+using Resqueue.Models;
+
+namespace Resqueue.Features.Messages.PublishNewMessage;
+
+public record PublishNewMessageFeatureRequest(ClaimsPrincipal ClaimsPrincipal, NewMessageDto Dto);
+
+public record PublishNewMessageFeatureResponse();
+
+public class PublishNewMessageFeature(
+    IHttpClientFactory httpClientFactory,
+    IMongoCollection<Models.Broker> brokersCollection,
+    UserManager<User> userManager,
+    RabbitmqConnectionFactory rabbitmqConnectionFactory) : IPublishNewMessageFeature
+{
+    public async Task<OperationResult<PublishNewMessageFeatureResponse>> ExecuteAsync(
+        PublishNewMessageFeatureRequest request)
+    {
+        var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
+        if (user == null)
+        {
+            return OperationResult<PublishNewMessageFeatureResponse>.Failure(new ProblemDetails()
+            {
+                Detail = "User not found"
+            });
+        }
+
+        var broker = await brokersCollection.Find(Builders<Models.Broker>.Filter.And(
+            Builders<Models.Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Dto.BrokerId)),
+            Builders<Models.Broker>.Filter.Eq(b => b.UserId, user.Id)
+        )).FirstOrDefaultAsync();
+        if (broker == null)
+        {
+            return OperationResult<PublishNewMessageFeatureResponse>.Failure(new ProblemDetails()
+            {
+                Detail = "Broker not found"
+            });
+        }
+
+        var factory = rabbitmqConnectionFactory.CreateFactory(broker);
+        using var connection = factory.CreateConnection();
+        using var channel = connection.CreateModel();
+
+        var props = channel.CreateBasicProperties();
+
+        var message = request.Dto;
+
+        if (message.RabbitmqMetadata is not null)
+        {
+            if (message.RabbitmqMetadata.Properties.AppId is not null)
+            {
+                props.AppId = message.RabbitmqMetadata.Properties.AppId;
+            }
+
+            if (message.RabbitmqMetadata.Properties.ClusterId is not null)
+            {
+                props.ClusterId = message.RabbitmqMetadata.Properties.ClusterId;
+            }
+
+            if (message.RabbitmqMetadata.Properties.ContentEncoding is not null)
+            {
+                props.ContentEncoding = message.RabbitmqMetadata.Properties.ContentEncoding;
+            }
+
+            if (message.RabbitmqMetadata.Properties.ContentType is not null)
+            {
+                props.ContentType = message.RabbitmqMetadata.Properties.ContentType;
+            }
+
+            if (message.RabbitmqMetadata.Properties.DeliveryMode is not null)
+            {
+                props.DeliveryMode = message.RabbitmqMetadata.Properties.DeliveryMode.Value;
+            }
+
+            if (message.RabbitmqMetadata.Properties.Expiration is not null)
+            {
+                props.Expiration = message.RabbitmqMetadata.Properties.Expiration;
+            }
+
+            if (message.RabbitmqMetadata.Properties.Headers is not null)
+            {
+                props.Headers = message.RabbitmqMetadata.Properties.Headers;
+            }
+
+            if (message.RabbitmqMetadata.Properties.MessageId is not null)
+            {
+                props.MessageId = message.RabbitmqMetadata.Properties.MessageId;
+            }
+
+            if (message.RabbitmqMetadata.Properties.Priority is not null)
+            {
+                props.Priority = message.RabbitmqMetadata.Properties.Priority.Value;
+            }
+
+            if (message.RabbitmqMetadata.Properties.ReplyTo is not null)
+            {
+                props.ReplyTo = message.RabbitmqMetadata.Properties.ReplyTo;
+            }
+
+            if (message.RabbitmqMetadata.Properties.Timestamp is not null)
+            {
+                props.Timestamp = new(message.RabbitmqMetadata.Properties.Timestamp.Value);
+            }
+
+            if (message.RabbitmqMetadata.Properties.Type is not null)
+            {
+                props.Type = message.RabbitmqMetadata.Properties.Type;
+            }
+
+            if (message.RabbitmqMetadata.Properties.UserId is not null)
+            {
+                props.UserId = message.RabbitmqMetadata.Properties.UserId;
+            }
+
+            byte[] body = message.BodyEncoding switch
+            {
+                "json" => JsonSerializer.SerializeToUtf8Bytes(message.Body),
+                "base64" => Convert.FromBase64String(message.Body.ToString()),
+                _ => throw new Exception($"Unsupported Body type {message.Body.GetType()}")
+            };
+
+            channel.BasicPublish(message.RabbitmqMetadata.Exchange, message.RabbitmqMetadata.RoutingKey, false, props,
+                body);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+
+
+        return OperationResult<PublishNewMessageFeatureResponse>.Success(new PublishNewMessageFeatureResponse());
+    }
+}

@@ -11,11 +11,13 @@ import SelectFormat from '@/components/SelectFormat.vue'
 import type { StructureOption } from '@/components/SelectStructure.vue'
 import SelectStructure from '@/components/SelectStructure.vue'
 import { useExchanges } from '@/composables/exchangesComposable'
+import NewMessageDialog from '@/dialogs/NewMessageDialog.vue'
 import type { BrokerDto } from '@/dtos/brokerDto'
 import type { MessageDto } from '@/dtos/messageDto'
 import type { RabbitMQQueueDto } from '@/dtos/rabbitMQQueueDto'
 import Select from 'primevue/select'
 import { useConfirm } from 'primevue/useconfirm'
+import { useDialog } from 'primevue/usedialog'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref, watch } from 'vue'
 
@@ -36,6 +38,7 @@ const emit = defineEmits<{
 
 const confirm = useConfirm()
 const toast = useToast()
+const dialog = useDialog()
 
 const { mutateAsync: updateBrokerAsync } = useUpdateBrokerMutation()
 const { mutateAsync: reviewMessagesAsync, isPending: isReviewMessagesPending } =
@@ -198,6 +201,23 @@ const publishMessages = () => {
   })
 }
 
+const openNewMessageDialog = () => {
+  dialog.open(NewMessageDialog, {
+    data: {
+      broker: props.broker,
+      queue: props.rabbitMqQueue
+    },
+    props: {
+      header: 'New Message',
+      style: {
+        width: '70rem'
+      },
+      modal: true,
+      draggable: false
+    }
+  })
+}
+
 watch(
   () => formattedExchanges.value,
   (v) => {
@@ -272,6 +292,14 @@ emit(
     :disabled="isPublishMessagesPending || !selectedMessageIds.length"
     label="Requeue"
     icon="pi pi-send"
+    icon-pos="right"
+  ></Button>
+
+  <Button
+    @click="openNewMessageDialog"
+    :loading="isPublishMessagesPending"
+    label=""
+    icon="pi pi-plus"
     icon-pos="right"
   ></Button>
 </template>
