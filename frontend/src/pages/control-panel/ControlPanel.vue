@@ -175,7 +175,7 @@ const updateUserFullNameAsync = (value?: string) => {
               </div>
               <div v-if="user?.subscriptions[0]?.endsAt" class="text-red-800">
                 Cancelled — grace period until
-                {{ format(user?.subscriptions[0].endsAt, 'yyyy/mm/dd') }}
+                {{ format(user?.subscriptions[0].endsAt, 'yyyy/MM/dd') }}
               </div>
             </div>
             <Button

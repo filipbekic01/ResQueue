@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Resqueue.Dtos;
 using Resqueue.Dtos.Stripe;
 using Resqueue.Features.Stripe.CancelSubscription;
+using Resqueue.Features.Stripe.ContinueSubscription;
 using Resqueue.Features.Stripe.CreateSubscription;
 using Resqueue.Features.Stripe.EventHandler;
 using Resqueue.Models;
@@ -54,6 +55,20 @@ public static class StripeEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(new { Message = "Subscription cancelled successfully" })
+                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+            }).RequireAuthorization();
+
+        group.MapPost("continue-subscription",
+            async (IContinueSubscriptionFeature feature, HttpContext httpContext,
+                [FromBody] ContinueSubscriptionDto dto) =>
+            {
+                var result = await feature.ExecuteAsync(new ContinueSubscriptionRequest(
+                    ClaimsPrincipal: httpContext.User,
+                    Dto: dto
+                ));
+
+                return result.IsSuccess
+                    ? Results.Ok(new { Message = "Subscription continued successfully" })
                     : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
             }).RequireAuthorization();
 
