@@ -2,6 +2,7 @@ using System.Collections;
 using System.Text;
 using MongoDB.Bson;
 using RabbitMQ.Client;
+using Resqueue.Dtos;
 using Resqueue.Models;
 
 namespace Resqueue.Mappers;
@@ -60,11 +61,6 @@ public static class RabbitMQMessageMapper
         if (res.BasicProperties.IsPriorityPresent())
         {
             props.Priority = res.BasicProperties.Priority;
-        }
-
-        if (res.BasicProperties.IsReplyToPresent())
-        {
-            props.ReplyTo = res.BasicProperties.ReplyTo;
         }
 
         if (res.BasicProperties.IsReplyToPresent())

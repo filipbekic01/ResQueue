@@ -5,10 +5,11 @@ using MongoDB.Driver;
 using Resqueue.Dtos;
 using Resqueue.Features.Broker.SyncBroker;
 using Resqueue.Features.Messages.ArchiveMessages;
+using Resqueue.Features.Messages.CreateMessage;
 using Resqueue.Features.Messages.PublishMessages;
-using Resqueue.Features.Messages.PublishNewMessage;
 using Resqueue.Features.Messages.ReviewMessages;
 using Resqueue.Features.Messages.SyncMessages;
+using Resqueue.Features.Messages.UpdateMessage;
 using Resqueue.Filters;
 using Resqueue.Mappers;
 using Resqueue.Models;
@@ -91,6 +92,35 @@ public static class MessageEndpoints
                 });
             });
 
+        group.MapPost("",
+            async (ICreateMessageFeature publishMessagesFeature, HttpContext httpContext,
+                [FromBody] UpsertMessageDto dto) =>
+            {
+                var result = await publishMessagesFeature.ExecuteAsync(new CreateMessageFeatureRequest(
+                    ClaimsPrincipal: httpContext.User,
+                    Dto: dto
+                ));
+
+                return result.IsSuccess
+                    ? Results.Ok(result.Value)
+                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+            }).AddRetryFilter();
+
+        group.MapPut("{id}",
+            async (IUpdateMessageFeature feature, HttpContext httpContext,
+                [FromBody] UpsertMessageDto dto, string id) =>
+            {
+                var result = await feature.ExecuteAsync(new UpdateMessageFeatureRequest(
+                    ClaimsPrincipal: httpContext.User,
+                    Id: id,
+                    Dto: dto
+                ));
+
+                return result.IsSuccess
+                    ? Results.Ok(result.Value)
+                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+            }).AddRetryFilter();
+
         group.MapPost("sync",
             async (ISyncMessagesFeature syncMessagesFeature, ISyncBrokerFeature syncBrokerFeature,
                 HttpContext httpContext, [FromBody] SyncMessagesDto dto) =>
@@ -120,20 +150,6 @@ public static class MessageEndpoints
                 [FromBody] PublishDto dto) =>
             {
                 var result = await publishMessagesFeature.ExecuteAsync(new PublishMessagesFeatureRequest(
-                    ClaimsPrincipal: httpContext.User,
-                    Dto: dto
-                ));
-
-                return result.IsSuccess
-                    ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
-            }).AddRetryFilter();
-
-        group.MapPost("publish-new",
-            async (IPublishNewMessageFeature publishMessagesFeature, HttpContext httpContext,
-                [FromBody] NewMessageDto dto) =>
-            {
-                var result = await publishMessagesFeature.ExecuteAsync(new PublishNewMessageFeatureRequest(
                     ClaimsPrincipal: httpContext.User,
                     Dto: dto
                 ));

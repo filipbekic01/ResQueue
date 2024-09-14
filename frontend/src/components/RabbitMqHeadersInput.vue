@@ -36,22 +36,26 @@ const updateHeaderValue = (header: string, value: HeaderValue) => {
       :key="header"
       class="flex items-center gap-2"
     >
-      <label>{{ header }}</label>
+      <label class="w-72 text-end">{{ header }}:</label>
       <InputText
         v-if="typeof value === 'string'"
-        :modelValue="value"
-        @update:modelValue="(newValue) => newValue && updateHeaderValue(header, newValue)"
+        class="grow"
+        :model-value="value"
+        @update:model-value="(newValue) => newValue && updateHeaderValue(header, newValue)"
       />
       <template v-else>NOT IMPLEMENTED</template>
       <Button
         type="button"
         icon="pi pi-minus"
+        outlined
         severity="danger"
+        size="small"
         @click="removeHeader(header)"
       ></Button>
     </div>
     <div class="mt-2 flex gap-2">
-      <InputText v-model="newHeaderName" placeholder="Enter a header name" />
+      <div class="w-72"></div>
+      <InputText v-model="newHeaderName" placeholder="Enter a header name" class="grow" />
       <Button
         :disabled="
           !newHeaderName || (modelValue && Object.keys(modelValue).includes(newHeaderName))

@@ -1,7 +1,6 @@
 import type { RabbitMQMessagePropsDto } from './rabbitMQMessagePropsDto'
 
-export interface RabbitMQNewMessageMetaDto {
-  exchange: string
+export interface RabbitMQUpsertMessageMetaDto {
   routingKey: string
   properties: RabbitMQMessagePropsDto
 }

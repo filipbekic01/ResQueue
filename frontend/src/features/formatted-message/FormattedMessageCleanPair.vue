@@ -3,7 +3,7 @@ import { computed, useSlots } from 'vue'
 
 const props = defineProps<{
   label: string
-  value?: string | number | boolean
+  value?: string | number | boolean | null
 }>()
 
 const slots = useSlots()
