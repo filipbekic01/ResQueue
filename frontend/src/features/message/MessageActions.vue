@@ -11,7 +11,7 @@ import SelectFormat from '@/components/SelectFormat.vue'
 import type { StructureOption } from '@/components/SelectStructure.vue'
 import SelectStructure from '@/components/SelectStructure.vue'
 import { useExchanges } from '@/composables/exchangesComposable'
-import NewMessageDialog from '@/dialogs/NewMessageDialog.vue'
+import UpsertMessageDialog from '@/dialogs/UpsertMessageDialog.vue'
 import type { BrokerDto } from '@/dtos/brokerDto'
 import type { MessageDto } from '@/dtos/messageDto'
 import type { RabbitMQQueueDto } from '@/dtos/rabbitMQQueueDto'
@@ -201,11 +201,11 @@ const publishMessages = () => {
   })
 }
 
-const openNewMessageDialog = () => {
-  dialog.open(NewMessageDialog, {
+const openUpsertMessageDialog = () => {
+  dialog.open(UpsertMessageDialog, {
     data: {
       broker: props.broker,
-      queue: props.rabbitMqQueue
+      queue: props.rabbitMqQueue,
     },
     props: {
       header: 'Message Editor',
@@ -293,7 +293,7 @@ emit(
   ></Button>
 
   <Button
-    @click="openNewMessageDialog"
+    @click="openUpsertMessageDialog"
     :loading="isPublishMessagesPending"
     label=""
     icon="pi pi-plus"

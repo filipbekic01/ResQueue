@@ -2,7 +2,7 @@ using System.Text.Json.Nodes;
 
 namespace Resqueue.Dtos;
 
-public class CreateMessageDto
+public class UpsertMessageDto
 {
     public string BrokerId { get; set; }
     public string QueueId { get; set; }
@@ -13,5 +13,5 @@ public class CreateMessageDto
     /// </summary>
     public string BodyEncoding { get; set; }
 
-    public RabbitmqCreateMessageMetadataDto? RabbitmqMetadata { get; set; }
+    public RabbitmqUpsertMessageMetadataDto? RabbitmqMetadata { get; set; }
 }

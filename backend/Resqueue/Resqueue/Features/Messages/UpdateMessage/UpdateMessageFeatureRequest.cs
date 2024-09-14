@@ -4,33 +4,34 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Resqueue.Dtos;
+using Resqueue.Features.Messages.CreateMessage;
 using Resqueue.Mappers;
 using Resqueue.Models;
 
-namespace Resqueue.Features.Messages.CreateMessage;
+namespace Resqueue.Features.Messages.UpdateMessage;
 
-public record CreateMessageFeatureRequest(
+public record UpdateMessageFeatureRequest(
     ClaimsPrincipal ClaimsPrincipal,
+    string Id,
     UpsertMessageDto Dto
 );
 
-public record CreateMessageFeatureResponse();
+public record UpdateMessageFeatureResponse();
 
-public class CreateMessageFeature(
-    IMongoClient mongoClient,
+public class UpdateMessageFeature(
     IMongoCollection<Models.Broker> brokersCollection,
     IMongoCollection<Queue> queuesCollection,
     IMongoCollection<Message> messagesCollection,
     UserManager<User> userManager
-) : ICreateMessageFeature
+) : IUpdateMessageFeature
 {
-    public async Task<OperationResult<CreateMessageFeatureResponse>> ExecuteAsync(
-        CreateMessageFeatureRequest request)
+    public async Task<OperationResult<UpdateMessageFeatureResponse>> ExecuteAsync(
+        UpdateMessageFeatureRequest request)
     {
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user == null)
         {
-            return OperationResult<CreateMessageFeatureResponse>.Failure(new ProblemDetails()
+            return OperationResult<UpdateMessageFeatureResponse>.Failure(new ProblemDetails()
             {
                 Detail = "User not found"
             });
@@ -43,7 +44,7 @@ public class CreateMessageFeature(
 
         if (broker == null)
         {
-            return OperationResult<CreateMessageFeatureResponse>.Failure(new ProblemDetails()
+            return OperationResult<UpdateMessageFeatureResponse>.Failure(new ProblemDetails()
             {
                 Detail = "Broker not found"
             });
@@ -57,16 +58,10 @@ public class CreateMessageFeature(
         var queueId = await queuesCollection.Find(queuesFilter).Project(x => x.Id).FirstAsync();
 
         var message = UpsertMessageDtoMapper.ToMessage(queueId, user.Id, request.Dto);
+        message.Id = ObjectId.Parse(request.Id);
 
-        using var session = await mongoClient.StartSessionAsync();
-        session.StartTransaction(new TransactionOptions(writeConcern: WriteConcern.WMajority));
+        await messagesCollection.ReplaceOneAsync(x => x.Id == message.Id, message);
 
-        await messagesCollection.InsertOneAsync(session, message);
-        await queuesCollection.UpdateOneAsync(session, x => x.Id == queueId,
-            Builders<Queue>.Update.Inc(x => x.TotalMessages, 1));
-
-        await session.CommitTransactionAsync();
-
-        return OperationResult<CreateMessageFeatureResponse>.Success(new CreateMessageFeatureResponse());
+        return OperationResult<UpdateMessageFeatureResponse>.Success(new UpdateMessageFeatureResponse());
     }
 }

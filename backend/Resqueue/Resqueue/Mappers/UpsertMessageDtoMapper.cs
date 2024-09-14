@@ -5,9 +5,9 @@ using Resqueue.Models;
 
 namespace Resqueue.Mappers;
 
-public static class CreateMessageDtoMapper
+public static class UpsertMessageDtoMapper
 {
-    public static Message ToMessage(ObjectId queueId, ObjectId userId, CreateMessageDto dto)
+    public static Message ToMessage(ObjectId queueId, ObjectId userId, UpsertMessageDto dto)
     {
         return new Message()
         {
@@ -44,7 +44,7 @@ public static class CreateMessageDtoMapper
     }
 
 
-    private static BsonValue GetBody(CreateMessageDto dto)
+    private static BsonValue GetBody(UpsertMessageDto dto)
     {
         if (dto.BodyEncoding == "json")
         {

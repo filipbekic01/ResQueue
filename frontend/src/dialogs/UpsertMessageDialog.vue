@@ -1,21 +1,27 @@
 <script setup lang="ts">
 import { useCreateMessageMutation } from '@/api/messages/createMessageMutation'
+import { useUpdateMessageMutation } from '@/api/messages/updateMessageMutation'
 import RabbitMqHeadersInput from '@/components/RabbitMqHeadersInput.vue'
-import type { CreateMessageDto } from '@/dtos/createMessageDto'
+import type { UpsertMessageDto } from '@/dtos/upsertMessageDto'
 import { extractErrorMessage } from '@/utils/errorUtils'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
 import Textarea from 'primevue/textarea'
 import { useToast } from 'primevue/usetoast'
-import { inject, reactive, ref, type Ref } from 'vue'
+import { computed, inject, reactive, ref, type Ref } from 'vue'
 
 const toast = useToast()
 
-const { mutateAsync: createMessageAsync, isPending: isPublishNewMessagePending } =
+const { mutateAsync: createMessageAsync, isPending: isCreateMessagePending } =
   useCreateMessageMutation()
+
+const { mutateAsync: updateMessageAsync, isPending: isUpdateMessagePending } =
+  useUpdateMessageMutation()
 
 const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 
-const newMessage = reactive<Omit<CreateMessageDto, 'brokerId' | 'body' | 'queueId'>>({
+const originalMessage = computed(() => dialogRef?.value.data.message)
+
+const newMessage = reactive<Omit<UpsertMessageDto, 'brokerId' | 'body' | 'queueId'>>({
   bodyEncoding: 'json',
   rabbitmqMetadata: {
     routingKey: '',
@@ -27,8 +33,8 @@ const newMessage = reactive<Omit<CreateMessageDto, 'brokerId' | 'body' | 'queueI
 
 const body = ref('')
 
-if (dialogRef?.value.data.message) {
-  const theMsg = JSON.parse(JSON.stringify(dialogRef?.value.data.message))
+if (originalMessage.value) {
+  const theMsg = JSON.parse(JSON.stringify(originalMessage.value))
 
   newMessage.rabbitmqMetadata = theMsg.rabbitmqMetadata
   newMessage.bodyEncoding = theMsg.bodyEncoding
@@ -51,7 +57,7 @@ const encodingOptions = [
   }
 ]
 
-const publishMessage = () => {
+const submit = () => {
   const brokerId = dialogRef?.value.data.broker.id
   if (!brokerId) {
     throw new Error('brokerId is null.')
@@ -62,12 +68,17 @@ const publishMessage = () => {
     throw new Error('queueId is null.')
   }
 
-  createMessageAsync({
+  const dto = {
     brokerId,
     queueId,
     ...newMessage,
     body: newMessage.bodyEncoding === 'json' ? JSON.parse(body.value) : body
-  })
+  }
+
+  ;(originalMessage.value
+    ? updateMessageAsync({ id: originalMessage.value.id, dto })
+    : createMessageAsync(dto)
+  )
     .then(() => dialogRef.value?.close())
     .catch((e) => {
       toast.add({
@@ -258,10 +269,10 @@ const selectedTab = ref('body')
           severity="danger"
         ></Select>
         <Button
-          label="Save Message"
+          :label="`${originalMessage ? 'Update' : 'Edit'} Message`"
           icon="pi pi-save"
-          :loading="isPublishNewMessagePending"
-          @click="publishMessage"
+          :loading="isCreateMessagePending || isUpdateMessagePending"
+          @click="submit"
         ></Button>
       </div>
     </div>

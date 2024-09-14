@@ -9,6 +9,7 @@ using Resqueue.Features.Messages.CreateMessage;
 using Resqueue.Features.Messages.PublishMessages;
 using Resqueue.Features.Messages.ReviewMessages;
 using Resqueue.Features.Messages.SyncMessages;
+using Resqueue.Features.Messages.UpdateMessage;
 using Resqueue.Filters;
 using Resqueue.Mappers;
 using Resqueue.Models;
@@ -93,10 +94,25 @@ public static class MessageEndpoints
 
         group.MapPost("",
             async (ICreateMessageFeature publishMessagesFeature, HttpContext httpContext,
-                [FromBody] CreateMessageDto dto) =>
+                [FromBody] UpsertMessageDto dto) =>
             {
                 var result = await publishMessagesFeature.ExecuteAsync(new CreateMessageFeatureRequest(
                     ClaimsPrincipal: httpContext.User,
+                    Dto: dto
+                ));
+
+                return result.IsSuccess
+                    ? Results.Ok(result.Value)
+                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+            }).AddRetryFilter();
+
+        group.MapPut("{id}",
+            async (IUpdateMessageFeature feature, HttpContext httpContext,
+                [FromBody] UpsertMessageDto dto, string id) =>
+            {
+                var result = await feature.ExecuteAsync(new UpdateMessageFeatureRequest(
+                    ClaimsPrincipal: httpContext.User,
+                    Id: id,
                     Dto: dto
                 ));
 

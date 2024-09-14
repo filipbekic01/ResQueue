@@ -8,8 +8,8 @@ import { type FormatOption } from '@/components/SelectFormat.vue'
 import type { StructureOption } from '@/components/SelectStructure.vue'
 import { useIdentity } from '@/composables/identityComposable'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
-import NewMessageDialog from '@/dialogs/NewMessageDialog.vue'
-import type { RabbitMQMessageDto } from '@/dtos/rabbitMQMessageDto'
+import UpsertMessageDialog from '@/dialogs/UpsertMessageDialog.vue'
+import type { RabbitMQMessageDto } from '@/dtos/rabbitMqMessageDto'
 import FormattedMessage from '@/features/formatted-message/FormattedMessage.vue'
 import MessageCopy from '@/features/message-copy/MessageCopy.vue'
 import MessageActions from '@/features/message/MessageActions.vue'
@@ -217,7 +217,7 @@ watch(
 )
 
 const editMessage = (id: string) => {
-  dialog.open(NewMessageDialog, {
+  dialog.open(UpsertMessageDialog, {
     data: {
       broker: broker.value,
       queue: rabbitMqQueue.value,

@@ -1,5 +1,5 @@
 import { API_URL } from '@/constants/api'
-import type { CreateMessageDto } from '@/dtos/createMessageDto'
+import type { UpsertMessageDto } from '@/dtos/createMessageDto'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import axios from 'axios'
 
@@ -7,7 +7,7 @@ export function useCreateMessageMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (request: CreateMessageDto) =>
+    mutationFn: (request: UpsertMessageDto) =>
       axios.post(`${API_URL}/messages`, request, {
         withCredentials: true
       }),
