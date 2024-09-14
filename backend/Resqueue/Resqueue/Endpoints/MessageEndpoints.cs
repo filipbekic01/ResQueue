@@ -122,23 +122,13 @@ public static class MessageEndpoints
             }).AddRetryFilter();
 
         group.MapPost("sync",
-            async (ISyncMessagesFeature syncMessagesFeature, ISyncBrokerFeature syncBrokerFeature,
+            async (ISyncMessagesFeature syncMessagesFeature,
                 HttpContext httpContext, [FromBody] SyncMessagesDto dto) =>
             {
                 var result = await syncMessagesFeature.ExecuteAsync(new SyncMessagesFeatureRequest(
                     ClaimsPrincipal: httpContext.User,
                     QueueId: dto.QueueId
                 ));
-
-                var result2 = await syncBrokerFeature.ExecuteAsync(new(
-                    ClaimsPrincipal: httpContext.User,
-                    Id: dto.BrokerId
-                ));
-
-                if (!result2.IsSuccess)
-                {
-                    Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
-                }
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value)

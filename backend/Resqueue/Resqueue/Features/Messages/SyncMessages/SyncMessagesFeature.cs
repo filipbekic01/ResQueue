@@ -17,6 +17,7 @@ public record SyncMessagesFeatureResponse();
 
 public class SyncMessagesFeature(
     UserManager<User> userManager,
+    IMongoClient mongoClient,
     IMongoCollection<Queue> queuesCollection,
     IMongoCollection<Models.Broker> brokersCollection,
     IMongoCollection<Message> messagesCollection,
@@ -63,7 +64,15 @@ public class SyncMessagesFeature(
         while (channel.BasicGet(queue.RawData.GetValue("name").AsString, false) is { } res)
         {
             var message = RabbitMQMessageMapper.ToDocument(queue.Id, user.Id, res);
-            await messagesCollection.InsertOneAsync(message);
+
+            using var session = await mongoClient.StartSessionAsync();
+            session.StartTransaction();
+
+            await messagesCollection.InsertOneAsync(session, message);
+            await queuesCollection.UpdateOneAsync(session, x => x.Id == queue.Id,
+                Builders<Queue>.Update.Inc(x => x.RawData["messages"], -1));
+
+            await session.CommitTransactionAsync();
 
             // channel.BasicAck(res.DeliveryTag, false);
         }

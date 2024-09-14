@@ -11,9 +11,10 @@ export function useSyncMessagesMutation() {
       axios.post(`${API_URL}/messages/sync`, data, {
         withCredentials: true
       }),
-    onSuccess: () => {
+    onSuccess: (_, { queueId }) => {
       queryClient.invalidateQueries({ queryKey: ['messages'] })
-      queryClient.invalidateQueries({ queryKey: ['queues'] }) // for specific key please, check other places too
+      queryClient.invalidateQueries({ queryKey: ['queues'] })
+      queryClient.invalidateQueries({ queryKey: ['queue', queueId] })
     }
   })
 }

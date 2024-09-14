@@ -59,7 +59,7 @@ public class CreateMessageFeature(
         var message = UpsertMessageDtoMapper.ToMessage(queueId, user.Id, request.Dto);
 
         using var session = await mongoClient.StartSessionAsync();
-        session.StartTransaction(new TransactionOptions(writeConcern: WriteConcern.WMajority));
+        session.StartTransaction();
 
         await messagesCollection.InsertOneAsync(session, message);
         await queuesCollection.UpdateOneAsync(session, x => x.Id == queueId,
