@@ -6,7 +6,7 @@ import { computed, toValue, type MaybeRef } from 'vue'
 
 export const useQueueQuery = (id: MaybeRef<string | undefined>) =>
   useQuery({
-    queryKey: ['queues', id],
+    queryKey: ['queue', id],
     queryFn: async () => {
       const response = await axios.get<QueueDto[]>(`${API_URL}/queues`, {
         params: {

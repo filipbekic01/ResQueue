@@ -234,7 +234,7 @@ watchEffect(() => {
                 ]"
               ></i
             ></Button>
-            {{ data.parsed['messages'] }}
+            {{ data.totalMessages }}
           </div>
         </template>
       </Column>

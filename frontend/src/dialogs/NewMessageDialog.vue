@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { useCreateMessageMutation } from '@/api/messages/createMessageMutation'
 import RabbitMqHeadersInput from '@/components/RabbitMqHeadersInput.vue'
-import { useExchanges } from '@/composables/exchangesComposable'
 import type { CreateMessageDto } from '@/dtos/createMessageDto'
 import { extractErrorMessage } from '@/utils/errorUtils'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
 import Textarea from 'primevue/textarea'
 import { useToast } from 'primevue/usetoast'
-import { computed, inject, reactive, ref, watch, type Ref } from 'vue'
+import { inject, reactive, ref, type Ref } from 'vue'
 
 const toast = useToast()
 
@@ -15,12 +14,10 @@ const { mutateAsync: createMessageAsync, isPending: isPublishNewMessagePending }
   useCreateMessageMutation()
 
 const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
-const { formattedExchanges } = useExchanges(computed(() => dialogRef?.value.data.broker.id))
 
-const newMessage = reactive<Omit<CreateMessageDto, 'brokerId' | 'body'>>({
+const newMessage = reactive<Omit<CreateMessageDto, 'brokerId' | 'body' | 'queueId'>>({
   bodyEncoding: 'json',
   rabbitmqMetadata: {
-    exchange: '',
     routingKey: '',
     properties: {
       deliveryMode: 2
@@ -57,57 +54,30 @@ const encodingOptions = [
 const publishMessage = () => {
   const brokerId = dialogRef?.value.data.broker.id
   if (!brokerId) {
-    return
+    throw new Error('brokerId is null.')
+  }
+
+  const queueId = dialogRef?.value.data.queue.id
+  if (!queueId) {
+    throw new Error('queueId is null.')
   }
 
   createMessageAsync({
     brokerId,
+    queueId,
     ...newMessage,
     body: newMessage.bodyEncoding === 'json' ? JSON.parse(body.value) : body
   })
-    .then(() => {
-      toast.add({
-        severity: 'success',
-        summary: 'Publish Completed',
-        detail: 'Messages published to exchange ...',
-        life: 3000
-      })
-    })
+    .then(() => dialogRef.value?.close())
     .catch((e) => {
       toast.add({
         severity: 'error',
-        summary: 'Publish Failed',
+        summary: 'Failed',
         detail: extractErrorMessage(e),
         life: 3000
       })
     })
 }
-
-watch(
-  () => formattedExchanges.value,
-  (v) => {
-    if (!newMessage.rabbitmqMetadata) {
-      return
-    }
-
-    if (!v || newMessage.rabbitmqMetadata.exchange) {
-      return
-    }
-
-    const name = dialogRef?.value.data.queue.parsed.name.replace(
-      dialogRef?.value.data.broker.settings.deadLetterQueueSuffix ?? '',
-      ''
-    )
-
-    newMessage.rabbitmqMetadata.exchange =
-      formattedExchanges.value.find((x) => x.parsed.name == name)?.parsed.name ??
-      formattedExchanges.value[0] ??
-      ''
-  },
-  {
-    immediate: true
-  }
-)
 
 const selectedTab = ref('body')
 </script>
@@ -278,17 +248,6 @@ const selectedTab = ref('body')
       </div>
 
       <div class="overflow-hiddens item-start flex gap-2">
-        <Select
-          v-model="newMessage.rabbitmqMetadata.exchange"
-          :options="formattedExchanges"
-          optionLabel="parsed.name"
-          optionValue="parsed.name"
-          placeholder="Select an exchange"
-          filter
-          class="max-w-96"
-          severity="danger"
-          :virtualScrollerOptions="{ itemSize: 38, style: 'width:43rem' }"
-        ></Select>
         <Select
           v-model="newMessage.bodyEncoding"
           :options="encodingOptions"

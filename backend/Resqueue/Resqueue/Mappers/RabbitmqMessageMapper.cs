@@ -65,12 +65,6 @@ public static class RabbitMQMessageMapper
 
         if (res.BasicProperties.IsReplyToPresent())
         {
-            // todo: Miro, double as mistake for another field?
-            props.ReplyTo = res.BasicProperties.ReplyTo;
-        }
-
-        if (res.BasicProperties.IsReplyToPresent())
-        {
             props.ReplyTo = res.BasicProperties.ReplyTo;
         }
 
