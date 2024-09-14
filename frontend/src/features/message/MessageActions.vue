@@ -208,10 +208,8 @@ const openNewMessageDialog = () => {
       queue: props.rabbitMqQueue
     },
     props: {
-      header: 'New Message',
-      style: {
-        width: '70rem'
-      },
+      header: 'Message Editor',
+      position: 'top',
       modal: true,
       draggable: false
     }

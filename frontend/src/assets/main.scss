@@ -63,3 +63,9 @@ html {
 .p-datatable-row-expansion > td {
   max-width: 0px !important;
 }
+
+// Dialog
+
+.p-dialog-content {
+  display: flex !important;
+}

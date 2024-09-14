@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
@@ -9,23 +8,27 @@ using Resqueue.Models;
 
 namespace Resqueue.Features.Messages.CreateMessage;
 
-public record PublishNewMessageFeatureRequest(ClaimsPrincipal ClaimsPrincipal, CreateMessageDto Dto);
+public record CreateMessageFeatureRequest(
+    ClaimsPrincipal ClaimsPrincipal,
+    CreateMessageDto Dto
+);
 
-public record PublishNewMessageFeatureResponse();
+public record CreateMessageFeatureResponse();
 
-public class PublishNewMessageFeature(
-    IHttpClientFactory httpClientFactory,
+public class CreateMessageFeature(
     IMongoCollection<Models.Broker> brokersCollection,
-    UserManager<User> userManager,
-    RabbitmqConnectionFactory rabbitmqConnectionFactory) : IPublishNewMessageFeature
+    IMongoCollection<Queue> queuesCollection,
+    IMongoCollection<Message> messagesCollection,
+    UserManager<User> userManager
+) : ICreateMessageFeature
 {
-    public async Task<OperationResult<PublishNewMessageFeatureResponse>> ExecuteAsync(
-        PublishNewMessageFeatureRequest request)
+    public async Task<OperationResult<CreateMessageFeatureResponse>> ExecuteAsync(
+        CreateMessageFeatureRequest request)
     {
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user == null)
         {
-            return OperationResult<PublishNewMessageFeatureResponse>.Failure(new ProblemDetails()
+            return OperationResult<CreateMessageFeatureResponse>.Failure(new ProblemDetails()
             {
                 Detail = "User not found"
             });
@@ -37,103 +40,57 @@ public class PublishNewMessageFeature(
         )).FirstOrDefaultAsync();
         if (broker == null)
         {
-            return OperationResult<PublishNewMessageFeatureResponse>.Failure(new ProblemDetails()
+            return OperationResult<CreateMessageFeatureResponse>.Failure(new ProblemDetails()
             {
                 Detail = "Broker not found"
             });
         }
 
-        var factory = rabbitmqConnectionFactory.CreateFactory(broker);
-        using var connection = factory.CreateConnection();
-        using var channel = connection.CreateModel();
+        var queuesFilter = Builders<Queue>.Filter.And(
+            Builders<Queue>.Filter.Eq(b => b.BrokerId, broker.Id),
+            Builders<Queue>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Dto.QueueId))
+        );
+        var queue = await queuesCollection.Find(queuesFilter).FirstAsync();
 
-        var props = channel.CreateBasicProperties();
+        // todo: move to mapper
 
-        var message = request.Dto;
-
-        if (message.RabbitmqMetadata is not null)
+        var message = new Message()
         {
-            if (message.RabbitmqMetadata.Properties.AppId is not null)
+            QueueId = queue.Id,
+            UserId = user.Id,
+            RabbitMQMeta = new()
             {
-                props.AppId = message.RabbitmqMetadata.Properties.AppId;
-            }
+                Redelivered = false,
+                Exchange = request.Dto.RabbitmqMetadata.Exchange,
+                RoutingKey = request.Dto.RabbitmqMetadata.RoutingKey,
+                Properties =
+                    new RabbitMQMessageProperties
+                    {
+                        AppId = request.Dto.RabbitmqMetadata.Properties.AppId,
+                        ClusterId = request.Dto.RabbitmqMetadata.Properties.ClusterId,
+                        ContentEncoding = request.Dto.RabbitmqMetadata.Properties.ContentEncoding,
+                        ContentType = request.Dto.RabbitmqMetadata.Properties.ContentType,
+                        CorrelationId = request.Dto.RabbitmqMetadata.Properties.CorrelationId,
+                        DeliveryMode = request.Dto.RabbitmqMetadata.Properties.DeliveryMode,
+                        Expiration = request.Dto.RabbitmqMetadata.Properties.Expiration,
+                        MessageId = request.Dto.RabbitmqMetadata.Properties.MessageId,
+                        Priority = request.Dto.RabbitmqMetadata.Properties.Priority,
+                        ReplyTo = request.Dto.RabbitmqMetadata.Properties.ReplyTo,
+                        Timestamp = request.Dto.RabbitmqMetadata.Properties.Timestamp,
+                        Type = request.Dto.RabbitmqMetadata.Properties.Type,
+                        UserId = request.Dto.RabbitmqMetadata.Properties.UserId,
+                    }
+            },
+            Body = BsonDocument.TryParse(request.Dto.Body.ToString(), out var doc)
+                ? doc
+                : new BsonBinaryData(request.Dto.Body.ToArray()),
+            CreatedAt = DateTime.UtcNow
+        };
 
-            if (message.RabbitmqMetadata.Properties.ClusterId is not null)
-            {
-                props.ClusterId = message.RabbitmqMetadata.Properties.ClusterId;
-            }
+        await messagesCollection.InsertOneAsync(message);
 
-            if (message.RabbitmqMetadata.Properties.ContentEncoding is not null)
-            {
-                props.ContentEncoding = message.RabbitmqMetadata.Properties.ContentEncoding;
-            }
+        // todo: increase counter
 
-            if (message.RabbitmqMetadata.Properties.ContentType is not null)
-            {
-                props.ContentType = message.RabbitmqMetadata.Properties.ContentType;
-            }
-
-            if (message.RabbitmqMetadata.Properties.DeliveryMode is not null)
-            {
-                props.DeliveryMode = message.RabbitmqMetadata.Properties.DeliveryMode.Value;
-            }
-
-            if (message.RabbitmqMetadata.Properties.Expiration is not null)
-            {
-                props.Expiration = message.RabbitmqMetadata.Properties.Expiration;
-            }
-
-            if (message.RabbitmqMetadata.Properties.Headers is not null)
-            {
-                props.Headers = message.RabbitmqMetadata.Properties.Headers;
-            }
-
-            if (message.RabbitmqMetadata.Properties.MessageId is not null)
-            {
-                props.MessageId = message.RabbitmqMetadata.Properties.MessageId;
-            }
-
-            if (message.RabbitmqMetadata.Properties.Priority is not null)
-            {
-                props.Priority = message.RabbitmqMetadata.Properties.Priority.Value;
-            }
-
-            if (message.RabbitmqMetadata.Properties.ReplyTo is not null)
-            {
-                props.ReplyTo = message.RabbitmqMetadata.Properties.ReplyTo;
-            }
-
-            if (message.RabbitmqMetadata.Properties.Timestamp is not null)
-            {
-                props.Timestamp = new(message.RabbitmqMetadata.Properties.Timestamp.Value);
-            }
-
-            if (message.RabbitmqMetadata.Properties.Type is not null)
-            {
-                props.Type = message.RabbitmqMetadata.Properties.Type;
-            }
-
-            if (message.RabbitmqMetadata.Properties.UserId is not null)
-            {
-                props.UserId = message.RabbitmqMetadata.Properties.UserId;
-            }
-
-            byte[] body = message.BodyEncoding switch
-            {
-                "json" => JsonSerializer.SerializeToUtf8Bytes(message.Body),
-                "base64" => Convert.FromBase64String(message.Body.ToString()),
-                _ => throw new Exception($"Unsupported Body type {message.Body.GetType()}")
-            };
-
-            channel.BasicPublish(message.RabbitmqMetadata.Exchange, message.RabbitmqMetadata.RoutingKey, false, props,
-                body);
-        }
-        else
-        {
-            throw new NotImplementedException();
-        }
-
-
-        return OperationResult<PublishNewMessageFeatureResponse>.Success(new PublishNewMessageFeatureResponse());
+        return OperationResult<CreateMessageFeatureResponse>.Success(new CreateMessageFeatureResponse());
     }
 }

@@ -8,6 +8,7 @@ import { type FormatOption } from '@/components/SelectFormat.vue'
 import type { StructureOption } from '@/components/SelectStructure.vue'
 import { useIdentity } from '@/composables/identityComposable'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
+import NewMessageDialog from '@/dialogs/NewMessageDialog.vue'
 import type { RabbitMQMessageDto } from '@/dtos/rabbitMQMessageDto'
 import FormattedMessage from '@/features/formatted-message/FormattedMessage.vue'
 import MessageCopy from '@/features/message-copy/MessageCopy.vue'
@@ -23,6 +24,7 @@ import type { PageState } from 'primevue/paginator'
 import type { PopoverMethods } from 'primevue/popover'
 import Tag from 'primevue/tag'
 import { useConfirm } from 'primevue/useconfirm'
+import { useDialog } from 'primevue/usedialog'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -35,6 +37,7 @@ const props = defineProps<{
 const router = useRouter()
 
 const confirm = useConfirm()
+const dialog = useDialog()
 const toast = useToast()
 
 const {
@@ -212,6 +215,22 @@ watch(
     immediate: true
   }
 )
+
+const editMessage = (id: string) => {
+  dialog.open(NewMessageDialog, {
+    data: {
+      broker: broker.value,
+      queue: rabbitMqQueue.value,
+      message: paginatedMessages.value?.items.find((x) => x.id === id)
+    },
+    props: {
+      header: 'Message Editor',
+      modal: true,
+      position: 'top',
+      draggable: false
+    }
+  })
+}
 </script>
 
 <template>
@@ -302,15 +321,7 @@ watch(
         <Column field="id" header="Message" class="w-[0%]">
           <template #body="{ data }">
             <div class="flex items-center gap-2">
-              <Button
-                text
-                size="small"
-                :pt="{
-                  root: {
-                    style: {}
-                  }
-                }"
-                @click="(e) => toggleIdPopover(e)"
+              <Button text size="small" @click="(e) => toggleIdPopover(e)"
                 ><i class="pi pi-copy"></i
               ></Button>
               <span
@@ -337,6 +348,15 @@ watch(
           </template>
         </Column>
 
+        <Column field="edit" header="" class="w-[0%]">
+          <template #body="{ data }">
+            <div class="flex">
+              <Button text icon="pi pi-pencil" size="small" @click="editMessage(data.id)"></Button>
+              <Button text icon="pi pi-clone" size="small"></Button>
+            </div>
+          </template>
+        </Column>
+
         <Column field="updatedAt" header="Updated" class="w-[0%]">
           <template #body="{ data }"
             ><div class="whitespace-nowrap text-slate-500">
@@ -344,6 +364,7 @@ watch(
             </div></template
           >
         </Column>
+
         <Column field="createdAt" header="Created" class="w-[0%]">
           <template #body="{ data }"
             ><div class="whitespace-nowrap">

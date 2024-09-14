@@ -2,6 +2,7 @@ using System.Collections;
 using System.Text;
 using MongoDB.Bson;
 using RabbitMQ.Client;
+using Resqueue.Dtos;
 using Resqueue.Models;
 
 namespace Resqueue.Mappers;
@@ -64,6 +65,7 @@ public static class RabbitMQMessageMapper
 
         if (res.BasicProperties.IsReplyToPresent())
         {
+            // todo: Miro, double as mistake for another field?
             props.ReplyTo = res.BasicProperties.ReplyTo;
         }
 

@@ -1,6 +1,6 @@
 namespace Resqueue.Dtos;
 
-public class RabbitmqNewMessageMetadataDto
+public class RabbitmqCreateMessageMetadataDto
 {
     public required string Exchange { get; set; }
     public required string RoutingKey { get; set; }
