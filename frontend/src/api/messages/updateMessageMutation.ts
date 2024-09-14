@@ -11,7 +11,8 @@ export function useUpdateMessageMutation() {
       axios.put(`${API_URL}/messages/${id}`, dto, {
         withCredentials: true
       }),
-    onSuccess: () => {
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['message', id] })
       queryClient.invalidateQueries({ queryKey: ['messages'] })
     }
   })
