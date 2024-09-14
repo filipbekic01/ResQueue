@@ -17,6 +17,7 @@ export function useReviewMessagesMutation() {
       })
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['message'] })
       queryClient.invalidateQueries({ queryKey: ['messages'] }) // for specific key please, check other places too
     }
   })

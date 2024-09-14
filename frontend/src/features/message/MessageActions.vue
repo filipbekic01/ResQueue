@@ -254,7 +254,6 @@ emit(
     :loading="isReviewMessagesPending"
     :disabled="isReviewMessagesPending || !props.selectedMessageIds.length"
     :label="reviewMessagesLabel"
-    icon="pi pi-check"
   ></Button>
   <Button
     @click="() => archiveMessages()"
@@ -262,7 +261,7 @@ emit(
     :loading="isArchiveMessagesPending"
     :disabled="isArchiveMessagesPending || !props.selectedMessageIds.length"
     severity="danger"
-    icon="pi pi-trash"
+    label="Archive"
   ></Button>
 
   <SelectStructure

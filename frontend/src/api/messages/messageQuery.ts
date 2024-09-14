@@ -6,7 +6,7 @@ import { computed, toValue, type MaybeRef } from 'vue'
 
 export const useMessageQuery = (id: MaybeRef<string | undefined>) =>
   useQuery({
-    queryKey: ['messages', id],
+    queryKey: ['message', id],
     queryFn: async () => {
       const response = await axios.get<MessageDto[]>(`${API_URL}/messages`, {
         params: {
@@ -15,7 +15,7 @@ export const useMessageQuery = (id: MaybeRef<string | undefined>) =>
         withCredentials: true
       })
 
-      return response.data[0] ?? undefined
+      return response.data[0]
     },
     enabled: computed(() => !!toValue(id))
   })

@@ -224,13 +224,11 @@ watch(
         <img src="/rmq.svg" class="w-7 select-none" />
       </div>
     </template>
-    <template #title
-      ><span class="cursor-pointer hover:underline" @click="backToQueues">{{
-        broker?.name
-      }}</span></template
-    >
+    <template #title>
+      <span class="cursor-pointer hover:underline" @click="backToQueues">{{ broker?.name }}</span>
+    </template>
     <template #description>{{ rabbitMqQueue?.parsed.name }}</template>
-    <div class="flex items-start gap-2 border-b px-4 py-2">
+    <div class="flex flex-wrap items-start gap-2 border-b px-4 py-2">
       <Button @click="backToQueues" outlined label="Queues" icon="pi pi-arrow-left"></Button>
       <ButtonGroup>
         <Button

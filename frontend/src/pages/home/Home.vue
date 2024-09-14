@@ -83,28 +83,6 @@ const {
       </div>
     </div>
 
-    <div class="mt-16">
-      <div class="text-2xl font-semibold">Easy Queue Navigation</div>
-      <div class="mb-6 mt-2">
-        Our platform provides a streamlined queue view with powerful filters, making it easy to
-        browse and find what you need quickly. The system also remembers your filter settings for
-        future visits, saving time and letting you manage queues efficiently without reconfiguring
-        filters each time."
-      </div>
-      <img src="/home.png" class="rounded-xl shadow" />
-    </div>
-
-    <div class="mt-16">
-      <div class="text-2xl font-semibold">Human Readable Messages</div>
-      <div class="mb-6 mt-2">
-        Our platform provides a streamlined queue view with powerful filters, making it easy to
-        browse and find what you need quickly. The system also remembers your filter settings for
-        future visits, saving time and letting you manage queues efficiently without reconfiguring
-        filters each time."
-      </div>
-      <img src="/home2.png" class="rounded-xl shadow" />
-    </div>
-
     <div class="mt-16 flex gap-4">
       <div class="flex-1 rounded-2xl border-slate-400 bg-white p-6 text-slate-700 shadow">
         <div class="text-xl font-bold">

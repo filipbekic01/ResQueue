@@ -18,7 +18,6 @@ app.use(VueQueryPlugin, {
   queryClient: new QueryClient({
     defaultOptions: {
       queries: {
-        refetchOnMount: false,
         refetchOnWindowFocus: false,
         staleTime: Infinity,
         gcTime: 5 * 60 * 1000
