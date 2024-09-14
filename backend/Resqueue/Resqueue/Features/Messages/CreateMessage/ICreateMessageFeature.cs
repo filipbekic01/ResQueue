@@ -1,6 +1,6 @@
-namespace Resqueue.Features.Messages.PublishNewMessage;
+namespace Resqueue.Features.Messages.CreateMessage;
 
-public interface IPublishNewMessageFeature
+public interface ICreateMessageFeature
 {
     Task<OperationResult<PublishNewMessageFeatureResponse>> ExecuteAsync(PublishNewMessageFeatureRequest request);
 }

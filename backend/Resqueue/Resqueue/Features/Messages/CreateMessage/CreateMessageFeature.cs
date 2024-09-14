@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,9 +7,9 @@ using MongoDB.Driver;
 using Resqueue.Dtos;
 using Resqueue.Models;
 
-namespace Resqueue.Features.Messages.PublishNewMessage;
+namespace Resqueue.Features.Messages.CreateMessage;
 
-public record PublishNewMessageFeatureRequest(ClaimsPrincipal ClaimsPrincipal, NewMessageDto Dto);
+public record PublishNewMessageFeatureRequest(ClaimsPrincipal ClaimsPrincipal, CreateMessageDto Dto);
 
 public record PublishNewMessageFeatureResponse();
 
