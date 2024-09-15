@@ -69,8 +69,12 @@ public class SyncMessagesFeature(
             session.StartTransaction();
 
             await messagesCollection.InsertOneAsync(session, message);
+
             await queuesCollection.UpdateOneAsync(session, x => x.Id == queue.Id,
                 Builders<Queue>.Update.Inc(x => x.RawData["messages"], -1));
+
+            await queuesCollection.UpdateOneAsync(session, x => x.Id == queue.Id,
+                Builders<Queue>.Update.Max(x => x.RawData["messages"], 0));
 
             await session.CommitTransactionAsync();
 
