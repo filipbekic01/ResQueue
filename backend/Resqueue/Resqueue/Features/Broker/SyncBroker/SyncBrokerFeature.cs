@@ -56,17 +56,11 @@ public class SyncBrokerFeature(
         var exchangesFilters = Builders<Exchange>.Filter.Eq(b => b.BrokerId, ObjectId.Parse(request.Id));
         var exchanges = await exchangesCollection.Find(exchangesFilters).ToListAsync();
 
-        var http = httpClientFactory.CreateClient();
-
-        http.BaseAddress = new Uri($"https://{broker.Host}:{broker.Port}");
-
-        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
-            Convert.ToBase64String(Encoding.UTF8.GetBytes($"{broker.Username}:{broker.Password}")));
-        http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        using var http = RabbitmqConnectionFactory.CreateManagementClient(httpClientFactory, broker);
 
         // Sync queues
 
-        var response = await http.GetAsync($"/api/queues");
+        var response = await http.GetAsync("/api/queues");
         response.EnsureSuccessStatusCode();
 
         var content1 = await response.Content.ReadAsStringAsync();

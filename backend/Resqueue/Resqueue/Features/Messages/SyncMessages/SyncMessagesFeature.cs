@@ -20,8 +20,7 @@ public class SyncMessagesFeature(
     IMongoClient mongoClient,
     IMongoCollection<Queue> queuesCollection,
     IMongoCollection<Models.Broker> brokersCollection,
-    IMongoCollection<Message> messagesCollection,
-    RabbitmqConnectionFactory rabbitmqConnectionFactory
+    IMongoCollection<Message> messagesCollection
 ) : ISyncMessagesFeature
 {
     public async Task<OperationResult<SyncMessagesFeatureResponse>> ExecuteAsync(SyncMessagesFeatureRequest request)
@@ -60,7 +59,7 @@ public class SyncMessagesFeature(
             });
         }
 
-        var factory = rabbitmqConnectionFactory.CreateFactory(broker);
+        var factory = RabbitmqConnectionFactory.CreateAmqpFactory(broker);
         using var connection = factory.CreateConnection();
         using var channel = connection.CreateModel();
         while (channel.BasicGet(queue.RawData.GetValue("name").AsString, false) is { } res)

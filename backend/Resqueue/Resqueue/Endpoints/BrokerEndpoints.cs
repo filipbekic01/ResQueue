@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text;
+using Amazon.Runtime;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
@@ -13,6 +14,7 @@ using Resqueue.Features.Broker.ManageBrokerAccess;
 using Resqueue.Features.Broker.SyncBroker;
 using Resqueue.Features.Broker.UpdateBroker;
 using Resqueue.Filters;
+using Resqueue.Mappers;
 using Resqueue.Models;
 
 namespace Resqueue.Endpoints;
@@ -40,33 +42,7 @@ public static class BrokerEndpoints
                 var sort = Builders<Broker>.Sort.Descending(b => b.Id);
 
                 var brokers = await collection.Find(filter).Sort(sort).ToListAsync();
-                var dtos = brokers.Select(x => new BrokerDto(
-                    Id: x.Id.ToString(),
-                    System: x.System,
-                    Name: x.Name,
-                    Port: x.Port,
-                    Host: x.Host,
-                    VHost: x.VHost,
-                    AccessList: x.AccessList.Select(y => new BrokerAccessDto()
-                    {
-                        UserId = y.UserId.ToString(),
-                        AccessLevel = y.AccessLevel
-                    }).ToList(),
-                    Settings: new BrokerSettingsDto(
-                        QuickSearches: x.Settings.QuickSearches,
-                        DeadLetterQueueSuffix: x.Settings.DeadLetterQueueSuffix,
-                        MessageFormat: x.Settings.MessageFormat,
-                        MessageStructure: x.Settings.MessageStructure,
-                        QueueTrimPrefix: x.Settings.QueueTrimPrefix,
-                        DefaultQueueSortField: x.Settings.DefaultQueueSortField,
-                        DefaultQueueSortOrder: x.Settings.DefaultQueueSortOrder,
-                        DefaultQueueSearch: x.Settings.DefaultQueueSearch
-                    ),
-                    CreatedAt: x.CreatedAt,
-                    UpdatedAt: x.UpdatedAt,
-                    SyncedAt: x.SyncedAt,
-                    DeletedAt: x.DeletedAt
-                ));
+                var dtos = brokers.Select(BrokerMapper.ToDto).ToList();
 
                 return Results.Ok(dtos);
             });
@@ -81,59 +57,11 @@ public static class BrokerEndpoints
                     return Results.Unauthorized();
                 }
 
-                var dateTime = DateTime.UtcNow;
-
-                var broker = new Broker
-                {
-                    UserId = user.Id,
-                    AccessList = new List<BrokerAccess>()
-                    {
-                        new()
-                        {
-                            UserId = user.Id,
-                            AccessLevel = AccessLevel.Owner
-                        }
-                    },
-                    System = BrokerSystems.RABBIT_MQ,
-                    Name = dto.Name,
-                    Username = dto.Username,
-                    Password = dto.Password,
-                    Port = dto.Port,
-                    Host = dto.Host,
-                    VHost = dto.VHost,
-                    CreatedAt = dateTime,
-                    UpdatedAt = dateTime
-                };
+                var broker = CreateBrokerDtoMapper.ToBroker(user.Id, dto);
 
                 await collection.InsertOneAsync(broker);
 
-                return Results.Ok(new BrokerDto(
-                    Id: broker.Id.ToString(),
-                    System: broker.System,
-                    Name: broker.Name,
-                    Port: broker.Port,
-                    Host: broker.Host,
-                    VHost: broker.VHost,
-                    AccessList: broker.AccessList.Select(y => new BrokerAccessDto()
-                    {
-                        UserId = y.UserId.ToString(),
-                        AccessLevel = y.AccessLevel
-                    }).ToList(),
-                    Settings: new BrokerSettingsDto(
-                        QuickSearches: broker.Settings.QuickSearches,
-                        DeadLetterQueueSuffix: broker.Settings.DeadLetterQueueSuffix,
-                        MessageFormat: broker.Settings.MessageFormat,
-                        MessageStructure: broker.Settings.MessageStructure,
-                        QueueTrimPrefix: broker.Settings.QueueTrimPrefix,
-                        DefaultQueueSortField: broker.Settings.DefaultQueueSortField,
-                        DefaultQueueSortOrder: broker.Settings.DefaultQueueSortOrder,
-                        DefaultQueueSearch: broker.Settings.DefaultQueueSearch
-                    ),
-                    CreatedAt: broker.CreatedAt,
-                    UpdatedAt: broker.UpdatedAt,
-                    SyncedAt: broker.SyncedAt,
-                    DeletedAt: broker.DeletedAt
-                ));
+                return Results.Ok(BrokerMapper.ToDto(broker));
             });
 
         group.MapPost("{id}/sync",
@@ -150,29 +78,41 @@ public static class BrokerEndpoints
             }).AddRetryFilter();
 
         group.MapPost("/test-connection",
-            async ([FromBody] CreateBrokerDto dto) =>
+            async (IHttpClientFactory httpClientFactory, [FromBody] CreateBrokerDto dto) =>
             {
-                using var httpClient = new HttpClient();
+                var broker = CreateBrokerDtoMapper.ToBroker(ObjectId.Empty, dto);
 
-                var url = $"https://{dto.Host}:{dto.Port}/api/whoami";
-
-                var authToken = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{dto.Username}:{dto.Password}"));
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authToken);
-
+                var httpClient = RabbitmqConnectionFactory.CreateManagementClient(httpClientFactory, broker);
                 try
                 {
-                    var response = await httpClient.GetAsync(url);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        return Results.Ok();
-                    }
-
-                    return Results.Problem("Failed to connect to the host.");
+                    var response = await httpClient.GetAsync("api/whoami");
+                    response.EnsureSuccessStatusCode();
                 }
                 catch (Exception ex)
                 {
-                    return Results.Problem($"Failed to connect to the host: {ex.Message}");
+                    return Results.Problem(new ProblemDetails()
+                    {
+                        Title = $"Test Failed to connect to the management endpoint: {ex.Message}",
+                        Status = 400,
+                    });
                 }
+
+                var factory = RabbitmqConnectionFactory.CreateAmqpFactory(broker);
+                try
+                {
+                    using var connection = factory.CreateConnection();
+                    using var channel = connection.CreateModel();
+                }
+                catch (Exception ex)
+                {
+                    return Results.Problem(new ProblemDetails()
+                    {
+                        Title = $"Failed to connect to the amqp endpoint: {ex.Message}",
+                        Status = 400,
+                    });
+                }
+
+                return Results.Ok();
             });
 
         group.MapPost("/{id}/access",

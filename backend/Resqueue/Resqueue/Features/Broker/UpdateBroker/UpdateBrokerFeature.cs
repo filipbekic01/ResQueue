@@ -35,10 +35,7 @@ public class UpdateBrokerFeature(
         );
 
         var update = Builders<Models.Broker>.Update
-            .Set(b => b.Port, request.Dto.Port)
-            .Set(b => b.Host, request.Dto.Host)
             .Set(b => b.Name, request.Dto.Name)
-            .Set(b => b.VHost, request.Dto.VHost)
             .Set(b => b.Settings, new BrokerSettings()
             {
                 QuickSearches = request.Dto.Settings.QuickSearches,
@@ -52,11 +49,23 @@ public class UpdateBrokerFeature(
             })
             .Set(b => b.UpdatedAt, DateTime.UtcNow);
 
-        if (!string.IsNullOrEmpty(request.Dto.Username) && !string.IsNullOrEmpty(request.Dto.Password))
+        if (request.Dto.RabbitMqConnection is { } rabbitMqConnection)
         {
+            if (!string.IsNullOrEmpty(rabbitMqConnection.Username) &&
+                !string.IsNullOrEmpty(rabbitMqConnection.Password))
+            {
+                update = update
+                    .Set(b => b.RabbitMQConnection!.Username, rabbitMqConnection.Username)
+                    .Set(b => b.RabbitMQConnection!.Password, rabbitMqConnection.Password);
+            }
+
             update = update
-                .Set(b => b.Username, request.Dto.Username)
-                .Set(b => b.Password, request.Dto.Password);
+                .Set(b => b.RabbitMQConnection!.ManagementPort, rabbitMqConnection.ManagementPort)
+                .Set(b => b.RabbitMQConnection!.ManagementTls, rabbitMqConnection.ManagementTls)
+                .Set(b => b.RabbitMQConnection!.AmqpPort, rabbitMqConnection.AmqpPort)
+                .Set(b => b.RabbitMQConnection!.AmqpTls, rabbitMqConnection.AmqpTls)
+                .Set(b => b.RabbitMQConnection!.Host, rabbitMqConnection.Host)
+                .Set(b => b.RabbitMQConnection!.VHost, rabbitMqConnection.VHost);
         }
 
         await brokersCollection.UpdateOneAsync(filter, update);

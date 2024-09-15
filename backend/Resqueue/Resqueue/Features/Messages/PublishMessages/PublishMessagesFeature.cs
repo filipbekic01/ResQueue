@@ -17,8 +17,7 @@ public class PublishMessagesFeature(
     IMongoCollection<Message> messagesCollection,
     IMongoCollection<Exchange> exchangesCollection,
     IMongoCollection<Models.Broker> brokersCollection,
-    UserManager<User> userManager,
-    RabbitmqConnectionFactory rabbitmqConnectionFactory
+    UserManager<User> userManager
 ) : IPublishMessagesFeature
 {
     public async Task<OperationResult<PublishMessagesFeatureResponse>> ExecuteAsync(
@@ -64,7 +63,7 @@ public class PublishMessagesFeature(
         var sort = Builders<Message>.Sort.Ascending(q => q.MessageOrder);
 
 
-        var factory = rabbitmqConnectionFactory.CreateFactory(broker);
+        var factory = RabbitmqConnectionFactory.CreateAmqpFactory(broker);
         using var connection = factory.CreateConnection();
         using var channel = connection.CreateModel();
 

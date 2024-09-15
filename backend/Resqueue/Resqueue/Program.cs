@@ -63,8 +63,6 @@ public class Program
 
         builder.Services.AddSingleton<IEmailSender<User>, DummyEmailSender>();
 
-        builder.Services.AddSingleton<RabbitmqConnectionFactory>();
-
         builder.Services.AddTransient<ISyncBrokerFeature, SyncBrokerFeature>();
         builder.Services.AddTransient<IUpdateBrokerFeature, UpdateBrokerFeature>();
         builder.Services.AddTransient<IManageBrokerAccessFeature, ManageBrokerAccessFeature>();

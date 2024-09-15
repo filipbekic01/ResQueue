@@ -41,11 +41,18 @@ watch(
 
     brokerEditable.value = {
       name: value.name,
-      host: value.host,
-      username: '',
-      password: '',
-      port: value.port,
-      vHost: value.vHost,
+      rabbitMQConnection: value.rabbitMQConnection
+        ? {
+            username: '',
+            password: '',
+            managementPort: value.rabbitMQConnection.managementPort,
+            managementTls: value.rabbitMQConnection.managementTls,
+            amqpPort: value.rabbitMQConnection.amqpPort,
+            amqpTls: value.rabbitMQConnection.amqpTls,
+            host: value.rabbitMQConnection.host,
+            vHost: value.rabbitMQConnection.vHost
+          }
+        : undefined,
       settings: JSON.parse(JSON.stringify(value.settings))
     }
   },
@@ -228,7 +235,10 @@ const deleteBroker = () => {
         </div>
       </div>
 
-      <div class="flex w-1/2 grow basis-1/2 flex-col gap-3 rounded-xl border border-gray-200 p-5">
+      <div
+        v-if="brokerEditable.rabbitMQConnection"
+        class="flex w-1/2 grow basis-1/2 flex-col gap-3 rounded-xl border border-gray-200 p-5"
+      >
         <div class="flex items-center gap-2 text-lg font-medium">
           Connection Details
           <ToggleSwitch v-model="updateCredentials" class="ms-auto"></ToggleSwitch>
@@ -241,7 +251,7 @@ const deleteBroker = () => {
               <label for="username">Username</label>
               <InputText
                 placeholder="Enter username"
-                v-model="brokerEditable.username"
+                v-model="brokerEditable.rabbitMQConnection.username"
                 id="username"
                 autocomplete="off"
               />
@@ -251,32 +261,76 @@ const deleteBroker = () => {
               <InputText
                 placeholder="*******"
                 id="password"
-                v-model="brokerEditable.password"
+                v-model="brokerEditable.rabbitMQConnection.password"
                 type="password"
                 autocomplete="off"
               />
             </div>
           </template>
+
           <div class="flex items-center gap-4">
             <div class="flex grow flex-col gap-2">
               <label for="url">Host</label>
-              <InputText id="url" v-model="brokerEditable.host" autocomplete="off" />
+              <InputText
+                id="url"
+                v-model="brokerEditable.rabbitMQConnection.host"
+                autocomplete="off"
+              />
             </div>
           </div>
+
           <div class="flex items-center gap-4">
             <div class="flex basis-1/2 flex-col gap-2">
-              <label for="vhost">V-Host</label>
-              <InputText id="vhost" v-model="brokerEditable.vHost" autocomplete="off" />
-            </div>
-            <div class="flex basis-1/2 flex-col gap-2">
-              <label for="port" class="flex"
-                >Port<label class="ms-auto font-normal text-slate-500">...80, 443</label></label
-              >
+              <label for="rabbitMQConnection.managementPort" class="flex">Management Port</label>
               <InputNumber
                 :use-grouping="false"
-                id="port"
-                v-model="brokerEditable.port"
+                id="rabbitMQConnection.managementPort"
+                v-model="brokerEditable.rabbitMQConnection.managementPort"
                 type="password"
+                autocomplete="off"
+              />
+            </div>
+            <div class="flex basis-1/2 flex-col gap-2">
+              <label for="rabbitMQConnection.managementTls" class="flex">Management TLS</label>
+              <InputSwitch
+                :use-grouping="false"
+                id="rabbitMQConnection.managementTls"
+                v-model="brokerEditable.rabbitMQConnection.managementTls"
+                type="password"
+                autocomplete="off"
+              />
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="flex basis-1/2 flex-col gap-2">
+              <label for="rabbitMQConnection.amqpPort" class="flex">AMQP Port</label>
+              <InputNumber
+                :use-grouping="false"
+                id="rabbitMQConnection.amqpPort"
+                v-model="brokerEditable.rabbitMQConnection.amqpPort"
+                type="password"
+                autocomplete="off"
+              />
+            </div>
+            <div class="flex basis-1/2 flex-col gap-2">
+              <label for="rabbitMQConnection.amqpTls" class="flex">AMQP TLS</label>
+              <InputSwitch
+                :use-grouping="false"
+                id="rabbitMQConnection.amqpTls"
+                v-model="brokerEditable.rabbitMQConnection.amqpTls"
+                type="password"
+                autocomplete="off"
+              />
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="flex grow flex-col gap-2">
+              <label for="vhost">V-Host</label>
+              <InputText
+                id="vhost"
+                v-model="brokerEditable.rabbitMQConnection.vHost"
                 autocomplete="off"
               />
             </div>

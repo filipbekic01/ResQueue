@@ -18,11 +18,16 @@ const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 
 const newBroker = reactive<CreateBrokerDto>({
   name: 'md-local',
-  username: 'rabbitmq',
-  password: 'rabbitmq',
-  port: 15671,
-  host: 'localhost',
-  vHost: '/'
+  rabbitMQConnection: {
+    username: 'rabbitmq',
+    password: 'rabbitmq',
+    managementPort: 15671,
+    managementTls: true,
+    amqpPort: 5671,
+    amqpTls: true,
+    host: 'localhost',
+    vHost: '/'
+  }
 })
 
 const createBroker = () => {
@@ -64,38 +69,88 @@ const testConnection = () => {
         <InputText :model-value="'RabbitMQ'" disabled id="broker" autocomplete="off" />
       </div>
     </div>
-    <!-- <div class="flex flex-col border border-slate-200 rounded-xl p-4 gap-3"> -->
-    <div class="flex flex-col gap-2">
-      <label for="username" class="font-semibold">Username</label>
-      <InputText v-model="newBroker.username" id="username" autocomplete="off" />
-    </div>
-    <div class="flex flex-col gap-2">
-      <label for="password" class="font-semibold">Password</label>
-      <InputText id="password" v-model="newBroker.password" type="password" autocomplete="off" />
-    </div>
-    <div class="flex flex-col gap-2">
-      <label for="url" class="font-semibold">Host</label>
-      <InputText id="url" v-model="newBroker.host" autocomplete="off" />
-    </div>
-    <div class="flex items-center gap-4">
-      <div class="flex basis-1/2 flex-col gap-2">
-        <label for="vhost" class="font-semibold">V-Host</label>
-        <InputText id="vhost" v-model="newBroker.vHost" autocomplete="off" />
+    <template v-if="newBroker.rabbitMQConnection">
+      <div class="flex flex-col gap-2">
+        <label for="rabbitMQConnection.username" class="font-semibold">Username</label>
+        <InputText
+          v-model="newBroker.rabbitMQConnection.username"
+          id="rabbitMQConnection.username"
+          autocomplete="off"
+        />
       </div>
-      <div class="flex basis-1/2 flex-col gap-2">
-        <label for="port" class="flex font-semibold"
-          >Port<span class="ms-auto font-normal text-slate-500">80, 443, 15671...</span></label
-        >
-        <InputNumber
-          :use-grouping="false"
-          id="port"
-          v-model="newBroker.port"
+      <div class="flex flex-col gap-2">
+        <label for="rabbitMQConnection.password" class="font-semibold">Password</label>
+        <InputText
+          id="rabbitMQConnection.password"
+          v-model="newBroker.rabbitMQConnection.password"
           type="password"
           autocomplete="off"
         />
       </div>
-      <!-- </div> -->
-    </div>
+      <div class="flex flex-col gap-2">
+        <label for="rabbitMQConnection.host" class="font-semibold">Host</label>
+        <InputText
+          id="rabbitMQConnection.host"
+          v-model="newBroker.rabbitMQConnection.host"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="flex basis-1/2 flex-col gap-2">
+          <label for="rabbitMQConnection.managementPort" class="flex font-semibold"
+            >Management Port</label
+          >
+          <InputNumber
+            :use-grouping="false"
+            id="rabbitMQConnection.managementPort"
+            v-model="newBroker.rabbitMQConnection.managementPort"
+            type="password"
+            autocomplete="off"
+          />
+        </div>
+        <div class="flex basis-1/2 flex-col gap-2">
+          <label for="rabbitMQConnection.managementTls" class="flex font-semibold"
+            >Management TLS</label
+          >
+          <InputSwitch
+            :use-grouping="false"
+            id="rabbitMQConnection.managementTls"
+            v-model="newBroker.rabbitMQConnection.managementTls"
+            type="password"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="flex basis-1/2 flex-col gap-2">
+          <label for="rabbitMQConnection.amqpPort" class="flex font-semibold">AMQP Port</label>
+          <InputNumber
+            :use-grouping="false"
+            id="rabbitMQConnection.amqpPort"
+            v-model="newBroker.rabbitMQConnection.amqpPort"
+            type="password"
+            autocomplete="off"
+          />
+        </div>
+        <div class="flex basis-1/2 flex-col gap-2">
+          <label for="rabbitMQConnection.amqpTls" class="flex font-semibold">AMQP TLS</label>
+          <InputSwitch
+            :use-grouping="false"
+            id="rabbitMQConnection.amqpTls"
+            v-model="newBroker.rabbitMQConnection.amqpTls"
+            type="password"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label for="vhost" class="font-semibold">V-Host</label>
+        <InputText id="vhost" v-model="newBroker.rabbitMQConnection.vHost" autocomplete="off" />
+      </div>
+    </template>
   </div>
   <div class="flex gap-2">
     <Button

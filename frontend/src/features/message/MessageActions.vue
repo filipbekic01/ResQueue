@@ -54,12 +54,13 @@ const updateSelectedMessageFormat = (value: FormatOption) => {
     updateBrokerAsync({
       broker: {
         ...props.broker,
+        rabbitMQConnection: props.broker.rabbitMQConnection
+          ? { ...props.broker.rabbitMQConnection, username: '', password: '' }
+          : undefined,
         settings: {
           ...props.broker.settings,
           messageFormat: value
-        },
-        username: '',
-        password: ''
+        }
       },
       brokerId: props.broker.id
     })
@@ -73,12 +74,13 @@ const updateSelectedMessageStructure = (value: StructureOption) => {
     updateBrokerAsync({
       broker: {
         ...props.broker,
+        rabbitMQConnection: props.broker.rabbitMQConnection
+          ? { ...props.broker.rabbitMQConnection, username: '', password: '' }
+          : undefined,
         settings: {
           ...props.broker.settings,
           messageStructure: value
-        },
-        username: '',
-        password: ''
+        }
       },
       brokerId: props.broker.id
     })
@@ -205,7 +207,7 @@ const openUpsertMessageDialog = () => {
   dialog.open(UpsertMessageDialog, {
     data: {
       broker: props.broker,
-      queue: props.rabbitMqQueue,
+      queue: props.rabbitMqQueue
     },
     props: {
       header: 'Message Editor',

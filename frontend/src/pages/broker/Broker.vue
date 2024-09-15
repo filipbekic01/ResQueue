@@ -34,12 +34,13 @@ const applySearch = (value: string) => {
     updateBrokerAsync({
       broker: {
         ...broker.value,
+        rabbitMQConnection: broker.value.rabbitMQConnection
+          ? { ...broker.value.rabbitMQConnection, username: '', password: '' }
+          : undefined,
         settings: {
           ...broker.value.settings,
           defaultQueueSearch: value
-        },
-        username: '',
-        password: ''
+        }
       },
       brokerId: broker.value.id
     })

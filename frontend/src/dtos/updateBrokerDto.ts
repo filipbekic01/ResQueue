@@ -1,11 +1,8 @@
 import type { BrokerSettingsDto } from './brokerSettingsDto'
+import type { UpdateRabbitMQConnectionDto } from './updateRabbitMQConnectionDto'
 
 export interface UpdateBrokerDto {
   name: string
-  username: string
-  password: string
-  port: number
-  host: string
-  vHost: string
+  rabbitMQConnection?: UpdateRabbitMQConnectionDto
   settings: BrokerSettingsDto
 }

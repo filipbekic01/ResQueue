@@ -120,13 +120,14 @@ const updateSort = (e: DataTableSortEvent) => {
     updateBrokerAsync({
       broker: {
         ...broker.value,
+        rabbitMQConnection: broker.value.rabbitMQConnection
+          ? { ...broker.value.rabbitMQConnection, username: '', password: '' }
+          : undefined,
         settings: {
           ...broker.value.settings,
           defaultQueueSortOrder: e.sortOrder ? parseInt(e.sortOrder.toString()) : -1,
           defaultQueueSortField: e.sortField ? e.sortField.toString() : undefined
-        },
-        username: '',
-        password: ''
+        }
       },
       brokerId: broker.value.id
     })

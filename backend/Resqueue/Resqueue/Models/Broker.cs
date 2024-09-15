@@ -10,11 +10,7 @@ public class Broker
     public List<BrokerAccess> AccessList { get; set; } = new();
     public string System { get; set; }
     public string Name { get; set; }
-    public string Username { get; set; }
-    public string Password { get; set; }
-    public int Port { get; set; }
-    public string Host { get; set; }
-    public string VHost { get; set; }
+    public RabbitMQConnection? RabbitMQConnection { get; set; }
     public BrokerSettings Settings { get; set; } = new();
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
