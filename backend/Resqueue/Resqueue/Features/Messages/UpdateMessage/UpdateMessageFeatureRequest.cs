@@ -57,13 +57,19 @@ public class UpdateMessageFeature(
 
         var queueId = await queuesCollection.Find(queuesFilter).Project(x => x.Id).FirstAsync();
 
+        var messageId = ObjectId.Parse(request.Id);
+
+        var originalMessage = await messagesCollection.Find(x => x.Id == messageId).FirstAsync();
+
         var message = UpsertMessageDtoMapper.ToMessage(queueId, user.Id, request.Dto);
-        message.Id = ObjectId.Parse(request.Id);
+
+        message.Id = messageId;
+        message.CreatedAt = originalMessage.CreatedAt;
+        message.UpdatedAt = DateTime.UtcNow;
+
         if (message.RabbitMQMeta is not null)
         {
-            message.RabbitMQMeta.Exchange = await messagesCollection.Find(x => x.Id == message.Id)
-                .Project(x => x.RabbitMQMeta!.Exchange)
-                .FirstAsync();
+            message.RabbitMQMeta.Exchange = originalMessage.RabbitMQMeta?.Exchange;
         }
 
         await messagesCollection.ReplaceOneAsync(x => x.Id == message.Id, message);

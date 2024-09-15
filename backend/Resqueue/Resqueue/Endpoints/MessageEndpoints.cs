@@ -5,6 +5,7 @@ using MongoDB.Driver;
 using Resqueue.Dtos;
 using Resqueue.Features.Broker.SyncBroker;
 using Resqueue.Features.Messages.ArchiveMessages;
+using Resqueue.Features.Messages.CloneMessage;
 using Resqueue.Features.Messages.CreateMessage;
 using Resqueue.Features.Messages.PublishMessages;
 using Resqueue.Features.Messages.ReviewMessages;
@@ -170,6 +171,19 @@ public static class MessageEndpoints
                 var result = await archiveMessagesFeature.ExecuteAsync(new ArchiveMessagesFeatureRequest(
                     ClaimsPrincipal: httpContext.User,
                     Dto: dto
+                ));
+
+                return result.IsSuccess
+                    ? Results.Ok(result.Value)
+                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+            }).AddRetryFilter();
+
+        group.MapPost("{id}/clone",
+            async (ICloneMessageFeature feature, HttpContext httpContext, string id) =>
+            {
+                var result = await feature.ExecuteAsync(new CloneMessagesFeatureRequest(
+                    ClaimsPrincipal: httpContext.User,
+                    Id: id
                 ));
 
                 return result.IsSuccess

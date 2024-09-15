@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { useSyncBrokerMutation } from '@/api/broker/syncBrokerMutation'
+import { useCloneMessageMutation } from '@/api/messages/cloneMessageMutation'
 import { usePaginatedMessagesQuery } from '@/api/messages/paginatedMessagesQuery'
 import { useSyncMessagesMutation } from '@/api/messages/syncMessagesMutation'
 import { useQueueQuery } from '@/api/queues/queueQuery'
@@ -14,6 +15,7 @@ import FormattedMessage from '@/features/formatted-message/FormattedMessage.vue'
 import MessageCopy from '@/features/message-copy/MessageCopy.vue'
 import MessageActions from '@/features/message/MessageActions.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
+import { extractErrorMessage } from '@/utils/errorUtils'
 import { messageSummary } from '@/utils/messageUtils'
 import { formatDistanceToNow } from 'date-fns'
 import Button from 'primevue/button'
@@ -48,6 +50,9 @@ const { mutateAsync: syncMessagesAsync, isPending: isSyncMessagesPending } =
   useSyncMessagesMutation()
 
 const { mutateAsync: syncBrokerAsync, isPending: isSyncBrokerPending } = useSyncBrokerMutation()
+
+const { mutateAsync: cloneMessageAsync, isPending: isCloneMessagePending } =
+  useCloneMessageMutation()
 
 const pageIndex = ref(0)
 
@@ -231,6 +236,17 @@ const editMessage = (id: string) => {
     }
   })
 }
+
+const cloneMessage = (id: string) => {
+  cloneMessageAsync(id).catch((e) =>
+    toast.add({
+      severity: 'error',
+      summary: 'Clone Failed!',
+      detail: extractErrorMessage(e),
+      life: 3000
+    })
+  )
+}
 </script>
 
 <template>
@@ -352,7 +368,13 @@ const editMessage = (id: string) => {
           <template #body="{ data }">
             <div class="flex">
               <Button text icon="pi pi-pencil" size="small" @click="editMessage(data.id)"></Button>
-              <Button text icon="pi pi-clone" size="small"></Button>
+              <Button
+                text
+                icon="pi pi-clone"
+                size="small"
+                :loading="isCloneMessagePending"
+                @click="cloneMessage(data.id)"
+              ></Button>
             </div>
           </template>
         </Column>

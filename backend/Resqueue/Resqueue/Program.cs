@@ -5,6 +5,7 @@ using Resqueue.Endpoints;
 using Resqueue.Features.Broker.SyncBroker;
 using Resqueue.Features.Broker.UpdateBroker;
 using Resqueue.Features.Messages.ArchiveMessages;
+using Resqueue.Features.Messages.CloneMessage;
 using Resqueue.Features.Messages.CreateMessage;
 using Resqueue.Features.Messages.PublishMessages;
 using Resqueue.Features.Messages.ReviewMessages;
@@ -67,6 +68,7 @@ public class Program
         builder.Services.AddTransient<ICreateMessageFeature, CreateMessageFeature>();
         builder.Services.AddTransient<IPublishMessagesFeature, PublishMessagesFeature>();
         builder.Services.AddTransient<IArchiveMessagesFeature, ArchiveMessagesFeature>();
+        builder.Services.AddTransient<ICloneMessageFeature, CloneMessageFeature>();
         builder.Services.AddTransient<IUpdateMessageFeature, UpdateMessageFeature>();
         builder.Services.AddTransient<IReviewMessagesFeature, ReviewMessagesFeature>();
 
