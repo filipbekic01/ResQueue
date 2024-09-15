@@ -3,6 +3,7 @@ import { useIdentity } from '@/composables/identityComposable'
 import RegisterDialog from '@/dialogs/RegisterDialog.vue'
 import SubscribeDialog from '@/dialogs/SubscribeDialog.vue'
 import WebLayout from '@/layouts/WebLayout.vue'
+import { useHead } from '@unhead/vue'
 import { useDialog } from 'primevue/usedialog'
 import PricingCard from './PricingCard.vue'
 
@@ -51,6 +52,46 @@ const openSubscriptionDialog = (plan?: string) => {
     }
   })
 }
+
+useHead({
+  title: 'Choose Your Plan - Queue Management Solutions',
+  meta: [
+    {
+      name: 'description',
+      content:
+        'Select from our Free, Essentials, or Ultimate plans to access advanced queue management features. Your support helps us continue building innovative tools.'
+    },
+    {
+      name: 'keywords',
+      content:
+        'queue management, subscription plans, pricing, free plan, essentials plan, ultimate plan, brokers, storage, team collaboration'
+    },
+    { name: 'robots', content: 'index, follow' }, // SEO instructions
+    { property: 'og:title', content: 'Choose Your Plan - Queue Management Solutions' },
+    {
+      property: 'og:description',
+      content:
+        'Explore our pricing plans for advanced queue management solutions. From free to unlimited brokers, discover the right plan for your needs.'
+    },
+    { property: 'og:image', content: 'https://resqueue.io/plan-preview-image.jpg' }, // Replace with your image URL
+    { property: 'og:url', content: 'https://resqueue.io/pricing' },
+    { property: 'og:type', content: 'website' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'Choose Your Plan - Queue Management Solutions' },
+    {
+      name: 'twitter:description',
+      content:
+        'Support our development by choosing a plan that fits your needs. Free, Essentials, and Ultimate plans available.'
+    },
+    { name: 'twitter:image', content: 'https://resqueue.io/twitter-plan-image.jpg' }
+  ],
+  link: [
+    { rel: 'canonical', href: 'https://resqueue.io/pricing' } // Canonical URL for this page
+  ],
+  htmlAttrs: {
+    lang: 'en'
+  }
+})
 </script>
 
 <template>

@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import { useIdentity } from '@/composables/identityComposable'
 import WebLayout from '@/layouts/WebLayout.vue'
+import { useHead } from '@unhead/vue'
 import Button from 'primevue/button'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -9,6 +11,48 @@ const router = useRouter()
 const {
   query: { data: user }
 } = useIdentity()
+
+useHead(
+  computed(() => ({
+    title: 'Effortless Queue Healing - Dead-Letter Queue Management',
+    meta: [
+      {
+        name: 'description',
+        content:
+          'Seamlessly manage dead-letter queues with ease. Rescue messages, manage brokers, and improve workflow with efficient queue management tools.'
+      },
+      {
+        name: 'keywords',
+        content:
+          'dead-letter queue management, message requeue, multiple brokers, RabbitMQ, Azure Service Bus, Amazon SQS'
+      },
+      { name: 'robots', content: 'index, follow' }, // For SEO crawling instructions
+      { property: 'og:title', content: 'Effortless Queue Healing - Dead-Letter Queue Management' },
+      {
+        property: 'og:description',
+        content:
+          'Manage dead-letter queues effortlessly. Requeue messages and connect multiple brokers with our powerful queue management tool.'
+      },
+      { property: 'og:image', content: 'https://resqueue.io/your-preview-image.jpg' }, // Social media sharing image
+      { property: 'og:url', content: 'https://resqueue.io' }, // The canonical URL for this page
+      { property: 'og:type', content: 'website' }, // Open Graph type, 'website' works for a general page
+      { name: 'twitter:card', content: 'summary_large_image' }, // Twitter card settings
+      { name: 'twitter:title', content: 'Effortless Queue Healing - Dead-Letter Queue Management' },
+      {
+        name: 'twitter:description',
+        content:
+          'Rescue messages and manage multiple brokers effortlessly with our queue management platform.'
+      },
+      { name: 'twitter:image', content: 'https://resqueue.io/your-twitter-image.jpg' }
+    ],
+    link: [
+      { rel: 'canonical', href: 'https://resqueue.io' } // Ensures proper URL for search engines
+    ],
+    htmlAttrs: {
+      lang: 'en' // Language setting for the page
+    }
+  }))
+)
 </script>
 
 <template>
