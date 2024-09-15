@@ -72,7 +72,7 @@ public static class MessageEndpoints
                     Builders<Message>.Filter.Eq(q => q.DeletedAt, null)
                 );
 
-                var sort = Builders<Message>.Sort.Descending(q => q.Id);
+                var sort = Builders<Message>.Sort.Ascending(q => q.MessageOrder);
 
                 var totalItems = await messagesCollection.CountDocumentsAsync(filter);
                 var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);

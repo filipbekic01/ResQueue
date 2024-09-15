@@ -9,7 +9,7 @@ namespace Resqueue.Mappers;
 
 public static class UpsertMessageDtoMapper
 {
-    public static Message ToMessage(ObjectId queueId, ObjectId userId, UpsertMessageDto dto)
+    public static Message ToMessage(ObjectId queueId, ObjectId userId, long messageOrder, UpsertMessageDto dto)
     {
         return new Message()
         {
@@ -42,6 +42,7 @@ public static class UpsertMessageDtoMapper
                 }
                 : null,
             Body = GetBody(dto),
+            MessageOrder = messageOrder,
             CreatedAt = DateTime.UtcNow
         };
     }

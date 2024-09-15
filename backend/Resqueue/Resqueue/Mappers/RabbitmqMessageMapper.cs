@@ -9,7 +9,7 @@ namespace Resqueue.Mappers;
 
 public static class RabbitMQMessageMapper
 {
-    public static Message ToDocument(ObjectId queueId, ObjectId userId, BasicGetResult res)
+    public static Message ToDocument(ObjectId queueId, ObjectId userId, long messageOrder, BasicGetResult res)
     {
         var props = new RabbitMQMessageProperties();
 
@@ -97,6 +97,7 @@ public static class RabbitMQMessageMapper
             Body = BsonDocument.TryParse(Encoding.UTF8.GetString(res.Body.Span), out var doc)
                 ? doc
                 : new BsonBinaryData(res.Body.ToArray()),
+            MessageOrder = messageOrder,
             CreatedAt = DateTime.UtcNow
         };
     }

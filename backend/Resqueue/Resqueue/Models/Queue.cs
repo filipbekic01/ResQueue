@@ -12,4 +12,5 @@ public class Queue
     public bool IsFavorite { get; set; }
     public BsonDocument RawData { get; set; }
     public DateTime CreatedAt { get; set; }
+    public long NextMessageOrder { get; set; }
 }

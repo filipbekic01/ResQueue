@@ -36,7 +36,9 @@ public class SyncMessagesFeature(
         }
 
         var queueFilter = Builders<Queue>.Filter.Eq(b => b.Id, ObjectId.Parse(request.QueueId));
+
         var queue = await queuesCollection.Find(queueFilter).FirstOrDefaultAsync();
+
         if (queue == null)
         {
             return OperationResult<SyncMessagesFeatureResponse>.Failure(new ProblemDetails()
@@ -63,7 +65,11 @@ public class SyncMessagesFeature(
         using var channel = connection.CreateModel();
         while (channel.BasicGet(queue.RawData.GetValue("name").AsString, false) is { } res)
         {
-            var message = RabbitMQMessageMapper.ToDocument(queue.Id, user.Id, res);
+            var queueWithNewSequence = await queuesCollection.FindOneAndUpdateAsync(queueFilter,
+                Builders<Queue>.Update.Inc(x => x.NextMessageOrder, 1));
+
+            var message =
+                RabbitMQMessageMapper.ToDocument(queue.Id, user.Id, queueWithNewSequence.NextMessageOrder, res);
 
             using var session = await mongoClient.StartSessionAsync();
             session.StartTransaction();

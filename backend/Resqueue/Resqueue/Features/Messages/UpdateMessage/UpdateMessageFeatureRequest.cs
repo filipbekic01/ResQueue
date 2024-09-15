@@ -55,13 +55,15 @@ public class UpdateMessageFeature(
             Builders<Queue>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Dto.QueueId))
         );
 
-        var queueId = await queuesCollection.Find(queuesFilter).Project(x => x.Id).FirstAsync();
+
+        var queue = await queuesCollection.FindOneAndUpdateAsync(queuesFilter,
+            Builders<Queue>.Update.Inc(x => x.NextMessageOrder, 1));
 
         var messageId = ObjectId.Parse(request.Id);
 
         var originalMessage = await messagesCollection.Find(x => x.Id == messageId).FirstAsync();
 
-        var message = UpsertMessageDtoMapper.ToMessage(queueId, user.Id, request.Dto);
+        var message = UpsertMessageDtoMapper.ToMessage(queue.Id, user.Id, queue.NextMessageOrder, request.Dto);
 
         message.Id = messageId;
         message.CreatedAt = originalMessage.CreatedAt;

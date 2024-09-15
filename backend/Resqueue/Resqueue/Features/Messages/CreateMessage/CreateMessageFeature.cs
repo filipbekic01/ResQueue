@@ -54,15 +54,25 @@ public class CreateMessageFeature(
             Builders<Queue>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Dto.QueueId))
         );
 
-        var queueId = await queuesCollection.Find(queuesFilter).Project(x => x.Id).FirstAsync();
+        var queue = await queuesCollection.FindOneAndUpdateAsync(queuesFilter,
+            Builders<Queue>.Update.Inc(x => x.NextMessageOrder, 1));
 
-        var message = UpsertMessageDtoMapper.ToMessage(queueId, user.Id, request.Dto);
+        if (queue is null)
+        {
+            return OperationResult<CreateMessageFeatureResponse>.Failure(new ProblemDetails()
+            {
+                Status = 404,
+                Detail = "Queue not found"
+            });
+        }
+
+        var message = UpsertMessageDtoMapper.ToMessage(queue.Id, user.Id, queue.NextMessageOrder, request.Dto);
 
         using var session = await mongoClient.StartSessionAsync();
         session.StartTransaction();
 
         await messagesCollection.InsertOneAsync(session, message);
-        await queuesCollection.UpdateOneAsync(session, x => x.Id == queueId,
+        await queuesCollection.UpdateOneAsync(session, x => x.Id == queue.Id,
             Builders<Queue>.Update.Inc(x => x.TotalMessages, 1));
 
         await session.CommitTransactionAsync();
