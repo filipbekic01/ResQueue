@@ -7,6 +7,7 @@ public class Broker
 {
     [BsonId] public ObjectId Id { get; set; }
     public ObjectId UserId { get; set; }
+    public List<BrokerAccess> AccessList { get; set; } = new();
     public string System { get; set; }
     public string Name { get; set; }
     public string Username { get; set; }

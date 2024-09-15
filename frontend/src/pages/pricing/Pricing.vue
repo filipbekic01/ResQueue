@@ -106,7 +106,7 @@ useHead({
       <PricingCard
         tier="Free"
         text="Limited features"
-        :features="['1 broker', '10MB Storage', 'No Teams']"
+        :features="['1 broker', 'Once Sync Per Hour', 'No Teams']"
         :price="0"
         severity="secondary"
         :recommended="false"
@@ -116,7 +116,7 @@ useHead({
       <PricingCard
         tier="Essentials"
         text="All features unlocked"
-        :features="['Unlimited brokers (*)', '5GB Storage', 'Team Collaboration']"
+        :features="['Unlimited brokers', 'Unlimited Syncs', 'No Teams']"
         :price="7.99"
         severity="primary"
         :recommended="true"
@@ -126,7 +126,7 @@ useHead({
       <PricingCard
         tier="Ultimate"
         text="All features unlocked"
-        :features="['Unlimited brokers (*)', '100GB Storage', 'Team Collaboration']"
+        :features="['Unlimited brokers', 'Unlimited Syncs', 'Team Collaboration (soon)']"
         :price="19.99"
         severity="primray"
         :recommended="false"

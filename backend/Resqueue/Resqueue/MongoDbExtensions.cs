@@ -44,6 +44,12 @@ public static class MongoDbExtensions
             return database.GetCollection<Message>("messages");
         });
 
+        services.AddScoped(sp =>
+        {
+            var database = sp.GetRequiredService<IMongoDatabase>();
+            return database.GetCollection<BrokerInvitation>("broker-invitations");
+        });
+
         return services;
     }
 }

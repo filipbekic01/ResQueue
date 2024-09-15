@@ -6,6 +6,10 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using Resqueue.Constants;
 using Resqueue.Dtos;
+using Resqueue.Enums;
+using Resqueue.Features.Broker.AcceptBrokerInvitation;
+using Resqueue.Features.Broker.CreateBrokerInvitation;
+using Resqueue.Features.Broker.ManageBrokerAccess;
 using Resqueue.Features.Broker.SyncBroker;
 using Resqueue.Features.Broker.UpdateBroker;
 using Resqueue.Filters;
@@ -37,13 +41,18 @@ public static class BrokerEndpoints
 
                 var brokers = await collection.Find(filter).Sort(sort).ToListAsync();
                 var dtos = brokers.Select(x => new BrokerDto(
-                    x.Id.ToString(),
-                    x.System,
-                    x.Name,
-                    x.Port,
-                    x.Host,
-                    x.VHost,
-                    new BrokerSettingsDto(
+                    Id: x.Id.ToString(),
+                    System: x.System,
+                    Name: x.Name,
+                    Port: x.Port,
+                    Host: x.Host,
+                    VHost: x.VHost,
+                    AccessList: x.AccessList.Select(y => new BrokerAccessDto()
+                    {
+                        UserId = y.UserId.ToString(),
+                        AccessLevel = y.AccessLevel
+                    }).ToList(),
+                    Settings: new BrokerSettingsDto(
                         QuickSearches: x.Settings.QuickSearches,
                         DeadLetterQueueSuffix: x.Settings.DeadLetterQueueSuffix,
                         MessageFormat: x.Settings.MessageFormat,
@@ -53,10 +62,10 @@ public static class BrokerEndpoints
                         DefaultQueueSortOrder: x.Settings.DefaultQueueSortOrder,
                         DefaultQueueSearch: x.Settings.DefaultQueueSearch
                     ),
-                    x.CreatedAt,
-                    x.UpdatedAt,
-                    x.SyncedAt,
-                    x.DeletedAt
+                    CreatedAt: x.CreatedAt,
+                    UpdatedAt: x.UpdatedAt,
+                    SyncedAt: x.SyncedAt,
+                    DeletedAt: x.DeletedAt
                 ));
 
                 return Results.Ok(dtos);
@@ -77,6 +86,14 @@ public static class BrokerEndpoints
                 var broker = new Broker
                 {
                     UserId = user.Id,
+                    AccessList = new List<BrokerAccess>()
+                    {
+                        new()
+                        {
+                            UserId = user.Id,
+                            AccessLevel = AccessLevel.Owner
+                        }
+                    },
                     System = BrokerSystems.RABBIT_MQ,
                     Name = dto.Name,
                     Username = dto.Username,
@@ -91,13 +108,18 @@ public static class BrokerEndpoints
                 await collection.InsertOneAsync(broker);
 
                 return Results.Ok(new BrokerDto(
-                    broker.Id.ToString(),
-                    broker.System,
-                    broker.Name,
-                    broker.Port,
-                    broker.Host,
-                    broker.VHost,
-                    new BrokerSettingsDto(
+                    Id: broker.Id.ToString(),
+                    System: broker.System,
+                    Name: broker.Name,
+                    Port: broker.Port,
+                    Host: broker.Host,
+                    VHost: broker.VHost,
+                    AccessList: broker.AccessList.Select(y => new BrokerAccessDto()
+                    {
+                        UserId = y.UserId.ToString(),
+                        AccessLevel = y.AccessLevel
+                    }).ToList(),
+                    Settings: new BrokerSettingsDto(
                         QuickSearches: broker.Settings.QuickSearches,
                         DeadLetterQueueSuffix: broker.Settings.DeadLetterQueueSuffix,
                         MessageFormat: broker.Settings.MessageFormat,
@@ -107,10 +129,10 @@ public static class BrokerEndpoints
                         DefaultQueueSortOrder: broker.Settings.DefaultQueueSortOrder,
                         DefaultQueueSearch: broker.Settings.DefaultQueueSearch
                     ),
-                    broker.CreatedAt,
-                    broker.UpdatedAt,
-                    broker.SyncedAt,
-                    broker.DeletedAt
+                    CreatedAt: broker.CreatedAt,
+                    UpdatedAt: broker.UpdatedAt,
+                    SyncedAt: broker.SyncedAt,
+                    DeletedAt: broker.DeletedAt
                 ));
             });
 
@@ -152,6 +174,72 @@ public static class BrokerEndpoints
                     return Results.Problem($"Failed to connect to the host: {ex.Message}");
                 }
             });
+
+        group.MapPost("/{id}/access",
+            async (string id, [FromBody] ManageBrokerAccessDto dto,
+                HttpContext httpContext, IManageBrokerAccessFeature manageBrokerAccessFeature) =>
+            {
+                var result = await manageBrokerAccessFeature.ExecuteAsync(new ManageBrokerAccessFeatureRequest(
+                    ClaimsPrincipal: httpContext.User,
+                    Dto: dto,
+                    BrokerId: id
+                ));
+
+                return result.IsSuccess
+                    ? Results.Ok(result.Value)
+                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+            }).AddRetryFilter();
+
+        group.MapGet("/invitations/{token}",
+            async (string token, IMongoCollection<BrokerInvitation> collection) =>
+            {
+                var filter = Builders<BrokerInvitation>.Filter.Eq(b => b.Token, token);
+                var brokerInvitation = await collection.Find(filter).FirstOrDefaultAsync();
+
+                if (brokerInvitation == null)
+                {
+                    return Results.NotFound();
+                }
+
+                return Results.Ok(new BrokerInvitationDto()
+                {
+                    BrokerId = brokerInvitation.BrokerId.ToString(),
+                    UserId = brokerInvitation.UserId.ToString(),
+                    Token = brokerInvitation.Token,
+                    CreatedAt = brokerInvitation.CreatedAt,
+                    ExpiresAt = brokerInvitation.ExpiresAt,
+                    IsAccepted = brokerInvitation.IsAccepted,
+                });
+            }).AddRetryFilter();
+
+        group.MapPost("/invitations",
+            async (string id, [FromBody] CreateBrokerInvitationDto dto,
+                HttpContext httpContext, ICreateBrokerInvitationFeature createBrokerInvitationFeature) =>
+            {
+                var result = await createBrokerInvitationFeature.ExecuteAsync(new CreateBrokerInvitationRequest(
+                    ClaimsPrincipal: httpContext.User,
+                    Dto: dto,
+                    BrokerId: id
+                ));
+
+                return result.IsSuccess
+                    ? Results.Ok(result.Value)
+                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+            }).AddRetryFilter();
+
+        group.MapPost("/invitations/accept",
+            async (AcceptBrokerInvitationDto dto, HttpContext httpContext,
+                IAcceptBrokerInvitationFeature feature) =>
+            {
+                var result = await feature.ExecuteAsync(new AcceptBrokerInvitationRequest(
+                    ClaimsPrincipal: httpContext.User,
+                    Dto: dto
+                ));
+
+                return result.IsSuccess
+                    ? Results.Ok(result.Value)
+                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+            }).AddRetryFilter();
 
         group.MapPatch("/{id}",
             async (string id, [FromBody] UpdateBrokerDto dto,

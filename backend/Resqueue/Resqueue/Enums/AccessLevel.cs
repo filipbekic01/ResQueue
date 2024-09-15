@@ -1,6 +1,8 @@
 namespace Resqueue.Enums;
 
-public class AccessLevelEnum
+public enum AccessLevel
 {
-    
+    Owner,
+    Editor,
+    Viewer
 }

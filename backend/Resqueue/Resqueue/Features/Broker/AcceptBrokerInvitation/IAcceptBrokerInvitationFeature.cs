@@ -1,6 +1,7 @@
 namespace Resqueue.Features.Broker.AcceptBrokerInvitation;
 
-public class AcceptBrokerInvitationFeature
+public interface IAcceptBrokerInvitationFeature
 {
-    
+    public Task<OperationResult<AcceptBrokerInvitationResponse>> ExecuteAsync(
+        AcceptBrokerInvitationRequest request);
 }

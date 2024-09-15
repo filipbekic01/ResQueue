@@ -1,6 +1,6 @@
 namespace Resqueue.Dtos;
 
-public class CreateBrokerInvitationDto
-{
-    
-}
+public record CreateBrokerInvitationDto(
+    string BrokerId,
+    string Email
+);

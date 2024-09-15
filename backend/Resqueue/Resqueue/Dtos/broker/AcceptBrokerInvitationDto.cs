@@ -1,6 +1,3 @@
 namespace Resqueue.Dtos;
 
-public class AcceptBrokerInvitationDto
-{
-    
-}
+public record AcceptBrokerInvitationDto(string Token);

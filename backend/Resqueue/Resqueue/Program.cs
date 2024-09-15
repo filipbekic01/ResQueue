@@ -1,7 +1,11 @@
 using AspNetCore.Identity.Mongo;
 using Microsoft.AspNetCore.Identity;
 using MongoDB.Bson;
+using Resqueue.Dtos;
 using Resqueue.Endpoints;
+using Resqueue.Features.Broker.AcceptBrokerInvitation;
+using Resqueue.Features.Broker.CreateBrokerInvitation;
+using Resqueue.Features.Broker.ManageBrokerAccess;
 using Resqueue.Features.Broker.SyncBroker;
 using Resqueue.Features.Broker.UpdateBroker;
 using Resqueue.Features.Messages.ArchiveMessages;
@@ -63,6 +67,9 @@ public class Program
 
         builder.Services.AddTransient<ISyncBrokerFeature, SyncBrokerFeature>();
         builder.Services.AddTransient<IUpdateBrokerFeature, UpdateBrokerFeature>();
+        builder.Services.AddTransient<IManageBrokerAccessFeature, ManageBrokerAccessFeature>();
+        builder.Services.AddTransient<ICreateBrokerInvitationFeature, CreateBrokerInvitationFeature>();
+        builder.Services.AddTransient<IAcceptBrokerInvitationFeature, AcceptBrokerInvitationFeature>();
 
         builder.Services.AddTransient<ISyncMessagesFeature, SyncMessagesFeature>();
         builder.Services.AddTransient<ICreateMessageFeature, CreateMessageFeature>();

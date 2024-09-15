@@ -10,6 +10,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import BrokerOverviewAccess from './BrokerOverviewAccess.vue'
 
 const props = defineProps<{
   brokerId: string
@@ -291,6 +292,9 @@ const deleteBroker = () => {
           @click="testConnection"
         ></Button>
       </div>
+    </div>
+    <div>
+      <BrokerOverviewAccess v-if="broker" :broker="broker" />
     </div>
     <div class="flex max-w-[65rem]">
       <Button

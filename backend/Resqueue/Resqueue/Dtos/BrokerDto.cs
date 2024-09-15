@@ -1,7 +1,10 @@
+using Resqueue.Models;
+
 namespace Resqueue.Dtos;
 
 public record BrokerDto(
     string Id,
+    List<BrokerAccessDto> AccessList,
     string System,
     string Name,
     int Port,

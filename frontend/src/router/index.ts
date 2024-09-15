@@ -1,3 +1,4 @@
+import BrokerInvitation from '@/pages/broker-invitation/BrokerInvitation.vue'
 import BrokerOverview from '@/pages/broker/overview/BrokerOverview.vue'
 import BrokerQueues from '@/pages/broker/queues/BrokerQueues.vue'
 import BrokerTopics from '@/pages/broker/topics/BrokerTopics.vue'
@@ -50,6 +51,11 @@ const router = createRouter({
       path: '/app/updates',
       name: 'updates',
       component: Updates
+    },
+    {
+      path: '/app/broker-invitation',
+      name: 'broker-invitation',
+      component: BrokerInvitation
     },
     {
       path: '/app/brokers/:brokerId',
