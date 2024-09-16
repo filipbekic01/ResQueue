@@ -17,8 +17,7 @@ namespace Resqueue.Features.Broker.CreateBrokerInvitation;
 
 public record CreateBrokerInvitationRequest(
     ClaimsPrincipal ClaimsPrincipal,
-    CreateBrokerInvitationDto Dto,
-    string BrokerId
+    CreateBrokerInvitationDto Dto
 );
 
 public record CreateBrokerInvitationResponse();
@@ -58,7 +57,7 @@ public class CreateBrokerInvitationFeature(
         }
 
         // Validate Broker ID
-        if (!ObjectId.TryParse(request.BrokerId, out var brokerId))
+        if (!ObjectId.TryParse(request.Dto.BrokerId, out var brokerId))
         {
             return OperationResult<CreateBrokerInvitationResponse>.Failure(new ProblemDetails
             {
@@ -83,9 +82,13 @@ public class CreateBrokerInvitationFeature(
         var invitation = new BrokerInvitation()
         {
             BrokerId = broker.Id,
-            UserId = userToInvite.Id,
+            InviterId = currentUser.Id,
+            InviterEmail = currentUser.Email,
+            InviteeId = userToInvite.Id,
             Token = GenerateRandomString(32),
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddDays(3),
+            BrokerName = broker.Name,
         };
 
         await invitationsCollection.InsertOneAsync(invitation);
@@ -123,7 +126,7 @@ public class CreateBrokerInvitationFeature(
 
         message.Body = new TextPart("html")
         {
-            Text = $"You are invited to broker with token __{token}__."
+            Text = $"Broker invitation: {token}"
         };
 
         using var client = new SmtpClient();

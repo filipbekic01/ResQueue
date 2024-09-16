@@ -130,6 +130,55 @@ public static class BrokerEndpoints
                     : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
             }).AddRetryFilter();
 
+        group.MapGet("/invitations",
+            async (HttpContext httpContext, UserManager<User> userManager, [FromQuery] string? brokerId,
+                IMongoCollection<BrokerInvitation> collection) =>
+            {
+                var user = await userManager.GetUserAsync(httpContext.User);
+                if (user == null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                var filterList = new List<FilterDefinition<BrokerInvitation>>();
+
+                filterList.Add(Builders<BrokerInvitation>.Filter.Gt(b => b.ExpiresAt, DateTime.UtcNow));
+                filterList.Add(Builders<BrokerInvitation>.Filter.Eq(b => b.IsAccepted, false));
+
+                if (!string.IsNullOrEmpty(brokerId))
+                {
+                    // todo: make sure broker belongs to a user
+                    filterList.Add(Builders<BrokerInvitation>.Filter.Eq(b => b.BrokerId, ObjectId.Parse(brokerId)));
+                }
+                else
+                {
+                    filterList.Add(Builders<BrokerInvitation>.Filter.Eq(b => b.InviterId, user.Id));
+                }
+
+                var filter = Builders<BrokerInvitation>.Filter.And(filterList);
+
+                var sort = Builders<BrokerInvitation>.Sort.Descending(b => b.CreatedAt);
+
+                var invitations = await collection
+                    .Find(filter)
+                    .Sort(sort)
+                    .ToListAsync();
+
+                return Results.Ok(invitations.Select(b => new BrokerInvitationDto
+                {
+                    Id = b.Id.ToString(),
+                    BrokerId = b.BrokerId.ToString(),
+                    InviterId = b.InviterId.ToString(),
+                    InviteeId = b.InviteeId.ToString(),
+                    InviterEmail = b.InviterEmail,
+                    Token = b.Token,
+                    CreatedAt = b.CreatedAt,
+                    ExpiresAt = b.ExpiresAt,
+                    IsAccepted = b.IsAccepted,
+                    BrokerName = b.BrokerName
+                }).ToList());
+            }).AddRetryFilter();
+
         group.MapGet("/invitations/{token}",
             async (string token, IMongoCollection<BrokerInvitation> collection) =>
             {
@@ -143,23 +192,26 @@ public static class BrokerEndpoints
 
                 return Results.Ok(new BrokerInvitationDto()
                 {
+                    Id = brokerInvitation.Id.ToString(),
                     BrokerId = brokerInvitation.BrokerId.ToString(),
-                    UserId = brokerInvitation.UserId.ToString(),
+                    InviterId = brokerInvitation.InviterId.ToString(),
+                    InviteeId = brokerInvitation.InviteeId.ToString(),
+                    InviterEmail = brokerInvitation.InviterEmail,
                     Token = brokerInvitation.Token,
                     CreatedAt = brokerInvitation.CreatedAt,
                     ExpiresAt = brokerInvitation.ExpiresAt,
                     IsAccepted = brokerInvitation.IsAccepted,
+                    BrokerName = brokerInvitation.BrokerName
                 });
             }).AddRetryFilter();
 
         group.MapPost("/invitations",
-            async (string id, [FromBody] CreateBrokerInvitationDto dto,
+            async ([FromBody] CreateBrokerInvitationDto dto,
                 HttpContext httpContext, ICreateBrokerInvitationFeature createBrokerInvitationFeature) =>
             {
                 var result = await createBrokerInvitationFeature.ExecuteAsync(new CreateBrokerInvitationRequest(
                     ClaimsPrincipal: httpContext.User,
-                    Dto: dto,
-                    BrokerId: id
+                    Dto: dto
                 ));
 
                 return result.IsSuccess
@@ -179,6 +231,29 @@ public static class BrokerEndpoints
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
                     : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+            }).AddRetryFilter();
+
+        group.MapPost("/invitations/{id}/expire",
+            async (HttpContext httpContext, IMongoCollection<BrokerInvitation> collection,
+                UserManager<User> userManager, string id) =>
+            {
+                var user = await userManager.GetUserAsync(httpContext.User);
+                if (user == null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                var filter = Builders<BrokerInvitation>.Filter.And(
+                    Builders<BrokerInvitation>.Filter.Eq(b => b.Id, ObjectId.Parse(id)),
+                    Builders<BrokerInvitation>.Filter.Eq(b => b.InviterId, user.Id)
+                );
+
+                var update = Builders<BrokerInvitation>.Update
+                    .Set(b => b.ExpiresAt, DateTime.UtcNow);
+
+                await collection.UpdateOneAsync(filter, update);
+
+                return Results.Ok();
             }).AddRetryFilter();
 
         group.MapPatch("/{id}",

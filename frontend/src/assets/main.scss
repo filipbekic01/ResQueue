@@ -57,7 +57,8 @@ html {
 // DataTable
 
 .p-datatable-tbody > tr > td {
-  padding: 0.4rem 0.5rem !important;
+  padding-top: 0.4rem !important;
+  padding-bottom: 0.4rem !important;
 }
 
 .p-datatable-row-expansion > td {

@@ -1,10 +1,22 @@
 <script lang="ts" setup>
+import { useBrokerInvitationsQuery } from '@/api/broker/brokerInvitationsQuery'
 import { useCreateBrokerInvitationMutation } from '@/api/broker/createBrokerInvitationMutation'
+import { useExpireBrokerInvitationMutation } from '@/api/broker/expireBrokerInvitationMutation'
+import { useManageBrokerAccessMutation } from '@/api/broker/manageBrokerAccessMutation'
+import { useUsersBasicQuery } from '@/api/users/usersBasicQuery'
+import { useIdentity } from '@/composables/identityComposable'
+import type { BrokerAccessDto } from '@/dtos/broker/brokerAccessDto'
+import type { BrokerInvitationDto } from '@/dtos/broker/brokerInvitationDto'
 import type { BrokerDto } from '@/dtos/brokerDto'
+import { AccessLevel } from '@/enums/accessLevel'
 import { extractErrorMessage } from '@/utils/errorUtils'
+import { formatDistance } from 'date-fns'
+import DataTable from 'primevue/datatable'
 import InputText from 'primevue/inputtext'
+import SelectButton from 'primevue/selectbutton'
+import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const props = defineProps<{
   broker: BrokerDto
@@ -12,9 +24,27 @@ const props = defineProps<{
 
 const toast = useToast()
 
-const email = ref('filip1994sm@gmail.com')
+const email = ref('')
 
+const confirm = useConfirm()
+
+const {
+  query: { data: user }
+} = useIdentity()
 const { mutateAsync: createBrokerInvitationAsync, isPending } = useCreateBrokerInvitationMutation()
+const { mutateAsync: manageBrokerAccessAsync, isPending: isPendingManageBrokerAccess } =
+  useManageBrokerAccessMutation()
+const { data: brokerInvitations } = useBrokerInvitationsQuery(computed(() => props.broker.id))
+const { data: usersBasic } = useUsersBasicQuery(
+  computed(
+    () =>
+      brokerInvitations.value
+        ?.map((y) => y.inviteeId)
+        .concat(props.broker.accessList.map((y) => y.userId)) ?? []
+  )
+)
+
+const { mutateAsync: expireBrokerInvitationAsync } = useExpireBrokerInvitationMutation()
 
 const createBrokerInvitation = () => {
   if (!email.value.includes('@')) {
@@ -38,6 +68,8 @@ const createBrokerInvitation = () => {
         detail: 'Invitation successfully sent.',
         life: 3000
       })
+
+      email.value = ''
     })
     .catch((e) => {
       toast.add({
@@ -48,24 +80,185 @@ const createBrokerInvitation = () => {
       })
     })
 }
+
+const accessLevels = [
+  {
+    label: 'Owner',
+    value: AccessLevel.Owner.toString()
+  },
+  {
+    label: 'Editor',
+    value: AccessLevel.Editor.toString()
+  },
+  {
+    label: 'Viewer',
+    value: AccessLevel.Viewer.toString()
+  }
+]
+
+const changeAccessLevel = (brokerAccess: BrokerAccessDto, accessLevel?: AccessLevel) => {
+  if (!accessLevel) {
+    return
+  }
+
+  confirm.require({
+    header: 'Change Access Level',
+    message: `Do you really want to change ${getUserName(brokerAccess)?.email} access level to ${accessLevel}?`,
+    icon: 'pi pi-info-circle',
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Change'
+    },
+    accept: () => {
+      manageBrokerAccessAsync({
+        userId: brokerAccess.userId,
+        accessLevel
+      })
+    },
+    reject: () => {}
+  })
+}
+
+const removeAccessLevel = (brokerAccess: BrokerAccessDto) => {
+  confirm.require({
+    header: 'Remove Access',
+    message: `Do you really want to remove ${getUserName(brokerAccess)?.email} access?`,
+    icon: 'pi pi-info-circle',
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Remove',
+      severity: 'danger'
+    },
+    accept: () => {
+      manageBrokerAccessAsync({
+        userId: brokerAccess.userId,
+        accessLevel: undefined
+      })
+    },
+    reject: () => {}
+  })
+}
+
+const expireBrokerInvitation = (brokerInvitation: BrokerInvitationDto) => {
+  confirm.require({
+    header: 'Remove Access',
+    message: `Do you really want to remove ${getUserName1(brokerInvitation)?.email} invitation?`,
+    icon: 'pi pi-info-circle',
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Remove',
+      severity: 'danger'
+    },
+    accept: () => {
+      expireBrokerInvitationAsync({
+        id: brokerInvitation.id
+      })
+    },
+    reject: () => {}
+  })
+}
+
+const getUserName = (data: BrokerAccessDto) => usersBasic.value?.find((x) => x.id === data.userId)
+const getUserName1 = (data: BrokerInvitationDto) =>
+  usersBasic.value?.find((x) => x.id === data.inviteeId)
+
+const copyDirectLink = (data: BrokerInvitationDto) => {
+  navigator.clipboard.writeText(`http://localhost:5173/app/broker-invitation?token=${data.token}`)
+}
 </script>
 
 <template>
-  <div class="rounded-xl border p-5">
-    <div class="text-lg font-medium">Access List</div>
-    <div v-for="acc in broker.accessList" :key="acc.userId">{{ acc }}</div>
-    <hr class="my-3" />
-    <div class="flex gap-3">
-      <InputText v-model="email" placeholder="Enter user e-mail..."></InputText>
-      <Button
-        :loading="isPending"
-        label="Send Invitation"
-        icon="pi pi-send"
-        @click="createBrokerInvitation"
-      ></Button>
-    </div>
-    <div class="mt-2 text-sm text-gray-500">
-      User must be registered in order to accept the invite.
+  <div class="flex flex-col rounded-xl border p-5">
+    <div class="text-lg font-medium">Collaborators</div>
+    <DataTable :value="broker.accessList" v-if="broker.accessList.length && usersBasic?.length">
+      <Column field="userId">
+        <template #body="{ data }">
+          {{ getUserName(data)?.email }}
+        </template>
+      </Column>
+
+      <Column field="accessLevel" class="w-0">
+        <template #body="{ data }">
+          <SelectButton
+            :disabled="data.userId === user?.id"
+            :model-value="data.accessLevel"
+            :options="accessLevels"
+            @update:model-value="(al) => changeAccessLevel(data, al)"
+            option-value="value"
+            option-label="label"
+          >
+          </SelectButton>
+        </template>
+      </Column>
+      <Column header="" field="actions" class="w-0">
+        <template #body="{ data }">
+          <Button
+            outlined
+            size="small"
+            icon="pi pi-times"
+            @click="removeAccessLevel(data)"
+          ></Button>
+        </template>
+      </Column>
+    </DataTable>
+
+    <DataTable :value="brokerInvitations" v-if="brokerInvitations?.length && usersBasic?.length">
+      <Column field="userId" header="Pending Invitations">
+        <template #body="{ data }">
+          <div class="flex flex-nowrap">
+            {{ getUserName(data)?.email }}
+            <span
+              class="ms-3 flex cursor-pointer items-center text-blue-500 hover:text-blue-400"
+              @click="copyDirectLink(data)"
+              ><i class="pi pi-copy me-1"></i>Copy direct link</span
+            >
+          </div>
+        </template>
+      </Column>
+      <Column header="" field="actions" class="w-0">
+        <template #body="{ data }">
+          <div class="whitespace-nowrap">
+            Expires in {{ formatDistance(new Date(), data.expiresAt) }}
+          </div>
+        </template>
+      </Column>
+      <Column header="" field="actions" class="w-0">
+        <template #body="{ data }">
+          <Button
+            outlined
+            size="small"
+            icon="pi pi-times"
+            @click="expireBrokerInvitation(data)"
+          ></Button>
+        </template>
+      </Column>
+    </DataTable>
+
+    <div class="mt-5 items-center">
+      <div class="flex gap-3">
+        <InputText class="w-72" v-model="email" placeholder="Enter user e-mail..."></InputText>
+        <Button
+          :loading="isPending"
+          label="Send Invitation"
+          icon-pos="right"
+          icon="pi pi-send"
+          outlined
+          @click="createBrokerInvitation"
+        ></Button>
+      </div>
+      <div class="mt-3">Registration is required to accept the invitation.</div>
     </div>
   </div>
 </template>

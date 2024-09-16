@@ -2,6 +2,7 @@
 import { useLogoutMutation } from '@/api/auth/logoutMutation'
 import { useResendConfirmatioEmailMutation } from '@/api/auth/resendConfirmationEmailMutation'
 import { useUpdateUserMutation } from '@/api/auth/updateUserMutation'
+import { useBrokerInvitationsQuery } from '@/api/broker/brokerInvitationsQuery'
 import { useIdentity } from '@/composables/identityComposable'
 import SubscriptionDialog from '@/dialogs/SubscriptionDialog.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
@@ -24,6 +25,7 @@ const { mutateAsync: logoutAsync } = useLogoutMutation()
 const { mutateAsync: resendConfirmationEmailAsync, isPending: isResendConfirmationEmailPending } =
   useResendConfirmatioEmailMutation()
 const { mutateAsync: updateUserAsync, isPending: isUpdateUserPending } = useUpdateUserMutation()
+const { data: brokerInvitations } = useBrokerInvitationsQuery()
 
 const logout = () => {
   logoutAsync().then(() => {
@@ -187,6 +189,12 @@ const updateUserFullNameAsync = (value?: string) => {
               class="ms-auto"
             ></Button>
           </div>
+        </div>
+      </div>
+      <div>
+        <div class="rounded-xl border border-gray-200 p-5">
+          <div class="text-lg font-medium">Collaboration</div>
+          <div>{{ brokerInvitations }}</div>
         </div>
       </div>
       <div>

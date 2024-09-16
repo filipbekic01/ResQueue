@@ -100,6 +100,7 @@ public class Program
         app.MapExchangeEndpoints();
         app.MapMessageEndpoints();
         app.MapStripeEndpoints();
+        app.MapUserEndpoints();
 
         app.Run();
     }

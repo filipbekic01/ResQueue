@@ -39,10 +39,10 @@ const acceptBrokerInvitation = () => {
         >
       </div>
     </RouterLink>
-    <div class="flex w-96 flex-col gap-3 rounded-xl border bg-white p-8 text-center shadow-md">
-      You're invited to join a team.
+    <div class="flex w-96 flex-col gap-6 rounded-xl border bg-white p-8 text-center shadow-md">
+      User {{ data?.invitedBy }} invited you to join and collaborate on a broker team.
 
-      {{ data }}
+      <div class="text-xl font-semibold">{{ data?.brokerName }}</div>
 
       <Button @click="acceptBrokerInvitation" label="Accept Invitation"></Button>
     </div>

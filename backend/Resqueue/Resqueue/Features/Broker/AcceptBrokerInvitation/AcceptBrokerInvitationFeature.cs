@@ -39,7 +39,7 @@ public class AcceptBrokerInvitationFeature(
         // Get invitation
         var invitationFilter = Builders<BrokerInvitation>.Filter.And(
             Builders<BrokerInvitation>.Filter.Eq(b => b.Token, request.Dto.Token),
-            Builders<BrokerInvitation>.Filter.Eq(b => b.UserId, currentUser.Id)
+            Builders<BrokerInvitation>.Filter.Eq(b => b.InviterId, currentUser.Id)
         );
         var invitation = await invitationsCollection.Find(invitationFilter).FirstOrDefaultAsync();
         if (invitation == null)
@@ -51,6 +51,15 @@ public class AcceptBrokerInvitationFeature(
             });
         }
 
+        if (DateTime.UtcNow > invitation.ExpiresAt)
+        {
+            return OperationResult<AcceptBrokerInvitationResponse>.Failure(new ProblemDetails
+            {
+                Detail = "Invitation Expired",
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+        
         if (invitation.IsAccepted)
         {
             return OperationResult<AcceptBrokerInvitationResponse>.Failure(new ProblemDetails

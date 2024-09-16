@@ -10,7 +10,7 @@ export const useQueueQuery = (id: MaybeRef<string | undefined>) =>
     queryFn: async () => {
       const response = await axios.get<QueueDto[]>(`${API_URL}/queues`, {
         params: {
-          ids: [toValue(id), '66bf0c4873456a33536ab211']
+          ids: [toValue(id)]
         },
         withCredentials: true
       })
