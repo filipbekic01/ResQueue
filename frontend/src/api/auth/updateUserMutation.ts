@@ -13,6 +13,7 @@ export function useUpdateUserMutation() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['me'] })
+      queryClient.invalidateQueries({ queryKey: ['users'] })
     }
   })
 }

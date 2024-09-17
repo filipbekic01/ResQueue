@@ -16,6 +16,7 @@ export function useUpdateUserAvatarMutation() {
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['me'] })
+      queryClient.invalidateQueries({ queryKey: ['users'] })
     }
   })
 }
