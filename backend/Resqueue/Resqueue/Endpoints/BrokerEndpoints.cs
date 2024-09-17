@@ -1,13 +1,8 @@
-using System.Net.Http.Headers;
-using System.Text;
-using Amazon.Runtime;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Resqueue.Constants;
 using Resqueue.Dtos;
-using Resqueue.Enums;
 using Resqueue.Features.Broker.AcceptBrokerInvitation;
 using Resqueue.Features.Broker.CreateBrokerInvitation;
 using Resqueue.Features.Broker.ManageBrokerAccess;
@@ -36,7 +31,7 @@ public static class BrokerEndpoints
                 }
 
                 var filter = Builders<Broker>.Filter.And(
-                    Builders<Broker>.Filter.Eq(b => b.UserId, user.Id),
+                    Builders<Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id),
                     Builders<Broker>.Filter.Eq(b => b.DeletedAt, null));
 
                 var sort = Builders<Broker>.Sort.Descending(b => b.Id);
@@ -288,7 +283,7 @@ public static class BrokerEndpoints
 
                 var filter = Builders<Broker>.Filter.And(
                     Builders<Broker>.Filter.Eq(b => b.Id, objectId),
-                    Builders<Broker>.Filter.Eq(b => b.UserId, user.Id)
+                    Builders<Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id)
                 );
 
                 var update = Builders<Broker>.Update.Set(b => b.DeletedAt, DateTime.UtcNow);

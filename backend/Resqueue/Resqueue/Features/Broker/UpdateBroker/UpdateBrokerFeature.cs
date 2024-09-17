@@ -31,7 +31,7 @@ public class UpdateBrokerFeature(
 
         var filter = Builders<Models.Broker>.Filter.And(
             Builders<Models.Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Id)),
-            Builders<Models.Broker>.Filter.Eq(b => b.UserId, user.Id)
+            Builders<Models.Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id)
         );
 
         var update = Builders<Models.Broker>.Update

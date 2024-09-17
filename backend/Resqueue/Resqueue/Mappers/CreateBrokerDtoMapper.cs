@@ -14,7 +14,6 @@ public static class CreateBrokerDtoMapper
 
         return new Broker
         {
-            UserId = userId,
             AccessList =
             [
                 new BrokerAccess

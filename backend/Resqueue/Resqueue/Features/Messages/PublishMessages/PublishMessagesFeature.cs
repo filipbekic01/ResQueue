@@ -46,7 +46,7 @@ public class PublishMessagesFeature(
 
         var broker = await brokersCollection.Find(Builders<Models.Broker>.Filter.And(
             Builders<Models.Broker>.Filter.Eq(b => b.Id, exchange.BrokerId),
-            Builders<Models.Broker>.Filter.Eq(b => b.UserId, user.Id)
+            Builders<Models.Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id)
         )).FirstOrDefaultAsync();
 
         if (broker == null)
@@ -61,7 +61,6 @@ public class PublishMessagesFeature(
             Builders<Message>.Filter.In(b => b.Id, request.Dto.MessageIds.Select(ObjectId.Parse).ToList());
 
         var sort = Builders<Message>.Sort.Ascending(q => q.MessageOrder);
-
 
         var factory = RabbitmqConnectionFactory.CreateAmqpFactory(broker);
         using var connection = factory.CreateConnection();
@@ -157,7 +156,6 @@ public class PublishMessagesFeature(
                     Builders<Message>.Update
                         .Set(b => b.DeletedAt, DateTime.UtcNow));
             });
-
 
         return OperationResult<PublishMessagesFeatureResponse>.Success(new PublishMessagesFeatureResponse());
     }

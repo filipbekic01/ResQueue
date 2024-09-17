@@ -23,7 +23,8 @@ public static class UserEndpoints
                         .Project(u => new UserBasicDto
                         {
                             Id = u.Id.ToString(),
-                            Email = u.Email,
+                            Email = u.Email!,
+                            Avatar = u.Avatar,
                             FullName = u.FullName
                         })
                         .ToListAsync();

@@ -34,9 +34,9 @@ public class CreateBrokerInvitationFeature(
         CreateBrokerInvitationRequest request)
     {
         // Get the user to invite
-        var userToInviteFilter = Builders<User>.Filter.Eq(b => b.NormalizedEmail, request.Dto.Email.ToUpper());
-        var userToInvite = await usersCollection.Find(userToInviteFilter).FirstOrDefaultAsync();
-        if (userToInvite == null)
+        var inviteeFilter = Builders<User>.Filter.Eq(b => b.NormalizedEmail, request.Dto.Email.ToUpper());
+        var userInvitee = await usersCollection.Find(inviteeFilter).FirstOrDefaultAsync();
+        if (userInvitee == null)
         {
             return OperationResult<CreateBrokerInvitationResponse>.Failure(new ProblemDetails
             {
@@ -46,13 +46,29 @@ public class CreateBrokerInvitationFeature(
         }
 
         // Get the current user
-        var currentUser = await userManager.GetUserAsync(request.ClaimsPrincipal);
-        if (currentUser == null)
+        var userInviter = await userManager.GetUserAsync(request.ClaimsPrincipal);
+        if (userInviter == null)
         {
             return OperationResult<CreateBrokerInvitationResponse>.Failure(new ProblemDetails
             {
                 Detail = "Unauthorized",
                 Status = StatusCodes.Status401Unauthorized
+            });
+        }
+
+        // Get the current user
+        var brokerInvitationFilter = Builders<BrokerInvitation>.Filter.And(
+            Builders<BrokerInvitation>.Filter.Eq(b => b.IsAccepted, false),
+            Builders<BrokerInvitation>.Filter.Gt(b => b.ExpiresAt, DateTime.UtcNow),
+            Builders<BrokerInvitation>.Filter.Eq(b => b.InviteeId, userInvitee.Id)
+        );
+        var hasInvitations = await invitationsCollection.Find(brokerInvitationFilter).AnyAsync();
+        if (hasInvitations)
+        {
+            return OperationResult<CreateBrokerInvitationResponse>.Failure(new ProblemDetails
+            {
+                Detail = "User has been invited already.",
+                Status = StatusCodes.Status400BadRequest
             });
         }
 
@@ -82,9 +98,9 @@ public class CreateBrokerInvitationFeature(
         var invitation = new BrokerInvitation()
         {
             BrokerId = broker.Id,
-            InviterId = currentUser.Id,
-            InviterEmail = currentUser.Email,
-            InviteeId = userToInvite.Id,
+            InviterId = userInviter.Id,
+            InviterEmail = userInviter.Email,
+            InviteeId = userInvitee.Id,
             Token = GenerateRandomString(32),
             CreatedAt = DateTime.UtcNow,
             ExpiresAt = DateTime.UtcNow.AddDays(3),
@@ -93,7 +109,7 @@ public class CreateBrokerInvitationFeature(
 
         await invitationsCollection.InsertOneAsync(invitation);
 
-        await SendEmail(userToInvite, invitation.Token);
+        await SendEmail(userInvitee, invitation.Token);
 
         return OperationResult<CreateBrokerInvitationResponse>.Success(new());
     }

@@ -27,6 +27,7 @@ public static class AuthEndpoints
             {
                 Id = user.Id.ToString(),
                 FullName = user.FullName,
+                Avatar = user.Avatar,
                 Email = user.Email!,
                 EmailConfirmed = user.EmailConfirmed,
                 StripeId = user.StripeId,
@@ -71,6 +72,7 @@ public static class AuthEndpoints
                 {
                     UserName = dto.Email,
                     Email = dto.Email,
+                    FullName = DefaultUserNames.GetRandomName(),
                 };
 
                 var result = await userManager.CreateAsync(user, dto.Password);
@@ -106,8 +108,29 @@ public static class AuthEndpoints
                 return Results.Ok();
             }).AllowAnonymousOnly();
 
+        group.MapPatch("me/avatar",
+            async (HttpContext httpContext, UserManager<User> userManager,
+                IMongoCollection<User> usersCollection) =>
+            {
+                var user = await userManager.GetUserAsync(httpContext.User);
+                if (user == null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                var filter = Builders<User>.Filter.Eq(u => u.Id, user.Id);
+
+                var update = Builders<User>.Update.Set(u => u.Avatar,
+                    UserAvatarGenerator.GenerateUniqueAvatar(user.Id.ToString()));
+
+                await usersCollection.UpdateOneAsync(filter, update);
+
+                return Results.Ok();
+            }).RequireAuthorization();
+
         group.MapPatch("me",
-            async (HttpContext httpContext, UserManager<User> userManager, [FromBody] UpdateUserDto dto,
+            async
+            (HttpContext httpContext, UserManager<User> userManager, [FromBody] UpdateUserDto dto,
                 IMongoCollection<User> usersCollection) =>
             {
                 var user = await userManager.GetUserAsync(httpContext.User);
@@ -119,10 +142,10 @@ public static class AuthEndpoints
                 var filter = Builders<User>.Filter.Eq(u => u.Id, user.Id);
                 var update = Builders<User>.Update.Combine();
 
-                // Update FullName if provided
-                if (!string.IsNullOrEmpty(dto.FullName))
+                var trimmed = dto.FullName?.Trim();
+                if (!string.IsNullOrEmpty(trimmed))
                 {
-                    update = Builders<User>.Update.Set(u => u.FullName, dto.FullName);
+                    update = Builders<User>.Update.Set(u => u.FullName, trimmed);
                 }
 
                 // Update UserConfig if provided
@@ -143,7 +166,8 @@ public static class AuthEndpoints
                 return Results.Ok();
             }).RequireAuthorization();
 
-        group.MapPost("logout", async (SignInManager<User> signInManager,
+        group.MapPost("logout", async
+            (SignInManager<User> signInManager,
                 [FromBody] object empty) =>
             {
                 if (empty != null)
@@ -155,7 +179,6 @@ public static class AuthEndpoints
                 return Results.Unauthorized();
             })
             .RequireAuthorization();
-
         return group;
     }
 }

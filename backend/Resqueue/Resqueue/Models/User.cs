@@ -4,8 +4,9 @@ namespace Resqueue.Models;
 
 public class User : MongoUser
 {
-    public string? FullName { get; set; }
+    public string FullName { get; set; } = null!;
 
+    public string Avatar { get; set; } = null!;
     public string? StripeId { get; set; }
     public string? PaymentType { get; set; }
     public string? PaymentLastFour { get; set; }

@@ -1,11 +1,20 @@
 <script lang="ts" setup>
 import { useAcceptBrokerInvitationMutation } from '@/api/broker/acceptBrokerInvitationMutation'
 import { useBrokerInvitationQuery } from '@/api/broker/brokerInvitationQuery'
+import { useIdentity } from '@/composables/identityComposable'
+import { extractErrorMessage } from '@/utils/errorUtils'
+import { differenceInSeconds } from 'date-fns'
+import { useToast } from 'primevue/usetoast'
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
+const router = useRouter()
+const toast = useToast()
 
+const {
+  query: { data: user }
+} = useIdentity()
 const { mutateAsync: acceptBrokerInvitationAsync } = useAcceptBrokerInvitationMutation()
 const { data } = useBrokerInvitationQuery(computed(() => route.query.token?.toString()))
 
@@ -18,10 +27,17 @@ const acceptBrokerInvitation = () => {
     token: route.query.token.toString()
   })
     .then(() => {
-      // ...
+      router.push({
+        name: 'app'
+      })
     })
-    .catch(() => {
-      // ...
+    .catch((e) => {
+      toast.add({
+        severity: 'error',
+        summary: 'Accept Failed',
+        detail: extractErrorMessage(e),
+        life: 3000
+      })
     })
 }
 </script>
@@ -39,12 +55,29 @@ const acceptBrokerInvitation = () => {
         >
       </div>
     </RouterLink>
-    <div class="flex w-96 flex-col gap-6 rounded-xl border bg-white p-8 text-center shadow-md">
-      User {{ data?.invitedBy }} invited you to join and collaborate on a broker team.
+
+    <div
+      v-if="
+        data &&
+        user &&
+        user?.id === data?.inviteeId &&
+        !data?.isAccepted &&
+        differenceInSeconds(data?.expiresAt, new Date()) > 0
+      "
+      class="flex w-96 flex-col gap-6 rounded-xl border bg-white p-8 text-center shadow-md"
+    >
+      User {{ data?.inviterEmail }} invited you to join and collaborate on a broker team.
 
       <div class="text-xl font-semibold">{{ data?.brokerName }}</div>
 
       <Button @click="acceptBrokerInvitation" label="Accept Invitation"></Button>
+    </div>
+    <div
+      v-else
+      class="flex w-96 flex-col gap-6 rounded-xl border bg-white p-8 text-center shadow-md"
+    >
+      Access to this link is restricted to invited users who are logged in. It appears you don't
+      have the necessary permissions to view this content.
     </div>
   </div>
 </template>

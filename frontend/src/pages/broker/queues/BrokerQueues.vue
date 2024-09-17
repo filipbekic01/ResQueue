@@ -240,7 +240,7 @@ watchEffect(() => {
         </template>
       </Column>
 
-      <Column sortable field="name" header="Name" class="max-w-[0]">
+      <Column sortable field="name" header="Name">
         <template #body="{ data }">
           <div
             @click="selectQueue(data)"

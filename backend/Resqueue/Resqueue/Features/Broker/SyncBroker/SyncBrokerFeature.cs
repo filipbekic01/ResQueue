@@ -29,6 +29,7 @@ public class SyncBrokerFeature(
     {
         var dt = DateTime.UtcNow;
 
+        // Get user
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user == null)
         {
@@ -39,13 +40,17 @@ public class SyncBrokerFeature(
             });
         }
 
-        var brokerFilter = Builders<Models.Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Id));
+        // Get broker
+        var brokerFilter = Builders<Models.Broker>.Filter.And(
+            Builders<Models.Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id),
+            Builders<Models.Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Id))
+        );
         var broker = await brokersCollection.Find(brokerFilter).FirstOrDefaultAsync();
         if (broker == null)
         {
             return OperationResult<SyncBrokerFeatureResponse>.Failure(new ProblemDetails()
             {
-                Detail = $"Broker {request.Id} not found.",
+                Detail = $"Broker {request.Id} not found or user unauthorized.",
                 Status = StatusCodes.Status404NotFound
             });
         }
@@ -82,7 +87,6 @@ public class SyncBrokerFeature(
                 queuesToAdd.Add(new Queue
                 {
                     BrokerId = ObjectId.Parse(request.Id),
-                    UserId = user.Id,
                     RawData = BsonDocument.Parse(element.GetRawText()),
                     CreatedAt = dt
                 });

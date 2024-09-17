@@ -48,7 +48,7 @@ public class SyncMessagesFeature(
 
         var brokerFilter = Builders<Models.Broker>.Filter.And(
             Builders<Models.Broker>.Filter.Eq(b => b.Id, queue.BrokerId),
-            Builders<Models.Broker>.Filter.Eq(b => b.UserId, user.Id)
+            Builders<Models.Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id)
         );
         var broker = await brokersCollection.Find(brokerFilter).FirstOrDefaultAsync();
         if (broker == null)

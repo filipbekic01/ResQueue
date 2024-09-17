@@ -3,7 +3,9 @@ import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { useDeleteBrokerMutation } from '@/api/broker/deleteBrokerMutation'
 import { useTestConnectionMutation } from '@/api/broker/testConnectionRequest'
 import { useUpdateBrokerMutation } from '@/api/broker/updateBrokerMutation'
+import { useIdentity } from '@/composables/identityComposable'
 import type { UpdateBrokerDto } from '@/dtos/updateBrokerDto'
+import { isBrokerOwner, isBrokerViewer } from '@/utils/brokerUtils'
 import { extractErrorMessage } from '@/utils/errorUtils'
 import ToggleSwitch from 'primevue/toggleswitch'
 import { useConfirm } from 'primevue/useconfirm'
@@ -21,6 +23,9 @@ const router = useRouter()
 const confirm = useConfirm()
 const { data: brokers } = useBrokersQuery()
 
+const {
+  query: { data: user }
+} = useIdentity()
 const { mutateAsync: updateBrokerAsync, isPending: isUpdateBrokerPending } =
   useUpdateBrokerMutation()
 const { mutateAsync: testConnectionAsync, isPending: isTestConnectionPending } =
@@ -163,7 +168,7 @@ const deleteBroker = () => {
 
 <template>
   <div v-if="brokerEditable" class="flex max-w-[65rem] flex-col gap-7 p-7">
-    <div class="flex flex-row gap-7">
+    <div v-if="broker && user && !isBrokerViewer(broker, user?.id)" class="flex flex-row gap-7">
       <div class="flex w-1/2 grow basis-1/2 flex-col gap-3 rounded-xl border border-gray-200 p-5">
         <div class="text-lg font-medium">Broker Settings</div>
         <div class="flex flex-col gap-3">
@@ -347,10 +352,23 @@ const deleteBroker = () => {
         ></Button>
       </div>
     </div>
-    <div>
-      <BrokerOverviewAccess v-if="broker" :broker="broker" />
+    <div v-else>
+      <div class="flex w-1/2 grow basis-1/2 flex-col gap-3 rounded-xl border border-gray-200 p-5">
+        <div class="text-lg font-medium">Broker Access Limited</div>
+        You have "Viewer" permissions, which grant access only to the queues topics and queues page.
+        Access to the broker overview is restricted to Owners and Editors.
+
+        <div class="mt-2">
+          <Button outlined label="Leave Broker" icon="pi pi-times"></Button>
+        </div>
+      </div>
     </div>
-    <div class="flex max-w-[65rem]">
+
+    <div v-if="broker && user && isBrokerOwner(broker, user.id)">
+      <BrokerOverviewAccess :broker="broker" />
+    </div>
+
+    <div v-if="broker && user && !isBrokerViewer(broker, user.id)" class="flex max-w-[65rem]">
       <Button
         label="Delete Broker"
         icon="pi pi-trash"

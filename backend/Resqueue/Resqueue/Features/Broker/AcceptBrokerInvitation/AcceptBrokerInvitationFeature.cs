@@ -26,8 +26,8 @@ public class AcceptBrokerInvitationFeature(
         AcceptBrokerInvitationRequest request)
     {
         // Get the current user
-        var currentUser = await userManager.GetUserAsync(request.ClaimsPrincipal);
-        if (currentUser == null)
+        var userInvitee = await userManager.GetUserAsync(request.ClaimsPrincipal);
+        if (userInvitee == null)
         {
             return OperationResult<AcceptBrokerInvitationResponse>.Failure(new ProblemDetails
             {
@@ -39,7 +39,7 @@ public class AcceptBrokerInvitationFeature(
         // Get invitation
         var invitationFilter = Builders<BrokerInvitation>.Filter.And(
             Builders<BrokerInvitation>.Filter.Eq(b => b.Token, request.Dto.Token),
-            Builders<BrokerInvitation>.Filter.Eq(b => b.InviterId, currentUser.Id)
+            Builders<BrokerInvitation>.Filter.Eq(b => b.InviteeId, userInvitee.Id)
         );
         var invitation = await invitationsCollection.Find(invitationFilter).FirstOrDefaultAsync();
         if (invitation == null)
@@ -92,7 +92,7 @@ public class AcceptBrokerInvitationFeature(
 
         // Update broker access list
         var accessList = broker.AccessList;
-        if (accessList.Any(x => x.UserId == currentUser.Id))
+        if (accessList.Any(x => x.UserId == userInvitee.Id))
         {
             return OperationResult<AcceptBrokerInvitationResponse>.Failure(new ProblemDetails
             {
@@ -103,7 +103,7 @@ public class AcceptBrokerInvitationFeature(
 
         accessList.Add(new()
         {
-            UserId = currentUser.Id,
+            UserId = userInvitee.Id,
             AccessLevel = AccessLevel.Viewer
         });
 

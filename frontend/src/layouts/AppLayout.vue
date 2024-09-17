@@ -163,6 +163,7 @@ const openFullNameEditPage = () => {
               <slot name="description"></slot>
             </div>
           </div>
+          <slot name="append"></slot>
         </div>
       </div>
       <div class="flex grow flex-col overflow-auto">

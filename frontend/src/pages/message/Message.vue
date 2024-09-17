@@ -5,6 +5,7 @@ import { useQueueQuery } from '@/api/queues/queueQuery'
 import type { FormatOption } from '@/components/SelectFormat.vue'
 import { type StructureOption } from '@/components/SelectStructure.vue'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
+import Avatars from '@/features/avatars/Avatars.vue'
 import FormattedMessage from '@/features/formatted-message/FormattedMessage.vue'
 import MessageCopy from '@/features/message-copy/MessageCopy.vue'
 import MessageActions from '@/features/message/MessageActions.vue'
@@ -85,6 +86,9 @@ const handleCopied = () => {
         <i class="pi pi-angle-right mx-1"></i>
         {{ message?.id }}
       </div>
+    </template>
+    <template #append>
+      <Avatars v-if="broker" :user-ids="broker.accessList.map((x) => x.userId)" />
     </template>
     <div class="flex items-start gap-2 border-b px-4 py-2">
       <Button outlined @click="backToMessages" icon="pi pi-arrow-left" label="Messages"></Button>

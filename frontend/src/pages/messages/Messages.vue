@@ -10,7 +10,8 @@ import type { StructureOption } from '@/components/SelectStructure.vue'
 import { useIdentity } from '@/composables/identityComposable'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
 import UpsertMessageDialog from '@/dialogs/UpsertMessageDialog.vue'
-import type { RabbitMQMessageDto } from '@/dtos/rabbitMqMessageDto'
+import type { RabbitMQMessageDto } from '@/dtos/rabbitMQMessageDto'
+import Avatars from '@/features/avatars/Avatars.vue'
 import FormattedMessage from '@/features/formatted-message/FormattedMessage.vue'
 import MessageCopy from '@/features/message-copy/MessageCopy.vue'
 import MessageActions from '@/features/message/MessageActions.vue'
@@ -263,6 +264,9 @@ const cloneMessage = (id: string) => {
       <span class="cursor-pointer hover:underline" @click="backToQueues">{{ broker?.name }}</span>
     </template>
     <template #description>{{ rabbitMqQueue?.parsed.name }}</template>
+    <template #append>
+      <Avatars v-if="broker" :user-ids="broker.accessList.map((x) => x.userId)" />
+    </template>
     <div class="flex flex-wrap items-start gap-2 border-b px-4 py-2">
       <Button @click="backToQueues" outlined label="Queues" icon="pi pi-arrow-left"></Button>
       <ButtonGroup>
@@ -356,7 +360,7 @@ const cloneMessage = (id: string) => {
           </template>
         </Column>
 
-        <Column field="summary" header="Summary" class="max-w-[0] overflow-hidden">
+        <Column field="summary" header="Summary" class="overflow-hidden">
           <template #body="{ data }">
             <div class="overflow-hidden overflow-ellipsis text-nowrap">
               {{ messageSummary({ ...data }) }}

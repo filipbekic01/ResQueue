@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { useLogoutMutation } from '@/api/auth/logoutMutation'
 import { useResendConfirmatioEmailMutation } from '@/api/auth/resendConfirmationEmailMutation'
+import { useUpdateUserAvatarMutation } from '@/api/auth/updateUserAvatarMutation'
 import { useUpdateUserMutation } from '@/api/auth/updateUserMutation'
-import { useBrokerInvitationsQuery } from '@/api/broker/brokerInvitationsQuery'
 import { useIdentity } from '@/composables/identityComposable'
 import SubscriptionDialog from '@/dialogs/SubscriptionDialog.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { format } from 'date-fns'
+import { useConfirm } from 'primevue/useconfirm'
 import { useDialog } from 'primevue/usedialog'
 import { useToast } from 'primevue/usetoast'
 import { ref } from 'vue'
@@ -14,6 +15,7 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const dialog = useDialog()
+const confirm = useConfirm()
 
 const {
   query: { data: user },
@@ -25,7 +27,8 @@ const { mutateAsync: logoutAsync } = useLogoutMutation()
 const { mutateAsync: resendConfirmationEmailAsync, isPending: isResendConfirmationEmailPending } =
   useResendConfirmatioEmailMutation()
 const { mutateAsync: updateUserAsync, isPending: isUpdateUserPending } = useUpdateUserMutation()
-const { data: brokerInvitations } = useBrokerInvitationsQuery()
+const { mutateAsync: updateUserAvatarAsync, isPending: updateUserAvatarIsPending } =
+  useUpdateUserAvatarMutation()
 
 const logout = () => {
   logoutAsync().then(() => {
@@ -94,6 +97,34 @@ const updateUserFullNameAsync = (value?: string) => {
     settings: { ...user.value.settings }
   })
 }
+
+const updateUserAvatar = () => {
+  confirm.require({
+    header: 'Generate Avatar',
+    message: `Would you like to generate a new avatar? Please note, this action cannot be undone.`,
+    icon: 'pi pi-info-circle',
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Continue',
+      severity: ''
+    },
+    accept: () => {
+      updateUserAvatarAsync().then(() => {
+        toast.add({
+          severity: 'success',
+          summary: 'Avatar Updated',
+          detail: 'Generated new account avatar.',
+          life: 3000
+        })
+      })
+    },
+    reject: () => {}
+  })
+}
 </script>
 
 <template>
@@ -102,11 +133,8 @@ const updateUserFullNameAsync = (value?: string) => {
     <div class="px-7 text-slate-400">Manage settings and access your account details.</div>
     <div class="flex max-w-[60rem] flex-col gap-7 p-7">
       <div class="flex items-start gap-7">
-        <div class="grow basis-1/2 rounded-xl border border-gray-200 p-5">
-          <div class="text-lg font-medium">E-Mail Address</div>
-          <div class="text-slate-500">{{ user?.email }}</div>
-        </div>
-        <div class="flex grow basis-1/2 items-center rounded-xl border border-gray-200 p-5">
+        <div class="flex grow items-center rounded-xl border border-gray-200 p-5">
+          <img :src="user?.avatar" class="me-4 w-12 rounded-full" />
           <div>
             <div class="text-lg font-medium">Full Name</div>
             <div class="flex items-center text-slate-500">
@@ -129,10 +157,25 @@ const updateUserFullNameAsync = (value?: string) => {
               placeholder="Enter your name..."
               @change="(e) => updateUserFullNameAsync((e.target as any).value)"
             ></InputText>
+
+            <Button
+              outlined
+              @click="updateUserAvatar"
+              :loading="updateUserAvatarIsPending"
+              class="ms-3"
+              icon="pi pi-sync"
+              label="Update Avatar"
+            ></Button>
           </div>
         </div>
       </div>
+    </div>
+    <div class="flex max-w-[60rem] flex-col gap-7 px-7 pb-7">
       <div class="flex items-start gap-7">
+        <div class="grow basis-1/2 rounded-xl border border-gray-200 p-5">
+          <div class="text-lg font-medium">E-Mail Address</div>
+          <div class="text-slate-500">{{ user?.email }}</div>
+        </div>
         <div class="flex grow basis-1/2 items-center rounded-xl border border-gray-200 p-5">
           <div>
             <div class="whitespace-nowrap text-lg font-medium">Account Security</div>
@@ -155,7 +198,9 @@ const updateUserFullNameAsync = (value?: string) => {
             outlined
           ></Button>
         </div>
-        <div class="basis-1/2 rounded-xl border border-slate-200 p-5">
+      </div>
+      <div class="flex items-start gap-7">
+        <div class="grow rounded-xl border border-slate-200 p-5">
           <div class="flex items-center">
             <div>
               <div class="text-lg font-medium">Subscription</div>
@@ -181,7 +226,7 @@ const updateUserFullNameAsync = (value?: string) => {
               </div>
             </div>
             <Button
-              label="Subscribe"
+              label="Upgrade Account"
               icon="pi pi-arrow-right"
               v-if="!activeSubscription"
               @click="router.push({ name: 'pricing' })"
@@ -189,12 +234,6 @@ const updateUserFullNameAsync = (value?: string) => {
               class="ms-auto"
             ></Button>
           </div>
-        </div>
-      </div>
-      <div>
-        <div class="rounded-xl border border-gray-200 p-5">
-          <div class="text-lg font-medium">Collaboration</div>
-          <div>{{ brokerInvitations }}</div>
         </div>
       </div>
       <div>

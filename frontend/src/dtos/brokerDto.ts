@@ -4,6 +4,7 @@ import type { RabbitMQConnectionDto } from './RabbitMQConnectionDto'
 
 export interface BrokerDto {
   id: string
+  userId: string
   accessList: BrokerAccessDto[]
   system: string
   name: string

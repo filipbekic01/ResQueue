@@ -177,6 +177,12 @@ const getUserName1 = (data: BrokerInvitationDto) =>
 const copyDirectLink = (data: BrokerInvitationDto) => {
   navigator.clipboard.writeText(`http://localhost:5173/app/broker-invitation?token=${data.token}`)
 }
+
+const canRemoveAccessLevel = (data: BrokerAccessDto) => {
+  if (data.userId === user.value?.id) {
+    return false
+  }
+}
 </script>
 
 <template>
@@ -185,7 +191,7 @@ const copyDirectLink = (data: BrokerInvitationDto) => {
     <DataTable :value="broker.accessList" v-if="broker.accessList.length && usersBasic?.length">
       <Column field="userId">
         <template #body="{ data }">
-          {{ getUserName(data)?.email }}
+          {{ getUserName(data)?.email }} {{ getUserName(data)?.fullName }}
         </template>
       </Column>
 
@@ -205,6 +211,7 @@ const copyDirectLink = (data: BrokerInvitationDto) => {
       <Column header="" field="actions" class="w-0">
         <template #body="{ data }">
           <Button
+            v-if="canRemoveAccessLevel(data)"
             outlined
             size="small"
             icon="pi pi-times"
@@ -218,7 +225,7 @@ const copyDirectLink = (data: BrokerInvitationDto) => {
       <Column field="userId" header="Pending Invitations">
         <template #body="{ data }">
           <div class="flex flex-nowrap">
-            {{ getUserName(data)?.email }}
+            {{ getUserName1(data)?.email }}
             <span
               class="ms-3 flex cursor-pointer items-center text-blue-500 hover:text-blue-400"
               @click="copyDirectLink(data)"

@@ -6,7 +6,6 @@ namespace Resqueue.Models;
 public class Queue
 {
     [BsonId] public ObjectId Id { get; set; }
-    public ObjectId UserId { get; set; }
     public ObjectId BrokerId { get; set; }
     public int TotalMessages { get; set; }
     public bool IsFavorite { get; set; }

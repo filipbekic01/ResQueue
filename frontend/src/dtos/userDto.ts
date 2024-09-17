@@ -4,6 +4,7 @@ import type { UserSettingsDto } from './userSettings'
 export interface UserDto {
   id: string
   fullName?: string
+  avatar: string
   email: string
   settings: UserSettingsDto
   emailConfirmed: boolean

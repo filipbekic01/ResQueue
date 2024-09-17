@@ -39,7 +39,7 @@ public class UpdateMessageFeature(
 
         var broker = await brokersCollection.Find(Builders<Models.Broker>.Filter.And(
             Builders<Models.Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Dto.BrokerId)),
-            Builders<Models.Broker>.Filter.Eq(b => b.UserId, user.Id)
+            Builders<Models.Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id)
         )).FirstOrDefaultAsync();
 
         if (broker == null)

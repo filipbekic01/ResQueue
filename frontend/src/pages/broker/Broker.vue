@@ -3,7 +3,9 @@ import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { useSyncBrokerMutation } from '@/api/broker/syncBrokerMutation'
 import { useUpdateBrokerMutation } from '@/api/broker/updateBrokerMutation'
 import { useIdentity } from '@/composables/identityComposable'
+import Avatars from '@/features/avatars/Avatars.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
+import { isBrokerViewer } from '@/utils/brokerUtils'
 import { formatDistanceToNow } from 'date-fns'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
@@ -138,10 +140,18 @@ const updateTabValue = (a: any) => router.push({ name: a })
             <div v-else>Syncing...</div>
           </div>
         </div>
+        <div class="ms-auto">
+          <Avatars :user-ids="broker.accessList.map((x) => x.userId)" />
+        </div>
       </div>
       <Tabs :value="route.name?.toString() ?? ''" @update:value="updateTabValue">
         <TabList>
-          <Tab value="overview">Overview</Tab>
+          <Tab value="overview"
+            >Overview<i
+              v-if="broker && user && isBrokerViewer(broker, user?.id)"
+              class="pi pi-lock ms-2"
+            ></i
+          ></Tab>
           <Tab value="topics">Topics</Tab>
           <Tab value="queues">Queues</Tab>
           <div v-if="route.name === 'queues'" class="flex grow items-center gap-3 px-3">
