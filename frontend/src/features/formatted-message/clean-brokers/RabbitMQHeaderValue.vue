@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { HeaderValue } from '@/dtos/messages/rabbitMQMessagePropsDto'
+import type { HeaderValue } from '@/dtos/message/rabbitMQMessagePropsDto'
 import RabbitMQHeaderValue from './RabbitMQHeaderValue.vue'
 
 defineProps<{

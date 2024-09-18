@@ -1,4 +1,4 @@
-import type { MessageDto } from '@/dtos/messages/messageDto'
+import type { MessageDto } from '@/dtos/message/messageDto'
 
 export function messageSummary(message: MessageDto) {
   if (

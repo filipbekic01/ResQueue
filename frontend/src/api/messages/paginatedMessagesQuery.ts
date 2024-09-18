@@ -1,5 +1,5 @@
 import { API_URL } from '@/constants/api'
-import type { MessageDto } from '@/dtos/messages/messageDto'
+import type { MessageDto } from '@/dtos/message/messageDto'
 import type { PaginatedResult } from '@/dtos/paginatedResultDto'
 import { useQuery } from '@tanstack/vue-query'
 import axios from 'axios'

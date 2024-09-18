@@ -2,7 +2,7 @@
 import { useCreateMessageMutation } from '@/api/messages/createMessageMutation'
 import { useUpdateMessageMutation } from '@/api/messages/updateMessageMutation'
 import RabbitMqHeadersInput from '@/components/RabbitMqHeadersInput.vue'
-import type { UpsertMessageDto } from '@/dtos/messages/upsertMessageDto'
+import type { UpsertMessageDto } from '@/dtos/message/upsertMessageDto'
 import { extractErrorMessage } from '@/utils/errorUtils'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
 import Textarea from 'primevue/textarea'
