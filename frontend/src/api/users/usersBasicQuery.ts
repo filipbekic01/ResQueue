@@ -1,5 +1,5 @@
 import { API_URL } from '@/constants/api'
-import type { UserBasicDto } from '@/dtos/users/userBasicDto'
+import type { UserBasicDto } from '@/dtos/user/userBasicDto'
 import { useQuery } from '@tanstack/vue-query'
 import axios from 'axios'
 import { computed, toValue, type MaybeRef } from 'vue'

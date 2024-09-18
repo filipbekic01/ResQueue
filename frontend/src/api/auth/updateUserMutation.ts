@@ -1,5 +1,5 @@
 import { API_URL } from '@/constants/api'
-import type { UpdateUserDto } from '@/dtos/users/updateUserDto'
+import type { UpdateUserDto } from '@/dtos/user/updateUserDto'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import axios from 'axios'
 

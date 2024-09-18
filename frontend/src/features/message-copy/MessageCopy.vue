@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { BrokerDto } from '@/dtos/broker/brokerDto'
 import type { MessageDto } from '@/dtos/message/messageDto'
-import type { QueueDto } from '@/dtos/queues/queueDto'
+import type { QueueDto } from '@/dtos/queue/queueDto'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{

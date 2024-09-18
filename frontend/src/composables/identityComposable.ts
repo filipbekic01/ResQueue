@@ -1,5 +1,5 @@
 import { useMeQuery } from '@/api/auth/meQuery'
-import type { SubscriptionDto } from '@/dtos/users/subscriptionDto'
+import type { SubscriptionDto } from '@/dtos/user/subscriptionDto'
 import { computed } from 'vue'
 
 export function useIdentity() {
