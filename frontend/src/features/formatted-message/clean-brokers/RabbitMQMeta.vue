@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { RabbitMQMessageMetaDto } from '@/dtos/rabbitMQMessageMetaDto'
+import type { RabbitMQMessageMetaDto } from '@/dtos/messages/rabbitMQMessageMetaDto'
 import FormattedMessageCleanPair from '../FormattedMessageCleanPair.vue'
 import FormattedMessageDivider from '../FormattedMessageDivider.vue'
 import RabbitMQHeaderValue from './RabbitMQHeaderValue.vue'

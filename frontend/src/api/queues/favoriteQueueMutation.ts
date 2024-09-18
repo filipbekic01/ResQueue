@@ -1,5 +1,5 @@
 import { API_URL } from '@/constants/api'
-import type { FavoriteQueueDto } from '@/dtos/favoriteQueueDto'
+import type { FavoriteQueueDto } from '@/dtos/queues/favoriteQueueDto'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import axios from 'axios'
 

@@ -1,5 +1,5 @@
 import { API_URL } from '@/constants/api'
-import type { RegisterDto } from '@/dtos/registerDto'
+import type { RegisterDto } from '@/dtos/users/registerDto'
 import { useMutation } from '@tanstack/vue-query'
 import axios from 'axios'
 

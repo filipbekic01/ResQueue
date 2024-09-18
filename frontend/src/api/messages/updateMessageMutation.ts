@@ -1,5 +1,5 @@
 import { API_URL } from '@/constants/api'
-import type { UpsertMessageDto } from '@/dtos/upsertMessageDto'
+import type { UpsertMessageDto } from '@/dtos/messages/upsertMessageDto'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import axios from 'axios'
 

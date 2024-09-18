@@ -1,5 +1,5 @@
 import { API_URL } from '@/constants/api'
-import type { BrokerDto } from '@/dtos/brokerDto'
+import type { BrokerDto } from '@/dtos/broker/brokerDto'
 import { useQuery } from '@tanstack/vue-query'
 import axios from 'axios'
 

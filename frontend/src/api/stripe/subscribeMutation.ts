@@ -1,5 +1,5 @@
 import { API_URL } from '@/constants/api'
-import type { SubscribeDto } from '@/dtos/subscribeDto'
+import type { SubscribeDto } from '@/dtos/users/subscribeDto'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import axios from 'axios'
 

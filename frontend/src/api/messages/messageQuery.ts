@@ -1,5 +1,5 @@
 import { API_URL } from '@/constants/api'
-import type { MessageDto } from '@/dtos/messageDto'
+import type { MessageDto } from '@/dtos/messages/messageDto'
 import { useQuery } from '@tanstack/vue-query'
 import axios from 'axios'
 import { computed, toValue, type MaybeRef } from 'vue'

@@ -1,6 +1,6 @@
-import type { BrokerAccessDto } from './broker/brokerAccessDto'
+import type { BrokerAccessDto } from './brokerAccessDto'
 import type { BrokerSettingsDto } from './brokerSettingsDto'
-import type { RabbitMQConnectionDto } from './RabbitMQConnectionDto'
+import type { RabbitMQConnectionDto } from './rabbitMQConnectionDto'
 
 export interface BrokerDto {
   id: string

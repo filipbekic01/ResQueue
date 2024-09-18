@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { HeaderValue } from '@/dtos/rabbitMQMessagePropsDto'
+import type { HeaderValue } from '@/dtos/messages/rabbitMQMessagePropsDto'
 import { ref } from 'vue'
 
 const props = defineProps<{

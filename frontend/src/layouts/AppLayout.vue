@@ -2,7 +2,7 @@
 import { useBrokersQuery } from '@/api/broker/brokersQuery'
 import { useIdentity } from '@/composables/identityComposable'
 import CreateBrokerDialog from '@/dialogs/CreateBrokerDialog.vue'
-import type { BrokerDto } from '@/dtos/brokerDto'
+import type { BrokerDto } from '@/dtos/broker/brokerDto'
 import Button from 'primevue/button'
 import { useDialog } from 'primevue/usedialog'
 import { useToast } from 'primevue/usetoast'

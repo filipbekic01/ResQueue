@@ -1,4 +1,4 @@
-import type { BrokerDto } from '@/dtos/brokerDto'
+import type { BrokerDto } from '@/dtos/broker/brokerDto'
 import { AccessLevel } from '@/enums/accessLevel'
 
 export const isBrokerOwner = (broker: BrokerDto, userId: string) =>
