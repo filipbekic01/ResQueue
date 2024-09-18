@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useIdentity } from '@/composables/identityComposable'
 import RegisterDialog from '@/dialogs/RegisterDialog.vue'
-import SubscribeDialog from '@/dialogs/SubscribeDialog.vue'
 import { useDialog } from 'primevue/usedialog'
 import { useRouter } from 'vue-router'
 import PricingCard from './PricingCard.vue'
@@ -19,39 +18,16 @@ const openDialog = (plan?: string) => {
     router.push({
       name: 'app'
     })
+
     return
   }
 
-  if (!user.value) {
-    openRegisterDialog(plan)
-  } else {
-    openSubscriptionDialog(plan)
-  }
-}
-
-const openRegisterDialog = (plan?: string) => {
   dialog.open(RegisterDialog, {
     data: {
       plan: plan
     },
     props: {
       header: 'Registration',
-      style: {
-        width: '30rem'
-      },
-      modal: true,
-      draggable: false
-    }
-  })
-}
-
-const openSubscriptionDialog = (plan?: string) => {
-  dialog.open(SubscribeDialog, {
-    data: {
-      plan: plan
-    },
-    props: {
-      header: 'Start New Subscription',
       style: {
         width: '30rem'
       },

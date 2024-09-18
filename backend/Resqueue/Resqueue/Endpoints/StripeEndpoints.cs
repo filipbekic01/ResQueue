@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Resqueue.Dtos.Stripe;
 using Resqueue.Features.Stripe.CancelSubscription;
+using Resqueue.Features.Stripe.ChangeCard;
 using Resqueue.Features.Stripe.ChangePlan;
 using Resqueue.Features.Stripe.ContinueSubscription;
 using Resqueue.Features.Stripe.CreateSubscription;
@@ -50,6 +51,33 @@ public static class StripeEndpoints
             {
                 var result = await feature.ExecuteAsync(new ChangePlanRequest(
                     ClaimsPrincipal: httpContext.User
+                ));
+
+                return result.IsSuccess
+                    ? Results.Ok(result.Value)
+                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+            }).RequireAuthorization();
+
+        group.MapPost("change-card",
+            async (UserManager<User> userManager, [FromBody] ChangeCardDto dto, IChangeCardFeature feature,
+                HttpContext httpContext) =>
+            {
+                var user = await userManager.GetUserAsync(httpContext.User);
+                if (user == null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                if (string.IsNullOrEmpty(dto.PaymentMethodId))
+                {
+                    return Results.BadRequest("Invalid payment method");
+                }
+
+                var result = await feature.ExecuteAsync(new ChangeCardRequest(
+                    UserId: user.Id.ToString(),
+                    new ChangeCardDto(
+                        PaymentMethodId: dto.PaymentMethodId
+                    )
                 ));
 
                 return result.IsSuccess

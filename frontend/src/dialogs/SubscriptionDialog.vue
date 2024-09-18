@@ -6,18 +6,21 @@ import { useIdentity } from '@/composables/identityComposable'
 import { extractErrorMessage } from '@/utils/errorUtils'
 import { format } from 'date-fns'
 import Button from 'primevue/button'
-import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
 import Message from 'primevue/message'
 import { useConfirm } from 'primevue/useconfirm'
+import { useDialog } from 'primevue/usedialog'
 import { useToast } from 'primevue/usetoast'
-import { inject, type Ref } from 'vue'
-
-const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
+import ChangeCardDialog from './ChangeCardDialog.vue'
 
 const toast = useToast()
 const confirm = useConfirm()
+const dialog = useDialog()
 
-const { activeSubscription, allowedUpgradeToEssentials } = useIdentity()
+const {
+  query: { data: user },
+  activeSubscription,
+  allowedUpgradeToEssentials
+} = useIdentity()
 
 const { mutateAsync: cancelSubscriptionAsync, isPending } = useCancelSubscriptionMutation()
 const { mutateAsync: continueSubscriptionAsync, isPending: isPendingContinueSubscription } =
@@ -102,6 +105,15 @@ const downgradePlan = () => {
     reject: () => {}
   })
 }
+
+const openChangePaymentMethodDialog = () =>
+  dialog.open(ChangeCardDialog, {
+    props: {
+      header: 'Update Credit Card',
+      draggable: false,
+      modal: true
+    }
+  })
 </script>
 
 <template>
@@ -114,6 +126,18 @@ const downgradePlan = () => {
     <div class="flex justify-between">
       <div>Subscribed At</div>
       <div>{{ format(activeSubscription.createdAt, 'MMMM dd, yyyy') }}</div>
+    </div>
+
+    <div class="flex justify-between">
+      <div>Credit Card</div>
+      <div
+        @click="openChangePaymentMethodDialog"
+        class="flex cursor-pointer items-center gap-2 border-b border-dashed border-b-gray-400 hover:border-solid hover:border-b-blue-400 hover:text-blue-400"
+      >
+        <span class="uppercase">{{ user?.paymentType }}</span>
+        <span>{{ user?.paymentLastFour }}</span>
+        <i style="font-size: 0.825rem" class="pi pi-pencil"></i>
+      </div>
     </div>
 
     <template v-if="activeSubscription.endsAt">

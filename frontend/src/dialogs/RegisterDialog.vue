@@ -2,13 +2,13 @@
 import { useLoginMutation } from '@/api/auth/loginMutation'
 import { useRegisterMutation } from '@/api/auth/registerMutation'
 import { useIdentity } from '@/composables/identityComposable'
+import { useStripe } from '@/composables/stripeComposable'
 import router from '@/router'
 import { extractErrorMessage } from '@/utils/errorUtils'
-import { loadStripe, type Stripe, type StripeCardElement } from '@stripe/stripe-js'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
 import Message from 'primevue/message'
 import { useToast } from 'primevue/usetoast'
-import { inject, onMounted, ref, type Ref } from 'vue'
+import { inject, onMounted, ref, watchEffect, type Ref } from 'vue'
 
 const { mutateAsync: registerAsync } = useRegisterMutation()
 const toast = useToast()
@@ -24,8 +24,20 @@ const password = ref('Password1!')
 
 const passwordType = ref('password')
 
-let stripe: Stripe | null = null
-let cardElement: StripeCardElement | null = null
+const { stripe, cardElement, mountCreditCardElement } = useStripe()
+
+// Wait for #card-element to mount
+onMounted(() => {
+  // Wait for modal animation to finish
+  setTimeout(() => {
+    // Mount credit card
+    watchEffect(() => {
+      if (stripe.value && !cardElement.value) {
+        mountCreditCardElement()
+      }
+    })
+  }, 500)
+})
 
 const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 
@@ -35,28 +47,27 @@ const togglePasswordType = () =>
 const paymentMethodId = ref<string>()
 const isRegisterLoading = ref(false)
 const register = async () => {
+  if (!stripe.value || !cardElement.value) {
+    return
+  }
+
   if (isRegisterLoading.value) {
     return
   }
 
   isRegisterLoading.value = true
 
+  // Get payment method
   if (dialogRef?.value.data.plan) {
-    if (!stripe || !cardElement) {
-      toast.add({
-        severity: 'error',
-        summary: 'Registration Problem',
-        detail: 'Payment initialization error.',
-        life: 3000
-      })
+    if (!stripe.value || !cardElement.value) {
       isRegisterLoading.value = false
       return
     }
 
     try {
-      const { error, paymentMethod } = await stripe.createPaymentMethod({
+      const { error, paymentMethod } = await stripe.value.createPaymentMethod({
         type: 'card',
-        card: cardElement,
+        card: cardElement.value,
         billing_details: {
           email: email.value
         }
@@ -85,6 +96,7 @@ const register = async () => {
     }
   }
 
+  // Call register endpoint
   registerAsync({
     email: email.value,
     password: password.value,
@@ -116,38 +128,6 @@ const register = async () => {
       isRegisterLoading.value = false
     })
 }
-
-const loadStripeAsync = async () => {
-  stripe = await loadStripe(
-    'pk_test_51PpxV4KE6sxW2owau69f5U6Fzf5uMnUIgo9gB8WxnCkaix9pcxn9yGr1erlTZjPt2ec7I8X42eKKmNpCgNoaDxw300PVRqNQUe'
-  )
-
-  if (!stripe) {
-    alert('Failed to load payment processor.')
-    return
-  }
-
-  const elements = stripe.elements()
-  cardElement = elements.create('card', {
-    style: {
-      base: {}
-    }
-  })
-  cardElement.mount('#card-element')
-}
-
-onMounted(() => {
-  isRegisterLoading.value = true
-  setTimeout(() => {
-    if (dialogRef?.value.data.plan) {
-      loadStripeAsync().finally(() => {
-        isRegisterLoading.value = false
-      })
-    } else {
-      isRegisterLoading.value = false
-    }
-  }, 500)
-})
 </script>
 
 <template>
