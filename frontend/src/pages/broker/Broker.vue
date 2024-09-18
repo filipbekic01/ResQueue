@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useBrokersQuery } from '@/api/broker/brokersQuery'
-import { useSyncBrokerMutation } from '@/api/broker/syncBrokerMutation'
-import { useUpdateBrokerMutation } from '@/api/broker/updateBrokerMutation'
+import { useBrokersQuery } from '@/api/brokers/brokersQuery'
+import { useSyncBrokerMutation } from '@/api/brokers/syncBrokerMutation'
+import { useUpdateBrokerMutation } from '@/api/brokers/updateBrokerMutation'
 import { useIdentity } from '@/composables/identityComposable'
 import Avatars from '@/features/avatars/Avatars.vue'
 import AppLayout from '@/layouts/AppLayout.vue'

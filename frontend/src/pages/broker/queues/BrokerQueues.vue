@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { useBrokersQuery } from '@/api/broker/brokersQuery'
-import { useSyncBrokerMutation } from '@/api/broker/syncBrokerMutation'
-import { useUpdateBrokerMutation } from '@/api/broker/updateBrokerMutation'
+import { useBrokersQuery } from '@/api/brokers/brokersQuery'
+import { useSyncBrokerMutation } from '@/api/brokers/syncBrokerMutation'
+import { useUpdateBrokerMutation } from '@/api/brokers/updateBrokerMutation'
 import { useFavoriteQueueMutation } from '@/api/queues/favoriteQueueMutation'
 import { usePaginatedQueuesQuery } from '@/api/queues/paginatedQueuesQuery'
 import { useIdentity } from '@/composables/identityComposable'

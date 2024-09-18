@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { useBrokerInvitationsQuery } from '@/api/broker/brokerInvitationsQuery'
-import { useCreateBrokerInvitationMutation } from '@/api/broker/createBrokerInvitationMutation'
-import { useExpireBrokerInvitationMutation } from '@/api/broker/expireBrokerInvitationMutation'
-import { useManageBrokerAccessMutation } from '@/api/broker/manageBrokerAccessMutation'
+import { useBrokerInvitationsQuery } from '@/api/brokers/brokerInvitationsQuery'
+import { useCreateBrokerInvitationMutation } from '@/api/brokers/createBrokerInvitationMutation'
+import { useExpireBrokerInvitationMutation } from '@/api/brokers/expireBrokerInvitationMutation'
+import { useManageBrokerAccessMutation } from '@/api/brokers/manageBrokerAccessMutation'
 import { useUsersBasicQuery } from '@/api/users/usersBasicQuery'
 import { useIdentity } from '@/composables/identityComposable'
 import type { BrokerAccessDto } from '@/dtos/broker/brokerAccessDto'

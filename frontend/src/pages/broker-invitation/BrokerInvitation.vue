@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { useAcceptBrokerInvitationMutation } from '@/api/broker/acceptBrokerInvitationMutation'
-import { useBrokerInvitationQuery } from '@/api/broker/brokerInvitationQuery'
+import { useAcceptBrokerInvitationMutation } from '@/api/brokers/acceptBrokerInvitationMutation'
+import { useBrokerInvitationQuery } from '@/api/brokers/brokerInvitationQuery'
 import { useIdentity } from '@/composables/identityComposable'
 import { extractErrorMessage } from '@/utils/errorUtils'
 import { differenceInSeconds } from 'date-fns'

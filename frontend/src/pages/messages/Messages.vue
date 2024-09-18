@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { useBrokersQuery } from '@/api/broker/brokersQuery'
-import { useSyncBrokerMutation } from '@/api/broker/syncBrokerMutation'
+import { useBrokersQuery } from '@/api/brokers/brokersQuery'
+import { useSyncBrokerMutation } from '@/api/brokers/syncBrokerMutation'
 import { useCloneMessageMutation } from '@/api/messages/cloneMessageMutation'
 import { usePaginatedMessagesQuery } from '@/api/messages/paginatedMessagesQuery'
 import { useSyncMessagesMutation } from '@/api/messages/syncMessagesMutation'

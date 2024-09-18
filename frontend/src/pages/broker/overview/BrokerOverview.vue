@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { useBrokersQuery } from '@/api/broker/brokersQuery'
-import { useDeleteBrokerMutation } from '@/api/broker/deleteBrokerMutation'
-import { useTestConnectionMutation } from '@/api/broker/testConnectionRequest'
-import { useUpdateBrokerMutation } from '@/api/broker/updateBrokerMutation'
+import { useBrokersQuery } from '@/api/brokers/brokersQuery'
+import { useDeleteBrokerMutation } from '@/api/brokers/deleteBrokerMutation'
+import { useTestConnectionMutation } from '@/api/brokers/testConnectionRequest'
+import { useUpdateBrokerMutation } from '@/api/brokers/updateBrokerMutation'
 import { useIdentity } from '@/composables/identityComposable'
 import type { UpdateBrokerDto } from '@/dtos/broker/updateBrokerDto'
 import { isBrokerOwner, isBrokerViewer } from '@/utils/brokerUtils'

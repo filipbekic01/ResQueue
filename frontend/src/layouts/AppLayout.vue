@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useBrokersQuery } from '@/api/broker/brokersQuery'
+import { useBrokersQuery } from '@/api/brokers/brokersQuery'
 import { useIdentity } from '@/composables/identityComposable'
 import CreateBrokerDialog from '@/dialogs/CreateBrokerDialog.vue'
 import type { BrokerDto } from '@/dtos/broker/brokerDto'

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useCreateBrokerMutation } from '@/api/broker/createBrokerMutation'
-import { useTestConnectionMutation } from '@/api/broker/testConnectionRequest'
+import { useCreateBrokerMutation } from '@/api/brokers/createBrokerMutation'
+import { useTestConnectionMutation } from '@/api/brokers/testConnectionRequest'
 import type { CreateBrokerDto } from '@/dtos/broker/createBrokerDto'
 import { extractErrorMessage } from '@/utils/errorUtils'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useBrokersQuery } from '@/api/broker/brokersQuery'
+import { useBrokersQuery } from '@/api/brokers/brokersQuery'
 import { useMessageQuery } from '@/api/messages/messageQuery'
 import { useQueueQuery } from '@/api/queues/queueQuery'
 import type { FormatOption } from '@/components/SelectFormat.vue'

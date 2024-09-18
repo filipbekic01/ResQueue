@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useUpdateBrokerMutation } from '@/api/broker/updateBrokerMutation'
+import { useUpdateBrokerMutation } from '@/api/brokers/updateBrokerMutation'
 import { useArchiveMessagesMutation } from '@/api/messages/archiveMessagesMutation'
 import { usePublishMessagesMutation } from '@/api/messages/publishMessagesMutation'
 import {
