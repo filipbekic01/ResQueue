@@ -1,57 +1,7 @@
 <script lang="ts" setup>
-import { useIdentity } from '@/composables/identityComposable'
-import RegisterDialog from '@/dialogs/RegisterDialog.vue'
-import SubscribeDialog from '@/dialogs/SubscribeDialog.vue'
+import PricingCards from '@/features/pricing-cards/PricingCards.vue'
 import WebLayout from '@/layouts/WebLayout.vue'
 import { useHead } from '@unhead/vue'
-import { useDialog } from 'primevue/usedialog'
-import PricingCard from './PricingCard.vue'
-
-const dialog = useDialog()
-
-const {
-  query: { data: user }
-} = useIdentity()
-
-const openDialog = (plan?: string) => {
-  if (!user.value) {
-    openRegisterDialog(plan)
-  } else {
-    openSubscriptionDialog(plan)
-  }
-}
-
-const openRegisterDialog = (plan?: string) => {
-  dialog.open(RegisterDialog, {
-    data: {
-      plan: plan
-    },
-    props: {
-      header: 'Registration',
-      style: {
-        width: '30rem'
-      },
-      modal: true,
-      draggable: false
-    }
-  })
-}
-
-const openSubscriptionDialog = (plan?: string) => {
-  dialog.open(SubscribeDialog, {
-    data: {
-      plan: plan
-    },
-    props: {
-      header: 'Start New Subscription',
-      style: {
-        width: '30rem'
-      },
-      modal: true,
-      draggable: false
-    }
-  })
-}
 
 useHead({
   title: 'Choose Your Plan - Queue Management Solutions',
@@ -102,36 +52,9 @@ useHead({
         <div class="mt-4 text-xl">Help us continue building innovative and impactful tools.</div>
       </div>
     </div>
-    <div class="flex flex-col justify-center space-y-8 px-16 md:flex-row md:space-x-8 md:space-y-0">
-      <PricingCard
-        tier="Free"
-        text="Limited features"
-        :features="['1 broker', 'Once Sync Per Hour', 'No Teams']"
-        :price="0"
-        severity="secondary"
-        :recommended="false"
-        @get-started="openDialog(undefined)"
-      />
 
-      <PricingCard
-        tier="Essentials"
-        text="All features unlocked"
-        :features="['Unlimited brokers', 'Unlimited Syncs', 'No Teams']"
-        :price="7.99"
-        severity="primary"
-        :recommended="true"
-        @get-started="openDialog('essentials')"
-      />
-
-      <PricingCard
-        tier="Ultimate"
-        text="All features unlocked"
-        :features="['Unlimited brokers', 'Unlimited Syncs', 'Team Collaboration (soon)']"
-        :price="19.99"
-        severity="primray"
-        :recommended="false"
-        @get-started="openDialog('ultimate')"
-      />
+    <div class="px-16">
+      <PricingCards />
     </div>
 
     <div class="mt-16 flex justify-center">

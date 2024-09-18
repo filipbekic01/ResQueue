@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useCancelSubscriptionMutation } from '@/api/stripe/cancelSubscriptionMutation'
+import { useChangePlanMutation } from '@/api/stripe/changePlanMutation'
 import { useContinueSubscriptionMutation } from '@/api/stripe/continueSubscriptionMutation'
 import { useIdentity } from '@/composables/identityComposable'
 import { extractErrorMessage } from '@/utils/errorUtils'
@@ -7,45 +8,54 @@ import { format } from 'date-fns'
 import Button from 'primevue/button'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
 import Message from 'primevue/message'
+import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
-import { inject, ref, type Ref } from 'vue'
+import { inject, type Ref } from 'vue'
 
 const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 
 const toast = useToast()
+const confirm = useConfirm()
 
-const { activeSubscription } = useIdentity()
+const { activeSubscription, allowedUpgradeToEssentials } = useIdentity()
 
 const { mutateAsync: cancelSubscriptionAsync, isPending } = useCancelSubscriptionMutation()
 const { mutateAsync: continueSubscriptionAsync, isPending: isPendingContinueSubscription } =
   useContinueSubscriptionMutation()
-
-const protect = ref('')
+const { mutateAsync: changePlanAsync, isPending: isChangePlanPending } = useChangePlanMutation()
 
 const cancel = () => {
   if (!activeSubscription.value) {
     return
   }
 
-  cancelSubscriptionAsync({ subscriptionId: activeSubscription.value.stripeId })
-    .then(() => {
-      dialogRef?.value.close()
-
-      toast.add({
-        severity: 'warn',
-        summary: 'Subscription Cancelled',
-        detail: 'Subscription is successfully cancelled',
-        life: 3000
-      })
-    })
-    .catch((e) => {
-      toast.add({
-        severity: 'error',
-        summary: 'Cancellation Failed',
-        detail: extractErrorMessage(e),
-        life: 3000
-      })
-    })
+  confirm.require({
+    header: 'Cancel Subscription',
+    message: `You're about to cancel subscription.`,
+    icon: 'pi pi-info-circle',
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Cancel',
+      severity: 'danger'
+    },
+    accept: () => {
+      cancelSubscriptionAsync()
+        .then(() => {})
+        .catch((e) => {
+          toast.add({
+            severity: 'error',
+            summary: 'Cancellation Failed',
+            detail: extractErrorMessage(e),
+            life: 3000
+          })
+        })
+    },
+    reject: () => {}
+  })
 }
 
 const continueSubscription = () => {
@@ -53,17 +63,8 @@ const continueSubscription = () => {
     return
   }
 
-  continueSubscriptionAsync({ subscriptionId: activeSubscription.value.stripeId })
-    .then(() => {
-      dialogRef?.value.close()
-
-      toast.add({
-        severity: 'success',
-        summary: 'Subscription Continued',
-        detail: 'Subscription is successfully continued',
-        life: 3000
-      })
-    })
+  continueSubscriptionAsync()
+    .then(() => {})
     .catch((e) => {
       toast.add({
         severity: 'error',
@@ -73,53 +74,85 @@ const continueSubscription = () => {
       })
     })
 }
+
+const downgradePlan = () => {
+  confirm.require({
+    header: 'Downgrade to Essentials',
+    message: `You're about to downgrade to essentials.`,
+    icon: 'pi pi-info-circle',
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Downgrade Now',
+      severity: 'danger'
+    },
+    accept: () => {
+      changePlanAsync().then(() => {
+        toast.add({
+          severity: 'success',
+          summary: 'Essentials Activated',
+          detail: 'Successfully downgraded account.',
+          life: 3000
+        })
+      })
+    },
+    reject: () => {}
+  })
+}
 </script>
 
 <template>
-  <div v-if="activeSubscription" class="flex flex-col gap-3">
-    <div class="flex flex-col">
-      <div class="font-bold">Subscription Plan</div>
+  <div v-if="activeSubscription" class="flex flex-col gap-5">
+    <div class="flex justify-between">
+      <div>Subscription Plan</div>
       <div>{{ activeSubscription.type === 'essentials' ? 'Essentials' : 'Ultimate' }}</div>
-      <div class="text-gray-400">{{ activeSubscription.stripeId }}</div>
     </div>
 
-    <div class="flex flex-col">
-      <div class="font-bold">Started At</div>
+    <div class="flex justify-between">
+      <div>Subscribed At</div>
       <div>{{ format(activeSubscription.createdAt, 'MMMM dd, yyyy') }}</div>
     </div>
 
-    <div class="flex flex-col" v-if="activeSubscription.endsAt">
-      <div class="font-bold">Ends At</div>
-      <div>{{ format(activeSubscription.endsAt, 'MMMM dd, yyyy') }}</div>
-      <Message class="mt-3" severity="secondary">
+    <template v-if="activeSubscription.endsAt">
+      <div class="flex justify-between">
+        <div>Ends At</div>
+        <div>{{ format(activeSubscription.endsAt, 'MMMM dd, yyyy') }}</div>
+      </div>
+      <Message severity="secondary">
         Your subscription will remain active until the end of the current month. No further charges
         will apply after that.
       </Message>
-    </div>
-    <div v-else>The subscription is billed on a monthly basis.</div>
+    </template>
 
-    <template v-if="!activeSubscription.endsAt">
-      <label for="password" class="white flex items-center border-t pt-3 font-semibold"
-        >Enter "{{ activeSubscription.type }}" to enable cancel button</label
-      >
-      <InputText v-model="protect" placeholder="What's the plan?" type="text"></InputText>
+    <div class="flex gap-4">
       <Button
+        v-if="allowedUpgradeToEssentials"
+        class="grow"
+        outlined
+        @click="downgradePlan"
+        :loading="isChangePlanPending"
+        >Downgrade</Button
+      >
+      <Button
+        class="grow"
+        v-if="!activeSubscription.endsAt"
         severity="danger"
-        :disabled="protect !== activeSubscription.type || isPending"
+        outlined
+        :disabled="isPending"
         :loading="isPending"
-        label="Cancel Subscription"
+        label="Cancel"
         @click="cancel"
       ></Button>
-    </template>
-    <template v-else>
-      <span class="text-red-700">Subscription is cancelled.</span>
       <Button
+        v-if="activeSubscription.endsAt"
+        class="grow"
         @click="continueSubscription"
         :loading="isPendingContinueSubscription"
-        label="Continue Subscription"
-        severity="success"
+        label="Resume Subscription"
       ></Button>
-    </template>
+    </div>
   </div>
-  <div v-else>No active subscriptions.</div>
 </template>

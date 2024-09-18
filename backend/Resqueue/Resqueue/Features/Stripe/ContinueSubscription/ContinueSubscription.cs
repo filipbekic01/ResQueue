@@ -10,8 +10,7 @@ using Stripe;
 namespace Resqueue.Features.Stripe.ContinueSubscription;
 
 public record ContinueSubscriptionRequest(
-    ClaimsPrincipal ClaimsPrincipal,
-    ContinueSubscriptionDto Dto
+    ClaimsPrincipal ClaimsPrincipal
 );
 
 public record ContinueSubscriptionResponse();
@@ -36,8 +35,7 @@ public class ContinueSubscriptionFeature(
             });
         }
 
-        var userSub = user.Subscriptions.FirstOrDefault(x => x.StripeId == request.Dto.SubscriptionId);
-        if (userSub is null)
+        if (user.Subscription is null)
         {
             return OperationResult<ContinueSubscriptionResponse>.Failure(new ProblemDetails
             {
@@ -50,7 +48,7 @@ public class ContinueSubscriptionFeature(
         {
             var subscriptionService = new SubscriptionService();
 
-            var subscription = await subscriptionService.GetAsync(userSub.StripeId);
+            var subscription = await subscriptionService.GetAsync(user.Subscription.StripeId);
 
             if (subscription.Status == "canceled")
             {
@@ -63,17 +61,17 @@ public class ContinueSubscriptionFeature(
 
             if (subscription.CancelAtPeriodEnd)
             {
-                var updatedSubscription = await subscriptionService.UpdateAsync(userSub.StripeId,
+                var updatedSubscription = await subscriptionService.UpdateAsync(user.Subscription.StripeId,
                     new SubscriptionUpdateOptions
                     {
                         CancelAtPeriodEnd = false
                     });
 
-                userSub.StripeStatus = updatedSubscription.Status;
-                userSub.EndsAt = null;
+                user.Subscription.StripeStatus = updatedSubscription.Status;
+                user.Subscription.EndsAt = null;
 
                 var filter = Builders<User>.Filter.Eq(q => q.Id, user.Id);
-                var update = Builders<User>.Update.Set(q => q.Subscriptions, user.Subscriptions);
+                var update = Builders<User>.Update.Set(q => q.Subscription, user.Subscription);
 
                 await usersCollection.UpdateOneAsync(filter, update);
 

@@ -13,8 +13,7 @@ using Subscription = Resqueue.Models.Subscription;
 namespace Resqueue.Features.Stripe.CancelSubscription;
 
 public record CancelSubscriptionRequest(
-    ClaimsPrincipal ClaimsPrincipal,
-    CancelSubscriptionDto Dto
+    ClaimsPrincipal ClaimsPrincipal
 );
 
 public record CancelSubscriptionResponse();
@@ -39,8 +38,7 @@ public class CancelSubscriptionFeature(
             });
         }
 
-        var userSub = user.Subscriptions.FirstOrDefault(x => x.StripeId == request.Dto.SubscriptionId);
-        if (userSub is null)
+        if (user.Subscription is null)
         {
             return OperationResult<CancelSubscriptionResponse>.Failure(new ProblemDetails
             {
@@ -52,17 +50,17 @@ public class CancelSubscriptionFeature(
         try
         {
             var subscriptionService = new SubscriptionService();
-            var subscription = await subscriptionService.UpdateAsync(userSub.StripeId,
+            var subscription = await subscriptionService.UpdateAsync(user.Subscription.StripeId,
                 new SubscriptionUpdateOptions
                 {
                     CancelAtPeriodEnd = true
                 });
 
-            userSub.StripeStatus = subscription.Status;
-            userSub.EndsAt = subscription.CurrentPeriodEnd;
+            user.Subscription.StripeStatus = subscription.Status;
+            user.Subscription.EndsAt = subscription.CurrentPeriodEnd;
 
             var filter = Builders<User>.Filter.Eq(q => q.Id, user.Id);
-            var update = Builders<User>.Update.Set(q => q.Subscriptions, user.Subscriptions);
+            var update = Builders<User>.Update.Set(q => q.Subscription, user.Subscription);
 
             await usersCollection.UpdateOneAsync(filter, update);
 

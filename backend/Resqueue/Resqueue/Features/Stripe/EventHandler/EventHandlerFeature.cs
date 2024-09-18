@@ -42,8 +42,7 @@ public class EventHandlerFeature(
                     });
                 }
 
-                var userSub = user.Subscriptions.FirstOrDefault(x => x.StripeId == subscription.Id);
-                if (userSub is null)
+                if (user.Subscription?.StripeId != subscription.Id)
                 {
                     return OperationResult<EventHandlerResponse>.Failure(new ProblemDetails
                     {
@@ -52,11 +51,11 @@ public class EventHandlerFeature(
                     });
                 }
 
-                userSub.StripeStatus = subscription.Status;
+                user.Subscription.StripeStatus = subscription.Status;
 
                 var filter = Builders<User>.Filter.Eq(q => q.Id, user.Id);
                 var update = Builders<User>.Update
-                    .Set(q => q.Subscriptions, user.Subscriptions);
+                    .Set(q => q.Subscription, user.Subscription);
 
                 await usersCollection.UpdateOneAsync(filter, update);
             }

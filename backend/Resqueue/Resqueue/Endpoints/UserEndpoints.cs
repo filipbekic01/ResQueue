@@ -16,7 +16,7 @@ public static class UserEndpoints
                 async (IMongoCollection<User> usersCollection,
                     [FromQuery(Name = "ids[]")] string[] ids) =>
                 {
-                    var filter = Builders<User>.Filter.In(u => u.Id, ids.Select(id => ObjectId.Parse(id)).ToList());
+                    var filter = Builders<User>.Filter.In(u => u.Id, ids.Select(ObjectId.Parse).ToList());
 
                     var users = await usersCollection
                         .Find(filter)
@@ -25,7 +25,8 @@ public static class UserEndpoints
                             Id = u.Id.ToString(),
                             Email = u.Email!,
                             Avatar = u.Avatar,
-                            FullName = u.FullName
+                            FullName = u.FullName,
+                            SubscriptionType = u.Subscription!.Type
                         })
                         .ToListAsync();
 

@@ -10,5 +10,5 @@ export interface SubscriptionDto {
   endsAt: string
   createdAt: string
   updatedAt: string
-  subscriptionItems: SubscriptionItemDto[]
+  subscriptionItem: SubscriptionItemDto
 }

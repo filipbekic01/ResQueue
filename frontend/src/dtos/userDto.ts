@@ -11,5 +11,5 @@ export interface UserDto {
   stripeId?: string | null
   paymentType?: string | null
   paymentLastFour?: string | null
-  subscriptions: SubscriptionDto[]
+  subscription?: SubscriptionDto
 }

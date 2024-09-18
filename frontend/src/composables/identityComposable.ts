@@ -5,36 +5,26 @@ import { computed } from 'vue'
 export function useIdentity() {
   const query = useMeQuery()
 
-  const activeSubscription = computed<SubscriptionDto | null>(() => {
-    const user = query.data.value
+  const activeSubscription = computed<SubscriptionDto | null>(() =>
+    query.data.value?.subscription?.stripeStatus === 'active'
+      ? query.data.value?.subscription
+      : null
+  )
 
-    if (!user || !user.subscriptions || user.subscriptions.length === 0) {
-      return null
-    }
+  const allowedUpgradeToUltimate = computed(
+    () =>
+      query.data.value?.subscription?.type === 'essentials' && !query.data.value.subscription.endsAt
+  )
 
-    const activeSubscriptions = user.subscriptions.filter(
-      (subscription) => subscription.stripeStatus === 'active'
-    )
-
-    const ultimateSubscription = activeSubscriptions.find(
-      (subscription) => subscription.type === 'ultimate'
-    )
-    if (ultimateSubscription) {
-      return ultimateSubscription
-    }
-
-    const essentialsSubscription = activeSubscriptions.find(
-      (subscription) => subscription.type === 'essentials'
-    )
-    if (essentialsSubscription) {
-      return essentialsSubscription
-    }
-
-    return null
-  })
+  const allowedUpgradeToEssentials = computed(
+    () =>
+      query.data.value?.subscription?.type === 'ultimate' && !query.data.value.subscription.endsAt
+  )
 
   return {
     query,
-    activeSubscription
+    activeSubscription,
+    allowedUpgradeToUltimate,
+    allowedUpgradeToEssentials
   }
 }

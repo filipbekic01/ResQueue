@@ -11,5 +11,5 @@ public class Subscription
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
-    public List<SubscriptionItem> SubscriptionItems { get; set; } = new();
+    public SubscriptionItem SubscriptionItem { get; set; } = new();
 }

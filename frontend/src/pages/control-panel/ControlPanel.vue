@@ -3,8 +3,10 @@ import { useLogoutMutation } from '@/api/auth/logoutMutation'
 import { useResendConfirmatioEmailMutation } from '@/api/auth/resendConfirmationEmailMutation'
 import { useUpdateUserAvatarMutation } from '@/api/auth/updateUserAvatarMutation'
 import { useUpdateUserMutation } from '@/api/auth/updateUserMutation'
+import { useChangePlanMutation } from '@/api/stripe/changePlanMutation'
 import { useIdentity } from '@/composables/identityComposable'
 import SubscriptionDialog from '@/dialogs/SubscriptionDialog.vue'
+import PricingCards from '@/features/pricing-cards/PricingCards.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { format } from 'date-fns'
 import { useConfirm } from 'primevue/useconfirm'
@@ -19,7 +21,8 @@ const confirm = useConfirm()
 
 const {
   query: { data: user },
-  activeSubscription
+  activeSubscription,
+  allowedUpgradeToUltimate
 } = useIdentity()
 
 const toast = useToast()
@@ -29,6 +32,7 @@ const { mutateAsync: resendConfirmationEmailAsync, isPending: isResendConfirmati
 const { mutateAsync: updateUserAsync, isPending: isUpdateUserPending } = useUpdateUserMutation()
 const { mutateAsync: updateUserAvatarAsync, isPending: updateUserAvatarIsPending } =
   useUpdateUserAvatarMutation()
+const { mutateAsync: changePlanAsync, isPending: isChangePlanPending } = useChangePlanMutation()
 
 const logout = () => {
   logoutAsync().then(() => {
@@ -81,20 +85,22 @@ const openSubscriptionManager = () => {
   })
 }
 const showEditFullName = ref(false)
-const updateUserFullNameAsync = (value?: string) => {
-  showEditFullName.value = false
-
+const tempFullName = ref('')
+const updateUserFullNameAsync = () => {
   if (!user.value) {
     return
   }
 
-  if (value == user.value.fullName) {
+  if (tempFullName.value === user.value.fullName) {
+    showEditFullName.value = false
     return
   }
 
   updateUserAsync({
-    fullName: value,
+    fullName: tempFullName.value,
     settings: { ...user.value.settings }
+  }).then(() => {
+    showEditFullName.value = false
   })
 }
 
@@ -118,6 +124,33 @@ const updateUserAvatar = () => {
           severity: 'success',
           summary: 'Avatar Updated',
           detail: 'Generated new account avatar.',
+          life: 3000
+        })
+      })
+    },
+    reject: () => {}
+  })
+}
+
+const upgradePlan = () => {
+  confirm.require({
+    header: 'Upgrade to Ultimate',
+    message: `You're about to upgrade to ultimate.`,
+    icon: 'pi pi-info-circle',
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Upgrade Now'
+    },
+    accept: () => {
+      changePlanAsync().then(() => {
+        toast.add({
+          severity: 'success',
+          summary: 'Ultimate Activated',
+          detail: 'Successfully upgraded account.',
           life: 3000
         })
       })
@@ -151,12 +184,20 @@ const updateUserAvatar = () => {
               outlined
               :loading="isUpdateUserPending"
             ></Button>
-            <InputText
-              v-else
-              :value="user?.fullName"
-              placeholder="Enter your name..."
-              @change="(e) => updateUserFullNameAsync((e.target as any).value)"
-            ></InputText>
+            <template v-else>
+              <InputText
+                :model-value="user?.fullName"
+                @update:model-value="(e) => (tempFullName = e ?? '')"
+                placeholder="Enter your name..."
+              ></InputText>
+              <Button
+                icon="pi pi-check"
+                class="ms-1"
+                outlined
+                :loading="isUpdateUserPending"
+                @click="updateUserFullNameAsync"
+              ></Button>
+            </template>
 
             <Button
               outlined
@@ -165,6 +206,14 @@ const updateUserAvatar = () => {
               class="ms-3"
               icon="pi pi-sync"
               label="Update Avatar"
+            ></Button>
+
+            <Button
+              label="Logout"
+              @click="logout"
+              outlined
+              icon="pi pi-sign-out"
+              class="ms-3"
             ></Button>
           </div>
         </div>
@@ -206,33 +255,40 @@ const updateUserAvatar = () => {
               <div class="text-lg font-medium">Subscription</div>
               <div v-if="!activeSubscription">
                 <div class="flex items-center gap-2">
-                  <i class="pi pi-exclamation-circle text-orange-400"></i>Upgrade to unlock all
-                  features.
+                  <i class="pi pi-exclamation-circle text-orange-400"></i>Your free account is
+                  limited, upgrade for better experience.
                 </div>
               </div>
-              <div v-else>
-                <i class="pi pi-check-circle me-2 text-green-600"></i>Subscribed to
-                <a
-                  @click="openSubscriptionManager"
-                  class="cursor-pointer border-b border-dashed border-gray-400 hover:border-solid hover:border-blue-500 hover:text-blue-500"
-                  >{{ activeSubscription.type === 'essentials' ? 'Essentials' : 'Ultimate' }}
-                  <i class="pi pi-pencil" style="font-size: 0.8rem"></i
-                ></a>
-                plan.
-              </div>
-              <div v-if="user?.subscriptions[0]?.endsAt" class="text-red-800">
-                Cancelled — grace period until
-                {{ format(user?.subscriptions[0].endsAt, 'yyyy/MM/dd') }}
-              </div>
+              <template v-else>
+                <div>
+                  <i class="pi pi-check-circle me-2 text-green-600"></i>Subscribed to
+                  <a
+                    @click="openSubscriptionManager"
+                    class="cursor-pointer border-b border-dashed border-gray-400 hover:border-solid hover:border-blue-500 hover:text-blue-500"
+                    >{{ activeSubscription.type === 'essentials' ? 'Essentials' : 'Ultimate' }}
+                    <i class="pi pi-pencil" style="font-size: 0.8rem"></i
+                  ></a>
+                  plan.
+                </div>
+                <div v-if="activeSubscription.endsAt" class="text-red-800">
+                  Cancelled — grace period until
+                  {{ format(activeSubscription.endsAt, 'yyyy/MM/dd') }}
+                </div>
+              </template>
             </div>
             <Button
-              label="Upgrade Account"
+              v-if="allowedUpgradeToUltimate"
+              label="Upgrade to Ultimate"
               icon="pi pi-arrow-right"
-              v-if="!activeSubscription"
-              @click="router.push({ name: 'pricing' })"
+              @click="upgradePlan"
+              :loading="isChangePlanPending"
               icon-pos="right"
               class="ms-auto"
+              outlined
             ></Button>
+          </div>
+          <div class="my-12" v-if="!activeSubscription">
+            <PricingCards />
           </div>
         </div>
       </div>
@@ -251,15 +307,6 @@ const updateUserAvatar = () => {
             </div>
           </div>
         </div>
-      </div>
-      <div class="flex grow p-3">
-        <Button
-          label="Logout"
-          @click="logout"
-          outlined
-          icon="pi pi-sign-out"
-          class="ms-auto"
-        ></Button>
       </div>
     </div>
   </AppLayout>

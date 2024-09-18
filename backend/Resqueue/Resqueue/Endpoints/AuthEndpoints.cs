@@ -33,26 +33,28 @@ public static class AuthEndpoints
                 StripeId = user.StripeId,
                 PaymentType = user.PaymentType,
                 PaymentLastFour = user.PaymentLastFour,
-                Subscriptions = user.Subscriptions.Select(sub => new SubscriptionDto
-                {
-                    Type = sub.Type,
-                    StripeId = sub.StripeId,
-                    StripeStatus = sub.StripeStatus,
-                    StripePrice = sub.StripePrice,
-                    Quantity = sub.Quantity,
-                    EndsAt = sub.EndsAt,
-                    CreatedAt = sub.CreatedAt,
-                    UpdatedAt = sub.UpdatedAt,
-                    SubscriptionItems = sub.SubscriptionItems.Select(item => new SubscriptionItemDto
+                Subscription = user.Subscription != null
+                    ? new SubscriptionDto
                     {
-                        StripeId = item.StripeId,
-                        StripeProduct = item.StripeProduct,
-                        StripePrice = item.StripePrice,
-                        Quantity = item.Quantity,
-                        CreatedAt = item.CreatedAt,
-                        UpdatedAt = item.UpdatedAt
-                    }).ToList()
-                }).ToList(),
+                        Type = user.Subscription.Type,
+                        StripeId = user.Subscription.StripeId,
+                        StripeStatus = user.Subscription.StripeStatus,
+                        StripePrice = user.Subscription.StripePrice,
+                        Quantity = user.Subscription.Quantity,
+                        EndsAt = user.Subscription.EndsAt,
+                        CreatedAt = user.Subscription.CreatedAt,
+                        UpdatedAt = user.Subscription.UpdatedAt,
+                        SubscriptionItem = new SubscriptionItemDto
+                        {
+                            StripeId = user.Subscription.SubscriptionItem.StripeId,
+                            StripeProduct = user.Subscription.SubscriptionItem.StripeProduct,
+                            StripePrice = user.Subscription.SubscriptionItem.StripePrice,
+                            Quantity = user.Subscription.SubscriptionItem.Quantity,
+                            CreatedAt = user.Subscription.SubscriptionItem.CreatedAt,
+                            UpdatedAt = user.Subscription.SubscriptionItem.UpdatedAt
+                        }
+                    }
+                    : null,
                 Settings = new UserSettingsDto
                 {
                     ShowSyncConfirmDialogs = user.Settings.ShowSyncConfirmDialogs,
@@ -73,6 +75,7 @@ public static class AuthEndpoints
                     UserName = dto.Email,
                     Email = dto.Email,
                     FullName = DefaultUserNames.GetRandomName(),
+                    Avatar = UserAvatarGenerator.GenerateUniqueAvatar(Guid.NewGuid().ToString())
                 };
 
                 var result = await userManager.CreateAsync(user, dto.Password);

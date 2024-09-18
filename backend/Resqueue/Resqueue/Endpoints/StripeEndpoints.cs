@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Resqueue.Dtos;
 using Resqueue.Dtos.Stripe;
 using Resqueue.Features.Stripe.CancelSubscription;
+using Resqueue.Features.Stripe.ChangePlan;
 using Resqueue.Features.Stripe.ContinueSubscription;
 using Resqueue.Features.Stripe.CreateSubscription;
 using Resqueue.Features.Stripe.EventHandler;
@@ -45,12 +45,23 @@ public static class StripeEndpoints
                     : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
             }).RequireAuthorization();
 
+        group.MapPost("change-plan",
+            async (IChangePlanFeature feature, HttpContext httpContext) =>
+            {
+                var result = await feature.ExecuteAsync(new ChangePlanRequest(
+                    ClaimsPrincipal: httpContext.User
+                ));
+
+                return result.IsSuccess
+                    ? Results.Ok(result.Value)
+                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+            }).RequireAuthorization();
+
         group.MapPost("cancel-subscription",
-            async (ICancelSubscriptionFeature feature, HttpContext httpContext, [FromBody] CancelSubscriptionDto dto) =>
+            async (ICancelSubscriptionFeature feature, HttpContext httpContext) =>
             {
                 var result = await feature.ExecuteAsync(new CancelSubscriptionRequest(
-                    ClaimsPrincipal: httpContext.User,
-                    Dto: dto
+                    ClaimsPrincipal: httpContext.User
                 ));
 
                 return result.IsSuccess
@@ -59,12 +70,10 @@ public static class StripeEndpoints
             }).RequireAuthorization();
 
         group.MapPost("continue-subscription",
-            async (IContinueSubscriptionFeature feature, HttpContext httpContext,
-                [FromBody] ContinueSubscriptionDto dto) =>
+            async (IContinueSubscriptionFeature feature, HttpContext httpContext) =>
             {
                 var result = await feature.ExecuteAsync(new ContinueSubscriptionRequest(
-                    ClaimsPrincipal: httpContext.User,
-                    Dto: dto
+                    ClaimsPrincipal: httpContext.User
                 ));
 
                 return result.IsSuccess

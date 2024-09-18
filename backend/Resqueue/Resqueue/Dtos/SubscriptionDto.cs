@@ -11,5 +11,5 @@ public class SubscriptionDto
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
-    public List<SubscriptionItemDto> SubscriptionItems { get; set; } = new();
+    public SubscriptionItemDto SubscriptionItem { get; set; } = new();
 }

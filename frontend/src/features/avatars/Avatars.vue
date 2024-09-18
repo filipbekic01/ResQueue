@@ -18,7 +18,7 @@ const { data: usersBasic } = useUsersBasicQuery(computed(() => props.userIds))
       :image="user.avatar"
       size="large"
       shape="circle"
-      style="background: white"
+      style="background: white; width: 2rem; height: 2rem"
     />
   </AvatarGroup>
 </template>

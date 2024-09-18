@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Resqueue.Constants;
 using Resqueue.Dtos.Stripe;
 using Resqueue.Models;
 using Stripe;
@@ -24,12 +25,14 @@ public class CreateSubscriptionFeature(
 {
     public async Task<OperationResult<CreateSubscriptionResponse>> ExecuteAsync(CreateSubscriptionRequest request)
     {
+        var dt = DateTime.UtcNow;
+
         StripeConfiguration.ApiKey = settings.Value.StripeSecret;
 
         var dc = new Dictionary<string, string>
         {
-            { "essentials", "price_1PpyCoKE6sxW2owa2SY4jGXp" },
-            { "ultimate", "price_1PpyDFKE6sxW2owaWndg9Wxc" }
+            { StripePlans.ESSENTIALS, "price_1PpyCoKE6sxW2owa2SY4jGXp" },
+            { StripePlans.ULTIMATE, "price_1PpyDFKE6sxW2owaWndg9Wxc" }
         };
 
         if (!dc.TryGetValue(request.Dto.Plan.ToLower(), out var priceId))
@@ -37,6 +40,18 @@ public class CreateSubscriptionFeature(
             return OperationResult<CreateSubscriptionResponse>.Failure(new ProblemDetails
             {
                 Detail = "Invalid subscription plan",
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        var filter = Builders<User>.Filter.Eq(q => q.Id, ObjectId.Parse(request.UserId));
+        var user = await usersCollection.Find(filter).SingleAsync();
+
+        if (user.Subscription?.StripeStatus == "active")
+        {
+            return OperationResult<CreateSubscriptionResponse>.Failure(new ProblemDetails
+            {
+                Detail = "User subscribed already",
                 Status = StatusCodes.Status400BadRequest
             });
         }
@@ -74,12 +89,10 @@ public class CreateSubscriptionFeature(
             var paymentMethodService = new PaymentMethodService();
             var paymentMethod = await paymentMethodService.GetAsync(request.Dto.PaymentMethodId);
 
-            var paymentType = paymentMethod.Card?.Brand; // e.g., "visa", "mastercard"
-            var paymentLastFour = paymentMethod.Card?.Last4; // Last four digits of the card
+            var paymentType = paymentMethod.Card?.Brand;
+            var paymentLastFour = paymentMethod.Card?.Last4;
 
-            var dt = DateTime.UtcNow;
-
-            var subscriptionEntity = new Subscription
+            user.Subscription = new Subscription
             {
                 StripeId = subscription.Id,
                 StripeStatus = subscription.Status,
@@ -89,23 +102,22 @@ public class CreateSubscriptionFeature(
                 EndsAt = null,
                 CreatedAt = dt,
                 UpdatedAt = dt,
-                SubscriptionItems = subscription.Items.Data.Select(item => new SubscriptionItem
+                SubscriptionItem = new SubscriptionItem
                 {
-                    StripeId = item.Id,
-                    StripeProduct = item.Price.ProductId,
-                    StripePrice = item.Price.Id,
-                    Quantity = item.Quantity,
+                    StripeId = subscription.Items.First().Id,
+                    StripeProduct = subscription.Items.First().Price.ProductId,
+                    StripePrice = subscription.Items.First().Price.Id,
+                    Quantity = subscription.Items.First().Quantity,
                     CreatedAt = dt,
                     UpdatedAt = dt
-                }).ToList()
+                }
             };
 
-            var filter = Builders<User>.Filter.Eq(q => q.Id, ObjectId.Parse(request.UserId));
             var update = Builders<User>.Update
                 .Set(q => q.StripeId, customer.Id)
                 .Set(q => q.PaymentType, paymentType)
                 .Set(q => q.PaymentLastFour, paymentLastFour)
-                .AddToSet(q => q.Subscriptions, subscriptionEntity);
+                .Set(q => q.Subscription, user.Subscription);
 
             await usersCollection.UpdateOneAsync(filter, update);
 

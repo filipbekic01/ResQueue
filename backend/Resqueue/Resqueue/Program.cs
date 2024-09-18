@@ -16,6 +16,7 @@ using Resqueue.Features.Messages.ReviewMessages;
 using Resqueue.Features.Messages.SyncMessages;
 using Resqueue.Features.Messages.UpdateMessage;
 using Resqueue.Features.Stripe.CancelSubscription;
+using Resqueue.Features.Stripe.ChangePlan;
 using Resqueue.Features.Stripe.ContinueSubscription;
 using Resqueue.Features.Stripe.CreateSubscription;
 using Resqueue.Features.Stripe.EventHandler;
@@ -80,6 +81,7 @@ public class Program
         builder.Services.AddTransient<ICreateSubscriptionFeature, CreateSubscriptionFeature>();
         builder.Services.AddTransient<ICancelSubscriptionFeature, CancelSubscriptionFeature>();
         builder.Services.AddTransient<IContinueSubscriptionFeature, ContinueSubscriptionFeature>();
+        builder.Services.AddTransient<IChangePlanFeature, ChangePlanFeature>();
         builder.Services.AddTransient<IEventHandlerFeature, EventHandlerFeature>();
 
         builder.Services.ConfigureApplicationCookie(options => { options.ExpireTimeSpan = TimeSpan.FromDays(30); });
