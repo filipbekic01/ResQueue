@@ -1,6 +1,4 @@
-using Resqueue.Features.Messages.UpdateMessage;
-
-namespace Resqueue.Features.Messages.CreateMessage;
+namespace Resqueue.Features.Messages.UpdateMessage;
 
 public interface IUpdateMessageFeature
 {

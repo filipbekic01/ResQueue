@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using Resqueue.Enums;
 
-namespace Resqueue.Dtos;
+namespace Resqueue.Dtos.Broker;
 
 public class BrokerAccessDto
 {

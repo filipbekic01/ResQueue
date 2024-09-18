@@ -1,4 +1,5 @@
 using Resqueue.Dtos;
+using Resqueue.Dtos.Broker;
 using Resqueue.Models;
 
 namespace Resqueue.Mappers;

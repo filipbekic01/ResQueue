@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using Resqueue.Dtos;
+using Resqueue.Dtos.Broker;
 using Resqueue.Enums;
 using Resqueue.Models;
 

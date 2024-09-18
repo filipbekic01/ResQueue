@@ -11,6 +11,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using Org.BouncyCastle.Asn1.X509;
 using Resqueue.Dtos;
+using Resqueue.Dtos.Broker;
 using Resqueue.Models;
 
 namespace Resqueue.Features.Broker.CreateBrokerInvitation;

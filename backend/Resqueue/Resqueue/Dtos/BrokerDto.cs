@@ -1,3 +1,4 @@
+using Resqueue.Dtos.Broker;
 using Resqueue.Models;
 
 namespace Resqueue.Dtos;

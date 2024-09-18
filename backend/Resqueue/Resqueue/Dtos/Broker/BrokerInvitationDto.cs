@@ -1,4 +1,4 @@
-namespace Resqueue.Dtos;
+namespace Resqueue.Dtos.Broker;
 
 public class BrokerInvitationDto
 {

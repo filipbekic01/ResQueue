@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Resqueue.Dtos;
+using Resqueue.Dtos.Broker;
 using Resqueue.Features.Broker.AcceptBrokerInvitation;
 using Resqueue.Features.Broker.CreateBrokerInvitation;
 using Resqueue.Features.Broker.ManageBrokerAccess;
