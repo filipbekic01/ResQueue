@@ -13,7 +13,7 @@ namespace Resqueue.Endpoints;
 
 public static class StripeEndpoints
 {
-    public static IEndpointRouteBuilder MapStripeEndpoints(this IEndpointRouteBuilder routes)
+    public static void MapStripeEndpoints(this IEndpointRouteBuilder routes)
     {
         RouteGroupBuilder group = routes.MapGroup("stripe");
 
@@ -127,7 +127,5 @@ public static class StripeEndpoints
                 ? Results.Ok(result.Value)
                 : Results.Problem(result.Problem!);
         });
-
-        return group;
     }
 }

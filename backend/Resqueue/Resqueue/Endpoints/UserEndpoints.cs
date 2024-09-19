@@ -8,7 +8,7 @@ namespace Resqueue.Endpoints;
 
 public static class UserEndpoints
 {
-    public static IEndpointRouteBuilder MapUserEndpoints(this IEndpointRouteBuilder routes)
+    public static void MapUserEndpoints(this IEndpointRouteBuilder routes)
     {
         RouteGroupBuilder group = routes.MapGroup("users");
 
@@ -33,7 +33,5 @@ public static class UserEndpoints
                     return Results.Ok(users);
                 })
             .RequireAuthorization();
-
-        return group;
     }
 }

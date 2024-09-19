@@ -19,7 +19,7 @@ namespace Resqueue.Endpoints;
 
 public static class MessageEndpoints
 {
-    public static IEndpointRouteBuilder MapMessageEndpoints(this IEndpointRouteBuilder routes)
+    public static void MapMessageEndpoints(this IEndpointRouteBuilder routes)
     {
         RouteGroupBuilder group = routes.MapGroup("messages")
             .RequireAuthorization();
@@ -190,7 +190,5 @@ public static class MessageEndpoints
                     ? Results.Ok(result.Value)
                     : Results.Problem(result.Problem!);
             }).AddRetryFilter();
-
-        return group;
     }
 }

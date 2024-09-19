@@ -277,7 +277,9 @@ const copyDirectLink = (data: BrokerInvitationDto) => {
           @click="createBrokerInvitation"
         ></Button>
       </div>
-      <div class="mt-3">Registration is required to accept the invitation.</div>
+      <div class="mt-3">
+        Please ensure invitee has an Ultimate plan account to accept this invitation.
+      </div>
     </div>
   </div>
 </template>

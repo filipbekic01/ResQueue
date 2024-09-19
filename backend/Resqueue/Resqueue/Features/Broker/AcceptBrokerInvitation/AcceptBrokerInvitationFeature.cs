@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using Resqueue.Constants;
 using Resqueue.Dtos;
 using Resqueue.Dtos.Broker;
 using Resqueue.Enums;
@@ -34,6 +35,16 @@ public class AcceptBrokerInvitationFeature(
             {
                 Title = "Unauthorized",
                 Detail = "The user is not authorized to accept this invitation.",
+                Status = StatusCodes.Status401Unauthorized
+            });
+        }
+
+        if (userInvitee.Subscription?.Type != StripePlans.ULTIMATE)
+        {
+            return OperationResult<AcceptBrokerInvitationResponse>.Failure(new ProblemDetails
+            {
+                Title = "Unauthorized",
+                Detail = "The user must be on Ultimate plan to accept invitation.",
                 Status = StatusCodes.Status401Unauthorized
             });
         }

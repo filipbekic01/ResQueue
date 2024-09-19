@@ -9,7 +9,7 @@ namespace Resqueue.Endpoints;
 
 public static class QueueEndpoints
 {
-    public static IEndpointRouteBuilder MapQueueEndpoints(this IEndpointRouteBuilder routes)
+    public static void MapQueueEndpoints(this IEndpointRouteBuilder routes)
     {
         RouteGroupBuilder group = routes.MapGroup("queues")
             .RequireAuthorization();
@@ -194,7 +194,5 @@ public static class QueueEndpoints
 
                 return Results.Ok();
             });
-
-        return group;
     }
 }

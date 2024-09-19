@@ -11,7 +11,7 @@ namespace Resqueue.Endpoints;
 
 public static class AuthEndpoints
 {
-    public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder routes)
+    public static void MapAuthEndpoints(this IEndpointRouteBuilder routes)
     {
         RouteGroupBuilder group = routes.MapGroup("auth");
 
@@ -182,6 +182,5 @@ public static class AuthEndpoints
                 return Results.Unauthorized();
             })
             .RequireAuthorization();
-        return group;
     }
 }

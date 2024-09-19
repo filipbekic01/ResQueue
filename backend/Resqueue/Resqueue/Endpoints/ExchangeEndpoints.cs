@@ -8,7 +8,7 @@ namespace Resqueue.Endpoints;
 
 public static class ExchangeEndpoints
 {
-    public static IEndpointRouteBuilder MapExchangeEndpoints(this IEndpointRouteBuilder routes)
+    public static void MapExchangeEndpoints(this IEndpointRouteBuilder routes)
     {
         RouteGroupBuilder group = routes.MapGroup("exchanges")
             .RequireAuthorization();
@@ -41,7 +41,5 @@ public static class ExchangeEndpoints
                     RawData = q.RawData.ToString()
                 }));
             });
-
-        return group;
     }
 }

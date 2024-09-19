@@ -17,7 +17,7 @@ namespace Resqueue.Endpoints;
 
 public static class BrokerEndpoints
 {
-    public static IEndpointRouteBuilder MapBrokerEndpoints(this IEndpointRouteBuilder routes)
+    public static void MapBrokerEndpoints(this IEndpointRouteBuilder routes)
     {
         RouteGroupBuilder group = routes.MapGroup("brokers")
             .RequireAuthorization();
@@ -294,7 +294,5 @@ public static class BrokerEndpoints
 
                 return Results.Ok();
             });
-
-        return group;
     }
 }
