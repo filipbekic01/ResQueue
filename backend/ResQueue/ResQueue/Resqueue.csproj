@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <PackageReference Update="AspNetCore.Identity.Mongo" Version="9.0.0" />
+    <PackageReference Update="Stripe.net" Version="45.14.0" />
+    <PackageReference Update="MongoDB.Driver" Version="2.29.0" />
+  </ItemGroup>
+</Project>
