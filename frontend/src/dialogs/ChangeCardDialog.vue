@@ -2,8 +2,10 @@
 import { useChangeCardMutation } from '@/api/stripe/changeCardMutation'
 import { useIdentity } from '@/composables/identityComposable'
 import { useStripe } from '@/composables/stripeComposable'
+import { errorToToast } from '@/utils/errorUtils'
 import Button from 'primevue/button'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
+import { useToast } from 'primevue/usetoast'
 import { inject, onMounted, ref, watchEffect, type Ref } from 'vue'
 
 const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
@@ -11,6 +13,8 @@ const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 const {
   query: { data: user }
 } = useIdentity()
+
+const toast = useToast()
 
 const { stripe, cardElement, mountCreditCardElement } = useStripe()
 const { mutateAsync: changeCardAsync } = useChangeCardMutation()
@@ -58,7 +62,9 @@ const updateCreditCard = async () => {
 
     changeCardAsync({
       paymentMethodId: paymentMethod.id
-    }).then(() => dialogRef?.value.close())
+    })
+      .then(() => dialogRef?.value.close())
+      .catch((e) => toast.add(errorToToast(e)))
   } catch (e) {
     console.error(e)
     isLoading.value = false

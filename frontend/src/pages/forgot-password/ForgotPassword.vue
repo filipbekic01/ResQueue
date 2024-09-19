@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useForgotPasswordMutation } from '@/api/auth/forgotPassword'
 import { useResetPasswordMutation } from '@/api/auth/resetPassword'
+import { errorToToast } from '@/utils/errorUtils'
 import { useToast } from 'primevue/usetoast'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -38,14 +39,7 @@ const forgotPassword = async () => {
 
       isEmailSent.value = true
     })
-    .catch(() => {
-      toast.add({
-        severity: 'error',
-        summary: 'Recovery Process Unsuccessful',
-        detail: 'The recovery email could not be sent. Please try again later.',
-        life: 3000
-      })
-    })
+    .catch((e) => toast.add(errorToToast(e)))
     .finally(() => {
       isLoading.value = false
     })
@@ -66,9 +60,11 @@ const resetPassword = () => {
     email: email.value,
     resetCode: resetCode.value,
     newPassword: newPassword.value
-  }).then(() => {
-    router.push({ name: 'login' })
   })
+    .then(() => {
+      router.push({ name: 'login' })
+    })
+    .catch((e) => toast.add(errorToToast(e)))
 }
 </script>
 

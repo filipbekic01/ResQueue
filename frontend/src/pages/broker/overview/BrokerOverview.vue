@@ -81,16 +81,18 @@ const updateBroker = () => {
     brokerToUpdate.value = ''
   }
 
-  updateBrokerAsync({ broker: brokerEditable.value, brokerId: broker.value.id }).then(() => {
-    toast.add({
-      severity: 'success',
-      summary: 'Updated Broker Successfully',
-      detail: 'Broker details are successfully updated.',
-      life: 3000
-    })
+  updateBrokerAsync({ broker: brokerEditable.value, brokerId: broker.value.id })
+    .then(() => {
+      toast.add({
+        severity: 'success',
+        summary: 'Updated Broker Successfully',
+        detail: 'Broker details are successfully updated.',
+        life: 3000
+      })
 
-    updateCredentials.value = false
-  })
+      updateCredentials.value = false
+    })
+    .catch((e) => toast.add(errorToToast(e)))
 }
 
 const testConnection = () => {
@@ -107,9 +109,7 @@ const testConnection = () => {
         life: 3000
       })
     })
-    .catch((e) => {
-      toast.add(errorToToast(e))
-    })
+    .catch((e) => toast.add(errorToToast(e)))
 }
 
 const addQuickSearchModel = ref('')

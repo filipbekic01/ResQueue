@@ -15,6 +15,7 @@ import UpsertMessageDialog from '@/dialogs/UpsertMessageDialog.vue'
 import type { BrokerDto } from '@/dtos/broker/brokerDto'
 import type { MessageDto } from '@/dtos/message/messageDto'
 import type { RabbitMQQueueDto } from '@/dtos/queue/rabbitMQQueueDto'
+import { errorToToast } from '@/utils/errorUtils'
 import Select from 'primevue/select'
 import { useConfirm } from 'primevue/useconfirm'
 import { useDialog } from 'primevue/usedialog'
@@ -63,7 +64,7 @@ const updateSelectedMessageFormat = (value: FormatOption) => {
         }
       },
       brokerId: props.broker.id
-    })
+    }).catch((e) => toast.add(errorToToast(e)))
   }
 
   emit('update:message-format', value)
@@ -83,7 +84,7 @@ const updateSelectedMessageStructure = (value: StructureOption) => {
         }
       },
       brokerId: props.broker.id
-    })
+    }).catch((e) => toast.add(errorToToast(e)))
   }
 
   emit('update:message-structure', value)
@@ -190,14 +191,16 @@ const publishMessages = () => {
       publishMessagesAsync({
         exchangeId: selectedExchange.value.id,
         messageIds: props.selectedMessageIds
-      }).then(() => {
-        toast.add({
-          severity: 'info',
-          summary: 'Publish completed',
-          detail: `Messages published to exchange ...`,
-          life: 3000
-        })
       })
+        .then(() => {
+          toast.add({
+            severity: 'info',
+            summary: 'Publish completed',
+            detail: `Messages published to exchange ...`,
+            life: 3000
+          })
+        })
+        .catch((e) => toast.add(errorToToast(e)))
     },
     reject: () => {}
   })

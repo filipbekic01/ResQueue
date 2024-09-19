@@ -7,6 +7,7 @@ import { usePaginatedQueuesQuery } from '@/api/queues/paginatedQueuesQuery'
 import { useIdentity } from '@/composables/identityComposable'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
 import type { QueueDto } from '@/dtos/queue/queueDto'
+import { errorToToast } from '@/utils/errorUtils'
 import Button from 'primevue/button'
 import Column from 'primevue/column'
 import DataTable, { type DataTableSortEvent } from 'primevue/datatable'
@@ -130,7 +131,7 @@ const updateSort = (e: DataTableSortEvent) => {
         }
       },
       brokerId: broker.value.id
-    })
+    }).catch((e) => toast.add(errorToToast(e)))
   }
 
   router.push({
@@ -149,7 +150,7 @@ const toggleFavorite = (data: QueueDto) => {
     dto: {
       isFavorite: !data.isFavorite
     }
-  })
+  }).catch((e) => toast.add(errorToToast(e)))
 }
 
 const getName = (name: string) => {

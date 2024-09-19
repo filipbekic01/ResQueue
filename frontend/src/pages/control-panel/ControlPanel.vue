@@ -8,6 +8,7 @@ import { useIdentity } from '@/composables/identityComposable'
 import SubscriptionDialog from '@/dialogs/SubscriptionDialog.vue'
 import PricingCards from '@/features/pricing-cards/PricingCards.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
+import { errorToToast } from '@/utils/errorUtils'
 import { format } from 'date-fns'
 import { useConfirm } from 'primevue/useconfirm'
 import { useDialog } from 'primevue/usedialog'
@@ -42,14 +43,16 @@ const resendConfirmationEmail = () => {
   const email = user.value?.email
 
   if (email) {
-    resendConfirmationEmailAsync({ email }).then(() => {
-      toast.add({
-        severity: 'success',
-        summary: 'Confirmation Sent',
-        detail: 'Please check your e-mail inbox.',
-        life: 3000
+    resendConfirmationEmailAsync({ email })
+      .then(() => {
+        toast.add({
+          severity: 'success',
+          summary: 'Confirmation Sent',
+          detail: 'Please check your e-mail inbox.',
+          life: 3000
+        })
       })
-    })
+      .catch((e) => toast.add(errorToToast(e)))
   } else {
     toast.add({
       severity: 'error',
@@ -67,7 +70,7 @@ const updateUserSettingsShowSyncConfirmDialogs = (value: boolean) => {
   updateUserAsync({
     fullName: user.value.fullName,
     settings: { ...user.value.settings, showSyncConfirmDialogs: value }
-  })
+  }).catch((e) => toast.add(errorToToast(e)))
 }
 
 const openSubscriptionManager = () => {
@@ -97,9 +100,11 @@ const updateUserFullNameAsync = () => {
   updateUserAsync({
     fullName: tempFullName.value,
     settings: { ...user.value.settings }
-  }).then(() => {
-    showEditFullName.value = false
   })
+    .then(() => {
+      showEditFullName.value = false
+    })
+    .catch((e) => toast.add(errorToToast(e)))
 }
 
 const updateUserAvatar = () => {

@@ -31,9 +31,7 @@ const acceptBrokerInvitation = () => {
         name: 'app'
       })
     })
-    .catch((e) => {
-      toast.add(errorToToast(e))
-    })
+    .catch((e) => toast.add(errorToToast(e)))
 }
 </script>
 

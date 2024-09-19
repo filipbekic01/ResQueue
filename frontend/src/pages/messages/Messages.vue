@@ -108,14 +108,16 @@ const syncMessagesRequest = () => {
   syncMessagesAsync({
     brokerId: props.brokerId,
     queueId: props.queueId
-  }).then(() => {
-    toast.add({
-      severity: 'success',
-      summary: 'Sync Completed!',
-      detail: `Messages for queue ${queue.value?.id} synced!`,
-      life: 3000
-    })
   })
+    .then(() => {
+      toast.add({
+        severity: 'success',
+        summary: 'Sync Completed!',
+        detail: `Messages for queue ${queue.value?.id} synced!`,
+        life: 3000
+      })
+    })
+    .catch((e) => toast.add(errorToToast(e)))
 }
 
 const openMessage = (id: string) => {

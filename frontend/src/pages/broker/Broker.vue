@@ -6,6 +6,7 @@ import { useIdentity } from '@/composables/identityComposable'
 import Avatars from '@/features/avatars/Avatars.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { isBrokerViewer } from '@/utils/brokerUtils'
+import { errorToToast } from '@/utils/errorUtils'
 import { formatDistanceToNow } from 'date-fns'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
@@ -45,7 +46,7 @@ const applySearch = (value: string) => {
         }
       },
       brokerId: broker.value.id
-    })
+    }).catch((e) => toast.add(errorToToast(e)))
   }
 
   router.push({

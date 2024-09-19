@@ -3,6 +3,7 @@ import { useSubscribeMutation } from '@/api/stripe/subscribeMutation'
 import { useIdentity } from '@/composables/identityComposable'
 import { useStripe } from '@/composables/stripeComposable'
 import router from '@/router'
+import { errorToToast } from '@/utils/errorUtils'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
 import Message from 'primevue/message'
 import { useToast } from 'primevue/usetoast'
@@ -92,14 +93,16 @@ const subscribe = async () => {
   subscribeAsync({
     paymentMethodId: paymentMethodId.value ?? '',
     plan: dialogRef?.value.data.plan
-  }).then(() => {
-    dialogRef?.value.close()
-    setTimeout(() => {
-      router.push({
-        name: 'app'
-      })
-    }, 500)
   })
+    .then(() => {
+      dialogRef?.value.close()
+      setTimeout(() => {
+        router.push({
+          name: 'app'
+        })
+      }, 500)
+    })
+    .catch((e) => toast.add(errorToToast(e)))
 }
 </script>
 

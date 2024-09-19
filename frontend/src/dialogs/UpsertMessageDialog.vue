@@ -80,9 +80,7 @@ const submit = () => {
     : createMessageAsync(dto)
   )
     .then(() => dialogRef.value?.close())
-    .catch((e) => {
-      toast.add(errorToToast(e))
-    })
+    .catch((e) => toast.add(errorToToast(e)))
 }
 
 const selectedTab = ref('body')

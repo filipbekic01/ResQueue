@@ -102,18 +102,18 @@ const register = async () => {
       loginAsync({
         email: email.value,
         password: password.value
-      }).then(() => {
-        refetch().then(() => {
-          dialogRef?.value.close()
-          router.push({
-            name: 'app'
+      })
+        .then(() => {
+          refetch().then(() => {
+            dialogRef?.value.close()
+            router.push({
+              name: 'app'
+            })
           })
         })
-      })
+        .catch((e) => toast.add(errorToToast(e)))
     })
-    .catch((e) => {
-      toast.add(errorToToast(e))
-    })
+    .catch((e) => toast.add(errorToToast(e)))
     .finally(() => {
       isRegisterLoading.value = false
     })
