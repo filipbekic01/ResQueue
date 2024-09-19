@@ -22,9 +22,10 @@ public class UpdateBrokerFeature(
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user == null)
         {
-            return OperationResult<UpdateBrokerFeatureResponse>.Failure(new ProblemDetails()
+            return OperationResult<UpdateBrokerFeatureResponse>.Failure(new ProblemDetails
             {
-                Detail = "Unauthorized",
+                Title = "Unauthorized Access",
+                Detail = "You must be logged in to sync the broker data.",
                 Status = StatusCodes.Status401Unauthorized
             });
         }

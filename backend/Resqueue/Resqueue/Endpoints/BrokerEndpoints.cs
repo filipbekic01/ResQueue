@@ -70,7 +70,7 @@ public static class BrokerEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+                    : Results.Problem(result.Problem!);
             }).AddRetryFilter();
 
         group.MapPost("/test-connection",
@@ -86,10 +86,11 @@ public static class BrokerEndpoints
                 }
                 catch (Exception ex)
                 {
-                    return Results.Problem(new ProblemDetails()
+                    return Results.Problem(new ProblemDetails
                     {
-                        Title = $"Test Failed to connect to the management endpoint: {ex.Message}",
-                        Status = 400,
+                        Title = "Connection to Management Endpoint Failed",
+                        Detail = $"Unable to connect to the RabbitMQ management endpoint. Error: {ex.Message}",
+                        Status = StatusCodes.Status400BadRequest,
                     });
                 }
 
@@ -101,10 +102,11 @@ public static class BrokerEndpoints
                 }
                 catch (Exception ex)
                 {
-                    return Results.Problem(new ProblemDetails()
+                    return Results.Problem(new ProblemDetails
                     {
-                        Title = $"Failed to connect to the amqp endpoint: {ex.Message}",
-                        Status = 400,
+                        Title = "AMQP Connection Failed",
+                        Detail = $"Failed to establish a connection to the RabbitMQ AMQP endpoint. Error: {ex.Message}",
+                        Status = StatusCodes.Status400BadRequest,
                     });
                 }
 
@@ -123,7 +125,7 @@ public static class BrokerEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+                    : Results.Problem(result.Problem!);
             }).AddRetryFilter();
 
         group.MapGet("/invitations",
@@ -212,7 +214,7 @@ public static class BrokerEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+                    : Results.Problem(result.Problem!);
             }).AddRetryFilter();
 
         group.MapPost("/invitations/accept",
@@ -226,7 +228,7 @@ public static class BrokerEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+                    : Results.Problem(result.Problem!);
             }).AddRetryFilter();
 
         group.MapPost("/invitations/{id}/expire",
@@ -264,7 +266,7 @@ public static class BrokerEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+                    : Results.Problem(result.Problem!);
             }).AddRetryFilter();
 
         group.MapDelete("{id}",

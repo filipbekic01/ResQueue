@@ -33,7 +33,8 @@ public class ChangeCardFeature(
             {
                 return OperationResult<ChangeCardResponse>.Failure(new ProblemDetails
                 {
-                    Detail = "User not found or Stripe customer ID missing",
+                    Title = "User Not Found",
+                    Detail = "The user could not be found or the Stripe customer ID is missing.",
                     Status = StatusCodes.Status404NotFound
                 });
             }
@@ -75,7 +76,8 @@ public class ChangeCardFeature(
         {
             return OperationResult<ChangeCardResponse>.Failure(new ProblemDetails
             {
-                Detail = e.Message,
+                Title = "Payment Method Update Failed",
+                Detail = $"An error occurred while updating the payment method: {e.Message}",
                 Status = StatusCodes.Status400BadRequest
             });
         }

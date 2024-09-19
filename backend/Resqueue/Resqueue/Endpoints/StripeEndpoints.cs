@@ -43,7 +43,7 @@ public static class StripeEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+                    : Results.Problem(result.Problem!);
             }).RequireAuthorization();
 
         group.MapPost("change-plan",
@@ -55,7 +55,7 @@ public static class StripeEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+                    : Results.Problem(result.Problem!);
             }).RequireAuthorization();
 
         group.MapPost("change-card",
@@ -82,7 +82,7 @@ public static class StripeEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+                    : Results.Problem(result.Problem!);
             }).RequireAuthorization();
 
         group.MapPost("cancel-subscription",
@@ -94,7 +94,7 @@ public static class StripeEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(new { Message = "Subscription cancelled successfully" })
-                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+                    : Results.Problem(result.Problem!);
             }).RequireAuthorization();
 
         group.MapPost("continue-subscription",
@@ -106,7 +106,7 @@ public static class StripeEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(new { Message = "Subscription continued successfully" })
-                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+                    : Results.Problem(result.Problem!);
             }).RequireAuthorization();
 
         group.MapPost("event-handler", async (HttpContext httpContext, IEventHandlerFeature feature) =>
@@ -125,7 +125,7 @@ public static class StripeEndpoints
 
             return result.IsSuccess
                 ? Results.Ok(result.Value)
-                : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+                : Results.Problem(result.Problem!);
         });
 
         return group;

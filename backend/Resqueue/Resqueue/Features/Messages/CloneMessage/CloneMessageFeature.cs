@@ -21,9 +21,11 @@ public class CloneMessageFeature(
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user == null)
         {
-            return OperationResult<CloneMessagesFeatureResponse>.Failure(new ProblemDetails()
+            return OperationResult<CloneMessagesFeatureResponse>.Failure(new ProblemDetails
             {
-                Detail = "User not found"
+                Title = "Unauthorized Access",
+                Detail = "You must be logged in to sync the broker data.",
+                Status = StatusCodes.Status401Unauthorized
             });
         }
 
@@ -35,10 +37,11 @@ public class CloneMessageFeature(
         var message = await messagesCollection.Find(filter).SingleOrDefaultAsync();
         if (message == null)
         {
-            return OperationResult<CloneMessagesFeatureResponse>.Failure(new ProblemDetails()
+            return OperationResult<CloneMessagesFeatureResponse>.Failure(new ProblemDetails
             {
-                Status = 404,
-                Detail = "Message not found"
+                Title = "Message Not Found",
+                Detail = "The message with the specified ID could not be found or does not belong to the current user.",
+                Status = StatusCodes.Status404NotFound
             });
         }
 

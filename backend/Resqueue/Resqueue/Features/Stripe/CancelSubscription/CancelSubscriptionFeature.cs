@@ -33,8 +33,9 @@ public class CancelSubscriptionFeature(
         {
             return OperationResult<CancelSubscriptionResponse>.Failure(new ProblemDetails
             {
-                Detail = "Unauthorized",
-                Status = StatusCodes.Status401Unauthorized
+                Title = "User Not Found",
+                Status = StatusCodes.Status404NotFound,
+                Detail = "The user associated with the current session could not be located in our system."
             });
         }
 
@@ -42,8 +43,9 @@ public class CancelSubscriptionFeature(
         {
             return OperationResult<CancelSubscriptionResponse>.Failure(new ProblemDetails
             {
-                Detail = "Invalid subscription",
-                Status = StatusCodes.Status400BadRequest
+                Title = "No Active Subscription",
+                Status = StatusCodes.Status400BadRequest,
+                Detail = "The user does not have an active subscription to cancel."
             });
         }
 
@@ -70,8 +72,9 @@ public class CancelSubscriptionFeature(
         {
             return OperationResult<CancelSubscriptionResponse>.Failure(new ProblemDetails
             {
-                Detail = e.Message,
-                Status = StatusCodes.Status400BadRequest
+                Title = "Failed to Update Subscription",
+                Status = StatusCodes.Status400BadRequest,
+                Detail = $"An error occurred while processing the subscription cancellation: {e.Message}."
             });
         }
     }

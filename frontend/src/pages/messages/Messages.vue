@@ -16,7 +16,7 @@ import FormattedMessage from '@/features/formatted-message/FormattedMessage.vue'
 import MessageCopy from '@/features/message-copy/MessageCopy.vue'
 import MessageActions from '@/features/message/MessageActions.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { extractErrorMessage } from '@/utils/errorUtils'
+import { errorToToast } from '@/utils/errorUtils'
 import { messageSummary } from '@/utils/messageUtils'
 import { formatDistanceToNow } from 'date-fns'
 import Button from 'primevue/button'
@@ -239,14 +239,7 @@ const editMessage = (id: string) => {
 }
 
 const cloneMessage = (id: string) => {
-  cloneMessageAsync(id).catch((e) =>
-    toast.add({
-      severity: 'error',
-      summary: 'Clone Failed!',
-      detail: extractErrorMessage(e),
-      life: 3000
-    })
-  )
+  cloneMessageAsync(id).catch((e) => toast.add(errorToToast(e)))
 }
 </script>
 

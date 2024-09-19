@@ -1,14 +1,14 @@
 <script lang="ts" setup>
 import { useLoginMutation } from '@/api/auth/loginMutation'
 import { useIdentity } from '@/composables/identityComposable'
-import { extractErrorMessage } from '@/utils/errorUtils'
+import { errorToToast } from '@/utils/errorUtils'
 import { useToast } from 'primevue/usetoast'
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const toast = useToast()
 
-const email = ref('filip1994sm@gmail.com')
+const email = ref('filip@gmail.com')
 const password = ref('Password1!')
 
 const router = useRouter()
@@ -38,13 +38,7 @@ const login = async (email: string, password: string) => {
       })
     })
     .catch((e) => {
-      toast.add({
-        severity: 'error',
-        summary: 'Login Failed',
-        detail: extractErrorMessage(e),
-        life: 3000
-      })
-
+      toast.add(errorToToast(e))
       isLoading.value = false
     })
 }

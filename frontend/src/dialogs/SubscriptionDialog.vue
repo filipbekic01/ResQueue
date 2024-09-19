@@ -3,7 +3,7 @@ import { useCancelSubscriptionMutation } from '@/api/stripe/cancelSubscriptionMu
 import { useChangePlanMutation } from '@/api/stripe/changePlanMutation'
 import { useContinueSubscriptionMutation } from '@/api/stripe/continueSubscriptionMutation'
 import { useIdentity } from '@/composables/identityComposable'
-import { extractErrorMessage } from '@/utils/errorUtils'
+import { errorToToast } from '@/utils/errorUtils'
 import { format } from 'date-fns'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
@@ -49,12 +49,7 @@ const cancel = () => {
       cancelSubscriptionAsync()
         .then(() => {})
         .catch((e) => {
-          toast.add({
-            severity: 'error',
-            summary: 'Cancellation Failed',
-            detail: extractErrorMessage(e),
-            life: 3000
-          })
+          toast.add(errorToToast(e))
         })
     },
     reject: () => {}
@@ -69,12 +64,7 @@ const continueSubscription = () => {
   continueSubscriptionAsync()
     .then(() => {})
     .catch((e) => {
-      toast.add({
-        severity: 'error',
-        summary: 'Continue Subscription Failed',
-        detail: extractErrorMessage(e),
-        life: 3000
-      })
+      toast.add(errorToToast(e))
     })
 }
 

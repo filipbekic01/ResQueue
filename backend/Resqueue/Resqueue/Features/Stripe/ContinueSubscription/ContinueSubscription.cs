@@ -30,7 +30,8 @@ public class ContinueSubscriptionFeature(
         {
             return OperationResult<ContinueSubscriptionResponse>.Failure(new ProblemDetails
             {
-                Detail = "Unauthorized",
+                Title = "Unauthorized Access",
+                Detail = "The user could not be found or is not logged in.",
                 Status = StatusCodes.Status401Unauthorized
             });
         }
@@ -39,7 +40,8 @@ public class ContinueSubscriptionFeature(
         {
             return OperationResult<ContinueSubscriptionResponse>.Failure(new ProblemDetails
             {
-                Detail = "Invalid subscription",
+                Title = "Invalid Subscription",
+                Detail = "No active subscription was found for the user.",
                 Status = StatusCodes.Status400BadRequest
             });
         }
@@ -54,7 +56,8 @@ public class ContinueSubscriptionFeature(
             {
                 return OperationResult<ContinueSubscriptionResponse>.Failure(new ProblemDetails
                 {
-                    Detail = "Subscription has already ended and cannot be reactivated.",
+                    Title = "Subscription Ended",
+                    Detail = "The subscription has already ended and cannot be reactivated.",
                     Status = StatusCodes.Status400BadRequest
                 });
             }
@@ -80,7 +83,8 @@ public class ContinueSubscriptionFeature(
 
             return OperationResult<ContinueSubscriptionResponse>.Failure(new ProblemDetails
             {
-                Detail = "Subscription is not set to cancel at period end.",
+                Title = "Subscription Not Set to Cancel",
+                Detail = "The subscription is not set to cancel at the end of the period.",
                 Status = StatusCodes.Status400BadRequest
             });
         }
@@ -88,7 +92,8 @@ public class ContinueSubscriptionFeature(
         {
             return OperationResult<ContinueSubscriptionResponse>.Failure(new ProblemDetails
             {
-                Detail = e.Message,
+                Title = "Stripe Error",
+                Detail = $"An error occurred while updating the subscription: {e.Message}",
                 Status = StatusCodes.Status400BadRequest
             });
         }

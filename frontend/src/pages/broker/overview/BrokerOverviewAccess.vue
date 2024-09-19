@@ -9,7 +9,7 @@ import type { BrokerAccessDto } from '@/dtos/broker/brokerAccessDto'
 import type { BrokerDto } from '@/dtos/broker/brokerDto'
 import type { BrokerInvitationDto } from '@/dtos/broker/brokerInvitationDto'
 import { AccessLevel } from '@/enums/accessLevel'
-import { extractErrorMessage } from '@/utils/errorUtils'
+import { errorToToast } from '@/utils/errorUtils'
 import { formatDistance } from 'date-fns'
 import DataTable from 'primevue/datatable'
 import InputText from 'primevue/inputtext'
@@ -17,18 +17,19 @@ import SelectButton from 'primevue/selectbutton'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps<{
   broker: BrokerDto
 }>()
 
 const toast = useToast()
-
 const email = ref('')
-
 const confirm = useConfirm()
+const router = useRouter()
 
 const {
+  activeSubscription,
   query: { data: user }
 } = useIdentity()
 const { mutateAsync: createBrokerInvitationAsync, isPending } = useCreateBrokerInvitationMutation()
@@ -47,6 +48,29 @@ const { data: usersBasic } = useUsersBasicQuery(
 const { mutateAsync: expireBrokerInvitationAsync } = useExpireBrokerInvitationMutation()
 
 const createBrokerInvitation = () => {
+  if (activeSubscription.value?.type !== 'ultimate') {
+    confirm.require({
+      header: 'Upgrade Required',
+      message: `You must upgrade account to Ultimate plan for this feature.`,
+      rejectProps: {
+        label: 'Close',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptProps: {
+        label: 'Upgrade'
+      },
+      accept: () => {
+        router.push({
+          name: 'app'
+        })
+      },
+      reject: () => {}
+    })
+
+    return
+  }
+
   if (!email.value.includes('@')) {
     toast.add({
       severity: 'error',
@@ -72,12 +96,7 @@ const createBrokerInvitation = () => {
       email.value = ''
     })
     .catch((e) => {
-      toast.add({
-        severity: 'error',
-        summary: 'Invitation Failed',
-        detail: extractErrorMessage(e),
-        life: 3000
-      })
+      toast.add(errorToToast(e))
     })
 }
 

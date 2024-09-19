@@ -3,7 +3,7 @@ import { useCreateMessageMutation } from '@/api/messages/createMessageMutation'
 import { useUpdateMessageMutation } from '@/api/messages/updateMessageMutation'
 import RabbitMqHeadersInput from '@/components/RabbitMqHeadersInput.vue'
 import type { UpsertMessageDto } from '@/dtos/message/upsertMessageDto'
-import { extractErrorMessage } from '@/utils/errorUtils'
+import { errorToToast } from '@/utils/errorUtils'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
 import Textarea from 'primevue/textarea'
 import { useToast } from 'primevue/usetoast'
@@ -81,12 +81,7 @@ const submit = () => {
   )
     .then(() => dialogRef.value?.close())
     .catch((e) => {
-      toast.add({
-        severity: 'error',
-        summary: 'Failed',
-        detail: extractErrorMessage(e),
-        life: 3000
-      })
+      toast.add(errorToToast(e))
     })
 }
 

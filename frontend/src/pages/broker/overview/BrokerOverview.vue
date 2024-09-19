@@ -6,7 +6,7 @@ import { useUpdateBrokerMutation } from '@/api/brokers/updateBrokerMutation'
 import { useIdentity } from '@/composables/identityComposable'
 import type { UpdateBrokerDto } from '@/dtos/broker/updateBrokerDto'
 import { isBrokerOwner, isBrokerViewer } from '@/utils/brokerUtils'
-import { extractErrorMessage } from '@/utils/errorUtils'
+import { errorToToast } from '@/utils/errorUtils'
 import ToggleSwitch from 'primevue/toggleswitch'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
@@ -105,12 +105,7 @@ const testConnection = () => {
       })
     })
     .catch((e) => {
-      toast.add({
-        severity: 'error',
-        summary: 'Connection Failed',
-        detail: extractErrorMessage(e),
-        life: 3000
-      })
+      toast.add(errorToToast(e))
     })
 }
 

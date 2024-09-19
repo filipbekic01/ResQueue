@@ -26,36 +26,22 @@ public class PublishMessagesFeature(
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user == null)
         {
-            return OperationResult<PublishMessagesFeatureResponse>.Failure(new ProblemDetails()
+            return OperationResult<PublishMessagesFeatureResponse>.Failure(new ProblemDetails
             {
-                Detail = "User not found"
+                Title = "Unauthorized Access",
+                Detail = "The user could not be found or is not logged in.",
+                Status = StatusCodes.Status401Unauthorized
             });
         }
 
         var exchange = await exchangesCollection
             .Find(Builders<Exchange>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Dto.ExchangeId)))
-            .FirstOrDefaultAsync();
-
-        if (exchange == null)
-        {
-            return OperationResult<PublishMessagesFeatureResponse>.Failure(new ProblemDetails()
-            {
-                Detail = "Exchange not found"
-            });
-        }
+            .SingleAsync();
 
         var broker = await brokersCollection.Find(Builders<Models.Broker>.Filter.And(
             Builders<Models.Broker>.Filter.Eq(b => b.Id, exchange.BrokerId),
             Builders<Models.Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id)
-        )).FirstOrDefaultAsync();
-
-        if (broker == null)
-        {
-            return OperationResult<PublishMessagesFeatureResponse>.Failure(new ProblemDetails()
-            {
-                Detail = "Broker not found"
-            });
-        }
+        )).SingleAsync();
 
         var messagesFilter =
             Builders<Message>.Filter.In(b => b.Id, request.Dto.MessageIds.Select(ObjectId.Parse).ToList());

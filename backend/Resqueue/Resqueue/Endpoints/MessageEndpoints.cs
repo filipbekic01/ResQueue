@@ -104,7 +104,7 @@ public static class MessageEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+                    : Results.Problem(result.Problem!);
             }).AddRetryFilter();
 
         group.MapPut("{id}",
@@ -119,7 +119,7 @@ public static class MessageEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+                    : Results.Problem(result.Problem!);
             }).AddRetryFilter();
 
         group.MapPost("sync",
@@ -133,7 +133,7 @@ public static class MessageEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+                    : Results.Problem(result.Problem!);
             }).AddRetryFilter();
 
         group.MapPost("publish",
@@ -147,7 +147,7 @@ public static class MessageEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+                    : Results.Problem(result.Problem!);
             }).AddRetryFilter();
 
         group.MapPost("review",
@@ -161,7 +161,7 @@ public static class MessageEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+                    : Results.Problem(result.Problem!);
             }).AddRetryFilter();
 
         group.MapDelete("",
@@ -175,7 +175,7 @@ public static class MessageEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+                    : Results.Problem(result.Problem!);
             }).AddRetryFilter();
 
         group.MapPost("{id}/clone",
@@ -188,7 +188,7 @@ public static class MessageEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem?.Detail, statusCode: result.Problem?.Status ?? 500);
+                    : Results.Problem(result.Problem!);
             }).AddRetryFilter();
 
         return group;

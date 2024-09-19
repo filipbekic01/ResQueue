@@ -30,24 +30,18 @@ public class CreateMessageFeature(
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user == null)
         {
-            return OperationResult<CreateMessageFeatureResponse>.Failure(new ProblemDetails()
+            return OperationResult<CreateMessageFeatureResponse>.Failure(new ProblemDetails
             {
-                Detail = "User not found"
+                Title = "Unauthorized Access",
+                Detail = "The user could not be found or is not logged in.",
+                Status = StatusCodes.Status401Unauthorized
             });
         }
 
         var broker = await brokersCollection.Find(Builders<Models.Broker>.Filter.And(
             Builders<Models.Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Dto.BrokerId)),
             Builders<Models.Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id)
-        )).FirstOrDefaultAsync();
-
-        if (broker == null)
-        {
-            return OperationResult<CreateMessageFeatureResponse>.Failure(new ProblemDetails()
-            {
-                Detail = "Broker not found"
-            });
-        }
+        )).SingleAsync();
 
         var queuesFilter = Builders<Queue>.Filter.And(
             Builders<Queue>.Filter.Eq(b => b.BrokerId, broker.Id),
@@ -56,13 +50,13 @@ public class CreateMessageFeature(
 
         var queue = await queuesCollection.FindOneAndUpdateAsync(queuesFilter,
             Builders<Queue>.Update.Inc(x => x.NextMessageOrder, 1));
-
         if (queue is null)
         {
-            return OperationResult<CreateMessageFeatureResponse>.Failure(new ProblemDetails()
+            return OperationResult<CreateMessageFeatureResponse>.Failure(new ProblemDetails
             {
-                Status = 404,
-                Detail = "Queue not found"
+                Title = "Queue Not Found",
+                Detail = "The specified queue could not be found.",
+                Status = StatusCodes.Status404NotFound
             });
         }
 

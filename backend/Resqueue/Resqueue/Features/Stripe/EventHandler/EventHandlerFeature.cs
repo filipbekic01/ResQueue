@@ -37,7 +37,8 @@ public class EventHandlerFeature(
                 {
                     return OperationResult<EventHandlerResponse>.Failure(new ProblemDetails
                     {
-                        Detail = "Unauthorized",
+                        Title = "Unauthorized Access",
+                        Detail = "The user could not be found or is not authorized.",
                         Status = StatusCodes.Status401Unauthorized
                     });
                 }
@@ -46,7 +47,8 @@ public class EventHandlerFeature(
                 {
                     return OperationResult<EventHandlerResponse>.Failure(new ProblemDetails
                     {
-                        Detail = "Invalid subscription",
+                        Title = "Invalid Subscription",
+                        Detail = "The subscription does not match the user's records.",
                         Status = StatusCodes.Status400BadRequest
                     });
                 }
@@ -68,9 +70,11 @@ public class EventHandlerFeature(
         }
         catch (StripeException e)
         {
-            return OperationResult<EventHandlerResponse>.Failure(new ProblemDetails()
+            return OperationResult<EventHandlerResponse>.Failure(new ProblemDetails
             {
-                Detail = e.Message
+                Title = "Stripe Error",
+                Detail = $"An error occurred while processing the event: {e.Message}",
+                Status = StatusCodes.Status400BadRequest
             });
         }
     }

@@ -1,29 +1,20 @@
 <script lang="ts" setup>
-import { useLoginMutation } from '@/api/auth/loginMutation'
-import { useRegisterMutation } from '@/api/auth/registerMutation'
+import { useSubscribeMutation } from '@/api/stripe/subscribeMutation'
 import { useIdentity } from '@/composables/identityComposable'
 import { useStripe } from '@/composables/stripeComposable'
 import router from '@/router'
-import { errorToToast } from '@/utils/errorUtils'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
 import Message from 'primevue/message'
 import { useToast } from 'primevue/usetoast'
 import { inject, onMounted, ref, watchEffect, type Ref } from 'vue'
 
-const { mutateAsync: registerAsync } = useRegisterMutation()
 const toast = useToast()
 
 const {
-  query: { refetch }
+  query: { data: user }
 } = useIdentity()
 
-const { mutateAsync: loginAsync } = useLoginMutation()
-
-const email = ref('filip@gmail.com')
-const password = ref('Password1!')
-
-const passwordType = ref('password')
-
+const { mutateAsync: subscribeAsync } = useSubscribeMutation()
 const { stripe, cardElement, mountCreditCardElement } = useStripe()
 
 // Wait for #card-element to mount
@@ -41,26 +32,30 @@ onMounted(() => {
 
 const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 
-const togglePasswordType = () =>
-  (passwordType.value = passwordType.value == 'password' ? 'text' : 'password')
-
 const paymentMethodId = ref<string>()
-const isRegisterLoading = ref(false)
-const register = async () => {
+
+const isLoading = ref(false)
+
+const subscribe = async () => {
   if (!stripe.value || !cardElement.value) {
     return
   }
 
-  if (isRegisterLoading.value) {
+  if (isLoading.value) {
     return
   }
 
-  isRegisterLoading.value = true
+  isLoading.value = true
 
-  // Get payment method
   if (dialogRef?.value.data.plan) {
-    if (!stripe.value || !cardElement.value) {
-      isRegisterLoading.value = false
+    if (!stripe || !cardElement) {
+      toast.add({
+        severity: 'error',
+        summary: 'Subscription Problem',
+        detail: 'Payment initialization error.',
+        life: 3000
+      })
+      isLoading.value = false
       return
     }
 
@@ -69,10 +64,9 @@ const register = async () => {
         type: 'card',
         card: cardElement.value,
         billing_details: {
-          email: email.value
+          email: user.value?.email
         }
       })
-
       if (!paymentMethod || error) {
         toast.add({
           severity: 'error',
@@ -80,78 +74,45 @@ const register = async () => {
           detail: 'Payment processing error.',
           life: 3000
         })
-        isRegisterLoading.value = false
+        isLoading.value = false
         return
       }
-
       paymentMethodId.value = paymentMethod.id
     } catch (e) {
-      isRegisterLoading.value = false
-      toast.add(errorToToast(e))
+      isLoading.value = false
+      toast.add({
+        severity: 'error',
+        summary: 'Registration Problem',
+        detail: e,
+        life: 3000
+      })
     }
   }
 
-  // Call register endpoint
-  registerAsync({
-    email: email.value,
-    password: password.value,
-    paymentMethodId: paymentMethodId.value,
+  subscribeAsync({
+    paymentMethodId: paymentMethodId.value ?? '',
     plan: dialogRef?.value.data.plan
-  })
-    .then(() => {
-      loginAsync({
-        email: email.value,
-        password: password.value
-      }).then(() => {
-        refetch().then(() => {
-          dialogRef?.value.close()
-          router.push({
-            name: 'app'
-          })
-        })
+  }).then(() => {
+    dialogRef?.value.close()
+    setTimeout(() => {
+      router.push({
+        name: 'app'
       })
-    })
-    .catch((e) => {
-      toast.add(errorToToast(e))
-    })
-    .finally(() => {
-      isRegisterLoading.value = false
-    })
+    }, 500)
+  })
 }
 </script>
 
 <template>
-  <div class="mb-4 flex flex-col gap-4">
-    <label for="email" class="white font-semibold">E-Mail Address</label>
+  <div class="mb-4 flex flex-col gap-2">
+    <label for="email" class="font-medium">Account E-Mail</label>
     <InputText
-      v-model="email"
+      :model-value="user?.email"
       placeholder="E-mail address"
       id="email"
       class="flex-auto"
       type="email"
-      autocomplete="off"
-    />
-  </div>
-  <div class="mb-4 flex flex-col gap-4">
-    <label for="password" class="white flex items-center font-semibold"
-      >Password
-      <i
-        class="pi ms-2 cursor-pointer"
-        :class="[
-          {
-            'pi-eye': passwordType === 'text',
-            'pi-eye-slash': passwordType === 'password'
-          }
-        ]"
-        @click="togglePasswordType"
-      ></i>
-    </label>
-    <InputText
-      id="password"
-      placeholder="********"
-      v-model="password"
-      class="flex-auto"
-      :type="passwordType"
+      :disabled="true"
       autocomplete="off"
     />
   </div>
@@ -159,7 +120,7 @@ const register = async () => {
     v-if="dialogRef?.data.plan"
     class="flex flex-col gap-4 rounded-xl border border-slate-300 p-4"
   >
-    <label for="card-element" class="white flex items-center font-semibold"> Credit Card </label>
+    <label for="card-element" class="white flex items-center font-medium"> Credit Card </label>
     <div class="rounded-md border border-slate-300 p-3" id="card-element"></div>
     <Message severity="secondary" pt:text:class="flex grow gap-2 "
       >Plan:
@@ -176,17 +137,15 @@ const register = async () => {
       >Upgrade to unlock full access.</span
     ></Message
   >
-
   <div class="mt-8 flex flex-col items-center gap-2">
     <Button
       type="button"
-      label="Register"
+      label="Subscribe"
       icon="pi pi-arrow-right"
       icon-pos="right"
       class="w-3/4"
-      :loading="isRegisterLoading"
-      @click="register"
+      :loading="isLoading"
+      @click="subscribe"
     ></Button>
-    <div class="text-gray-500">Let's build something great together!</div>
   </div>
 </template>

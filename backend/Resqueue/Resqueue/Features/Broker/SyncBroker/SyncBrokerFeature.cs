@@ -33,9 +33,10 @@ public class SyncBrokerFeature(
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user == null)
         {
-            return OperationResult<SyncBrokerFeatureResponse>.Failure(new ProblemDetails()
+            return OperationResult<SyncBrokerFeatureResponse>.Failure(new ProblemDetails
             {
-                Detail = "Unauthorized access",
+                Title = "Unauthorized Access",
+                Detail = "You must be logged in to sync the broker data.",
                 Status = StatusCodes.Status401Unauthorized
             });
         }
@@ -45,15 +46,7 @@ public class SyncBrokerFeature(
             Builders<Models.Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id),
             Builders<Models.Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Id))
         );
-        var broker = await brokersCollection.Find(brokerFilter).FirstOrDefaultAsync();
-        if (broker == null)
-        {
-            return OperationResult<SyncBrokerFeatureResponse>.Failure(new ProblemDetails()
-            {
-                Detail = $"Broker {request.Id} not found or user unauthorized.",
-                Status = StatusCodes.Status404NotFound
-            });
-        }
+        var broker = await brokersCollection.Find(brokerFilter).SingleAsync();
 
         var queuesFilter = Builders<Queue>.Filter.Eq(b => b.BrokerId, ObjectId.Parse(request.Id));
         var queues = await queuesCollection.Find(queuesFilter).ToListAsync();
@@ -64,7 +57,6 @@ public class SyncBrokerFeature(
         using var http = RabbitmqConnectionFactory.CreateManagementClient(httpClientFactory, broker);
 
         // Sync queues
-
         var response = await http.GetAsync("/api/queues");
         response.EnsureSuccessStatusCode();
 

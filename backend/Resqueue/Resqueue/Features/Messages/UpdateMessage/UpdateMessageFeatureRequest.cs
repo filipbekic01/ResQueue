@@ -31,30 +31,23 @@ public class UpdateMessageFeature(
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user == null)
         {
-            return OperationResult<UpdateMessageFeatureResponse>.Failure(new ProblemDetails()
+            return OperationResult<UpdateMessageFeatureResponse>.Failure(new ProblemDetails
             {
-                Detail = "User not found"
+                Title = "Unauthorized Access",
+                Detail = "The user could not be found or is not logged in.",
+                Status = StatusCodes.Status401Unauthorized
             });
         }
 
         var broker = await brokersCollection.Find(Builders<Models.Broker>.Filter.And(
             Builders<Models.Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Dto.BrokerId)),
             Builders<Models.Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id)
-        )).FirstOrDefaultAsync();
-
-        if (broker == null)
-        {
-            return OperationResult<UpdateMessageFeatureResponse>.Failure(new ProblemDetails()
-            {
-                Detail = "Broker not found"
-            });
-        }
+        )).SingleAsync();
 
         var queuesFilter = Builders<Queue>.Filter.And(
             Builders<Queue>.Filter.Eq(b => b.BrokerId, broker.Id),
             Builders<Queue>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Dto.QueueId))
         );
-
 
         var queue = await queuesCollection.FindOneAndUpdateAsync(queuesFilter,
             Builders<Queue>.Update.Inc(x => x.NextMessageOrder, 1));

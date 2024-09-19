@@ -32,33 +32,15 @@ public class ManageBrokerAccessFeature(
         {
             return OperationResult<ManageBrokerAccessFeatureResponse>.Failure(new ProblemDetails
             {
-                Detail = "Unauthorized",
+                Title = "Unauthorized Access",
+                Detail = "You must be logged in to manage broker access.",
                 Status = StatusCodes.Status401Unauthorized
             });
         }
 
-        // Validate Broker ID
-        if (!ObjectId.TryParse(request.BrokerId, out var brokerId))
-        {
-            return OperationResult<ManageBrokerAccessFeatureResponse>.Failure(new ProblemDetails
-            {
-                Detail = "Invalid Broker ID",
-                Status = StatusCodes.Status400BadRequest
-            });
-        }
-
         // Fetch the broker
-        var brokerFilter = Builders<Models.Broker>.Filter.Eq(b => b.Id, brokerId);
-        var broker = await brokersCollection.Find(brokerFilter).FirstOrDefaultAsync();
-
-        if (broker == null)
-        {
-            return OperationResult<ManageBrokerAccessFeatureResponse>.Failure(new ProblemDetails
-            {
-                Detail = "Broker not found",
-                Status = StatusCodes.Status404NotFound
-            });
-        }
+        var brokerFilter = Builders<Models.Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(request.BrokerId));
+        var broker = await brokersCollection.Find(brokerFilter).SingleAsync();
 
         // Check if current user is the owner
         var ownerAccess = broker.AccessList.FirstOrDefault(a =>
@@ -68,18 +50,10 @@ public class ManageBrokerAccessFeature(
         {
             return OperationResult<ManageBrokerAccessFeatureResponse>.Failure(new ProblemDetails
             {
-                Detail = "Forbidden: Only the owner can manage access.",
+                Title = "Forbidden",
+                Detail =
+                    "You do not have sufficient permissions to manage access. Only the broker owner can perform this action.",
                 Status = StatusCodes.Status403Forbidden
-            });
-        }
-
-        // Prevent owner from removing themselves
-        if (request.Dto.AccessLevel == null && request.Dto.UserId == currentUser.Id.ToString())
-        {
-            return OperationResult<ManageBrokerAccessFeatureResponse>.Failure(new ProblemDetails
-            {
-                Detail = "Cannot remove the owner from the access list.",
-                Status = StatusCodes.Status400BadRequest
             });
         }
 
@@ -89,7 +63,8 @@ public class ManageBrokerAccessFeature(
         {
             return OperationResult<ManageBrokerAccessFeatureResponse>.Failure(new ProblemDetails
             {
-                Detail = "User not found",
+                Title = "User Not Found",
+                Detail = "The specified user could not be found in the system.",
                 Status = StatusCodes.Status404NotFound
             });
         }
@@ -110,7 +85,8 @@ public class ManageBrokerAccessFeature(
                 {
                     return OperationResult<ManageBrokerAccessFeatureResponse>.Failure(new ProblemDetails
                     {
-                        Detail = "Failed to update user access level",
+                        Title = "Access Level Update Failed",
+                        Detail = "Failed to update the user's access level. Please try again.",
                         Status = StatusCodes.Status500InternalServerError
                     });
                 }
@@ -129,7 +105,8 @@ public class ManageBrokerAccessFeature(
                 {
                     return OperationResult<ManageBrokerAccessFeatureResponse>.Failure(new ProblemDetails
                     {
-                        Detail = "Failed to remove user from access list",
+                        Title = "Failed to Remove User",
+                        Detail = "An error occurred while removing the user from the access list.",
                         Status = StatusCodes.Status500InternalServerError
                     });
                 }
@@ -137,10 +114,10 @@ public class ManageBrokerAccessFeature(
         }
         else
         {
-            // User not found in access list
             return OperationResult<ManageBrokerAccessFeatureResponse>.Failure(new ProblemDetails
             {
-                Detail = "User does not have access to this broker",
+                Title = "User Does Not Have Access",
+                Detail = "The specified user does not have access to this broker.",
                 Status = StatusCodes.Status400BadRequest
             });
         }

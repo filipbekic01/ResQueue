@@ -10,6 +10,7 @@ using MimeKit;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Org.BouncyCastle.Asn1.X509;
+using Resqueue.Constants;
 using Resqueue.Dtos;
 using Resqueue.Dtos.Broker;
 using Resqueue.Models;
@@ -41,8 +42,19 @@ public class CreateBrokerInvitationFeature(
         {
             return OperationResult<CreateBrokerInvitationResponse>.Failure(new ProblemDetails
             {
-                Detail = "User not found in system.",
+                Title = "User Not Found",
+                Detail = "The invitee could not be found in the system.",
                 Status = StatusCodes.Status404NotFound
+            });
+        }
+
+        if (userInvitee.Subscription?.Type != StripePlans.ULTIMATE)
+        {
+            return OperationResult<CreateBrokerInvitationResponse>.Failure(new ProblemDetails
+            {
+                Title = "Invalid Plan",
+                Detail = "The invitee must have the Ultimate plan to receive an invitation.",
+                Status = StatusCodes.Status400BadRequest
             });
         }
 
@@ -52,8 +64,19 @@ public class CreateBrokerInvitationFeature(
         {
             return OperationResult<CreateBrokerInvitationResponse>.Failure(new ProblemDetails
             {
-                Detail = "Unauthorized",
+                Title = "Unauthorized",
+                Detail = "You are not authorized to send invitations.",
                 Status = StatusCodes.Status401Unauthorized
+            });
+        }
+
+        if (userInviter.Subscription?.Type != StripePlans.ULTIMATE)
+        {
+            return OperationResult<CreateBrokerInvitationResponse>.Failure(new ProblemDetails
+            {
+                Title = "Invalid Plan",
+                Detail = "You must have the Ultimate plan to send an invitation.",
+                Status = StatusCodes.Status400BadRequest
             });
         }
 
@@ -68,30 +91,21 @@ public class CreateBrokerInvitationFeature(
         {
             return OperationResult<CreateBrokerInvitationResponse>.Failure(new ProblemDetails
             {
-                Detail = "User has been invited already.",
-                Status = StatusCodes.Status400BadRequest
-            });
-        }
-
-        // Validate Broker ID
-        if (!ObjectId.TryParse(request.Dto.BrokerId, out var brokerId))
-        {
-            return OperationResult<CreateBrokerInvitationResponse>.Failure(new ProblemDetails
-            {
-                Detail = "Invalid Broker ID",
+                Title = "Duplicate Invitation",
+                Detail = "The user has already been invited and has a pending invitation.",
                 Status = StatusCodes.Status400BadRequest
             });
         }
 
         // Fetch the broker
-        var brokerFilter = Builders<Models.Broker>.Filter.Eq(b => b.Id, brokerId);
+        var brokerFilter = Builders<Models.Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Dto.BrokerId));
         var broker = await brokersCollection.Find(brokerFilter).FirstOrDefaultAsync();
-
         if (broker == null)
         {
             return OperationResult<CreateBrokerInvitationResponse>.Failure(new ProblemDetails
             {
-                Detail = "Broker not found",
+                Title = "Broker Not Found",
+                Detail = "The specified broker could not be found in the system.",
                 Status = StatusCodes.Status404NotFound
             });
         }

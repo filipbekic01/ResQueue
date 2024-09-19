@@ -41,7 +41,8 @@ public class ChangePlanFeature(
         {
             return OperationResult<ChangePlanResponse>.Failure(new ProblemDetails
             {
-                Detail = "User or subscription not found",
+                Title = "User Not Found",
+                Detail = "The user or subscription could not be found.",
                 Status = StatusCodes.Status404NotFound
             });
         }
@@ -50,7 +51,8 @@ public class ChangePlanFeature(
         {
             return OperationResult<ChangePlanResponse>.Failure(new ProblemDetails
             {
-                Detail = "Active subscription not found in database",
+                Title = "Subscription Not Active",
+                Detail = "No active subscription was found for the user.",
                 Status = StatusCodes.Status404NotFound
             });
         }
@@ -62,7 +64,8 @@ public class ChangePlanFeature(
         {
             return OperationResult<ChangePlanResponse>.Failure(new ProblemDetails
             {
-                Detail = "Invalid stripe price id",
+                Title = "Invalid Price ID",
+                Detail = "The new price ID for the subscription plan is invalid.",
                 Status = StatusCodes.Status404NotFound
             });
         }
@@ -76,7 +79,8 @@ public class ChangePlanFeature(
             {
                 return OperationResult<ChangePlanResponse>.Failure(new ProblemDetails
                 {
-                    Detail = "Active subscription not found on Stripe",
+                    Title = "Subscription Not Found",
+                    Detail = "Active subscription not found on Stripe.",
                     Status = StatusCodes.Status404NotFound
                 });
             }
@@ -119,7 +123,8 @@ public class ChangePlanFeature(
         {
             return OperationResult<ChangePlanResponse>.Failure(new ProblemDetails
             {
-                Detail = e.Message,
+                Title = "Stripe Error",
+                Detail = $"An error occurred while updating the subscription: {e.Message}",
                 Status = StatusCodes.Status400BadRequest
             });
         }

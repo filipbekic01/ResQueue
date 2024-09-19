@@ -28,36 +28,23 @@ public class SyncMessagesFeature(
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user == null)
         {
-            return OperationResult<SyncMessagesFeatureResponse>.Failure(new ProblemDetails()
+            return OperationResult<SyncMessagesFeatureResponse>.Failure(new ProblemDetails
             {
-                Detail = "User not found"
+                Title = "Unauthorized Access",
+                Detail = "The user could not be found or is not logged in.",
+                Status = StatusCodes.Status401Unauthorized
             });
         }
 
         var queueFilter = Builders<Queue>.Filter.Eq(b => b.Id, ObjectId.Parse(request.QueueId));
 
-        var queue = await queuesCollection.Find(queueFilter).FirstOrDefaultAsync();
-
-        if (queue == null)
-        {
-            return OperationResult<SyncMessagesFeatureResponse>.Failure(new ProblemDetails()
-            {
-                Detail = "Queue not found"
-            });
-        }
+        var queue = await queuesCollection.Find(queueFilter).SingleAsync();
 
         var brokerFilter = Builders<Models.Broker>.Filter.And(
             Builders<Models.Broker>.Filter.Eq(b => b.Id, queue.BrokerId),
             Builders<Models.Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id)
         );
-        var broker = await brokersCollection.Find(brokerFilter).FirstOrDefaultAsync();
-        if (broker == null)
-        {
-            return OperationResult<SyncMessagesFeatureResponse>.Failure(new ProblemDetails()
-            {
-                Detail = "Broker not found"
-            });
-        }
+        var broker = await brokersCollection.Find(brokerFilter).SingleAsync();
 
         var factory = RabbitmqConnectionFactory.CreateAmqpFactory(broker);
         using var connection = factory.CreateConnection();

@@ -2,7 +2,7 @@
 import { useAcceptBrokerInvitationMutation } from '@/api/brokers/acceptBrokerInvitationMutation'
 import { useBrokerInvitationQuery } from '@/api/brokers/brokerInvitationQuery'
 import { useIdentity } from '@/composables/identityComposable'
-import { extractErrorMessage } from '@/utils/errorUtils'
+import { errorToToast } from '@/utils/errorUtils'
 import { differenceInSeconds } from 'date-fns'
 import { useToast } from 'primevue/usetoast'
 import { computed } from 'vue'
@@ -32,12 +32,7 @@ const acceptBrokerInvitation = () => {
       })
     })
     .catch((e) => {
-      toast.add({
-        severity: 'error',
-        summary: 'Accept Failed',
-        detail: extractErrorMessage(e),
-        life: 3000
-      })
+      toast.add(errorToToast(e))
     })
 }
 </script>

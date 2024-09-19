@@ -25,9 +25,11 @@ public class ArchiveMessagesFeature(
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user == null)
         {
-            return OperationResult<ArchiveMessagesFeatureResponse>.Failure(new ProblemDetails()
+            return OperationResult<ArchiveMessagesFeatureResponse>.Failure(new ProblemDetails
             {
-                Detail = "User not found"
+                Title = "Unauthorized Access",
+                Detail = "You must be logged in to sync the broker data.",
+                Status = StatusCodes.Status401Unauthorized
             });
         }
 

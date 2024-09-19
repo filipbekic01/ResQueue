@@ -32,7 +32,8 @@ public class AcceptBrokerInvitationFeature(
         {
             return OperationResult<AcceptBrokerInvitationResponse>.Failure(new ProblemDetails
             {
-                Detail = "Unauthorized",
+                Title = "Unauthorized",
+                Detail = "The user is not authorized to accept this invitation.",
                 Status = StatusCodes.Status401Unauthorized
             });
         }
@@ -47,7 +48,8 @@ public class AcceptBrokerInvitationFeature(
         {
             return OperationResult<AcceptBrokerInvitationResponse>.Failure(new ProblemDetails
             {
-                Detail = "Invitation Missing",
+                Title = "Invitation Not Found",
+                Detail = "The invitation could not be found or does not exist.",
                 Status = StatusCodes.Status404NotFound
             });
         }
@@ -56,23 +58,25 @@ public class AcceptBrokerInvitationFeature(
         {
             return OperationResult<AcceptBrokerInvitationResponse>.Failure(new ProblemDetails
             {
-                Detail = "Invitation Expired",
+                Title = "Invitation Expired",
+                Detail = "The invitation has expired and is no longer valid.",
                 Status = StatusCodes.Status400BadRequest
             });
         }
-        
+
         if (invitation.IsAccepted)
         {
             return OperationResult<AcceptBrokerInvitationResponse>.Failure(new ProblemDetails
             {
-                Detail = "Accepted Already",
+                Title = "Invitation Already Accepted",
+                Detail = "This invitation has already been accepted.",
                 Status = StatusCodes.Status400BadRequest
             });
         }
 
         using var session = await mongoClient.StartSessionAsync();
         session.StartTransaction();
-        
+
         // Get broker
         var brokerFilter = Builders<Models.Broker>.Filter.Eq(b => b.Id, invitation.BrokerId);
         var broker = await brokersCollection.Find(brokerFilter).FirstOrDefaultAsync();
@@ -80,7 +84,8 @@ public class AcceptBrokerInvitationFeature(
         {
             return OperationResult<AcceptBrokerInvitationResponse>.Failure(new ProblemDetails
             {
-                Detail = "Broker Not Found",
+                Title = "Broker Not Found",
+                Detail = "The broker associated with this invitation could not be found.",
                 Status = StatusCodes.Status404NotFound
             });
         }
@@ -97,7 +102,8 @@ public class AcceptBrokerInvitationFeature(
         {
             return OperationResult<AcceptBrokerInvitationResponse>.Failure(new ProblemDetails
             {
-                Detail = "User Has Access Already",
+                Title = "Access Already Granted",
+                Detail = "The user already has access to this broker.",
                 Status = StatusCodes.Status400BadRequest
             });
         }

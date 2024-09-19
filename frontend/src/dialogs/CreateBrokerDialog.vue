@@ -2,7 +2,7 @@
 import { useCreateBrokerMutation } from '@/api/brokers/createBrokerMutation'
 import { useTestConnectionMutation } from '@/api/brokers/testConnectionRequest'
 import type { CreateBrokerDto } from '@/dtos/broker/createBrokerDto'
-import { extractErrorMessage } from '@/utils/errorUtils'
+import { errorToToast } from '@/utils/errorUtils'
 import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
 import { useToast } from 'primevue/usetoast'
 import { inject, reactive, type Ref } from 'vue'
@@ -46,14 +46,7 @@ const testConnection = () => {
         life: 3000
       })
     })
-    .catch((e) => {
-      toast.add({
-        severity: 'error',
-        summary: 'Connection Failed',
-        detail: extractErrorMessage(e),
-        life: 3000
-      })
-    })
+    .catch((e) => toast.add(errorToToast(e)))
 }
 </script>
 

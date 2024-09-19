@@ -23,9 +23,11 @@ public class ReviewMessagesFeature(
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user == null)
         {
-            return OperationResult<ReviewMessagesFeatureResponse>.Failure(new ProblemDetails()
+            return OperationResult<ReviewMessagesFeatureResponse>.Failure(new ProblemDetails
             {
-                Detail = "User not found"
+                Title = "Unauthorized Access",
+                Detail = "The user could not be found or is not logged in.",
+                Status = StatusCodes.Status401Unauthorized
             });
         }
 

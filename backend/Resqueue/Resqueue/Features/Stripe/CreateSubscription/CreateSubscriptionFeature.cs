@@ -39,7 +39,8 @@ public class CreateSubscriptionFeature(
         {
             return OperationResult<CreateSubscriptionResponse>.Failure(new ProblemDetails
             {
-                Detail = "Invalid subscription plan",
+                Title = "Invalid Subscription Plan",
+                Detail = "The selected subscription plan is not valid.",
                 Status = StatusCodes.Status400BadRequest
             });
         }
@@ -51,7 +52,8 @@ public class CreateSubscriptionFeature(
         {
             return OperationResult<CreateSubscriptionResponse>.Failure(new ProblemDetails
             {
-                Detail = "User subscribed already",
+                Title = "Subscription Already Active",
+                Detail = "The user is already subscribed to an active plan.",
                 Status = StatusCodes.Status400BadRequest
             });
         }
@@ -127,7 +129,8 @@ public class CreateSubscriptionFeature(
         {
             return OperationResult<CreateSubscriptionResponse>.Failure(new ProblemDetails
             {
-                Detail = e.Message,
+                Title = "Stripe Error",
+                Detail = $"An error occurred while creating the subscription: {e.Message}",
                 Status = StatusCodes.Status400BadRequest
             });
         }
