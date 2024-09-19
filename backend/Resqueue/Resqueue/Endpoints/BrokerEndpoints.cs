@@ -113,14 +113,13 @@ public static class BrokerEndpoints
                 return Results.Ok();
             });
 
-        group.MapPost("/{id}/access",
-            async (string id, [FromBody] ManageBrokerAccessDto dto,
+        group.MapPost("/access",
+            async ([FromBody] ManageBrokerAccessDto dto,
                 HttpContext httpContext, IManageBrokerAccessFeature manageBrokerAccessFeature) =>
             {
                 var result = await manageBrokerAccessFeature.ExecuteAsync(new ManageBrokerAccessFeatureRequest(
                     ClaimsPrincipal: httpContext.User,
-                    Dto: dto,
-                    BrokerId: id
+                    Dto: dto
                 ));
 
                 return result.IsSuccess

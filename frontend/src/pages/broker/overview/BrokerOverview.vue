@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useBrokersQuery } from '@/api/brokers/brokersQuery'
 import { useDeleteBrokerMutation } from '@/api/brokers/deleteBrokerMutation'
+import { useManageBrokerAccessMutation } from '@/api/brokers/manageBrokerAccessMutation'
 import { useTestConnectionMutation } from '@/api/brokers/testConnectionRequest'
 import { useUpdateBrokerMutation } from '@/api/brokers/updateBrokerMutation'
 import { useIdentity } from '@/composables/identityComposable'
@@ -32,6 +33,8 @@ const { mutateAsync: testConnectionAsync, isPending: isTestConnectionPending } =
   useTestConnectionMutation()
 const { mutateAsync: deleteBrokerAsync, isPending: isDeleteBrokerPending } =
   useDeleteBrokerMutation()
+const { mutateAsync: manageBrokerAccessAsync, isPending: isManageBrokerAccessPending } =
+  useManageBrokerAccessMutation()
 
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
 
@@ -155,6 +158,41 @@ const deleteBroker = () => {
           name: 'app'
         })
       })
+    },
+    reject: () => {}
+  })
+}
+
+const leaveBroker = () => {
+  confirm.require({
+    header: `Leave Broker`,
+    message: `Do you want to leave ${broker.value?.name} broker?`,
+    icon: 'pi pi-exclamation-circle',
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Leave Broker',
+      severity: 'danger'
+    },
+    accept: () => {
+      if (!user.value || !broker.value) {
+        return
+      }
+
+      manageBrokerAccessAsync({
+        brokerId: broker.value.id,
+        userId: user.value.id,
+        accessLevel: null
+      })
+        .then(() => {
+          router.push({
+            name: 'app'
+          })
+        })
+        .catch((e) => toast.add(errorToToast(e)))
     },
     reject: () => {}
   })
@@ -354,7 +392,7 @@ const deleteBroker = () => {
         Access to the broker overview is restricted to Owners and Editors.
 
         <div class="mt-2">
-          <Button outlined label="Leave Broker" icon="pi pi-times"></Button>
+          <Button outlined label="Leave Broker" icon="pi pi-times" @click="leaveBroker"></Button>
         </div>
       </div>
     </div>

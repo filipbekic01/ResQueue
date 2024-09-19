@@ -95,9 +95,7 @@ const createBrokerInvitation = () => {
 
       email.value = ''
     })
-    .catch((e) => {
-      toast.add(errorToToast(e))
-    })
+    .catch((e) => toast.add(errorToToast(e)))
 }
 
 const accessLevels = [
@@ -134,9 +132,10 @@ const changeAccessLevel = (brokerAccess: BrokerAccessDto, accessLevel?: AccessLe
     },
     accept: () => {
       manageBrokerAccessAsync({
+        brokerId: props.broker.id,
         userId: brokerAccess.userId,
         accessLevel
-      })
+      }).catch((e) => toast.add(errorToToast(e)))
     },
     reject: () => {}
   })
@@ -158,9 +157,10 @@ const removeAccessLevel = (brokerAccess: BrokerAccessDto) => {
     },
     accept: () => {
       manageBrokerAccessAsync({
+        brokerId: props.broker.id,
         userId: brokerAccess.userId,
         accessLevel: undefined
-      })
+      }).catch((e) => toast.add(errorToToast(e)))
     },
     reject: () => {}
   })
@@ -183,7 +183,7 @@ const expireBrokerInvitation = (brokerInvitation: BrokerInvitationDto) => {
     accept: () => {
       expireBrokerInvitationAsync({
         id: brokerInvitation.id
-      })
+      }).catch((e) => toast.add(errorToToast(e)))
     },
     reject: () => {}
   })
@@ -195,12 +195,6 @@ const getUserName1 = (data: BrokerInvitationDto) =>
 
 const copyDirectLink = (data: BrokerInvitationDto) => {
   navigator.clipboard.writeText(`http://localhost:5173/app/broker-invitation?token=${data.token}`)
-}
-
-const canRemoveAccessLevel = (data: BrokerAccessDto) => {
-  if (data.userId === user.value?.id) {
-    return false
-  }
 }
 </script>
 
@@ -230,7 +224,6 @@ const canRemoveAccessLevel = (data: BrokerAccessDto) => {
       <Column header="" field="actions" class="w-0">
         <template #body="{ data }">
           <Button
-            v-if="canRemoveAccessLevel(data)"
             outlined
             size="small"
             icon="pi pi-times"
