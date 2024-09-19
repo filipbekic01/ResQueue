@@ -100,16 +100,16 @@ const createBrokerInvitation = () => {
 
 const accessLevels = [
   {
-    label: 'Owner',
+    label: AccessLevel.Owner.toString(),
     value: AccessLevel.Owner.toString()
   },
   {
-    label: 'Editor',
-    value: AccessLevel.Editor.toString()
+    label: AccessLevel.Manager.toString(),
+    value: AccessLevel.Manager.toString()
   },
   {
-    label: 'Viewer',
-    value: AccessLevel.Viewer.toString()
+    label: AccessLevel.Agent.toString(),
+    value: AccessLevel.Agent.toString()
   }
 ]
 

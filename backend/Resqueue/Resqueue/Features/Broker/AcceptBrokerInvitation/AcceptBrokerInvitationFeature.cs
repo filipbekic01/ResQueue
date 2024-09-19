@@ -122,7 +122,7 @@ public class AcceptBrokerInvitationFeature(
         accessList.Add(new()
         {
             UserId = userInvitee.Id,
-            AccessLevel = AccessLevel.Viewer
+            AccessLevel = AccessLevel.Agent
         });
 
         var updateBroker = Builders<Models.Broker>.Update

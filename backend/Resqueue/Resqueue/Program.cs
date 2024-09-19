@@ -97,14 +97,15 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapIdentityApi<User>();
-        app.MapAuthEndpoints();
-        app.MapBrokerEndpoints();
-        app.MapQueueEndpoints();
-        app.MapExchangeEndpoints();
-        app.MapMessageEndpoints();
-        app.MapStripeEndpoints();
-        app.MapUserEndpoints();
+        var apiGroup = app.MapGroup("api");
+        apiGroup.MapIdentityApi<User>();
+        apiGroup.MapAuthEndpoints();
+        apiGroup.MapBrokerEndpoints();
+        apiGroup.MapQueueEndpoints();
+        apiGroup.MapExchangeEndpoints();
+        apiGroup.MapMessageEndpoints();
+        apiGroup.MapStripeEndpoints();
+        apiGroup.MapUserEndpoints();
 
         app.Run();
     }

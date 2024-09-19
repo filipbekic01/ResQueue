@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Resqueue.Dtos;
+using Resqueue.Enums;
 using Resqueue.Models;
 
 namespace Resqueue.Features.Broker.UpdateBroker;
@@ -32,7 +33,9 @@ public class UpdateBrokerFeature(
 
         var filter = Builders<Models.Broker>.Filter.And(
             Builders<Models.Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Id)),
-            Builders<Models.Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id)
+            Builders<Models.Broker>.Filter.ElemMatch(b => b.AccessList,
+                a => a.UserId == user.Id &&
+                     (a.AccessLevel == AccessLevel.Owner || a.AccessLevel == AccessLevel.Manager))
         );
 
         var update = Builders<Models.Broker>.Update

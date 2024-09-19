@@ -4,8 +4,8 @@ import { AccessLevel } from '@/enums/accessLevel'
 export const isBrokerOwner = (broker: BrokerDto, userId: string) =>
   broker.accessList.some((x) => x.userId === userId && x.accessLevel === AccessLevel.Owner)
 
-export const isBrokerEditor = (broker: BrokerDto, userId: string) =>
-  broker.accessList.some((x) => x.userId === userId && x.accessLevel === AccessLevel.Editor)
+export const isBrokerManager = (broker: BrokerDto, userId: string) =>
+  broker.accessList.some((x) => x.userId === userId && x.accessLevel === AccessLevel.Manager)
 
-export const isBrokerViewer = (broker: BrokerDto, userId: string) =>
-  broker.accessList.some((x) => x.userId === userId && x.accessLevel === AccessLevel.Viewer)
+export const isBrokerAgent = (broker: BrokerDto, userId: string) =>
+  broker.accessList.some((x) => x.userId === userId && x.accessLevel === AccessLevel.Agent)

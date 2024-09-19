@@ -6,7 +6,7 @@ import { useTestConnectionMutation } from '@/api/brokers/testConnectionRequest'
 import { useUpdateBrokerMutation } from '@/api/brokers/updateBrokerMutation'
 import { useIdentity } from '@/composables/identityComposable'
 import type { UpdateBrokerDto } from '@/dtos/broker/updateBrokerDto'
-import { isBrokerOwner, isBrokerViewer } from '@/utils/brokerUtils'
+import { isBrokerAgent, isBrokerOwner } from '@/utils/brokerUtils'
 import { errorToToast } from '@/utils/errorUtils'
 import ToggleSwitch from 'primevue/toggleswitch'
 import { useConfirm } from 'primevue/useconfirm'
@@ -201,7 +201,7 @@ const leaveBroker = () => {
 
 <template>
   <div v-if="brokerEditable" class="flex max-w-[65rem] flex-col gap-7 p-7">
-    <div v-if="broker && user && !isBrokerViewer(broker, user?.id)" class="flex flex-row gap-7">
+    <div v-if="broker && user && !isBrokerAgent(broker, user?.id)" class="flex flex-row gap-7">
       <div class="flex w-1/2 grow basis-1/2 flex-col gap-3 rounded-xl border border-gray-200 p-5">
         <div class="text-lg font-medium">Broker Settings</div>
         <div class="flex flex-col gap-3">
@@ -388,21 +388,26 @@ const leaveBroker = () => {
     <div v-else>
       <div class="flex w-1/2 grow basis-1/2 flex-col gap-3 rounded-xl border border-gray-200 p-5">
         <div class="text-lg font-medium">Broker Access Limited</div>
-        You have "Viewer" permissions, which grant access only to the queues topics and queues page.
-        Access to the broker overview is restricted to Owners and Editors.
-
-        <div class="mt-2">
-          <Button outlined label="Leave Broker" icon="pi pi-times" @click="leaveBroker"></Button>
-        </div>
+        You have "Agent" permissions, which grant access only to the queues topics and queues page.
+        Access to the broker overview is restricted to "Owner" and "Manager" levels.
       </div>
+      <Button
+        outlined
+        label="Leave Broker"
+        severity="danger"
+        icon="pi pi-times"
+        class="mt-4"
+        @click="leaveBroker"
+      ></Button>
     </div>
 
     <div v-if="broker && user && isBrokerOwner(broker, user.id)">
       <BrokerOverviewAccess :broker="broker" />
     </div>
 
-    <div v-if="broker && user && !isBrokerViewer(broker, user.id)" class="flex max-w-[65rem]">
+    <div v-if="broker && user && !isBrokerAgent(broker, user.id)" class="flex max-w-[65rem]">
       <Button
+        v-if="isBrokerOwner(broker, user.id)"
         label="Delete Broker"
         icon="pi pi-trash"
         severity="danger"
@@ -410,6 +415,16 @@ const leaveBroker = () => {
         @click="deleteBroker"
         :loading="isDeleteBrokerPending"
       ></Button>
+      <Button
+        v-else
+        label="Leave Broker"
+        icon="pi pi-times"
+        severity="danger"
+        outlined
+        @click="leaveBroker"
+        :loading="isDeleteBrokerPending"
+      ></Button>
+
       <Button
         label="Update Broker"
         icon="pi pi-arrow-right"

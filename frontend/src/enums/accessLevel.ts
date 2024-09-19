@@ -1,5 +1,5 @@
 export enum AccessLevel {
   Owner = 'Owner',
-  Editor = 'Editor',
-  Viewer = 'Viewer'
+  Manager = 'Manager',
+  Agent = 'Agent'
 }

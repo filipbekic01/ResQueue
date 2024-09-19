@@ -5,7 +5,7 @@ import { useUpdateBrokerMutation } from '@/api/brokers/updateBrokerMutation'
 import { useIdentity } from '@/composables/identityComposable'
 import Avatars from '@/features/avatars/Avatars.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { isBrokerViewer } from '@/utils/brokerUtils'
+import { isBrokerAgent } from '@/utils/brokerUtils'
 import { errorToToast } from '@/utils/errorUtils'
 import { formatDistanceToNow } from 'date-fns'
 import { useConfirm } from 'primevue/useconfirm'
@@ -149,7 +149,7 @@ const updateTabValue = (a: any) => router.push({ name: a })
         <TabList>
           <Tab value="overview"
             >Overview<i
-              v-if="broker && user && isBrokerViewer(broker, user?.id)"
+              v-if="broker && user && isBrokerAgent(broker, user?.id)"
               class="pi pi-lock ms-2"
             ></i
           ></Tab>

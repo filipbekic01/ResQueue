@@ -4,6 +4,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using Resqueue.Dtos;
 using Resqueue.Dtos.Broker;
+using Resqueue.Enums;
 using Resqueue.Features.Broker.AcceptBrokerInvitation;
 using Resqueue.Features.Broker.CreateBrokerInvitation;
 using Resqueue.Features.Broker.ManageBrokerAccess;
@@ -128,7 +129,7 @@ public static class BrokerEndpoints
             }).AddRetryFilter();
 
         group.MapGet("/invitations",
-            async (HttpContext httpContext, UserManager<User> userManager, [FromQuery] string? brokerId,
+            async (HttpContext httpContext, UserManager<User> userManager,
                 IMongoCollection<BrokerInvitation> collection) =>
             {
                 var user = await userManager.GetUserAsync(httpContext.User);
@@ -137,20 +138,12 @@ public static class BrokerEndpoints
                     return Results.Unauthorized();
                 }
 
-                var filterList = new List<FilterDefinition<BrokerInvitation>>();
-
-                filterList.Add(Builders<BrokerInvitation>.Filter.Gt(b => b.ExpiresAt, DateTime.UtcNow));
-                filterList.Add(Builders<BrokerInvitation>.Filter.Eq(b => b.IsAccepted, false));
-
-                if (!string.IsNullOrEmpty(brokerId))
+                var filterList = new List<FilterDefinition<BrokerInvitation>>
                 {
-                    // todo: make sure broker belongs to a user
-                    filterList.Add(Builders<BrokerInvitation>.Filter.Eq(b => b.BrokerId, ObjectId.Parse(brokerId)));
-                }
-                else
-                {
-                    filterList.Add(Builders<BrokerInvitation>.Filter.Eq(b => b.InviterId, user.Id));
-                }
+                    Builders<BrokerInvitation>.Filter.Gt(b => b.ExpiresAt, DateTime.UtcNow),
+                    Builders<BrokerInvitation>.Filter.Eq(b => b.IsAccepted, false),
+                    Builders<BrokerInvitation>.Filter.Eq(b => b.InviterId, user.Id)
+                };
 
                 var filter = Builders<BrokerInvitation>.Filter.And(filterList);
 
@@ -177,9 +170,20 @@ public static class BrokerEndpoints
             }).AddRetryFilter();
 
         group.MapGet("/invitations/{token}",
-            async (string token, IMongoCollection<BrokerInvitation> collection) =>
+            async (string token, IMongoCollection<BrokerInvitation> collection, UserManager<User> userManager,
+                HttpContext httpContext) =>
             {
-                var filter = Builders<BrokerInvitation>.Filter.Eq(b => b.Token, token);
+                var user = await userManager.GetUserAsync(httpContext.User);
+                if (user == null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                var filter = Builders<BrokerInvitation>.Filter.And(
+                    Builders<BrokerInvitation>.Filter.Eq(b => b.InviteeId, user.Id),
+                    Builders<BrokerInvitation>.Filter.Eq(b => b.Token, token)
+                );
+
                 var brokerInvitation = await collection.Find(filter).FirstOrDefaultAsync();
 
                 if (brokerInvitation == null)
@@ -268,15 +272,10 @@ public static class BrokerEndpoints
                     : Results.Problem(result.Problem!);
             }).AddRetryFilter();
 
-        group.MapDelete("{id}",
+        group.MapDelete("/{id}",
             async (IMongoCollection<Broker> collection, UserManager<User> userManager, HttpContext httpContext,
                 string id) =>
             {
-                if (!ObjectId.TryParse(id, out var objectId))
-                {
-                    return Results.BadRequest("Invalid ID format.");
-                }
-
                 var user = await userManager.GetUserAsync(httpContext.User);
                 if (user == null)
                 {
@@ -284,8 +283,9 @@ public static class BrokerEndpoints
                 }
 
                 var filter = Builders<Broker>.Filter.And(
-                    Builders<Broker>.Filter.Eq(b => b.Id, objectId),
-                    Builders<Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id)
+                    Builders<Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(id)),
+                    Builders<Broker>.Filter.ElemMatch(b => b.AccessList,
+                        a => a.UserId == user.Id && a.AccessLevel == AccessLevel.Owner)
                 );
 
                 var update = Builders<Broker>.Update.Set(b => b.DeletedAt, DateTime.UtcNow);
@@ -293,6 +293,6 @@ public static class BrokerEndpoints
                 await collection.UpdateOneAsync(filter, update);
 
                 return Results.Ok();
-            });
+            }).AddRetryFilter();
     }
 }

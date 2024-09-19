@@ -13,6 +13,7 @@ using Org.BouncyCastle.Asn1.X509;
 using Resqueue.Constants;
 using Resqueue.Dtos;
 using Resqueue.Dtos.Broker;
+using Resqueue.Enums;
 using Resqueue.Models;
 
 namespace Resqueue.Features.Broker.CreateBrokerInvitation;
@@ -60,7 +61,7 @@ public class CreateBrokerInvitationFeature(
 
         // Get the current user
         var userInviter = await userManager.GetUserAsync(request.ClaimsPrincipal);
-        if (userInviter == null)
+        if (userInviter is null)
         {
             return OperationResult<CreateBrokerInvitationResponse>.Failure(new ProblemDetails
             {
@@ -110,11 +111,21 @@ public class CreateBrokerInvitationFeature(
             });
         }
 
+        if (!broker.AccessList.Any(x => x.UserId == userInviter.Id && x.AccessLevel == AccessLevel.Owner))
+        {
+            return OperationResult<CreateBrokerInvitationResponse>.Failure(new ProblemDetails
+            {
+                Title = "Forbidden",
+                Detail = "Only owners are allowed to create invitations.",
+                Status = StatusCodes.Status404NotFound
+            });
+        }
+
         var invitation = new BrokerInvitation()
         {
             BrokerId = broker.Id,
             InviterId = userInviter.Id,
-            InviterEmail = userInviter.Email,
+            InviterEmail = userInviter.Email!,
             InviteeId = userInvitee.Id,
             Token = GenerateRandomString(32),
             CreatedAt = DateTime.UtcNow,
