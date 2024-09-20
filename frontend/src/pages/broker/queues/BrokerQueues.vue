@@ -32,6 +32,7 @@ const {
 
 const { data: brokers } = useBrokersQuery()
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
+const access = computed(() => broker.value?.accessList.find((x) => x.userId == user.value?.id))
 const { mutateAsync: favoriteQueueAsync } = useFavoriteQueueMutation()
 const { mutateAsync: syncBrokerAsync, isPending: isPendingSyncBroker } = useSyncBrokerMutation()
 
@@ -117,7 +118,7 @@ const selectQueue = (data: any) => {
 }
 
 const updateSort = (e: DataTableSortEvent) => {
-  if (broker.value) {
+  if (broker.value && access.value) {
     updateBrokerAsync({
       broker: {
         ...broker.value,
@@ -125,7 +126,7 @@ const updateSort = (e: DataTableSortEvent) => {
           ? { ...broker.value.rabbitMQConnection, username: '', password: '' }
           : undefined,
         settings: {
-          ...broker.value.settings,
+          ...access.value?.settings,
           defaultQueueSortOrder: e.sortOrder ? parseInt(e.sortOrder.toString()) : -1,
           defaultQueueSortField: e.sortField ? e.sortField.toString() : undefined
         }
@@ -155,17 +156,17 @@ const toggleFavorite = (data: QueueDto) => {
 
 const getName = (name: string) => {
   if (
-    broker.value?.settings.queueTrimPrefix &&
-    name.startsWith(broker.value?.settings.queueTrimPrefix)
+    access.value?.settings.queueTrimPrefix &&
+    name.startsWith(access.value?.settings.queueTrimPrefix)
   ) {
-    return name.slice(broker.value?.settings.queueTrimPrefix.length)
+    return name.slice(access.value?.settings.queueTrimPrefix.length)
   }
 
   return name
 }
 
 watchEffect(() => {
-  if (!broker.value) {
+  if (!broker.value || !access.value) {
     return
   }
 
@@ -178,20 +179,20 @@ watchEffect(() => {
   if (
     !route.query.sortField ||
     (!route.query.sortOrder &&
-      broker.value.settings.defaultQueueSortField &&
-      broker.value.settings.defaultQueueSortOrder)
+      access.value.settings.defaultQueueSortField &&
+      access.value.settings.defaultQueueSortOrder)
   ) {
     filters = {
       ...filters,
-      sortField: broker.value.settings.defaultQueueSortField,
-      sortOrder: broker.value.settings.defaultQueueSortOrder
+      sortField: access.value.settings.defaultQueueSortField,
+      sortOrder: access.value.settings.defaultQueueSortOrder
     }
   }
 
-  if (!route.query.search && broker.value.settings.defaultQueueSearch) {
+  if (!route.query.search && access.value.settings.defaultQueueSearch) {
     filters = {
       ...filters,
-      search: broker.value.settings.defaultQueueSearch
+      search: access.value.settings.defaultQueueSearch
     }
   }
 

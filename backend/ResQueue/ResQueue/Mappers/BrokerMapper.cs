@@ -13,7 +13,7 @@ public class BrokerMapper
             System: broker.System,
             Name: broker.Name,
             RabbitMQConnection: broker.RabbitMQConnection is { } rabbitMqConnection
-                ? new(
+                ? new RabbitMQConnectionDto(
                     ManagementPort: rabbitMqConnection.ManagementPort,
                     ManagementTls: rabbitMqConnection.ManagementTls,
                     AmqpPort: rabbitMqConnection.AmqpPort,
@@ -25,18 +25,18 @@ public class BrokerMapper
             AccessList: broker.AccessList.Select(y => new BrokerAccessDto()
             {
                 UserId = y.UserId.ToString(),
-                AccessLevel = y.AccessLevel
+                AccessLevel = y.AccessLevel,
+                Settings = new BrokerSettingsDto(
+                    QuickSearches: y.Settings.QuickSearches,
+                    DeadLetterQueueSuffix: y.Settings.DeadLetterQueueSuffix,
+                    MessageFormat: y.Settings.MessageFormat,
+                    MessageStructure: y.Settings.MessageStructure,
+                    QueueTrimPrefix: y.Settings.QueueTrimPrefix,
+                    DefaultQueueSortField: y.Settings.DefaultQueueSortField,
+                    DefaultQueueSortOrder: y.Settings.DefaultQueueSortOrder,
+                    DefaultQueueSearch: y.Settings.DefaultQueueSearch
+                )
             }).ToList(),
-            Settings: new BrokerSettingsDto(
-                QuickSearches: broker.Settings.QuickSearches,
-                DeadLetterQueueSuffix: broker.Settings.DeadLetterQueueSuffix,
-                MessageFormat: broker.Settings.MessageFormat,
-                MessageStructure: broker.Settings.MessageStructure,
-                QueueTrimPrefix: broker.Settings.QueueTrimPrefix,
-                DefaultQueueSortField: broker.Settings.DefaultQueueSortField,
-                DefaultQueueSortOrder: broker.Settings.DefaultQueueSortOrder,
-                DefaultQueueSearch: broker.Settings.DefaultQueueSearch
-            ),
             CreatedAt: broker.CreatedAt,
             UpdatedAt: broker.UpdatedAt,
             SyncedAt: broker.SyncedAt,

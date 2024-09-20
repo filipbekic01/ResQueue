@@ -8,7 +8,6 @@ public record BrokerDto(
     string System,
     string Name,
     RabbitMQConnectionDto? RabbitMQConnection,
-    BrokerSettingsDto Settings,
     DateTime CreatedAt,
     DateTime UpdatedAt,
     DateTime? SyncedAt,

@@ -30,10 +30,11 @@ const { mutateAsync: syncBrokerAsync, isPending: isPendingSyncBroker } = useSync
 
 const { data: brokers } = useBrokersQuery()
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
+const access = computed(() => broker.value?.accessList.find((x) => x.userId === user.value?.id))
 const { mutateAsync: updateBrokerAsync } = useUpdateBrokerMutation()
 
 const applySearch = (value: string) => {
-  if (broker.value && value !== broker.value.settings.defaultQueueSearch) {
+  if (broker.value && access.value && value !== access.value.settings.defaultQueueSearch) {
     updateBrokerAsync({
       broker: {
         ...broker.value,
@@ -41,7 +42,7 @@ const applySearch = (value: string) => {
           ? { ...broker.value.rabbitMQConnection, username: '', password: '' }
           : undefined,
         settings: {
-          ...broker.value.settings,
+          ...access.value.settings,
           defaultQueueSearch: value
         }
       },
@@ -147,12 +148,7 @@ const updateTabValue = (a: any) => router.push({ name: a })
       </div>
       <Tabs :value="route.name?.toString() ?? ''" @update:value="updateTabValue">
         <TabList>
-          <Tab value="overview"
-            >Overview<i
-              v-if="broker && user && isBrokerAgent(broker, user?.id)"
-              class="pi pi-lock ms-2"
-            ></i
-          ></Tab>
+          <Tab value="overview">Overview</Tab>
           <Tab value="topics">Topics</Tab>
           <Tab value="queues">Queues</Tab>
           <div v-if="route.name === 'queues'" class="flex grow items-center gap-3 px-3">
@@ -174,10 +170,10 @@ const updateTabValue = (a: any) => router.push({ name: a })
 
             <ButtonGroup>
               <Button
-                v-for="qs in broker.settings.quickSearches"
+                v-for="qs in access?.settings.quickSearches"
+                outlined
                 :key="qs"
                 :label="qs"
-                outlined
                 @click="applySearch(qs)"
               ></Button>
             </ButtonGroup>

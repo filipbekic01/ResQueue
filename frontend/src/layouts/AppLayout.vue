@@ -33,7 +33,7 @@ const dialog = useDialog()
 const openCreateBrokerDialog = () => {
   dialog.open(CreateBrokerDialog, {
     props: {
-      header: 'Add Broker',
+      header: 'Add RabbitMQ Broker',
       style: {
         width: '32rem'
       },

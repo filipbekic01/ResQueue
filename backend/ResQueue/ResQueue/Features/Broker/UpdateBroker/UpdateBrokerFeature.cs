@@ -33,43 +33,50 @@ public class UpdateBrokerFeature(
 
         var filter = Builders<Models.Broker>.Filter.And(
             Builders<Models.Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Id)),
-            Builders<Models.Broker>.Filter.ElemMatch(b => b.AccessList,
-                a => a.UserId == user.Id &&
-                     (a.AccessLevel == AccessLevel.Owner || a.AccessLevel == AccessLevel.Manager))
+            Builders<Models.Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id)
         );
+
+        var broker = await brokersCollection.Find(filter).SingleAsync();
+        var access = broker.AccessList.Single(x => x.UserId == user.Id);
+        access.Settings = new BrokerSettings()
+        {
+            QuickSearches = request.Dto.Settings.QuickSearches,
+            DeadLetterQueueSuffix = request.Dto.Settings.DeadLetterQueueSuffix,
+            MessageFormat = request.Dto.Settings.MessageFormat,
+            MessageStructure = request.Dto.Settings.MessageStructure,
+            QueueTrimPrefix = request.Dto.Settings.QueueTrimPrefix,
+            DefaultQueueSortField = request.Dto.Settings.DefaultQueueSortField,
+            DefaultQueueSortOrder = request.Dto.Settings.DefaultQueueSortOrder,
+            DefaultQueueSearch = request.Dto.Settings.DefaultQueueSearch
+        };
 
         var update = Builders<Models.Broker>.Update
             .Set(b => b.Name, request.Dto.Name)
-            .Set(b => b.Settings, new BrokerSettings()
-            {
-                QuickSearches = request.Dto.Settings.QuickSearches,
-                DeadLetterQueueSuffix = request.Dto.Settings.DeadLetterQueueSuffix,
-                MessageFormat = request.Dto.Settings.MessageFormat,
-                MessageStructure = request.Dto.Settings.MessageStructure,
-                QueueTrimPrefix = request.Dto.Settings.QueueTrimPrefix,
-                DefaultQueueSortField = request.Dto.Settings.DefaultQueueSortField,
-                DefaultQueueSortOrder = request.Dto.Settings.DefaultQueueSortOrder,
-                DefaultQueueSearch = request.Dto.Settings.DefaultQueueSearch
-            })
+            .Set(b => b.AccessList, broker.AccessList)
             .Set(b => b.UpdatedAt, DateTime.UtcNow);
 
-        if (request.Dto.RabbitMqConnection is { } rabbitMqConnection)
+        if (broker.AccessList
+            .Any(x => x.UserId == user.Id &&
+                      x.AccessLevel is AccessLevel.Owner or AccessLevel.Manager))
         {
-            if (!string.IsNullOrEmpty(rabbitMqConnection.Username) &&
-                !string.IsNullOrEmpty(rabbitMqConnection.Password))
+            if (request.Dto.RabbitMqConnection is { } rabbitMqConnection)
             {
-                update = update
-                    .Set(b => b.RabbitMQConnection!.Username, rabbitMqConnection.Username)
-                    .Set(b => b.RabbitMQConnection!.Password, rabbitMqConnection.Password);
-            }
+                if (!string.IsNullOrEmpty(rabbitMqConnection.Username) &&
+                    !string.IsNullOrEmpty(rabbitMqConnection.Password))
+                {
+                    update = update
+                        .Set(b => b.RabbitMQConnection!.Username, rabbitMqConnection.Username)
+                        .Set(b => b.RabbitMQConnection!.Password, rabbitMqConnection.Password);
+                }
 
-            update = update
-                .Set(b => b.RabbitMQConnection!.ManagementPort, rabbitMqConnection.ManagementPort)
-                .Set(b => b.RabbitMQConnection!.ManagementTls, rabbitMqConnection.ManagementTls)
-                .Set(b => b.RabbitMQConnection!.AmqpPort, rabbitMqConnection.AmqpPort)
-                .Set(b => b.RabbitMQConnection!.AmqpTls, rabbitMqConnection.AmqpTls)
-                .Set(b => b.RabbitMQConnection!.Host, rabbitMqConnection.Host)
-                .Set(b => b.RabbitMQConnection!.VHost, rabbitMqConnection.VHost);
+                update = update
+                    .Set(b => b.RabbitMQConnection!.ManagementPort, rabbitMqConnection.ManagementPort)
+                    .Set(b => b.RabbitMQConnection!.ManagementTls, rabbitMqConnection.ManagementTls)
+                    .Set(b => b.RabbitMQConnection!.AmqpPort, rabbitMqConnection.AmqpPort)
+                    .Set(b => b.RabbitMQConnection!.AmqpTls, rabbitMqConnection.AmqpTls)
+                    .Set(b => b.RabbitMQConnection!.Host, rabbitMqConnection.Host)
+                    .Set(b => b.RabbitMQConnection!.VHost, rabbitMqConnection.VHost);
+            }
         }
 
         await brokersCollection.UpdateOneAsync(filter, update);

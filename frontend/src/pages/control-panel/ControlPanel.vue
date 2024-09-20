@@ -166,7 +166,7 @@ const upgradePlan = () => {
 <template>
   <AppLayout hide-header>
     <div class="px-7 pt-5 text-3xl font-bold">Control Panel</div>
-    <div class="px-7 text-slate-400">Manage settings and access your account details.</div>
+    <div class="px-7 text-slate-600">Manage settings and access your account details.</div>
     <div class="flex max-w-[60rem] flex-col gap-7 p-7">
       <div class="flex items-start gap-7">
         <div class="flex grow items-center rounded-xl border border-gray-200 p-5">

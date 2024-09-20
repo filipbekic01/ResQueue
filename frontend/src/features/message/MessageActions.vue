@@ -11,6 +11,7 @@ import SelectFormat from '@/components/SelectFormat.vue'
 import type { StructureOption } from '@/components/SelectStructure.vue'
 import SelectStructure from '@/components/SelectStructure.vue'
 import { useExchanges } from '@/composables/exchangesComposable'
+import { useIdentity } from '@/composables/identityComposable'
 import UpsertMessageDialog from '@/dialogs/UpsertMessageDialog.vue'
 import type { BrokerDto } from '@/dtos/broker/brokerDto'
 import type { MessageDto } from '@/dtos/message/messageDto'
@@ -41,6 +42,9 @@ const confirm = useConfirm()
 const toast = useToast()
 const dialog = useDialog()
 
+const {
+  query: { data: user }
+} = useIdentity()
 const { mutateAsync: updateBrokerAsync } = useUpdateBrokerMutation()
 const { mutateAsync: reviewMessagesAsync, isPending: isReviewMessagesPending } =
   useReviewMessagesMutation()
@@ -51,7 +55,9 @@ const { mutateAsync: publishMessagesAsync, isPending: isPublishMessagesPending }
 const { formattedExchanges } = useExchanges(computed(() => props.broker.id))
 
 const updateSelectedMessageFormat = (value: FormatOption) => {
-  if (props.broker) {
+  const access = props.broker.accessList.find((x) => x.userId === user.value?.id)
+
+  if (props.broker && access) {
     updateBrokerAsync({
       broker: {
         ...props.broker,
@@ -59,7 +65,7 @@ const updateSelectedMessageFormat = (value: FormatOption) => {
           ? { ...props.broker.rabbitMQConnection, username: '', password: '' }
           : undefined,
         settings: {
-          ...props.broker.settings,
+          ...access.settings,
           messageFormat: value
         }
       },
@@ -71,7 +77,9 @@ const updateSelectedMessageFormat = (value: FormatOption) => {
 }
 
 const updateSelectedMessageStructure = (value: StructureOption) => {
-  if (props.broker) {
+  const access = props.broker.accessList.find((x) => x.userId === user.value?.id)
+
+  if (props.broker && access) {
     updateBrokerAsync({
       broker: {
         ...props.broker,
@@ -79,7 +87,7 @@ const updateSelectedMessageStructure = (value: StructureOption) => {
           ? { ...props.broker.rabbitMQConnection, username: '', password: '' }
           : undefined,
         settings: {
-          ...props.broker.settings,
+          ...access.settings,
           messageStructure: value
         }
       },
@@ -224,12 +232,14 @@ const openUpsertMessageDialog = () => {
 watch(
   () => formattedExchanges.value,
   (v) => {
-    if (!v || selectedExchange.value) {
+    const access = props.broker.accessList.find((x) => x.userId === user.value?.id)
+
+    if (!v || selectedExchange.value || !access) {
       return
     }
 
     const name = props.rabbitMqQueue.parsed.name.replace(
-      props.broker.settings.deadLetterQueueSuffix ?? '',
+      access.settings.deadLetterQueueSuffix ?? '',
       ''
     )
 
@@ -240,14 +250,17 @@ watch(
   }
 )
 
-emit(
-  'update:message-structure',
-  props.broker.settings.messageStructure ? props.broker.settings.messageStructure : 'both'
-)
-emit(
-  'update:message-format',
-  props.broker.settings.messageFormat ? props.broker.settings.messageFormat : 'clean'
-)
+const access = props.broker.accessList.find((x) => x.userId === user.value?.id)
+if (access) {
+  emit(
+    'update:message-structure',
+    access.settings.messageStructure ? access.settings.messageStructure : 'both'
+  )
+  emit(
+    'update:message-format',
+    access.settings.messageFormat ? access.settings.messageFormat : 'clean'
+  )
+}
 </script>
 
 <template>

@@ -7,10 +7,9 @@ public class Broker
 {
     [BsonId] public ObjectId Id { get; set; }
     public List<BrokerAccess> AccessList { get; set; } = new();
-    public string System { get; set; }
-    public string Name { get; set; }
+    public string System { get; set; } = null!;
+    public string Name { get; set; } = null!;
     public RabbitMQConnection? RabbitMQConnection { get; set; }
-    public BrokerSettings Settings { get; set; } = new();
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public DateTime? SyncedAt { get; set; }

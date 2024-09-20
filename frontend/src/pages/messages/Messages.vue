@@ -214,9 +214,13 @@ const selectedMessageStructure = ref<StructureOption>('body')
 watch(
   () => broker.value,
   (broker) => {
-    if (broker?.settings.messageFormat && broker?.settings.messageStructure) {
-      selectedMessageFormat.value = broker.settings.messageFormat
-      selectedMessageStructure.value = broker.settings.messageStructure
+    const access = broker?.accessList.find((x) => x.userId === user.value?.id)
+    const format = access?.settings.messageFormat
+    const structure = access?.settings.messageStructure
+
+    if (format && structure) {
+      selectedMessageFormat.value = format
+      selectedMessageStructure.value = structure
     }
   },
   {

@@ -7,6 +7,6 @@ namespace ResQueue.Models;
 public class BrokerAccess
 {
     public ObjectId UserId { get; set; }
-
     [BsonRepresentation(BsonType.String)] public AccessLevel AccessLevel { get; set; }
+    public BrokerSettings Settings { get; set; } = new();
 }

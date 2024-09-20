@@ -43,7 +43,7 @@ const brokerEditable = ref<UpdateBrokerDto>()
 watch(
   () => broker.value,
   (value) => {
-    if (!value) {
+    if (!value || !user.value) {
       return
     }
 
@@ -61,7 +61,9 @@ watch(
             vHost: value.rabbitMQConnection.vHost
           }
         : undefined,
-      settings: JSON.parse(JSON.stringify(value.settings))
+      settings: JSON.parse(
+        JSON.stringify(value.accessList.find((x) => x.userId === user.value?.id)?.settings)
+      )
     }
   },
   {
@@ -113,12 +115,12 @@ const testConnection = () => {
 }
 
 const addQuickSearchModel = ref('')
-const addQuickSearch = (value: string) => {
+const addQuickSearch = () => {
   if (!brokerEditable.value) {
     return
   }
 
-  brokerEditable.value.settings.quickSearches.push(value)
+  brokerEditable.value.settings.quickSearches.push(addQuickSearchModel.value)
   addQuickSearchModel.value = ''
 }
 
@@ -201,15 +203,21 @@ const leaveBroker = () => {
 
 <template>
   <div v-if="brokerEditable" class="flex max-w-[65rem] flex-col gap-7 p-7">
-    <div v-if="broker && user && !isBrokerAgent(broker, user?.id)" class="flex flex-row gap-7">
-      <div class="flex w-1/2 grow basis-1/2 flex-col gap-3 rounded-xl border border-gray-200 p-5">
-        <div class="text-lg font-medium">Broker Settings</div>
-        <div class="flex flex-col gap-3">
-          <div class="flex flex-col gap-2">
-            <label for="name" class="">Name</label>
-            <InputText v-model="brokerEditable.name" id="name" autocomplete="off" />
-          </div>
+    <div
+      v-if="broker && user && !isBrokerAgent(broker, user?.id)"
+      class="flex grow flex-col gap-3 rounded-xl border border-gray-200 p-5"
+    >
+      <div class="text-lg font-medium">Common Settings</div>
+      <div class="flex flex-col gap-3">
+        <div class="flex flex-col gap-2">
+          <label for="name" class="">Name</label>
+          <InputText v-model="brokerEditable.name" id="name" autocomplete="off" />
         </div>
+      </div>
+    </div>
+    <div v-if="broker && user" class="flex flex-row gap-7">
+      <div class="flex w-1/2 grow basis-1/2 flex-col gap-3 rounded-xl border border-gray-200 p-5">
+        <div class="text-lg font-medium">Personal Settings</div>
         <div class="flex grow flex-col gap-3">
           <div class="flex items-center">
             Hide Queue Name Prefix
@@ -254,11 +262,14 @@ const leaveBroker = () => {
             ></i>
           </div>
           <div class="flex flex-col gap-3">
-            <InputText
-              placeholder="Add new option"
-              v-model="addQuickSearchModel"
-              @change="(e) => addQuickSearch((e.target as any).value)"
-            ></InputText>
+            <div class="flex grow gap-3">
+              <InputText
+                placeholder="Add new option"
+                class="grow"
+                v-model="addQuickSearchModel"
+              ></InputText>
+              <Button icon="pi pi-plus" outlined @click="addQuickSearch"></Button>
+            </div>
             <ButtonGroup>
               <Button
                 v-for="qs in brokerEditable.settings.quickSearches"
@@ -274,7 +285,7 @@ const leaveBroker = () => {
       </div>
 
       <div
-        v-if="brokerEditable.rabbitMQConnection"
+        v-if="brokerEditable.rabbitMQConnection && !isBrokerAgent(broker, user.id)"
         class="flex w-1/2 grow basis-1/2 flex-col gap-3 rounded-xl border border-gray-200 p-5"
       >
         <div class="flex items-center gap-2 text-lg font-medium">
@@ -284,8 +295,8 @@ const leaveBroker = () => {
         </div>
 
         <div class="flex flex-col gap-3 rounded-xl">
-          <template v-if="updateCredentials">
-            <div class="flex flex-col gap-2">
+          <div class="flex gap-3" v-if="updateCredentials">
+            <div class="flex grow flex-col gap-2">
               <label for="username">Username</label>
               <InputText
                 placeholder="Enter username"
@@ -294,7 +305,7 @@ const leaveBroker = () => {
                 autocomplete="off"
               />
             </div>
-            <div class="flex flex-col gap-2">
+            <div class="flex grow flex-col gap-2">
               <label for="password">Password</label>
               <InputText
                 placeholder="*******"
@@ -304,7 +315,7 @@ const leaveBroker = () => {
                 autocomplete="off"
               />
             </div>
-          </template>
+          </div>
 
           <div class="flex items-center gap-4">
             <div class="flex grow flex-col gap-2">
@@ -315,11 +326,29 @@ const leaveBroker = () => {
                 autocomplete="off"
               />
             </div>
+            <div class="flex grow flex-col gap-2">
+              <label for="vhost">V-Host</label>
+              <InputText
+                id="vhost"
+                v-model="brokerEditable.rabbitMQConnection.vHost"
+                autocomplete="off"
+              />
+            </div>
           </div>
 
-          <div class="flex items-center gap-4">
-            <div class="flex basis-1/2 flex-col gap-2">
-              <label for="rabbitMQConnection.managementPort" class="flex">Management Port</label>
+          <div class="flex gap-3">
+            <div class="flex grow flex-col gap-2">
+              <label for="rabbitMQConnection.managementPort" class="flex"
+                >API Port
+                <span class="ms-auto flex items-center gap-3">
+                  TLS
+                  <InputSwitch
+                    :use-grouping="false"
+                    id="rabbitMQConnection.managementTls"
+                    v-model="brokerEditable.rabbitMQConnection.managementTls"
+                    type="password"
+                    autocomplete="off" /></span
+              ></label>
               <InputNumber
                 :use-grouping="false"
                 id="rabbitMQConnection.managementPort"
@@ -328,47 +357,27 @@ const leaveBroker = () => {
                 autocomplete="off"
               />
             </div>
-            <div class="flex basis-1/2 flex-col gap-2">
-              <label for="rabbitMQConnection.managementTls" class="flex">Management TLS</label>
-              <InputSwitch
-                :use-grouping="false"
-                id="rabbitMQConnection.managementTls"
-                v-model="brokerEditable.rabbitMQConnection.managementTls"
-                type="password"
-                autocomplete="off"
-              />
-            </div>
-          </div>
 
-          <div class="flex items-center gap-4">
-            <div class="flex basis-1/2 flex-col gap-2">
-              <label for="rabbitMQConnection.amqpPort" class="flex">AMQP Port</label>
+            <div class="flex grow flex-col gap-2">
+              <label for="rabbitMQConnection.amqpPort" class="flex"
+                >AMQP Port
+
+                <span class="ms-auto flex items-center gap-3">
+                  TLS
+                  <InputSwitch
+                    :use-grouping="false"
+                    id="rabbitMQConnection.amqpTls"
+                    v-model="brokerEditable.rabbitMQConnection.amqpTls"
+                    type="password"
+                    autocomplete="off"
+                  />
+                </span>
+              </label>
               <InputNumber
                 :use-grouping="false"
                 id="rabbitMQConnection.amqpPort"
                 v-model="brokerEditable.rabbitMQConnection.amqpPort"
                 type="password"
-                autocomplete="off"
-              />
-            </div>
-            <div class="flex basis-1/2 flex-col gap-2">
-              <label for="rabbitMQConnection.amqpTls" class="flex">AMQP TLS</label>
-              <InputSwitch
-                :use-grouping="false"
-                id="rabbitMQConnection.amqpTls"
-                v-model="brokerEditable.rabbitMQConnection.amqpTls"
-                type="password"
-                autocomplete="off"
-              />
-            </div>
-          </div>
-
-          <div class="flex items-center gap-4">
-            <div class="flex grow flex-col gap-2">
-              <label for="vhost">V-Host</label>
-              <InputText
-                id="vhost"
-                v-model="brokerEditable.rabbitMQConnection.vHost"
                 autocomplete="off"
               />
             </div>
@@ -405,7 +414,7 @@ const leaveBroker = () => {
       <BrokerOverviewAccess :broker="broker" />
     </div>
 
-    <div v-if="broker && user && !isBrokerAgent(broker, user.id)" class="flex max-w-[65rem]">
+    <div v-if="broker && user" class="flex max-w-[65rem]">
       <Button
         v-if="isBrokerOwner(broker, user.id)"
         label="Delete Broker"
