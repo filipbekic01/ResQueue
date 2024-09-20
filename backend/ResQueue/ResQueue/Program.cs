@@ -1,5 +1,6 @@
 using AspNetCore.Identity.Mongo;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Rewrite;
 using MongoDB.Bson;
 using ResQueue.Endpoints;
 using ResQueue.Features.Broker.AcceptBrokerInvitation;
@@ -92,6 +93,17 @@ public class Program
         var app = builder.Build();
 
         app.UseCors("AllowAll");
+
+        string[] frontendRoutes =
+        [
+            "^login$",
+        ];
+        app.UseRewriter(frontendRoutes.Aggregate(
+            new RewriteOptions(),
+            (options, route) => options.AddRewrite(route, "/index.html", true))
+        );
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
 
         app.UseAuthentication();
         app.UseAuthorization();
