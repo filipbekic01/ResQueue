@@ -20,4 +20,5 @@ jobs:
         run: dotnet restore
 
       - name: Publish
+        working-directory: backend
         run: dotnet publish --os linux --arch amd64 /t:PublishContainer
