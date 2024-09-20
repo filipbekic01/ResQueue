@@ -16,6 +16,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
+        working-directory: backend
         run: dotnet restore
 
       - name: Publish
