@@ -10,6 +10,7 @@ public class BrokerMapper
     {
         return new BrokerDto(
             Id: broker.Id.ToString(),
+            CreatedByUserId: broker.CreatedByUserId.ToString(),
             System: broker.System,
             Name: broker.Name,
             RabbitMQConnection: broker.RabbitMQConnection is { } rabbitMqConnection

@@ -1,9 +1,11 @@
 <script lang="ts" setup>
 import Tag from 'primevue/tag'
+import Tooltip from 'primevue/tooltip'
 
 defineProps<{
   tier: string
   text: string
+  textTooltip: string
   price: number
   features: string[]
   disabled: boolean
@@ -34,7 +36,10 @@ const emit = defineEmits<{
       ><i class="pi pi-thumbs-up me-1"></i>Recommended</Tag
     >
     <div class="mb-4 text-2xl font-semibold">{{ tier }}</div>
-    <div class="mb-6 text-slate-500">{{ text }}</div>
+    <div class="mb-6 flex items-center justify-center gap-2 text-slate-500">
+      {{ text }}
+      <i v-if="textTooltip" class="pi pi-question-circle" v-tooltip="textTooltip"></i>
+    </div>
     <div class="mb-6 text-4xl font-bold">${{ price }}<span class="text-xl">/mo</span></div>
     <ul class="mb-6 space-y-2 text-center">
       <li v-for="ft in features" :key="ft">{{ ft }}</li>

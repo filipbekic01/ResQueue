@@ -8,6 +8,7 @@ export interface ResqueueRoute {
   label: string
   icon: string
   to: RouteLocationAsRelativeGeneric
+  shared: boolean
 }
 
 const props = defineProps<{
@@ -15,6 +16,7 @@ const props = defineProps<{
   label: string
   icon: string
   to: RouteLocationAsRelativeGeneric
+  shared: boolean
 }>()
 
 const route = useRoute()
@@ -87,5 +89,7 @@ const showWarning = computed(() => {
     ></i>
     <span>{{ label }}</span>
     <i v-if="showWarning" class="pi pi-exclamation-circle ms-auto text-orange-400"></i>
+    <i v-if="shared" class="pi pi-users ms-auto"></i>
+    <!-- <span v-if="shared" class="ms-auto text-xs uppercase">owner</span> -->
   </RouterLink>
 </template>

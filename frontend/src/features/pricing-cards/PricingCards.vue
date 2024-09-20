@@ -60,7 +60,8 @@ const openDialog = (plan?: string) => {
     <PricingCard
       tier="Free"
       text="For Explorers"
-      :features="['1 Broker', '10 Messages', 'No Teams']"
+      text-tooltip=""
+      :features="['1 Broker', '10 Messages', 'No Teams', 'Manual Sync']"
       :price="0"
       :recommended="false"
       @get-started="openDialog(undefined)"
@@ -70,7 +71,13 @@ const openDialog = (plan?: string) => {
     <PricingCard
       tier="Ultimate"
       text="For Teams"
-      :features="['Unlimited Brokers', 'Unlimited Messages', 'Teams Collaboration']"
+      text-tooltip="Each team member is required to have an active subscription to the Ultimate plan."
+      :features="[
+        'Unlimited Brokers',
+        'Unlimited Messages',
+        'Teams Collaboration',
+        'Broker Auto-Sync'
+      ]"
       :price="14.99"
       :recommended="true"
       @get-started="openDialog('ultimate')"
@@ -80,7 +87,8 @@ const openDialog = (plan?: string) => {
     <PricingCard
       tier="Essentials"
       text="For Individuals"
-      :features="['Unlimited Brokres', 'Unlimited Messages', 'No Teams']"
+      text-tooltip=""
+      :features="['Unlimited Brokres', 'Unlimited Messages', 'No Teams', 'Broker Auto-Sync']"
       :price="9.99"
       :recommended="false"
       @get-started="openDialog('essentials')"

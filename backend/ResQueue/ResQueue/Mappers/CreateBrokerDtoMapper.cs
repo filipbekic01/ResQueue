@@ -22,6 +22,7 @@ public static class CreateBrokerDtoMapper
                     AccessLevel = AccessLevel.Owner
                 }
             ],
+            CreatedByUserId = userId,
             System = BrokerSystems.RABBIT_MQ,
             Name = dto.Name,
             RabbitMQConnection = dto.RabbitMQConnection is { } rabbitMqConnection

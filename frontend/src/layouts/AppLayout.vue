@@ -64,7 +64,8 @@ const staticRoutes = computed<ResqueueRoute[]>(() => [
     icon: 'pi pi-th-large',
     to: {
       name: 'app'
-    }
+    },
+    shared: false
   }
 ])
 
@@ -76,6 +77,7 @@ const brokerRoutes = computed<ResqueueRoute[]>(() => {
       id: ++id,
       label: broker.name ?? '',
       icon: `pi pi-${broker.system}`,
+      shared: broker.createdByUserId !== user.value?.id,
       to: {
         name: 'queues',
         params: {
@@ -128,6 +130,7 @@ const openFullNameEditPage = () => {
           v-for="staticRoute in staticRoutes"
           :key="staticRoute.id"
           v-bind="staticRoute"
+          :shared="staticRoute.shared"
         />
 
         <div class="my-2 border-b border-slate-200"></div>
@@ -136,6 +139,7 @@ const openFullNameEditPage = () => {
           v-for="brokerRoute in brokerRoutes"
           :key="brokerRoute.id"
           v-bind="brokerRoute"
+          :shared="brokerRoute.shared"
         />
 
         <Button

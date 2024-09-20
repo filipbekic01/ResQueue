@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using ResQueue.Constants;
 using ResQueue.Dtos;
 using ResQueue.Dtos.Broker;
 using ResQueue.Enums;
@@ -26,42 +27,30 @@ public static class BrokerEndpoints
         group.MapGet("",
             async (IMongoCollection<Broker> collection, UserManager<User> userManager, HttpContext httpContext) =>
             {
+                // Get user
                 var user = await userManager.GetUserAsync(httpContext.User);
                 if (user == null)
                 {
                     return Results.Unauthorized();
                 }
 
+                // Get brokers
                 var filter = Builders<Broker>.Filter.And(
                     Builders<Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id),
                     Builders<Broker>.Filter.Eq(b => b.DeletedAt, null)
                 );
-
                 var sort = Builders<Broker>.Sort.Descending(b => b.Id);
-
                 var brokers = await collection.Find(filter).Sort(sort).ToListAsync();
-                var dtos = brokers.Select(BrokerMapper.ToDto).ToList();
-                var final = new List<BrokerDto>();
 
-                foreach (var broker in dtos)
+                // Filter brokers by permissions
+                if (user.Subscription?.Type != StripePlans.ULTIMATE)
                 {
-                    var access = broker.AccessList.Single(x => x.UserId == user.Id.ToString());
-
-                    if (access.AccessLevel == AccessLevel.Owner)
-                    {
-                        final.Add(broker);
-                    }
-                    else if (access.AccessLevel == AccessLevel.Manager)
-                    {
-                        final.Add(broker with { AccessList = [access] });
-                    }
-                    else
-                    {
-                        final.Add(broker with { AccessList = [access], RabbitMQConnection = null });
-                    }
+                    brokers = brokers.Where(x => x.CreatedByUserId == user.Id).ToList();
                 }
 
-                return Results.Ok(final);
+                var dtos = brokers.Select(BrokerMapper.ToDto).ToList();
+
+                return Results.Ok(dtos);
             });
 
         group.MapPost("",

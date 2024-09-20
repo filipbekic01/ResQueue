@@ -6,7 +6,8 @@ namespace ResQueue.Models;
 public class Broker
 {
     [BsonId] public ObjectId Id { get; set; }
-    public List<BrokerAccess> AccessList { get; set; } = new();
+    public ObjectId CreatedByUserId { get; set; }
+    public List<BrokerAccess> AccessList { get; set; } = [];
     public string System { get; set; } = null!;
     public string Name { get; set; } = null!;
     public RabbitMQConnection? RabbitMQConnection { get; set; }
