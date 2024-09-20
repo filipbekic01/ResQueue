@@ -33,8 +33,7 @@ const {
   query: { data: user }
 } = useIdentity()
 const { mutateAsync: createBrokerInvitationAsync, isPending } = useCreateBrokerInvitationMutation()
-const { mutateAsync: manageBrokerAccessAsync, isPending: isPendingManageBrokerAccess } =
-  useManageBrokerAccessMutation()
+const { mutateAsync: manageBrokerAccessAsync } = useManageBrokerAccessMutation()
 const { data: brokerInvitations } = useBrokerInvitationsQuery(computed(() => props.broker.id))
 const { data: usersBasic } = useUsersBasicQuery(
   computed(

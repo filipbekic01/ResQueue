@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import Tag from 'primevue/tag'
-import Tooltip from 'primevue/tooltip'
 
 defineProps<{
   tier: string

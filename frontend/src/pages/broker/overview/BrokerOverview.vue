@@ -33,8 +33,7 @@ const { mutateAsync: testConnectionAsync, isPending: isTestConnectionPending } =
   useTestConnectionMutation()
 const { mutateAsync: deleteBrokerAsync, isPending: isDeleteBrokerPending } =
   useDeleteBrokerMutation()
-const { mutateAsync: manageBrokerAccessAsync, isPending: isManageBrokerAccessPending } =
-  useManageBrokerAccessMutation()
+const { mutateAsync: manageBrokerAccessAsync } = useManageBrokerAccessMutation()
 
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
 
@@ -249,7 +248,6 @@ const leaveBroker = () => {
             <InputText
               placeholder="Set custom suffix"
               v-model="brokerEditable.settings.deadLetterQueueSuffix"
-              @change="(e) => addQuickSearch((e.target as any).value)"
             ></InputText>
           </div>
         </div>
