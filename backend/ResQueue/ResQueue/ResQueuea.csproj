@@ -1,4 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>ResQueue</RootNamespace>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Update="AspNetCore.Identity.Mongo" Version="9.0.0" />
     <PackageReference Update="Stripe.net" Version="45.14.0" />
