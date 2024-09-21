@@ -29,8 +29,7 @@ const { mutateAsync: logoutAsync } = useLogoutMutation()
 const { mutateAsync: resendConfirmationEmailAsync, isPending: isResendConfirmationEmailPending } =
   useResendConfirmatioEmailMutation()
 const { mutateAsync: updateUserAsync, isPending: isUpdateUserPending } = useUpdateUserMutation()
-const { mutateAsync: updateUserAvatarAsync, isPending: updateUserAvatarIsPending } =
-  useUpdateUserAvatarMutation()
+const { mutateAsync: updateUserAvatarAsync } = useUpdateUserAvatarMutation()
 const { mutateAsync: changePlanAsync, isPending: isChangePlanPending } = useChangePlanMutation()
 
 const logout = () => {
@@ -109,7 +108,7 @@ const updateUserFullNameAsync = () => {
 
 const updateUserAvatar = () => {
   confirm.require({
-    header: 'Generate Avatar',
+    header: 'Generate New Avatar',
     message: `Would you like to generate a new avatar? Please note, this action cannot be undone.`,
     icon: 'pi pi-info-circle',
     rejectProps: {
@@ -170,7 +169,11 @@ const upgradePlan = () => {
     <div class="flex max-w-[70rem] flex-col gap-7 p-7">
       <div class="flex items-start gap-7">
         <div class="flex grow items-center rounded-xl border border-gray-200 p-5">
-          <img :src="user?.avatar" class="me-4 w-12 rounded-full" />
+          <img
+            :src="user?.avatar"
+            class="me-4 w-12 cursor-pointer rounded-full hover:scale-105"
+            @click="updateUserAvatar"
+          />
           <div>
             <div class="text-lg font-medium">Full Name</div>
             <div class="flex items-center text-slate-500">
@@ -201,15 +204,6 @@ const upgradePlan = () => {
                 @click="updateUserFullNameAsync"
               ></Button>
             </template>
-
-            <Button
-              outlined
-              @click="updateUserAvatar"
-              :loading="updateUserAvatarIsPending"
-              class="ms-3"
-              icon="pi pi-sync"
-              label="Update Avatar"
-            ></Button>
 
             <Button
               label="Logout"

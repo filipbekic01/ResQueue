@@ -167,7 +167,15 @@ const toggleCollapse = () => {
           <span class="overflow-hidden overflow-ellipsis whitespace-nowrap">{{ user.email }}</span>
         </div>
       </div>
-      <div class="mb-1 me-3 ms-2 mt-4 flex grow flex-col gap-2">
+      <div
+        class="mb-1 mt-4 flex grow flex-col gap-2"
+        :class="[
+          {
+            'me-3 ms-2': !user.settings.collapseSidebar,
+            'mx-2.5': user.settings.collapseSidebar
+          }
+        ]"
+      >
         <SidebarRouterLink
           v-for="staticRoute in staticRoutes"
           :key="staticRoute.id"
