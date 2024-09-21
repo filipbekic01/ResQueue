@@ -88,7 +88,18 @@ const submit = async () => {
     ? updateMessageAsync({ id: originalMessage.value.id, dto })
     : createMessageAsync(dto)
   )
-    .then(() => dialogRef.value?.close())
+    .then(() => {
+      if (!originalMessage.value) {
+        toast.add({
+          severity: 'success',
+          summary: 'Message Created',
+          detail: 'Message is added to the end of table.',
+          life: 3000
+        })
+      }
+
+      dialogRef.value?.close()
+    })
     .catch((e) => toast.add(errorToToast(e)))
 }
 
