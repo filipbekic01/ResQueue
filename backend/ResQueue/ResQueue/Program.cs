@@ -1,4 +1,5 @@
 using AspNetCore.Identity.Mongo;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Rewrite;
 using MongoDB.Bson;
@@ -86,7 +87,23 @@ public class Program
         builder.Services.AddTransient<IChangeCardFeature, ChangeCardFeature>();
         builder.Services.AddTransient<IEventHandlerFeature, EventHandlerFeature>();
 
-        builder.Services.ConfigureApplicationCookie(options => { options.ExpireTimeSpan = TimeSpan.FromDays(30); });
+        builder.Services.ConfigureApplicationCookie(options =>
+        {
+            options.ExpireTimeSpan = TimeSpan.FromDays(30);
+            options.Events = new CookieAuthenticationEvents
+            {
+                OnRedirectToLogin = ctx =>
+                {
+                    ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    return Task.CompletedTask;
+                },
+                OnRedirectToAccessDenied = ctx =>
+                {
+                    ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                    return Task.CompletedTask;
+                }
+            };
+        });
 
         builder.Services.AddAuthorization();
 
