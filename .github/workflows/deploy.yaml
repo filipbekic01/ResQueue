@@ -22,4 +22,4 @@ jobs:
 
       - name: Publish
         working-directory: backend/ResQueue
-        run: dotnet publish --os linux --arch amd64 /t:PublishContainer -p:ContainerRepository=ghcr.io/filipbekic01/resqueue/resqueue
+        run: dotnet publish --os linux --arch amd64 /t:PublishContainer -p:ContainerRepository=filipbekic01/resqueue -p:ContainerRegistry=ghcr.io
