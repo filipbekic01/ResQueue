@@ -339,6 +339,7 @@ const cloneMessage = (id: string) => {
             ></i>
           </template>
         </Column>
+
         <Column field="id" header="Message" class="w-[0%]">
           <template #body="{ data }">
             <div class="flex items-center gap-2">
@@ -353,6 +354,7 @@ const cloneMessage = (id: string) => {
             </div>
           </template>
         </Column>
+
         <Column field="flags" class="w-[0%]">
           <template #body="{ data }">
             <div class="flex items-center gap-2">
@@ -371,7 +373,10 @@ const cloneMessage = (id: string) => {
 
         <Column field="edit" header="" class="w-[0%]">
           <template #body="{ data }">
-            <div class="flex">
+            <div class="flex items-center justify-end">
+              <Tag v-if="!data.rabbitmqMetadata.exchange" class="me-2 whitespace-nowrap"
+                >custom</Tag
+              >
               <Button text icon="pi pi-pencil" size="small" @click="editMessage(data.id)"></Button>
               <Button
                 text
