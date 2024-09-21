@@ -10,6 +10,7 @@ export const errorToProblemDetails = (error: any): ProblemDetails => {
     detail: 'An unexpected error occurred.'
   }
 
+  // Check if JS runtime error
   if (error.message) {
     return {
       ...defaultProblemDetails,
