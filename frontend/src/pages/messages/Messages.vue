@@ -237,8 +237,8 @@ const editMessage = (id: string) => {
     },
     props: {
       header: 'Message Editor',
-      modal: true,
       position: 'top',
+      modal: true,
       draggable: false
     }
   })

@@ -21,7 +21,7 @@ const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 
 const originalMessage = computed(() => dialogRef?.value.data.message)
 
-const newMessage = reactive<Omit<UpsertMessageDto, 'brokerId' | 'body' | 'queueId'>>({
+const editableMessage = reactive<Omit<UpsertMessageDto, 'brokerId' | 'body' | 'queueId'>>({
   bodyEncoding: 'json',
   rabbitmqMetadata: {
     routingKey: '',
@@ -36,10 +36,10 @@ const body = ref('')
 if (originalMessage.value) {
   const theMsg = JSON.parse(JSON.stringify(originalMessage.value))
 
-  newMessage.rabbitmqMetadata = theMsg.rabbitmqMetadata
-  newMessage.bodyEncoding = theMsg.bodyEncoding
+  editableMessage.rabbitmqMetadata = theMsg.rabbitmqMetadata
+  editableMessage.bodyEncoding = theMsg.bodyEncoding
 
-  if (newMessage.bodyEncoding.toLowerCase() === 'json') {
+  if (editableMessage.bodyEncoding.toLowerCase() === 'json') {
     body.value = JSON.stringify(theMsg.body, null, 4)
   } else {
     body.value = theMsg.body
@@ -57,7 +57,7 @@ const encodingOptions = [
   }
 ]
 
-const submit = () => {
+const submit = async () => {
   const brokerId = dialogRef?.value.data.broker.id
   if (!brokerId) {
     throw new Error('brokerId is null.')
@@ -68,11 +68,20 @@ const submit = () => {
     throw new Error('queueId is null.')
   }
 
+  if (editableMessage.bodyEncoding === 'json') {
+    try {
+      JSON.parse(body.value)
+    } catch (e) {
+      toast.add(errorToToast(e))
+      return
+    }
+  }
+
   const dto = {
     brokerId,
     queueId,
-    ...newMessage,
-    body: newMessage.bodyEncoding === 'json' ? JSON.parse(body.value) : body
+    ...editableMessage,
+    body: editableMessage.bodyEncoding === 'json' ? JSON.parse(body.value) : body
   }
 
   ;(originalMessage.value
@@ -87,7 +96,7 @@ const selectedTab = ref('body')
 </script>
 
 <template>
-  <template v-if="newMessage.rabbitmqMetadata">
+  <template v-if="editableMessage.rabbitmqMetadata">
     <div class="flex w-[44rem] flex-col gap-4">
       <div class="flex flex-col gap-4 overflow-auto">
         <div class="flex flex-col gap-2">
@@ -104,7 +113,7 @@ const selectedTab = ref('body')
               <div class="flex items-center gap-2">
                 <label for="appId" class="w-44 text-end">App Id:</label>
                 <InputText
-                  v-model="newMessage.rabbitmqMetadata.properties.appId"
+                  v-model="editableMessage.rabbitmqMetadata.properties.appId"
                   id="appId"
                   autocomplete="off"
                   class="flex-1"
@@ -114,7 +123,7 @@ const selectedTab = ref('body')
               <div class="flex items-center gap-2">
                 <label for="clusterId" class="w-44 text-end">Cluster Id:</label>
                 <InputText
-                  v-model="newMessage.rabbitmqMetadata.properties.clusterId"
+                  v-model="editableMessage.rabbitmqMetadata.properties.clusterId"
                   id="clusterId"
                   autocomplete="off"
                   class="flex-1"
@@ -124,7 +133,7 @@ const selectedTab = ref('body')
               <div class="flex items-center gap-2">
                 <label for="contentEncoding" class="w-44 text-end">Content Encoding:</label>
                 <InputText
-                  v-model="newMessage.rabbitmqMetadata.properties.contentEncoding"
+                  v-model="editableMessage.rabbitmqMetadata.properties.contentEncoding"
                   id="contentEncoding"
                   autocomplete="off"
                   class="flex-1"
@@ -134,7 +143,7 @@ const selectedTab = ref('body')
               <div class="flex items-center gap-2">
                 <label for="contentType" class="w-44 text-end">Content Type:</label>
                 <InputText
-                  v-model="newMessage.rabbitmqMetadata.properties.contentType"
+                  v-model="editableMessage.rabbitmqMetadata.properties.contentType"
                   id="contentType"
                   autocomplete="off"
                   class="flex-1"
@@ -144,7 +153,7 @@ const selectedTab = ref('body')
               <div class="flex items-center gap-2">
                 <label for="correlationId" class="w-44 text-end">Correlation Id:</label>
                 <InputText
-                  v-model="newMessage.rabbitmqMetadata.properties.correlationId"
+                  v-model="editableMessage.rabbitmqMetadata.properties.correlationId"
                   id="correlationId"
                   autocomplete="off"
                   class="flex-1"
@@ -154,7 +163,7 @@ const selectedTab = ref('body')
               <div class="flex items-center gap-2">
                 <label class="w-44 text-end">Delivery Mode:</label>
                 <Select
-                  v-model="newMessage.rabbitmqMetadata.properties.deliveryMode"
+                  v-model="editableMessage.rabbitmqMetadata.properties.deliveryMode"
                   :options="[1, 2]"
                   class="flex-1"
                 />
@@ -163,7 +172,7 @@ const selectedTab = ref('body')
               <div class="flex items-center gap-2">
                 <label for="expiration" class="w-44 text-end">Expiration:</label>
                 <InputText
-                  v-model="newMessage.rabbitmqMetadata.properties.expiration"
+                  v-model="editableMessage.rabbitmqMetadata.properties.expiration"
                   id="expiration"
                   autocomplete="off"
                   class="flex-1"
@@ -173,7 +182,7 @@ const selectedTab = ref('body')
               <div class="flex items-center gap-2">
                 <label for="messageId" class="w-44 text-end">Message Id:</label>
                 <InputText
-                  v-model="newMessage.rabbitmqMetadata.properties.messageId"
+                  v-model="editableMessage.rabbitmqMetadata.properties.messageId"
                   id="messageId"
                   autocomplete="off"
                   class="flex-1"
@@ -183,7 +192,7 @@ const selectedTab = ref('body')
               <div class="flex items-center gap-2">
                 <label for="priority" class="w-44 text-end">Priority:</label>
                 <InputNumber
-                  v-model="newMessage.rabbitmqMetadata.properties.priority"
+                  v-model="editableMessage.rabbitmqMetadata.properties.priority"
                   id="priority"
                   autocomplete="off"
                   class="flex-1"
@@ -193,7 +202,7 @@ const selectedTab = ref('body')
               <div class="flex items-center gap-2">
                 <label for="replyTo" class="w-44 text-end">Reply To:</label>
                 <InputText
-                  v-model="newMessage.rabbitmqMetadata.properties.replyTo"
+                  v-model="editableMessage.rabbitmqMetadata.properties.replyTo"
                   id="replyTo"
                   autocomplete="off"
                   class="flex-1"
@@ -203,7 +212,7 @@ const selectedTab = ref('body')
               <div class="flex items-center gap-2">
                 <label for="timestamp" class="w-44 text-end">Timestamp:</label>
                 <InputNumber
-                  v-model="newMessage.rabbitmqMetadata.properties.timestamp"
+                  v-model="editableMessage.rabbitmqMetadata.properties.timestamp"
                   id="timestamp"
                   autocomplete="off"
                   class="flex-1"
@@ -213,7 +222,7 @@ const selectedTab = ref('body')
               <div class="flex items-center gap-2">
                 <label for="type" class="w-44 text-end">Type:</label>
                 <InputText
-                  v-model="newMessage.rabbitmqMetadata.properties.type"
+                  v-model="editableMessage.rabbitmqMetadata.properties.type"
                   id="type"
                   autocomplete="off"
                   class="flex-1"
@@ -223,7 +232,7 @@ const selectedTab = ref('body')
               <div class="flex items-center gap-2">
                 <label for="userId" class="w-44 text-end">User Id:</label>
                 <InputText
-                  v-model="newMessage.rabbitmqMetadata.properties.userId"
+                  v-model="editableMessage.rabbitmqMetadata.properties.userId"
                   id="userId"
                   autocomplete="off"
                   class="flex-1"
@@ -233,7 +242,7 @@ const selectedTab = ref('body')
           </template>
           <template v-if="selectedTab === 'headers'">
             <RabbitMqHeadersInput
-              v-model="newMessage.rabbitmqMetadata.properties.headers"
+              v-model="editableMessage.rabbitmqMetadata.properties.headers"
               id="headers"
               autocomplete="off"
               class="flex-1"
@@ -253,7 +262,7 @@ const selectedTab = ref('body')
 
       <div class="overflow-hiddens item-start flex gap-2">
         <Select
-          v-model="newMessage.bodyEncoding"
+          v-model="editableMessage.bodyEncoding"
           :options="encodingOptions"
           optionLabel="label"
           optionValue="value"
@@ -262,8 +271,8 @@ const selectedTab = ref('body')
           severity="danger"
         ></Select>
         <Button
-          :label="`${originalMessage ? 'Update' : 'Edit'} Message`"
-          icon="pi pi-save"
+          :label="`${originalMessage ? 'Save Changes' : 'Add Message'}`"
+          :icon="`pi pi-${originalMessage ? 'save' : 'plus'}`"
           :loading="isCreateMessagePending || isUpdateMessagePending"
           @click="submit"
         ></Button>

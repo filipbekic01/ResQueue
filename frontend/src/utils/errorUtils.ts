@@ -10,6 +10,13 @@ export const errorToProblemDetails = (error: any): ProblemDetails => {
     detail: 'An unexpected error occurred.'
   }
 
+  if (error.message) {
+    return {
+      ...defaultProblemDetails,
+      detail: error.message
+    }
+  }
+
   // Check if the error response exists and has data
   if (error.response?.data) {
     const problemDetails = error.response.data as ProblemDetails
