@@ -297,7 +297,6 @@ watchEffect(() => {
   </template>
   <template v-else-if="route.query.search">
     <div class="mt-24 flex grow flex-col items-center">
-      <!-- <img src="/ebox.svg" class="w-72 pb-5 opacity-50" /> -->
       <i class="pi pi-filter-slash pb-6 opacity-25" style="font-size: 2rem"></i>
       <div class="text-lg">No Results</div>
       <div class="">No queues found for given filters</div>

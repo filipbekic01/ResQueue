@@ -2,6 +2,7 @@
 import { useBrokersQuery } from '@/api/brokers/brokersQuery'
 import { useMessageQuery } from '@/api/messages/messageQuery'
 import { useQueueQuery } from '@/api/queues/queueQuery'
+import rmqLogoUrl from '@/assets/rmq.svg'
 import type { FormatOption } from '@/components/SelectFormat.vue'
 import { type StructureOption } from '@/components/SelectStructure.vue'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
@@ -70,7 +71,7 @@ const handleCopied = () => {
         class="flex h-[42px] w-[42px] cursor-pointer items-center justify-center rounded-xl bg-[#FF6600] text-2xl text-white active:scale-95"
         @click="backToBroker"
       >
-        <img src="/rmq.svg" class="w-7 select-none" />
+        <img :src="rmqLogoUrl" class="w-7 select-none" />
       </div>
     </template>
     <template #title

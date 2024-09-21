@@ -2,6 +2,7 @@
 import { useBrokersQuery } from '@/api/brokers/brokersQuery'
 import { useSyncBrokerMutation } from '@/api/brokers/syncBrokerMutation'
 import { useUpdateBrokerMutation } from '@/api/brokers/updateBrokerMutation'
+import rmqLogoUrl from '@/assets/rmq.svg'
 import { useIdentity } from '@/composables/identityComposable'
 import Avatars from '@/features/avatars/Avatars.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
@@ -108,7 +109,7 @@ const updateTabValue = (a: any) => router.push({ name: a })
         <div
           class="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#FF6600] text-2xl text-white"
         >
-          <img src="/rmq.svg" class="w-14" />
+          <img :src="rmqLogoUrl" class="w-14" />
         </div>
 
         <div class="flex flex-col justify-center ps-3">

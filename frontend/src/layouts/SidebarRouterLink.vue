@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import rmqLogoUrl from '@/assets/rmq.svg'
 import { useIdentity } from '@/composables/identityComposable'
 import { computed } from 'vue'
 import { useRoute, type RouteLocationAsRelativeGeneric } from 'vue-router'
@@ -66,7 +67,7 @@ const showWarning = computed(() => {
   >
     <img
       v-if="icon === 'pi pi-rabbitmq'"
-      src="/rmq.svg"
+      :src="rmqLogoUrl"
       style="width: 1.125rem"
       :class="[
         'mr-3 rounded p-1',

@@ -5,6 +5,8 @@ import { useCloneMessageMutation } from '@/api/messages/cloneMessageMutation'
 import { usePaginatedMessagesQuery } from '@/api/messages/paginatedMessagesQuery'
 import { useSyncMessagesMutation } from '@/api/messages/syncMessagesMutation'
 import { useQueueQuery } from '@/api/queues/queueQuery'
+import eboxUrl from '@/assets/ebox.svg'
+import rmqLogoUrl from '@/assets/rmq.svg'
 import { type FormatOption } from '@/components/SelectFormat.vue'
 import type { StructureOption } from '@/components/SelectStructure.vue'
 import { useIdentity } from '@/composables/identityComposable'
@@ -256,7 +258,7 @@ const cloneMessage = (id: string) => {
         class="flex h-[42px] w-[42px] cursor-pointer items-center justify-center rounded-xl bg-[#FF6600] text-2xl text-white active:scale-95"
         @click="backToQueues"
       >
-        <img src="/rmq.svg" class="w-7 select-none" />
+        <img :src="rmqLogoUrl" class="w-7 select-none" />
       </div>
     </template>
     <template #title>
@@ -415,7 +417,7 @@ const cloneMessage = (id: string) => {
     </template>
     <template v-else>
       <div class="mt-24 flex grow flex-col items-center">
-        <img src="/ebox.svg" class="w-56 pb-5 opacity-50" />
+        <img :src="eboxUrl" class="w-56 pb-5 opacity-50" />
         <div class="text-lg">No Messages</div>
         <div class="">Make sure you pull the messages.</div>
       </div>

@@ -1,4 +1,8 @@
 <script lang="ts" setup>
+import awsLogoUrl from '@/assets/aws.svg'
+import azureLogoUrl from '@/assets/azure.svg'
+import mdLogoUrl from '@/assets/md.svg'
+import rmqLogoUrl from '@/assets/rmq.svg'
 import { useIdentity } from '@/composables/identityComposable'
 import WebLayout from '@/layouts/WebLayout.vue'
 import { useHead } from '@unhead/vue'
@@ -91,7 +95,7 @@ useHead(
       <div class="flex-1 rounded-2xl border-slate-400 bg-white p-4 text-slate-700 shadow">
         <div class="flex items-center gap-2 text-xl font-bold">
           <div class="w-8 rounded-lg bg-[#ff6600] p-1.5">
-            <img src="/rmq.svg" />
+            <img :src="rmqLogoUrl" />
           </div>
           RabbitMQ
           <i class="pi pi-check-circle ms-auto text-emerald-600" style="font-size: 1.15rem"></i>
@@ -101,7 +105,7 @@ useHead(
       <div class="flex-1 rounded-2xl border-slate-400 bg-white p-4 text-slate-700 shadow">
         <div class="flex items-center gap-2 text-xl font-bold">
           <div class="w-8 rounded-lg bg-[#007FFF] p-1.5">
-            <img src="/azure.svg" />
+            <img :src="azureLogoUrl" />
           </div>
           Azure Service Bus
           <i
@@ -115,7 +119,7 @@ useHead(
       <div class="flex-1 rounded-2xl border-slate-400 bg-white p-4 text-slate-700 shadow">
         <div class="flex items-center gap-2 text-xl font-bold">
           <div class="w-8 rounded-lg border border-slate-300 bg-[#fff] p-1.5">
-            <img src="/aws.svg" />
+            <img :src="awsLogoUrl" />
           </div>
           Amazon SQS
           <i
@@ -174,7 +178,7 @@ useHead(
 
     <div class="flex items-center justify-center">
       <a href="https://mydesigns.io" target="_blank">
-        <img src="/md.svg" class="w-64 cursor-pointer opacity-100" />
+        <img :src="mdLogoUrl" class="w-64 cursor-pointer opacity-100" />
       </a>
     </div>
   </WebLayout>

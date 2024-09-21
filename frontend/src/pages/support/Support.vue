@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import helpLogoUrl from '@/assets/help.svg'
 import WebLayout from '@/layouts/WebLayout.vue'
 import { useHead } from '@unhead/vue'
 
@@ -56,7 +57,7 @@ useHead({
         <div class="mt-4 text-slate-500">
           For now, we only support Discord as our main community discussion platform.
         </div>
-        <img src="/help.svg" class="my-14 w-40 opacity-25" />
+        <img :src="helpLogoUrl" class="my-14 w-40 opacity-25" />
         <Button
           @click="openDiscord"
           style="background-color: rgb(79 70 229); border-color: rgb(79 70 229)"

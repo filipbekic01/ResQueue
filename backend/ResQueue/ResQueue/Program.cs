@@ -112,7 +112,7 @@ public class Program
             OnPrepareResponse = (context) =>
             {
                 context.Context.Response.Headers.CacheControl =
-                    context.Context.Request.Path.StartsWithSegments("/assets")
+                    context.Context.Request.Path.StartsWithSegments("/assets/")
                         ? "public, max-age=31536000, immutable"
                         : "no-cache, no-store";
             }
