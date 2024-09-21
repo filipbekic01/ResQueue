@@ -96,8 +96,8 @@ public class Program
 
         string[] frontendRoutes =
         [
-            "^login$",
             "^forgot-password$",
+            "^login",
             "^support$",
             "^pricing$",
             "^app",
