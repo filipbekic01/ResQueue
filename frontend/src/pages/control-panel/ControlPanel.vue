@@ -167,7 +167,7 @@ const upgradePlan = () => {
   <AppLayout hide-header>
     <div class="px-7 pt-5 text-3xl font-bold">Control Panel</div>
     <div class="px-7 text-slate-600">Manage settings and access your account details.</div>
-    <div class="flex max-w-[60rem] flex-col gap-7 p-7">
+    <div class="flex max-w-[70rem] flex-col gap-7 p-7">
       <div class="flex items-start gap-7">
         <div class="flex grow items-center rounded-xl border border-gray-200 p-5">
           <img :src="user?.avatar" class="me-4 w-12 rounded-full" />
@@ -222,7 +222,7 @@ const upgradePlan = () => {
         </div>
       </div>
     </div>
-    <div class="flex max-w-[60rem] flex-col gap-7 px-7 pb-7">
+    <div class="flex max-w-[70rem] flex-col gap-7 px-7 pb-7">
       <div class="flex items-start gap-7">
         <div class="grow basis-1/2 rounded-xl border border-gray-200 p-5">
           <div class="text-lg font-medium">E-Mail Address</div>
