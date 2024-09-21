@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import type { FormatOption } from '@/components/SelectFormat.vue'
 import type { StructureOption } from '@/components/SelectStructure.vue'
+import type { MessageDto } from '@/dtos/message/messageDto'
 import FormattedMessageClean from './FormattedMessageClean.vue'
 import FormattedMessageJson from './FormattedMessageJson.vue'
 import FormattedMessageRaw from './FormattedMessageRaw.vue'
 
 defineProps<{
-  message: any
+  message: MessageDto
   format: FormatOption
   structure: StructureOption
 }>()

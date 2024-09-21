@@ -1,13 +1,14 @@
 <script lang="ts" setup>
 import type { FormatOption } from '@/components/SelectFormat.vue'
 import type { StructureOption } from '@/components/SelectStructure.vue'
+import type { MessageDto } from '@/dtos/message/messageDto'
 import { highlightJson } from '@/utils/jsonUtils'
 import { computed } from 'vue'
 import RabbitMQMeta from './clean-brokers/RabbitMQMeta.vue'
 import FormattedMessageDivider from './FormattedMessageDivider.vue'
 
 const props = defineProps<{
-  message: any
+  message: MessageDto
   format: FormatOption
   structure: StructureOption
 }>()

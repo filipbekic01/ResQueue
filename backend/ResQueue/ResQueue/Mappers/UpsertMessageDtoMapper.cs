@@ -46,16 +46,14 @@ public static class UpsertMessageDtoMapper
         };
     }
 
-
     private static BsonValue GetBody(UpsertMessageDto dto)
-    {
-        if (dto.BodyEncoding == "json")
+        => dto.BodyEncoding switch
         {
-            return BsonDocument.Parse(dto.Body.ToJsonString());
-        }
-
-        return new BsonBinaryData(Encoding.UTF8.GetBytes(dto.Body.ToString()));
-    }
+            "json" => BsonDocument.Parse(dto.Body.ToJsonString()),
+            "string" => dto.Body.ToString(),
+            "base64" => new BsonBinaryData(Convert.FromBase64String(dto.Body.ToString())),
+            _ => throw new Exception($"Unknown encoding: {dto.BodyEncoding}"),
+        };
 
     private static IDictionary<string, object>? GetHeaders(UpsertMessageDto dto)
     {

@@ -130,6 +130,7 @@ public class PublishMessagesFeature(
                 byte[] body = message.Body switch
                 {
                     BsonDocument doc => Encoding.UTF8.GetBytes(doc.ToJson()),
+                    BsonString str => Encoding.UTF8.GetBytes(str.Value),
                     BsonBinaryData bin => bin.Bytes,
                     _ => throw new Exception($"Unsupported Body type {message.Body.GetType()}")
                 };

@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import type { FormatOption } from '@/components/SelectFormat.vue'
 import type { StructureOption } from '@/components/SelectStructure.vue'
+import type { MessageDto } from '@/dtos/message/messageDto'
 import FormattedMessageDivider from './FormattedMessageDivider.vue'
 
 defineProps<{
-  message: any
+  message: MessageDto
   format: FormatOption
   structure: StructureOption
 }>()

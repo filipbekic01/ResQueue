@@ -52,6 +52,10 @@ const encodingOptions = [
     value: 'json'
   },
   {
+    label: 'String',
+    value: 'string'
+  },
+  {
     label: 'Base64',
     value: 'base64'
   }

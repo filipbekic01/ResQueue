@@ -93,18 +93,16 @@ public static class RabbitMQMessageMapper
                 RoutingKey = res.RoutingKey,
                 Properties = props
             },
-            Body = BsonDocument.TryParse(Encoding.UTF8.GetString(res.Body.Span), out var doc)
-                ? doc
-                : new BsonBinaryData(res.Body.ToArray()),
+            Body = GetBody(res),
             MessageOrder = messageOrder,
             CreatedAt = DateTime.UtcNow
         };
     }
 
-    static IDictionary<string, object> WithBytesConvertedToString(IDictionary<string, object> dict)
+    private static IDictionary<string, object> WithBytesConvertedToString(IDictionary<string, object> dict)
         => dict.ToDictionary(x => x.Key, x => WithBytesConvertedToString(x.Value));
 
-    static object WithBytesConvertedToString(object value)
+    private static object WithBytesConvertedToString(object value)
         => value switch
         {
             byte[] bytes => Encoding.UTF8.GetString(bytes),
@@ -112,4 +110,25 @@ public static class RabbitMQMessageMapper
             IEnumerable list => list.Cast<object>().Select(WithBytesConvertedToString).ToList(),
             _ => value
         };
+
+    private static BsonValue GetBody(BasicGetResult res)
+    {
+        var encoding = new UTF8Encoding(false, true);
+        string stringValue;
+        try
+        {
+            stringValue = encoding.GetString(res.Body.Span);
+        }
+        catch (DecoderFallbackException)
+        {
+            return new BsonBinaryData(res.Body.ToArray());
+        }
+
+        if (BsonDocument.TryParse(Encoding.UTF8.GetString(res.Body.Span), out var doc))
+        {
+            return doc;
+        }
+
+        return stringValue;
+    }
 }

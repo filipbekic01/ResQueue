@@ -16,6 +16,11 @@ public static class MessageMapper
             body = JsonNode.Parse(message.Body.ToJson()) ?? throw new Exception();
             bodyEncoding = "json";
         }
+        else if (message.Body is BsonString s)
+        {
+            body = s.Value;
+            bodyEncoding = "string";
+        }
         else if (message.Body is BsonBinaryData bin)
         {
             body = Convert.ToBase64String(bin.Bytes);
