@@ -107,7 +107,16 @@ public class Program
             (options, route) => options.AddRewrite(route, "/index.html", true))
         );
         app.UseDefaultFiles();
-        app.UseStaticFiles();
+        app.UseStaticFiles(new StaticFileOptions()
+        {
+            OnPrepareResponse = (context) =>
+            {
+                context.Context.Response.Headers.CacheControl =
+                    context.Context.Request.Path.StartsWithSegments("/assets")
+                        ? "public, max-age=31536000, immutable"
+                        : "no-cache, no-store";
+            }
+        });
 
         app.UseAuthentication();
         app.UseAuthorization();
