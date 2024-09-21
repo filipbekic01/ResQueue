@@ -14,7 +14,7 @@ public class DummyEmailSender(
     public async Task SendConfirmationLinkAsync(User user, string email, string confirmationLink)
     {
         var message = new MimeMessage();
-        message.From.Add(new MailboxAddress("ResQueue", "resqueue@no-reply.io"));
+        message.From.Add(new MailboxAddress("ResQueue", "no-reply@resqueue.io"));
         message.To.Add(new MailboxAddress(user.UserName, email));
         message.Subject = "ResQueue — Account Confirmation";
 
@@ -38,7 +38,7 @@ public class DummyEmailSender(
     public async Task SendPasswordResetCodeAsync(User user, string email, string resetCode)
     {
         var message = new MimeMessage();
-        message.From.Add(new MailboxAddress("ResQueue", "resqueue@no-reply.io"));
+        message.From.Add(new MailboxAddress("ResQueue", "no-reply@resqueue.io"));
         message.To.Add(new MailboxAddress(user.UserName, email));
         message.Subject = "ResQueue — Reset Password Code";
 
