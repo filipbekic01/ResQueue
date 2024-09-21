@@ -10,7 +10,7 @@
 
   <Target Name="Deploy Vue" BeforeTargets="Publish">
     <Exec Command="npm ci" WorkingDirectory="../../../frontend" />
-    <Exec Command="npm run build-only" WorkingDirectory="../../../frontend" />
+    <Exec Command="npm run build:prod" WorkingDirectory="../../../frontend" />
     <RemoveDir Directories="$(PublishDir)wwwroot" />
     <ItemGroup>
       <CopyDist Include="../../../frontend/dist/**/*.*" />

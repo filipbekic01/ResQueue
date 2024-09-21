@@ -4,11 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "vite",
-    "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
+    "start": "vite --mode=debug",
+    "dev": "vite --mode=debug",
+    "build:prod": "run-p type-check \"build-only:prod {@}\" --",
     "preview": "vite preview",
-    "build-only": "vite build",
+    "build-only:prod": "vite --mode=prod build",
     "type-check": "vue-tsc --build --force",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/"
