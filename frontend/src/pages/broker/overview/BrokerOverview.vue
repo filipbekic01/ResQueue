@@ -201,7 +201,7 @@ const leaveBroker = () => {
 </script>
 
 <template>
-  <div v-if="brokerEditable" class="flex max-w-[65rem] flex-col gap-7 p-7">
+  <div v-if="brokerEditable" class="flex max-w-[70rem] flex-col gap-7 p-7">
     <div
       v-if="broker && user && !isBrokerAgent(broker, user?.id)"
       class="flex grow flex-col gap-3 rounded-xl border border-gray-200 p-5"
@@ -412,7 +412,7 @@ const leaveBroker = () => {
       <BrokerOverviewAccess :broker="broker" />
     </div>
 
-    <div v-if="broker && user" class="flex max-w-[65rem]">
+    <div v-if="broker && user" class="flex max-w-[70rem]">
       <Button
         v-if="isBrokerOwner(broker, user.id)"
         label="Delete Broker"

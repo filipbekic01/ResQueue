@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useUpdateUserMutation } from '@/api/auth/updateUserMutation'
 import { useBrokersQuery } from '@/api/brokers/brokersQuery'
 import { useIdentity } from '@/composables/identityComposable'
 import CreateBrokerDialog from '@/dialogs/CreateBrokerDialog.vue'
@@ -25,6 +26,8 @@ const {
   query: { data: user }
 } = useIdentity()
 const { data: brokers } = useBrokersQuery()
+
+const { mutateAsync: updateUserAsync } = useUpdateUserMutation()
 
 const router = useRouter()
 const route = useRoute()
@@ -109,18 +112,50 @@ useHead({
     { name: 'robots', content: 'noindex, nofollow' } // Prevents the page from being indexed
   ]
 })
+
+const toggleCollapse = () => {
+  if (!user.value) {
+    return
+  }
+
+  updateUserAsync({
+    fullName: user.value.fullName,
+    settings: {
+      ...user.value.settings,
+      collapseSidebar: !user.value.settings.collapseSidebar
+    }
+  })
+}
 </script>
 
 <template>
   <div class="flex h-screen gap-2 bg-gray-100 p-2" v-if="user">
-    <div class="flex w-72 shrink-0 basis-72 flex-col">
-      <div class="me-3 ms-2 flex flex-row items-center gap-3 border-b border-slate-200 px-2 py-3">
+    <div
+      class="flex w-72 shrink-0 basis-72 flex-col"
+      :class="[
+        {
+          'w-72 basis-72': !user.settings.collapseSidebar,
+          'w-0 basis-0': user.settings.collapseSidebar
+        }
+      ]"
+    >
+      <div
+        class="flex flex-row items-center gap-3 border-b border-slate-200 px-2 py-3"
+        :class="[
+          {
+            'me-3 ms-2': !user.settings.collapseSidebar
+          }
+        ]"
+      >
         <RouterLink :to="{ name: 'home' }">
           <div class="flex grow items-center justify-end rounded-lg bg-black p-2.5">
             <i class="pi pi-database rotate-90 text-white" style="font-size: 1.5rem"></i>
           </div>
         </RouterLink>
-        <div class="flex grow flex-col overflow-hidden leading-5">
+        <div
+          v-if="!user.settings.collapseSidebar"
+          class="flex grow flex-col overflow-hidden leading-5"
+        >
           <span class="font-bold" v-if="user.fullName">{{ user.fullName }}</span>
           <div v-else class="flex overflow-hidden">
             <span
@@ -132,13 +167,13 @@ useHead({
           <span class="overflow-hidden overflow-ellipsis whitespace-nowrap">{{ user.email }}</span>
         </div>
       </div>
-
       <div class="mb-1 me-3 ms-2 mt-4 flex grow flex-col gap-2">
         <SidebarRouterLink
           v-for="staticRoute in staticRoutes"
           :key="staticRoute.id"
           v-bind="staticRoute"
           :shared="staticRoute.shared"
+          :collapsed="user.settings.collapseSidebar"
         />
 
         <div class="my-2 border-b border-slate-200"></div>
@@ -148,18 +183,31 @@ useHead({
           :key="brokerRoute.id"
           v-bind="brokerRoute"
           :shared="brokerRoute.shared"
+          :collapsed="user.settings.collapseSidebar"
         />
 
-        <Button
-          @click="openCreateBrokerDialog()"
-          icon="pi pi-plus"
+        <div
+          class="flex gap-3"
           :class="[
             {
+              'flex-col-reverse': user.settings.collapseSidebar,
+              'flex-row': !user.settings.collapseSidebar,
               'mt-auto': brokers?.length
             }
           ]"
-          label="Add Broker"
-        ></Button>
+        >
+          <Button
+            @click="openCreateBrokerDialog()"
+            icon="pi pi-plus"
+            class="grow"
+            :label="`${!user.settings.collapseSidebar ? 'Add Broker' : ''}`"
+          ></Button>
+          <Button
+            outlined
+            @click="toggleCollapse"
+            :icon="`pi pi-angle-double-${user.settings.collapseSidebar ? 'right' : 'left'}`"
+          ></Button>
+        </div>
       </div>
     </div>
 

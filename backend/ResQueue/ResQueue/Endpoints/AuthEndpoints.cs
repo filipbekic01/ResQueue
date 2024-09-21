@@ -58,6 +58,7 @@ public static class AuthEndpoints
                 Settings = new UserSettingsDto
                 {
                     ShowSyncConfirmDialogs = user.Settings.ShowSyncConfirmDialogs,
+                    CollapseSidebar = user.Settings.CollapseSidebar
                 }
             });
         }).RequireAuthorization();
@@ -157,7 +158,9 @@ public static class AuthEndpoints
                     update = Builders<User>.Update.Combine(
                         update,
                         Builders<User>.Update.Set(u => u.Settings.ShowSyncConfirmDialogs,
-                            dto.Settings.ShowSyncConfirmDialogs)
+                            dto.Settings.ShowSyncConfirmDialogs),
+                        Builders<User>.Update.Set(u => u.Settings.CollapseSidebar,
+                            dto.Settings.CollapseSidebar)
                     );
                 }
 

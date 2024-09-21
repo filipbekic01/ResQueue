@@ -16,5 +16,6 @@ public class User : MongoUser
     public UserSettings Settings { get; set; } = new()
     {
         ShowSyncConfirmDialogs = true,
+        CollapseSidebar = false
     };
 }

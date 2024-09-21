@@ -18,6 +18,7 @@ const props = defineProps<{
   icon: string
   to: RouteLocationAsRelativeGeneric
   shared: boolean
+  collapsed: boolean
 }>()
 
 const route = useRoute()
@@ -57,9 +58,11 @@ const showWarning = computed(() => {
   <RouterLink
     :key="id"
     :to="to"
-    class="flex w-full items-center rounded-lg px-4 py-2.5 text-slate-700 hover:bg-white"
+    class="flex w-full items-center rounded-lg py-2.5 text-slate-700 hover:bg-white"
     :class="[
       {
+        'px-4': !collapsed,
+        'justify-center': collapsed,
         'bg-white font-semibold shadow': isRoute(to),
         'font-medium': !isRoute(to)
       }
@@ -68,29 +71,32 @@ const showWarning = computed(() => {
     <img
       v-if="icon === 'pi pi-rabbitmq'"
       :src="rmqLogoUrl"
-      style="width: 1.125rem"
+      style="width: 1.2rem"
       :class="[
-        'mr-3 rounded p-1',
+        'rounded p-1',
         {
+          'mr-3': !collapsed,
           'bg-slate-900': isRoute(to),
           'bg-slate-600': !isRoute(to)
         }
       ]"
     />
     <i
-      class="mr-3 text-slate-600"
-      style="font-size: 1.125rem"
+      class="text-slate-600"
+      style="font-size: 1.2rem"
       v-else
       :class="[
         icon,
         {
+          'mr-3': !collapsed,
           'text-slate-900': isRoute(to)
         }
       ]"
     ></i>
-    <span>{{ label }}</span>
-    <i v-if="showWarning" class="pi pi-exclamation-circle ms-auto text-orange-400"></i>
-    <i v-if="shared" class="pi pi-users ms-auto"></i>
-    <!-- <span v-if="shared" class="ms-auto text-xs uppercase">owner</span> -->
+    <template v-if="!collapsed">
+      <span>{{ label }}</span>
+      <i v-if="showWarning" class="pi pi-exclamation-circle ms-auto text-orange-400"></i>
+      <i v-if="shared" class="pi pi-users ms-auto"></i>
+    </template>
   </RouterLink>
 </template>
