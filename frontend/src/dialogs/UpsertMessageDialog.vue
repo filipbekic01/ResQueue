@@ -39,7 +39,7 @@ if (originalMessage.value) {
   editableMessage.rabbitmqMetadata = theMsg.rabbitmqMetadata
   editableMessage.bodyEncoding = theMsg.bodyEncoding
 
-  if (editableMessage.bodyEncoding.toLowerCase() === 'json') {
+  if (editableMessage.bodyEncoding === 'json') {
     body.value = JSON.stringify(theMsg.body, null, 4)
   } else {
     body.value = theMsg.body
@@ -81,7 +81,7 @@ const submit = async () => {
     brokerId,
     queueId,
     ...editableMessage,
-    body: editableMessage.bodyEncoding === 'json' ? JSON.parse(body.value) : body
+    body: editableMessage.bodyEncoding === 'json' ? JSON.parse(body.value) : body.value
   }
 
   ;(originalMessage.value
