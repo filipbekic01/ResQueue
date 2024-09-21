@@ -3,6 +3,7 @@ import { useBrokersQuery } from '@/api/brokers/brokersQuery'
 import { useIdentity } from '@/composables/identityComposable'
 import CreateBrokerDialog from '@/dialogs/CreateBrokerDialog.vue'
 import type { BrokerDto } from '@/dtos/broker/brokerDto'
+import { useHead } from '@unhead/vue'
 import Button from 'primevue/button'
 import { useDialog } from 'primevue/usedialog'
 import { useToast } from 'primevue/usetoast'
@@ -101,6 +102,13 @@ const openFullNameEditPage = () => {
     router.push({ name: 'app' })
   }
 }
+
+useHead({
+  title: 'ResQueue',
+  meta: [
+    { name: 'robots', content: 'noindex, nofollow' } // Prevents the page from being indexed
+  ]
+})
 </script>
 
 <template>

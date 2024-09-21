@@ -3,6 +3,7 @@ import { useAcceptBrokerInvitationMutation } from '@/api/brokers/acceptBrokerInv
 import { useBrokerInvitationQuery } from '@/api/brokers/brokerInvitationQuery'
 import { useIdentity } from '@/composables/identityComposable'
 import { errorToToast } from '@/utils/errorUtils'
+import { useHead } from '@unhead/vue'
 import { differenceInSeconds } from 'date-fns'
 import { useToast } from 'primevue/usetoast'
 import { computed } from 'vue'
@@ -33,6 +34,13 @@ const acceptBrokerInvitation = () => {
     })
     .catch((e) => toast.add(errorToToast(e)))
 }
+
+useHead({
+  title: 'Broker Invitation - ResQueue',
+  meta: [
+    { name: 'robots', content: 'noindex, nofollow' } // Prevents the page from being indexed
+  ]
+})
 </script>
 
 <template>

@@ -2,6 +2,7 @@
 import { useForgotPasswordMutation } from '@/api/auth/forgotPassword'
 import { useResetPasswordMutation } from '@/api/auth/resetPassword'
 import { errorToToast } from '@/utils/errorUtils'
+import { useHead } from '@unhead/vue'
 import { useToast } from 'primevue/usetoast'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -66,6 +67,13 @@ const resetPassword = () => {
     })
     .catch((e) => toast.add(errorToToast(e)))
 }
+
+useHead({
+  title: 'ResQueue',
+  meta: [
+    { name: 'robots', content: 'noindex, nofollow' } // Prevents the page from being indexed
+  ]
+})
 </script>
 
 <template>

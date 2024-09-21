@@ -2,6 +2,7 @@
 import { useLoginMutation } from '@/api/auth/loginMutation'
 import { useIdentity } from '@/composables/identityComposable'
 import { errorToToast } from '@/utils/errorUtils'
+import { useHead } from '@unhead/vue'
 import { useToast } from 'primevue/usetoast'
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -56,6 +57,13 @@ watch(
     immediate: true
   }
 )
+
+useHead({
+  title: 'ResQueue',
+  meta: [
+    { name: 'robots', content: 'noindex, nofollow' } // Prevents the page from being indexed
+  ]
+})
 </script>
 
 <template>
