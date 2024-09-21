@@ -15,7 +15,7 @@ public static class MongoDbExtensions
         services.AddScoped(sp =>
         {
             var client = sp.GetRequiredService<IMongoClient>();
-            return client.GetDatabase("ResQueue");
+            return client.GetDatabase("resqueue");
         });
 
         services.AddScoped(sp =>
