@@ -58,10 +58,7 @@ public class Program
 
                     opt.User.RequireUniqueEmail = true;
                 },
-                mongoOptions =>
-                {
-                    mongoOptions.ConnectionString = $"{settings.MongoDBConnectionString}";
-                })
+                mongoOptions => { mongoOptions.ConnectionString = $"{settings.MongoDBConnectionString}"; })
             .AddUserManager<ResqueueUserManager>();
 
         builder.Services.AddMongoDb(settings);
@@ -100,6 +97,10 @@ public class Program
         string[] frontendRoutes =
         [
             "^login$",
+            "^forgot-password$",
+            "^support$",
+            "^pricing$",
+            "^app",
         ];
         app.UseRewriter(frontendRoutes.Aggregate(
             new RewriteOptions(),
