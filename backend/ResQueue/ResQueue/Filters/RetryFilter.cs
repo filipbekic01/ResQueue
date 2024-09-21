@@ -9,7 +9,7 @@ public static class RetryFilterExtensions
     {
         return builder.AddEndpointFilter(async (invocationContext, next) =>
         {
-            int retryCount = 0;
+            var retryCount = 0;
 
             while (retryCount < maxRetryAttempts)
             {
@@ -17,14 +17,17 @@ public static class RetryFilterExtensions
                 {
                     return await next(invocationContext);
                 }
-                catch (MongoCommandException ex) when (ex.Code == 251)
+                catch (MongoException ex) when (IsTransientError(ex))
                 {
                     retryCount++;
                     if (retryCount >= maxRetryAttempts)
                     {
                         return Results.Problem(
-                            "Operation failed after multiple attempts.",
-                            statusCode: StatusCodes.Status500InternalServerError
+                            title: "Database Operation Failed",
+                            detail:
+                            $"The operation failed after {maxRetryAttempts} attempts due to a transient database error.",
+                            statusCode: StatusCodes.Status500InternalServerError,
+                            instance: invocationContext.HttpContext.Request.Path
                         );
                     }
 
@@ -35,4 +38,29 @@ public static class RetryFilterExtensions
             return Results.Problem("Unexpected error.", statusCode: StatusCodes.Status500InternalServerError);
         });
     }
+
+    private static readonly int[] MongoDbTransientErrorCodes =
+    [
+        6, // HostUnreachable
+        7, // HostNotFound
+        89, // NetworkTimeout
+        91, // ShutdownInProgress
+        189, // PrimarySteppedDown
+        262, // ExceededTimeLimit
+        9001, // SocketException
+        10107, // NotMaster
+        11600, // InterruptedAtShutdown
+        11602, // InterruptedDueToReplStateChange
+        13435, // NotMasterNoSlaveOk
+        13436, // NotMasterOrSecondary
+        251, // NoSuchTransaction
+        112 // WriteConflict
+    ];
+
+    private static bool IsTransientError(MongoException ex) => ex switch
+    {
+        MongoCommandException cmdEx => MongoDbTransientErrorCodes.Contains(cmdEx.Code),
+        MongoConnectionException or MongoNotPrimaryException or MongoNodeIsRecoveringException => true,
+        _ => false
+    };
 }
