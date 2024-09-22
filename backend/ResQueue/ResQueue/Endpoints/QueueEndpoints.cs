@@ -48,7 +48,7 @@ public static class QueueEndpoints
                 return Results.Ok(queues.Select(x => new QueueDto()
                 {
                     Id = x.Id.ToString(),
-                    RawData = x.RawData.ToString(),
+                    RawData = JsonHelper.ConvertBsonToJson(x.RawData),
                     TotalMessages = x.TotalMessages,
                     IsFavorite = x.IsFavorite,
                     CreatedAt = x.CreatedAt
@@ -137,7 +137,7 @@ public static class QueueEndpoints
                     Items = queues.Select(x => new QueueDto()
                     {
                         Id = x.Id.ToString(),
-                        RawData = x.RawData.ToString(),
+                        RawData = JsonHelper.ConvertBsonToJson(x.RawData),
                         TotalMessages = x.TotalMessages,
                         IsFavorite = x.IsFavorite,
                         CreatedAt = x.CreatedAt
