@@ -62,7 +62,7 @@ public class Program
                 mongoOptions => { mongoOptions.ConnectionString = $"{settings.MongoDBConnectionString}"; })
             .AddUserManager<ResqueueUserManager>();
 
-        builder.Services.AddMongoDb(settings);
+        builder.Services.AddMongoDb();
 
         builder.Services.AddSingleton<IEmailSender<User>, DummyEmailSender>();
 

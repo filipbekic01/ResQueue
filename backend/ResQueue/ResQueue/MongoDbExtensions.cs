@@ -1,15 +1,18 @@
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using ResQueue.HostedServices;
 using ResQueue.Models;
 
 namespace ResQueue;
 
 public static class MongoDbExtensions
 {
-    public static IServiceCollection AddMongoDb(this IServiceCollection services, Settings settings)
+    public static IServiceCollection AddMongoDb(this IServiceCollection services)
     {
         services.AddSingleton<IMongoClient, MongoClient>(sp =>
         {
-            return new MongoClient(MongoClientSettings.FromConnectionString(settings.MongoDBConnectionString));
+            var options = sp.GetRequiredService<IOptions<Settings>>();
+            return new MongoClient(MongoClientSettings.FromConnectionString(options.Value.MongoDBConnectionString));
         });
 
         services.AddScoped(sp =>
@@ -47,6 +50,8 @@ public static class MongoDbExtensions
             var database = sp.GetRequiredService<IMongoDatabase>();
             return database.GetCollection<BrokerInvitation>("broker-invitations");
         });
+
+        services.AddHostedService<MongoDbIndexManagerService>();
 
         return services;
     }
