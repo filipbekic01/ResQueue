@@ -11,9 +11,7 @@ const loadStripeAsync = async () => {
   isLoading.value = true
 
   try {
-    stripe.value = await loadStripe(
-      'pk_test_51PpxV4KE6sxW2owau69f5U6Fzf5uMnUIgo9gB8WxnCkaix9pcxn9yGr1erlTZjPt2ec7I8X42eKKmNpCgNoaDxw300PVRqNQUe'
-    )
+    stripe.value = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
 
     if (!stripe.value) {
       console.error('Failed method loadStripeAsync')

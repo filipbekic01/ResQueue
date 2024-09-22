@@ -29,8 +29,8 @@ public class ChangePlanFeature(
 
         var dc = new Dictionary<string, string>
         {
-            { StripePlans.ESSENTIALS, "price_1PpyCoKE6sxW2owa2SY4jGXp" },
-            { StripePlans.ULTIMATE, "price_1PpyDFKE6sxW2owaWndg9Wxc" }
+            { StripePlans.ESSENTIALS, settings.Value.StripeEssentialsPriceId },
+            { StripePlans.ULTIMATE, settings.Value.StripeUltimatePriceId }
         };
 
         // Get user
