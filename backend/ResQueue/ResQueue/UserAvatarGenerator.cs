@@ -33,7 +33,7 @@ namespace ResQueue
         // Thread-safe random number generator
         private static readonly Random GlobalRandom = new Random();
         [ThreadStatic]
-        private static Random _localRandom;
+        private static Random? _localRandom;
 
         /// <summary>
         /// Generates an avatar with a random color from the predefined array and a random pattern.
