@@ -9,8 +9,8 @@ import { useRouter } from 'vue-router'
 
 const toast = useToast()
 
-const email = ref('filip@gmail.com')
-const password = ref('Password1!')
+const email = ref('')
+const password = ref('')
 
 const router = useRouter()
 

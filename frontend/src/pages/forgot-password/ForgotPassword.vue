@@ -10,7 +10,7 @@ import { useRouter } from 'vue-router'
 const toast = useToast()
 const router = useRouter()
 
-const email = ref('filip@gmail.com')
+const email = ref('')
 const resetCode = ref('')
 const newPassword = ref('')
 

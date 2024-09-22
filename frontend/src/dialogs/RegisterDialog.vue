@@ -19,8 +19,8 @@ const {
 
 const { mutateAsync: loginAsync } = useLoginMutation()
 
-const email = ref('filip@gmail.com')
-const password = ref('Password1!')
+const email = ref('')
+const password = ref('')
 
 const passwordType = ref('password')
 

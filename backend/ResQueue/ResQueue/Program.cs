@@ -59,7 +59,13 @@ public class Program
 
                     opt.User.RequireUniqueEmail = true;
                 },
-                mongoOptions => { mongoOptions.ConnectionString = $"{settings.MongoDBConnectionString}"; })
+                mongoOptions =>
+                {
+                    mongoOptions.ConnectionString = $"{settings.MongoDBConnectionString}";
+                    mongoOptions.UsersCollection = "users";
+                    mongoOptions.RolesCollection = "roles";
+                    mongoOptions.MigrationCollection = "_migrations";
+                })
             .AddUserManager<ResqueueUserManager>();
 
         builder.Services.AddMongoDb();
