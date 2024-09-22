@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using ResQueue.Dtos;
+using ResQueue.Dtos.Stripe;
 using ResQueue.Features.Stripe.CreateSubscription;
 using ResQueue.Filters;
 using ResQueue.Models;
@@ -76,7 +77,8 @@ public static class AuthEndpoints
                     UserName = dto.Email,
                     Email = dto.Email,
                     FullName = DefaultUserNames.GetRandomName(),
-                    Avatar = UserAvatarGenerator.GenerateUniqueAvatar(Guid.NewGuid().ToString())
+                    Avatar = UserAvatarGenerator.GenerateUniqueAvatar(Guid.NewGuid().ToString()),
+                    CreatedAt = DateTime.UtcNow
                 };
 
                 var result = await userManager.CreateAsync(user, dto.Password);
@@ -91,7 +93,7 @@ public static class AuthEndpoints
                 {
                     var featureResult = await feature.ExecuteAsync(new CreateSubscriptionRequest(
                         UserId: user.Id.ToString(),
-                        new(
+                        new CreateSubscriptionDto(
                             CustomerEmail: user.Email,
                             PaymentMethodId: dto.PaymentMethodId,
                             Plan: dto.Plan

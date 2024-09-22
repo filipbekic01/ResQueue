@@ -11,6 +11,8 @@ public class User : MongoUser
     public string? PaymentType { get; set; }
     public string? PaymentLastFour { get; set; }
 
+    public DateTime CreatedAt { get; set; }
+
     public Subscription? Subscription { get; set; }
 
     public UserSettings Settings { get; set; } = new()
