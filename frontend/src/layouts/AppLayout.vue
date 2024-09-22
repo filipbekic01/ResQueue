@@ -131,11 +131,11 @@ const toggleCollapse = () => {
 <template>
   <div class="flex h-screen gap-2 bg-gray-100 p-2" v-if="user">
     <div
-      class="flex w-72 shrink-0 basis-72 flex-col"
+      class="flex shrink-0 flex-col"
       :class="[
         {
           'w-72 basis-72': !user.settings.collapseSidebar,
-          'w-0 basis-0': user.settings.collapseSidebar
+          '': user.settings.collapseSidebar
         }
       ]"
     >
@@ -239,5 +239,7 @@ const toggleCollapse = () => {
       </div>
     </div>
   </div>
-  <template v-else> Loading...</template>
+  <template v-else>
+    <!-- loading... -->
+  </template>
 </template>
