@@ -11,4 +11,5 @@ public class Settings
 
     public string StripeSecret { get; set; } = null!;
     public string StripeSecretWebhook { get; set; } = null!;
+    public string WebsiteUrl { get; set; } = null!;
 }

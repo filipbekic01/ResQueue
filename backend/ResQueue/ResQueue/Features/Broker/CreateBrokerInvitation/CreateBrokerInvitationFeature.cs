@@ -164,9 +164,15 @@ public class CreateBrokerInvitationFeature(
         message.To.Add(new MailboxAddress(currentUser.UserName, currentUser.Email));
         message.Subject = "ResQueue — Broker Invitation";
 
+        var builder = new UriBuilder(settings.Value.WebsiteUrl)
+        {
+            Path = "app/broker-invitation",
+            Query = $"token={token}"
+        };
+
         message.Body = new TextPart("html")
         {
-            Text = $"Broker invitation: {token}"
+            Text = $"You're invited to join a team, <a href='{builder.Uri}'>click here</a> to proceed."
         };
 
         using var client = new SmtpClient();
