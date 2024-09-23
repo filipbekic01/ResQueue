@@ -51,6 +51,9 @@ public class ArchiveMessagesFeature(
         await queuesCollection.UpdateOneAsync(session, x => x.Id == ObjectId.Parse(request.Dto.QueueId),
             Builders<Queue>.Update.Inc(x => x.TotalMessages, -result.ModifiedCount));
 
+        await queuesCollection.UpdateOneAsync(session, x => x.Id == ObjectId.Parse(request.Dto.QueueId),
+            Builders<Queue>.Update.Max(x => x.TotalMessages, 0));
+
         await session.CommitTransactionAsync();
 
         return OperationResult<ArchiveMessagesFeatureResponse>.Success(new ArchiveMessagesFeatureResponse());
