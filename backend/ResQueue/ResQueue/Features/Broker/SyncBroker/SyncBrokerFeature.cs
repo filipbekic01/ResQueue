@@ -20,7 +20,8 @@ public class SyncBrokerFeature(
     UserManager<User> userManager,
     IMongoCollection<Queue> queuesCollection,
     IMongoCollection<Models.Broker> brokersCollection,
-    IMongoCollection<Exchange> exchangesCollection
+    IMongoCollection<Exchange> exchangesCollection,
+    IMongoClient mongoClient
 ) : ISyncBrokerFeature
 {
     public async Task<OperationResult<SyncBrokerFeatureResponse>> ExecuteAsync(SyncBrokerFeatureRequest request)
@@ -46,9 +47,11 @@ public class SyncBrokerFeature(
         );
         var broker = await brokersCollection.Find(brokerFilter).SingleAsync();
 
+        // Get queues
         var queuesFilter = Builders<Queue>.Filter.Eq(b => b.BrokerId, ObjectId.Parse(request.Id));
         var queues = await queuesCollection.Find(queuesFilter).ToListAsync();
 
+        // Get exchanges
         var exchangesFilters = Builders<Exchange>.Filter.Eq(b => b.BrokerId, ObjectId.Parse(request.Id));
         var exchanges = await exchangesCollection.Find(exchangesFilters).ToListAsync();
 
@@ -71,8 +74,11 @@ public class SyncBrokerFeature(
             element.TryGetProperty("name", out var nameProperty);
             var queueName = nameProperty.ToString();
 
-            if (!queues.Any(queue =>
-                    queue.RawData.TryGetValue("name", out var nameValue) && nameValue == queueName))
+            var queueExists = queues.Any(queue =>
+                queue.RawData.TryGetValue("name", out var nameValue) && nameValue == queueName);
+
+            // Add queue
+            if (!queueExists)
             {
                 queuesToAdd.Add(new Queue
                 {
@@ -81,7 +87,9 @@ public class SyncBrokerFeature(
                     CreatedAt = dt
                 });
             }
-            else
+
+            // Update queue
+            if (queueExists)
             {
                 var queue = queues.Find(x =>
                     x.RawData.TryGetValue("name", out var nameValue) && nameValue == queueName);
@@ -101,51 +109,27 @@ public class SyncBrokerFeature(
             }
         }
 
+        // Delete queue
         foreach (var queue in queues)
         {
+            if (queue.TotalMessages > 0)
+            {
+                continue;
+            }
+
             if (!queue.RawData.TryGetValue("name", out var nameValue))
             {
                 continue;
             }
 
-            var queueName = nameValue.ToString();
-
-            if (!root.EnumerateArray().Any(element =>
+            if (root.EnumerateArray().Any(element =>
                     element.TryGetProperty("name", out var nameProperty) &&
-                    nameProperty.ToString() == queueName))
+                    nameProperty.ToString() == nameValue.ToString()))
             {
-                queueIdsToDelete.Add(queue.Id);
-            }
-        }
-
-        if (queueIdsToDelete.Count > 0)
-        {
-            var deleteFilter = Builders<Queue>.Filter.In(q => q.Id, queueIdsToDelete);
-            await queuesCollection.DeleteManyAsync(deleteFilter);
-        }
-
-        if (queuesToAdd.Count > 0)
-        {
-            await queuesCollection.InsertManyAsync(queuesToAdd);
-        }
-
-        if (queuesToUpdate.Count > 0)
-        {
-            var bulkOperations = new List<WriteModel<Queue>>();
-
-            foreach (var queue in queuesToUpdate)
-            {
-                var updateFilter = Builders<Queue>.Filter.Eq(q => q.Id, queue.Id);
-                var updateDefinition = Builders<Queue>.Update.Set(q => q.RawData, queue.RawData);
-
-                var updateOneModel = new UpdateOneModel<Queue>(updateFilter, updateDefinition);
-                bulkOperations.Add(updateOneModel);
+                continue;
             }
 
-            if (bulkOperations.Count > 0)
-            {
-                await queuesCollection.BulkWriteAsync(bulkOperations);
-            }
+            queueIdsToDelete.Add(queue.Id);
         }
 
         // Sync exchanges
@@ -159,6 +143,7 @@ public class SyncBrokerFeature(
         var exchangesToAdd = new List<Exchange>();
         var exchangeIdsToDelete = new List<ObjectId>();
 
+        // Add exchange
         foreach (var element in root2.EnumerateArray())
         {
             if (!element.TryGetProperty("name", out var nameProperty))
@@ -180,6 +165,7 @@ public class SyncBrokerFeature(
             }
         }
 
+        // Remove exchange
         foreach (var exchange in exchanges)
         {
             if (!exchange.RawData.TryGetValue("name", out var nameValue))
@@ -197,17 +183,51 @@ public class SyncBrokerFeature(
             }
         }
 
+        // Do transaction 
+        using var session = await mongoClient.StartSessionAsync();
+        session.StartTransaction();
+
+        // queues
+        if (queueIdsToDelete.Count > 0)
+        {
+            var deleteFilter = Builders<Queue>.Filter.In(q => q.Id, queueIdsToDelete);
+            await queuesCollection.DeleteManyAsync(session, deleteFilter);
+        }
+
+        if (queuesToAdd.Count > 0)
+        {
+            await queuesCollection.InsertManyAsync(session, queuesToAdd);
+        }
+
+        if (queuesToUpdate.Count > 0)
+        {
+            var bulkOperations = new List<WriteModel<Queue>>();
+
+            foreach (var queue in queuesToUpdate)
+            {
+                var updateFilter = Builders<Queue>.Filter.Eq(q => q.Id, queue.Id);
+                var updateDefinition = Builders<Queue>.Update.Set(q => q.RawData, queue.RawData);
+
+                var updateOneModel = new UpdateOneModel<Queue>(updateFilter, updateDefinition);
+                bulkOperations.Add(updateOneModel);
+            }
+
+            await queuesCollection.BulkWriteAsync(session, bulkOperations);
+        }
+
+        // Exchanges
         if (exchangeIdsToDelete.Count > 0)
         {
             var deleteFilter = Builders<Exchange>.Filter.In(q => q.Id, exchangeIdsToDelete);
-            await exchangesCollection.DeleteManyAsync(deleteFilter);
+            await exchangesCollection.DeleteManyAsync(session, deleteFilter);
         }
 
         if (exchangesToAdd.Count > 0)
         {
-            await exchangesCollection.InsertManyAsync(exchangesToAdd);
+            await exchangesCollection.InsertManyAsync(session, exchangesToAdd);
         }
 
+        // Broker
         var update = Builders<Models.Broker>.Update
             .Set(b => b.SyncedAt, DateTime.UtcNow);
 
@@ -215,7 +235,9 @@ public class SyncBrokerFeature(
             Builders<Models.Broker>.Filter.Eq(b => b.Id, broker.Id)
         );
 
-        await brokersCollection.UpdateOneAsync(filter, update);
+        await brokersCollection.UpdateOneAsync(session, filter, update);
+
+        await session.CommitTransactionAsync();
 
         return OperationResult<SyncBrokerFeatureResponse>.Success(new SyncBrokerFeatureResponse());
     }

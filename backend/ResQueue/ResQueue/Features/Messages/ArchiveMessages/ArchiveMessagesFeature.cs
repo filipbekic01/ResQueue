@@ -46,7 +46,7 @@ public class ArchiveMessagesFeature(
         using var session = await mongoClient.StartSessionAsync();
         session.StartTransaction();
 
-        var result = await messagesCollection.UpdateManyAsync(filter, update);
+        var result = await messagesCollection.UpdateManyAsync(session, filter, update);
 
         await queuesCollection.UpdateOneAsync(session, x => x.Id == ObjectId.Parse(request.Dto.QueueId),
             Builders<Queue>.Update.Inc(x => x.TotalMessages, -result.ModifiedCount));
