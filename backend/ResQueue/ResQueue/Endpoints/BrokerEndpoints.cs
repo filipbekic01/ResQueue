@@ -54,18 +54,39 @@ public static class BrokerEndpoints
             });
 
         group.MapPost("",
-            async (IMongoCollection<Broker> collection, [FromBody] CreateBrokerDto dto, UserManager<User> userManager,
+            async (IMongoCollection<Broker> brokersCollection, [FromBody] CreateBrokerDto dto,
+                UserManager<User> userManager,
                 HttpContext httpContext) =>
             {
+                // Get user
                 var user = await userManager.GetUserAsync(httpContext.User);
                 if (user == null)
                 {
                     return Results.Unauthorized();
                 }
 
+                // Validate free plan broker count
+                if (user.Subscription is null)
+                {
+                    var filter = Builders<Broker>.Filter.And(
+                        Builders<Broker>.Filter.Eq(b => b.CreatedByUserId, user.Id),
+                        Builders<Broker>.Filter.Eq(b => b.DeletedAt, null)
+                    );
+
+                    if (await brokersCollection.Find(filter).AnyAsync())
+                    {
+                        return Results.Problem(new ProblemDetails
+                        {
+                            Title = "Free Plan Limit",
+                            Detail = "Upgrade to paid plan to unlock more broker slots.",
+                            Status = StatusCodes.Status403Forbidden
+                        });
+                    }
+                }
+
                 var broker = CreateBrokerDtoMapper.ToBroker(user.Id, dto);
 
-                await collection.InsertOneAsync(broker);
+                await brokersCollection.InsertOneAsync(broker);
 
                 return Results.Ok(BrokerMapper.ToDto(broker));
             });

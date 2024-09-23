@@ -31,9 +31,11 @@ const newBroker = reactive<CreateBrokerDto>({
 })
 
 const createBroker = () => {
-  createBrokerAsync(newBroker).then((data) => {
-    dialogRef?.value.close(data)
-  })
+  createBrokerAsync(newBroker)
+    .then((data) => {
+      dialogRef?.value.close(data)
+    })
+    .catch((e) => toast.add(errorToToast(e)))
 }
 
 const testConnection = () => {
