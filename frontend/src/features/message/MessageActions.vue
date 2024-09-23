@@ -149,7 +149,10 @@ const archiveMessages = () => {
       severity: 'danger'
     },
     accept: () => {
-      archiveMessagesAsync(props.selectedMessageIds).then(() => {
+      archiveMessagesAsync({
+        ids: props.selectedMessageIds,
+        queueId: props.rabbitMqQueue.id
+      }).then(() => {
         emit('archive:message')
 
         toast.add({

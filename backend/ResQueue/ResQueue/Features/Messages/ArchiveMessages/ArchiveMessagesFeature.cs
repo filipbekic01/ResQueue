@@ -14,7 +14,9 @@ public record ArchiveMessagesFeatureResponse();
 
 public class ArchiveMessagesFeature(
     UserManager<User> userManager,
-    IMongoCollection<Message> messagesCollection
+    IMongoCollection<Message> messagesCollection,
+    IMongoCollection<Queue> queuesCollection,
+    IMongoClient mongoClient
 ) : IArchiveMessagesFeature
 {
     public async Task<OperationResult<ArchiveMessagesFeatureResponse>> ExecuteAsync(
@@ -35,12 +37,21 @@ public class ArchiveMessagesFeature(
 
         var filter = Builders<Message>.Filter.And(
             Builders<Message>.Filter.In(m => m.Id, request.Dto.Ids.Select(ObjectId.Parse)),
+            Builders<Message>.Filter.Eq(m => m.QueueId, ObjectId.Parse(request.Dto.QueueId)),
             Builders<Message>.Filter.Eq(m => m.UserId, user.Id)
         );
 
         var update = Builders<Message>.Update.Set(m => m.DeletedAt, dt);
 
-        await messagesCollection.UpdateManyAsync(filter, update);
+        using var session = await mongoClient.StartSessionAsync();
+        session.StartTransaction();
+
+        var result = await messagesCollection.UpdateManyAsync(filter, update);
+
+        await queuesCollection.UpdateOneAsync(session, x => x.Id == ObjectId.Parse(request.Dto.QueueId),
+            Builders<Queue>.Update.Inc(x => x.TotalMessages, -result.ModifiedCount));
+
+        await session.CommitTransactionAsync();
 
         return OperationResult<ArchiveMessagesFeatureResponse>.Success(new ArchiveMessagesFeatureResponse());
     }

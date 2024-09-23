@@ -6,16 +6,16 @@ export function useArchiveMessagesMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (ids: string[]) =>
+    mutationFn: (data: { ids: string[]; queueId: string }) =>
       axios.delete(`${API_URL}/messages`, {
-        data: {
-          ids
-        },
+        data,
         withCredentials: true
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['messages'] })
       queryClient.invalidateQueries({ queryKey: ['message'] })
+      queryClient.invalidateQueries({ queryKey: ['queues'] })
+      queryClient.invalidateQueries({ queryKey: ['queue'] })
     }
   })
 }

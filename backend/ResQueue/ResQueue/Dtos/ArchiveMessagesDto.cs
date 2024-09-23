@@ -1,3 +1,3 @@
 namespace ResQueue.Dtos;
 
-public record ArchiveMessagesDto(string[] Ids);
+public record ArchiveMessagesDto(string QueueId, string[] Ids);
