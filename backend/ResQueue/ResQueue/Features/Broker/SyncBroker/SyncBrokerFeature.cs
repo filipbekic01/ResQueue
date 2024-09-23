@@ -149,7 +149,6 @@ public class SyncBrokerFeature(
         }
 
         // Sync exchanges
-
         response = await http.GetAsync($"/api/exchanges");
         response.EnsureSuccessStatusCode();
 

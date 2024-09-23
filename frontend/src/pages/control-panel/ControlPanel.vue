@@ -121,14 +121,16 @@ const updateUserAvatar = () => {
       severity: ''
     },
     accept: () => {
-      updateUserAvatarAsync().then(() => {
-        toast.add({
-          severity: 'success',
-          summary: 'Avatar Updated',
-          detail: 'Generated new account avatar.',
-          life: 3000
+      updateUserAvatarAsync()
+        .then(() => {
+          toast.add({
+            severity: 'success',
+            summary: 'Avatar Updated',
+            detail: 'Generated new account avatar.',
+            life: 3000
+          })
         })
-      })
+        .catch((e) => toast.add(errorToToast(e)))
     },
     reject: () => {}
   })
@@ -148,14 +150,16 @@ const upgradePlan = () => {
       label: 'Upgrade Now'
     },
     accept: () => {
-      changePlanAsync().then(() => {
-        toast.add({
-          severity: 'success',
-          summary: 'Ultimate Activated',
-          detail: 'Successfully upgraded account.',
-          life: 3000
+      changePlanAsync()
+        .then(() => {
+          toast.add({
+            severity: 'success',
+            summary: 'Ultimate Activated',
+            detail: 'Successfully upgraded account.',
+            life: 3000
+          })
         })
-      })
+        .catch((e) => toast.add(errorToToast(e)))
     },
     reject: () => {}
   })

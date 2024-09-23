@@ -223,7 +223,7 @@ watchEffect(() => {
       :sort-order="route.query.sortOrder ? parseInt(route.query.sortOrder.toString()) : undefined"
       @sort="updateSort"
     >
-      <Column field="inbox" sortable header="Inbox" class="w-[0%]">
+      <Column field="index" sortable header="Inbox" class="w-[0%]">
         <template #body="{ data }">
           <div class="flex items-center justify-between gap-2">
             <Button text size="small" @click="toggleFavorite(data)"

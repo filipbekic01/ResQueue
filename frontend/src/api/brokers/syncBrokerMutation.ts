@@ -16,6 +16,7 @@ export function useSyncBrokerMutation() {
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['queues'] })
+      queryClient.invalidateQueries({ queryKey: ['queue'] })
       queryClient.invalidateQueries({ queryKey: ['exchanges'] })
       queryClient.invalidateQueries({ queryKey: ['brokers'] })
     }

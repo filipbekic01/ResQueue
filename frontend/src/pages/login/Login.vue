@@ -79,8 +79,9 @@ useHead({
     </RouterLink>
     <div class="flex w-96 flex-col rounded-xl border bg-white p-8 shadow-md">
       <div class="mb-4 flex flex-col gap-4">
-        <label for="username" class="white w-24 font-semibold">E-Mail</label>
+        <label for="username" class="white font-semibold">E-Mail Address</label>
         <InputText
+          placeholder="E-Mail address"
           v-model="email"
           id="username"
           class="flex-auto"
@@ -89,9 +90,10 @@ useHead({
         />
       </div>
       <div class="mb-8 flex flex-col gap-4">
-        <label for="email" class="white w-24 font-semibold">Password</label>
+        <label for="password" class="white font-semibold">Password</label>
         <InputText
-          id="email"
+          placeholder="********"
+          id="password"
           v-model="password"
           class="flex-auto"
           type="password"

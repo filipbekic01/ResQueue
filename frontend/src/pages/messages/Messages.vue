@@ -247,7 +247,24 @@ const editMessage = (id: string) => {
 }
 
 const cloneMessage = (id: string) => {
-  cloneMessageAsync(id).catch((e) => toast.add(errorToToast(e)))
+  confirm.require({
+    header: 'Clone Message',
+    message: `You're about to clone message. New message will appear at the end of table view.`,
+    icon: 'pi pi-info-circle',
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Clone',
+      severity: 'primary'
+    },
+    accept: () => {
+      cloneMessageAsync(id).catch((e) => toast.add(errorToToast(e)))
+    },
+    reject: () => {}
+  })
 }
 </script>
 

@@ -83,14 +83,16 @@ const downgradePlan = () => {
       severity: 'danger'
     },
     accept: () => {
-      changePlanAsync().then(() => {
-        toast.add({
-          severity: 'success',
-          summary: 'Essentials Activated',
-          detail: 'Successfully downgraded account.',
-          life: 3000
+      changePlanAsync()
+        .then(() => {
+          toast.add({
+            severity: 'success',
+            summary: 'Essentials Activated',
+            detail: 'Successfully downgraded account.',
+            life: 3000
+          })
         })
-      })
+        .catch((e) => toast.add(errorToToast(e)))
     },
     reject: () => {}
   })

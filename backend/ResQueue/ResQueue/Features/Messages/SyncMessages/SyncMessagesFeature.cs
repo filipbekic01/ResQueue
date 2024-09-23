@@ -65,9 +65,12 @@ public class SyncMessagesFeature(
             await queuesCollection.UpdateOneAsync(session, x => x.Id == queue.Id,
                 Builders<Queue>.Update.Max(x => x.RawData["messages"], 0));
 
+            await queuesCollection.UpdateOneAsync(session, x => x.Id == queue.Id,
+                Builders<Queue>.Update.Inc(x => x.TotalMessages, 1));
+
             await session.CommitTransactionAsync();
 
-            // channel.BasicAck(res.DeliveryTag, false);
+            channel.BasicAck(res.DeliveryTag, false);
         }
 
         return OperationResult<SyncMessagesFeatureResponse>.Success(new SyncMessagesFeatureResponse());
