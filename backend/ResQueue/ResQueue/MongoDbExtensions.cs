@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using ResQueue.HostedServices;
@@ -14,6 +16,12 @@ public static class MongoDbExtensions
             var options = sp.GetRequiredService<IOptions<Settings>>();
             return new MongoClient(MongoClientSettings.FromConnectionString(options.Value.MongoDBConnectionString));
         });
+
+        var mongoClient = services.BuildServiceProvider().GetRequiredService<IMongoClient>();
+        var mongoDbXmlRepository = new MongoDbXmlRepository(mongoClient, "resqueue");
+
+        services.AddDataProtection();
+        services.Configure<KeyManagementOptions>(o => { o.XmlRepository = mongoDbXmlRepository; });
 
         services.AddScoped(sp =>
         {
