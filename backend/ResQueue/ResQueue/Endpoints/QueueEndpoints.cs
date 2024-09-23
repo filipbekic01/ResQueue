@@ -71,7 +71,7 @@ public static class QueueEndpoints
                 search = search.Trim();
                 sortField = new[]
                 {
-                    "name", "synced", "messages"
+                    "inbox", "name", "messages"
                 }.Contains(sortField)
                     ? sortField
                     : null;
@@ -113,8 +113,15 @@ public static class QueueEndpoints
                 if (sortField is not null && sortOrder is not null)
                 {
                     var secondarySort = sortOrder == 1
-                        ? Builders<Queue>.Sort.Ascending($"RawData.{sortField}")
-                        : Builders<Queue>.Sort.Descending($"RawData.{sortField}");
+                        ? Builders<Queue>.Sort.Ascending(x => x.RawData[sortField])
+                        : Builders<Queue>.Sort.Descending(x => x.RawData[sortField]);
+
+                    if (sortField.Equals("inbox", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        secondarySort = sortOrder == 1
+                            ? Builders<Queue>.Sort.Ascending(x => x.TotalMessages)
+                            : Builders<Queue>.Sort.Descending(x => x.TotalMessages);
+                    }
 
                     sort = Builders<Queue>.Sort.Combine(sort, secondarySort);
                 }
