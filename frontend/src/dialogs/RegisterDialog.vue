@@ -21,6 +21,7 @@ const { mutateAsync: loginAsync } = useLoginMutation()
 
 const email = ref('')
 const password = ref('')
+const coupon = ref('')
 
 const passwordType = ref('password')
 
@@ -96,7 +97,8 @@ const register = async () => {
     email: email.value,
     password: password.value,
     paymentMethodId: paymentMethodId.value,
-    plan: dialogRef?.value.data.plan
+    plan: dialogRef?.value.data.plan,
+    coupon: coupon.value
   })
     .then(() => {
       loginAsync({
@@ -113,7 +115,10 @@ const register = async () => {
         })
         .catch((e) => toast.add(errorToToast(e)))
     })
-    .catch((e) => toast.add(errorToToast(e)))
+    .catch((e) => {
+      console.log(e)
+      toast.add(errorToToast(e))
+    })
     .finally(() => {
       isRegisterLoading.value = false
     })
@@ -176,6 +181,17 @@ const register = async () => {
       >Upgrade to unlock full access.</span
     ></Message
   >
+
+  <div v-if="dialogRef?.data.plan" class="my-4 flex flex-col gap-4">
+    <label for="coupon" class="white flex items-center font-semibold">Coupon</label>
+    <InputText
+      id="coupon"
+      placeholder="Enter coupon"
+      v-model="coupon"
+      class="flex-auto"
+      autocomplete="off"
+    />
+  </div>
 
   <div class="mt-8 flex flex-col items-center gap-2">
     <Button

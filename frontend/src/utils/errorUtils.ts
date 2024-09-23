@@ -10,14 +10,6 @@ export const errorToProblemDetails = (error: any): ProblemDetails => {
     detail: 'An unexpected error occurred.'
   }
 
-  // Check if JS runtime error
-  if (error.message) {
-    return {
-      ...defaultProblemDetails,
-      detail: error.message
-    }
-  }
-
   // Check if the error response exists and has data
   if (error.response?.data) {
     const problemDetails = error.response.data as ProblemDetails
@@ -59,6 +51,11 @@ export const errorToProblemDetails = (error: any): ProblemDetails => {
     }
 
     return result
+  } else if (error.message) {
+    return {
+      ...defaultProblemDetails,
+      detail: error.message
+    }
   }
 
   // Fallback to the default problem details if no response

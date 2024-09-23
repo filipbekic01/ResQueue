@@ -69,7 +69,11 @@ public static class AuthEndpoints
             {
                 if (!string.IsNullOrWhiteSpace(dto.Email) && !new EmailAddressAttribute().IsValid(dto.Email))
                 {
-                    return Results.Problem("Invalid e-mails address.");
+                    return Results.Problem(new ProblemDetails()
+                    {
+                        Title = "Invalid e-mails address.",
+                        Detail = "Enter valid e-mail address to continue",
+                    });
                 }
 
                 var user = new User
@@ -96,7 +100,8 @@ public static class AuthEndpoints
                         new CreateSubscriptionDto(
                             CustomerEmail: user.Email,
                             PaymentMethodId: dto.PaymentMethodId,
-                            Plan: dto.Plan
+                            Plan: dto.Plan,
+                            Coupon: dto.Coupon
                         )
                     ));
 
@@ -104,10 +109,7 @@ public static class AuthEndpoints
                     {
                         await userManager.DeleteAsync(user);
 
-                        // todo: remove from stripe if created by accident
-
-                        return Results.Problem(featureResult.Problem?.Detail,
-                            statusCode: featureResult.Problem?.Status ?? 500);
+                        return Results.Problem(featureResult.Problem!);
                     }
                 }
 

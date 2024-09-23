@@ -3,4 +3,5 @@ export interface RegisterDto {
   password: string
   paymentMethodId?: string
   plan?: string
+  coupon?: string
 }

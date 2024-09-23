@@ -34,10 +34,11 @@ public static class StripeEndpoints
 
                 var result = await feature.ExecuteAsync(new CreateSubscriptionRequest(
                     UserId: user.Id.ToString(),
-                    new(
+                    new CreateSubscriptionDto(
                         CustomerEmail: user.Email!,
                         PaymentMethodId: dto.PaymentMethodId,
-                        Plan: dto.Plan
+                        Plan: dto.Plan,
+                        Coupon: dto.Coupon
                     )
                 ));
 

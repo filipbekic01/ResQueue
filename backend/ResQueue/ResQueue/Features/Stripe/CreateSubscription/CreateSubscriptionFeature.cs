@@ -75,6 +75,7 @@ public class CreateSubscriptionFeature(
             var subscriptionOptions = new SubscriptionCreateOptions
             {
                 Customer = customer.Id,
+                Coupon = request.Dto.Coupon,
                 Items =
                 [
                     new SubscriptionItemOptions

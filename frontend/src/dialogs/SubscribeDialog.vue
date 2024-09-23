@@ -34,6 +34,7 @@ onMounted(() => {
 const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 
 const paymentMethodId = ref<string>()
+const coupon = ref('')
 
 const isLoading = ref(false)
 
@@ -92,7 +93,8 @@ const subscribe = async () => {
 
   subscribeAsync({
     paymentMethodId: paymentMethodId.value ?? '',
-    plan: dialogRef?.value.data.plan
+    plan: dialogRef?.value.data.plan,
+    coupon: coupon.value
   })
     .then(() => {
       dialogRef?.value.close()
@@ -119,27 +121,29 @@ const subscribe = async () => {
       autocomplete="off"
     />
   </div>
-  <div
-    v-if="dialogRef?.data.plan"
-    class="flex flex-col gap-4 rounded-xl border border-slate-300 p-4"
-  >
+  <div class="flex flex-col gap-4 rounded-xl border border-slate-300 p-4">
     <label for="card-element" class="white flex items-center font-medium"> Credit Card </label>
     <div class="rounded-md border border-slate-300 p-3" id="card-element"></div>
     <Message severity="secondary" pt:text:class="flex grow gap-2 "
       >Plan:
-      <span class="">{{ dialogRef.data.plan === 'essentials' ? 'Essentials' : 'Ultimate' }}</span
+      <span class="">{{ dialogRef?.data.plan === 'essentials' ? 'Essentials' : 'Ultimate' }}</span
       ><span class="ms-auto">{{
-        dialogRef.data.plan === 'essentials' ? '$9.99/mo' : '$14.99/mo'
+        dialogRef?.data.plan === 'essentials' ? '$9.99/mo' : '$14.99/mo'
       }}</span></Message
     >
   </div>
-  <Message severity="secondary" v-else
-    >Registering for a free account limits features.<br /><span
-      class="cursor-pointer border-b border-dashed border-slate-400 hover:border-slate-800"
-      @click="dialogRef?.close()"
-      >Upgrade to unlock full access.</span
-    ></Message
-  >
+
+  <div v-if="dialogRef?.data.plan" class="my-4 flex flex-col gap-4">
+    <label for="coupon" class="white flex items-center font-semibold">Coupon</label>
+    <InputText
+      id="coupon"
+      placeholder="Enter coupon"
+      v-model="coupon"
+      class="flex-auto"
+      autocomplete="off"
+    />
+  </div>
+
   <div class="mt-8 flex flex-col items-center gap-2">
     <Button
       type="button"

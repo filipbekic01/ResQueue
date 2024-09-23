@@ -4,5 +4,6 @@ public record RegisterDto(
     string Email,
     string Password,
     string PaymentMethodId,
-    string Plan
+    string? Plan,
+    string? Coupon
 );
