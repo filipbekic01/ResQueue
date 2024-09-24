@@ -72,12 +72,7 @@ const openDialog = (plan?: string) => {
       tier="Ultimate"
       text="For Teams"
       text-tooltip="Each team member is required to have an active subscription to the Ultimate plan."
-      :features="[
-        'Unlimited Brokers',
-        'Unlimited Messages',
-        'Teams Collaboration',
-        'Broker Auto-Sync'
-      ]"
+      :features="['Unlimited Brokers', 'Unlimited Messages', 'Teams Collaboration', 'Broker Auto-Sync']"
       :price="14.99"
       :recommended="true"
       @get-started="openDialog('ultimate')"

@@ -75,11 +75,6 @@ const updateCreditCard = async () => {
 <template>
   <div class="flex w-[28rem] flex-col">
     <div class="rounded-md border border-slate-300 p-3" id="card-element"></div>
-    <Button
-      class="mt-4"
-      label="Update Credit Card"
-      @click="updateCreditCard"
-      :loading="isLoading"
-    ></Button>
+    <Button class="mt-4" label="Update Credit Card" @click="updateCreditCard" :loading="isLoading"></Button>
   </div>
 </template>

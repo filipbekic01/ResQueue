@@ -75,15 +75,11 @@ const handleCopied = () => {
       </div>
     </template>
     <template #title
-      ><span class="cursor-pointer hover:underline" @click="backToBroker">{{
-        broker?.name
-      }}</span></template
+      ><span class="cursor-pointer hover:underline" @click="backToBroker">{{ broker?.name }}</span></template
     >
     <template #description>
       <div class="flex items-center">
-        <span class="cursor-pointer hover:underline" @click="backToMessages">{{
-          rabbitMqQueue?.parsed.name
-        }}</span>
+        <span class="cursor-pointer hover:underline" @click="backToMessages">{{ rabbitMqQueue?.parsed.name }}</span>
         <i class="pi pi-angle-right mx-1"></i>
         {{ message?.id }}
       </div>
@@ -109,10 +105,7 @@ const handleCopied = () => {
     <div v-if="message" class="mb-5 overflow-auto rounded-lg">
       <div class="pb mx-0 mb-1 mt-3 flex items-center px-5">
         <span class="text-lg font-medium">Message</span>
-        <div
-          class="ms-2 flex cursor-pointer items-center gap-1 hover:text-blue-500"
-          @click="togglePopover"
-        >
+        <div class="ms-2 flex cursor-pointer items-center gap-1 hover:text-blue-500" @click="togglePopover">
           <i class="pi pi-copy"></i>copy
         </div>
         <Popover ref="popover">
@@ -127,18 +120,13 @@ const handleCopied = () => {
 
         <div class="ms-auto flex gap-3">
           <span class="text-slate-500"
-            >updated
-            {{ message.updatedAt ? formatDistanceToNow(message.updatedAt) : 'never' }} ago</span
+            >updated {{ message.updatedAt ? formatDistanceToNow(message.updatedAt) : 'never' }} ago</span
           >created {{ formatDistanceToNow(message.createdAt) }} ago
         </div>
       </div>
 
       <div class="px-5">
-        <FormattedMessage
-          :message="message"
-          :format="selectedMessageFormat"
-          :structure="selectedMessageStructure"
-        />
+        <FormattedMessage :message="message" :format="selectedMessageFormat" :structure="selectedMessageStructure" />
       </div>
     </div>
   </AppLayout>

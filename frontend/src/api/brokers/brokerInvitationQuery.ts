@@ -8,12 +8,9 @@ export const useBrokerInvitationQuery = (token: MaybeRef<string | undefined>) =>
   useQuery({
     queryKey: ['broker-invitation', token],
     queryFn: async () => {
-      const response = await axios.get<BrokerInvitationDto>(
-        `${API_URL}/brokers/invitations/${toValue(token)}`,
-        {
-          withCredentials: true
-        }
-      )
+      const response = await axios.get<BrokerInvitationDto>(`${API_URL}/brokers/invitations/${toValue(token)}`, {
+        withCredentials: true
+      })
 
       return response.data
     },

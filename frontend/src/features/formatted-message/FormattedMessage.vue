@@ -14,26 +14,11 @@ defineProps<{
 </script>
 
 <template>
-  <FormattedMessageRaw
-    v-if="format === 'raw'"
-    :message="message"
-    :format="format"
-    :structure="structure"
-  />
+  <FormattedMessageRaw v-if="format === 'raw'" :message="message" :format="format" :structure="structure" />
 
-  <FormattedMessageJson
-    v-else-if="format === 'json'"
-    :message="message"
-    :format="format"
-    :structure="structure"
-  />
+  <FormattedMessageJson v-else-if="format === 'json'" :message="message" :format="format" :structure="structure" />
 
-  <FormattedMessageClean
-    v-else-if="format === 'clean'"
-    :message="message"
-    :format="format"
-    :structure="structure"
-  />
+  <FormattedMessageClean v-else-if="format === 'clean'" :message="message" :format="format" :structure="structure" />
 
   <template v-else>Invalid message format.</template>
 

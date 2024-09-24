@@ -12,9 +12,7 @@ const props = defineProps<{
   structure: StructureOption
 }>()
 
-const meta = computed(() =>
-  highlightJson(JSON.parse(JSON.stringify(props.message?.rabbitmqMetadata ?? {})))
-)
+const meta = computed(() => highlightJson(JSON.parse(JSON.stringify(props.message?.rabbitmqMetadata ?? {}))))
 
 const body = computed(() => highlightJson(props.message?.body ?? {}))
 </script>

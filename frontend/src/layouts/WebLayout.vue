@@ -91,9 +91,7 @@ const isRoute = (to: RouteLocationAsRelativeGeneric) => route.name == to.name
     </div>
     <div class="mx-auto w-[1024px] grow px-8">
       <slot></slot>
-      <div class="mt-16 border-t py-5 text-center text-slate-500">
-        Republic of Serbia, Novi Sad &copy; 2024
-      </div>
+      <div class="mt-16 border-t py-5 text-center text-slate-500">Republic of Serbia, Novi Sad &copy; 2024</div>
     </div>
   </div>
 </template>

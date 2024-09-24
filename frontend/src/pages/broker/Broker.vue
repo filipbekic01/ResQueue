@@ -66,8 +66,7 @@ const syncBroker = () => {
   }
 
   confirm.require({
-    message:
-      'Do you really want to sync with remote broker? You can turn off this dialog on dashboard.',
+    message: 'Do you really want to sync with remote broker? You can turn off this dialog on dashboard.',
     icon: 'pi pi-info-circle',
     header: 'Sync Broker',
     rejectProps: {
@@ -106,9 +105,7 @@ const updateTabValue = (a: any) => router.push({ name: a })
   <AppLayout hide-header>
     <template v-if="broker">
       <div class="flex px-4 pb-2 pt-4">
-        <div
-          class="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#FF6600] text-2xl text-white"
-        >
+        <div class="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#FF6600] text-2xl text-white">
           <img :src="rmqLogoUrl" class="w-14" />
         </div>
 

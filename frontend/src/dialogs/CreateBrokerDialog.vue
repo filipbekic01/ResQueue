@@ -9,10 +9,8 @@ import { inject, reactive, type Ref } from 'vue'
 
 const toast = useToast()
 
-const { mutateAsync: createBrokerAsync, isPending: isCreateBrokerPending } =
-  useCreateBrokerMutation()
-const { mutateAsync: testConnectionAsync, isPending: isTestConnectionPending } =
-  useTestConnectionMutation()
+const { mutateAsync: createBrokerAsync, isPending: isCreateBrokerPending } = useCreateBrokerMutation()
+const { mutateAsync: testConnectionAsync, isPending: isTestConnectionPending } = useTestConnectionMutation()
 
 const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 
@@ -84,11 +82,7 @@ const testConnection = () => {
       <div class="flex gap-3">
         <div class="flex basis-1/2 flex-col gap-2">
           <label for="rabbitMQConnection.host" class="font-semibold">Host</label>
-          <InputText
-            id="rabbitMQConnection.host"
-            v-model="newBroker.rabbitMQConnection.host"
-            autocomplete="off"
-          />
+          <InputText id="rabbitMQConnection.host" v-model="newBroker.rabbitMQConnection.host" autocomplete="off" />
         </div>
         <div class="flex basis-1/2 flex-col gap-2">
           <label for="vhost" class="font-semibold">V-Host</label>

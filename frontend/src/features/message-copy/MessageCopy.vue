@@ -41,18 +41,8 @@ const popoverCopyLinkToClipboard = (id: string) => {
 <template>
   <div class="mb-2">Copy any part of message to clipboard.</div>
   <div class="flex flex-row items-center gap-2">
-    <Button
-      @click="popoverCopyToClipboard(JSON.stringify(message))"
-      outlined
-      size="small"
-      label="Both"
-    ></Button>
-    <Button
-      @click="popoverCopyToClipboard(JSON.stringify(message.body))"
-      outlined
-      size="small"
-      label="Body"
-    ></Button>
+    <Button @click="popoverCopyToClipboard(JSON.stringify(message))" outlined size="small" label="Both"></Button>
+    <Button @click="popoverCopyToClipboard(JSON.stringify(message.body))" outlined size="small" label="Body"></Button>
     <Button
       @click="popoverCopyToClipboard(JSON.stringify(message.rabbitmqMetadata))"
       outlined
@@ -61,10 +51,7 @@ const popoverCopyLinkToClipboard = (id: string) => {
     ></Button>
     <Button @click="popoverCopyToClipboard(message.id)" outlined size="small" label="ID"></Button>
   </div>
-  <div
-    class="mt-2 cursor-pointer text-blue-500 hover:text-blue-400"
-    @click="popoverCopyLinkToClipboard(message.id)"
-  >
+  <div class="mt-2 cursor-pointer text-blue-500 hover:text-blue-400" @click="popoverCopyLinkToClipboard(message.id)">
     <i :class="`pi pi-link`"></i> Copy link to the message
   </div>
 </template>

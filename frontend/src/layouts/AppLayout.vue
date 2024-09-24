@@ -152,10 +152,7 @@ const toggleCollapse = () => {
             <i class="pi pi-database rotate-90 text-white" style="font-size: 1.5rem"></i>
           </div>
         </RouterLink>
-        <div
-          v-if="!user.settings.collapseSidebar"
-          class="flex grow flex-col overflow-hidden leading-5"
-        >
+        <div v-if="!user.settings.collapseSidebar" class="flex grow flex-col overflow-hidden leading-5">
           <span class="font-bold" v-if="user.fullName">{{ user.fullName }}</span>
           <div v-else class="flex overflow-hidden">
             <span

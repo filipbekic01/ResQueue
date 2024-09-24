@@ -37,10 +37,7 @@ const { mutateAsync: manageBrokerAccessAsync } = useManageBrokerAccessMutation()
 const { data: brokerInvitations } = useBrokerInvitationsQuery(computed(() => props.broker.id))
 const { data: usersBasic } = useUsersBasicQuery(
   computed(
-    () =>
-      brokerInvitations.value
-        ?.map((y) => y.inviteeId)
-        .concat(props.broker.accessList.map((y) => y.userId)) ?? []
+    () => brokerInvitations.value?.map((y) => y.inviteeId).concat(props.broker.accessList.map((y) => y.userId)) ?? []
   )
 )
 
@@ -189,8 +186,7 @@ const expireBrokerInvitation = (brokerInvitation: BrokerInvitationDto) => {
 }
 
 const getUserName = (data: BrokerAccessDto) => usersBasic.value?.find((x) => x.id === data.userId)
-const getUserName1 = (data: BrokerInvitationDto) =>
-  usersBasic.value?.find((x) => x.id === data.inviteeId)
+const getUserName1 = (data: BrokerInvitationDto) => usersBasic.value?.find((x) => x.id === data.inviteeId)
 
 const copyDirectLink = (data: BrokerInvitationDto) => {
   navigator.clipboard.writeText(`http://localhost:5173/app/broker-invitation?token=${data.token}`)
@@ -202,9 +198,7 @@ const copyDirectLink = (data: BrokerInvitationDto) => {
     <div class="text-lg font-medium">Collaborators</div>
     <DataTable :value="broker.accessList" v-if="broker.accessList.length && usersBasic?.length">
       <Column field="userId">
-        <template #body="{ data }">
-          {{ getUserName(data)?.email }} {{ getUserName(data)?.fullName }}
-        </template>
+        <template #body="{ data }"> {{ getUserName(data)?.email }} {{ getUserName(data)?.fullName }} </template>
       </Column>
 
       <Column field="accessLevel" class="w-0">
@@ -222,12 +216,7 @@ const copyDirectLink = (data: BrokerInvitationDto) => {
       </Column>
       <Column header="" field="actions" class="w-0">
         <template #body="{ data }">
-          <Button
-            outlined
-            size="small"
-            icon="pi pi-times"
-            @click="removeAccessLevel(data)"
-          ></Button>
+          <Button outlined size="small" icon="pi pi-times" @click="removeAccessLevel(data)"></Button>
         </template>
       </Column>
     </DataTable>
@@ -247,19 +236,12 @@ const copyDirectLink = (data: BrokerInvitationDto) => {
       </Column>
       <Column header="" field="actions" class="w-0">
         <template #body="{ data }">
-          <div class="whitespace-nowrap">
-            Expires in {{ formatDistance(new Date(), data.expiresAt) }}
-          </div>
+          <div class="whitespace-nowrap">Expires in {{ formatDistance(new Date(), data.expiresAt) }}</div>
         </template>
       </Column>
       <Column header="" field="actions" class="w-0">
         <template #body="{ data }">
-          <Button
-            outlined
-            size="small"
-            icon="pi pi-times"
-            @click="expireBrokerInvitation(data)"
-          ></Button>
+          <Button outlined size="small" icon="pi pi-times" @click="expireBrokerInvitation(data)"></Button>
         </template>
       </Column>
     </DataTable>
@@ -276,9 +258,7 @@ const copyDirectLink = (data: BrokerInvitationDto) => {
           @click="createBrokerInvitation"
         ></Button>
       </div>
-      <div class="mt-3">
-        Please ensure invitee has an Ultimate plan account to accept this invitation.
-      </div>
+      <div class="mt-3">Please ensure invitee has an Ultimate plan account to accept this invitation.</div>
     </div>
   </div>
 </template>

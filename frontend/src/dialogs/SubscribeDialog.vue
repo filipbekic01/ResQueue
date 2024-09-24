@@ -125,23 +125,14 @@ const subscribe = async () => {
     <label for="card-element" class="white flex items-center font-medium"> Credit Card </label>
     <div class="rounded-md border border-slate-300 p-3" id="card-element"></div>
     <Message severity="secondary" pt:text:class="flex grow gap-2 "
-      >Plan:
-      <span class="">{{ dialogRef?.data.plan === 'essentials' ? 'Essentials' : 'Ultimate' }}</span
-      ><span class="ms-auto">{{
-        dialogRef?.data.plan === 'essentials' ? '$9.99/mo' : '$14.99/mo'
-      }}</span></Message
+      >Plan: <span class="">{{ dialogRef?.data.plan === 'essentials' ? 'Essentials' : 'Ultimate' }}</span
+      ><span class="ms-auto">{{ dialogRef?.data.plan === 'essentials' ? '$9.99/mo' : '$14.99/mo' }}</span></Message
     >
   </div>
 
   <div v-if="dialogRef?.data.plan" class="my-4 flex flex-col gap-4">
     <label for="coupon" class="white flex items-center font-semibold">Coupon</label>
-    <InputText
-      id="coupon"
-      placeholder="Enter coupon"
-      v-model="coupon"
-      class="flex-auto"
-      autocomplete="off"
-    />
+    <InputText id="coupon" placeholder="Enter coupon" v-model="coupon" class="flex-auto" autocomplete="off" />
   </div>
 
   <div class="mt-8 flex flex-col items-center gap-2">

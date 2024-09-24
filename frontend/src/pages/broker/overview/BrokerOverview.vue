@@ -27,12 +27,9 @@ const { data: brokers } = useBrokersQuery()
 const {
   query: { data: user }
 } = useIdentity()
-const { mutateAsync: updateBrokerAsync, isPending: isUpdateBrokerPending } =
-  useUpdateBrokerMutation()
-const { mutateAsync: testConnectionAsync, isPending: isTestConnectionPending } =
-  useTestConnectionMutation()
-const { mutateAsync: deleteBrokerAsync, isPending: isDeleteBrokerPending } =
-  useDeleteBrokerMutation()
+const { mutateAsync: updateBrokerAsync, isPending: isUpdateBrokerPending } = useUpdateBrokerMutation()
+const { mutateAsync: testConnectionAsync, isPending: isTestConnectionPending } = useTestConnectionMutation()
+const { mutateAsync: deleteBrokerAsync, isPending: isDeleteBrokerPending } = useDeleteBrokerMutation()
 const { mutateAsync: manageBrokerAccessAsync } = useManageBrokerAccessMutation()
 
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
@@ -60,9 +57,7 @@ watch(
             vHost: value.rabbitMQConnection.vHost
           }
         : undefined,
-      settings: JSON.parse(
-        JSON.stringify(value.accessList.find((x) => x.userId === user.value?.id)?.settings)
-      )
+      settings: JSON.parse(JSON.stringify(value.accessList.find((x) => x.userId === user.value?.id)?.settings))
     }
   },
   {
@@ -128,9 +123,7 @@ const updateQuickSearches = (value: string) => {
     return
   }
 
-  brokerEditable.value.settings.quickSearches = brokerEditable.value?.settings.quickSearches.filter(
-    (x) => x != value
-  )
+  brokerEditable.value.settings.quickSearches = brokerEditable.value?.settings.quickSearches.filter((x) => x != value)
 }
 
 const updateCredentials = ref(false)
@@ -228,10 +221,7 @@ const leaveBroker = () => {
             ></i>
           </div>
           <div class="flex flex-col gap-3">
-            <InputText
-              placeholder="Enter prefix to hide"
-              v-model="brokerEditable.settings.queueTrimPrefix"
-            ></InputText>
+            <InputText placeholder="Enter prefix to hide" v-model="brokerEditable.settings.queueTrimPrefix"></InputText>
           </div>
         </div>
         <div class="flex grow flex-col gap-3">
@@ -261,11 +251,7 @@ const leaveBroker = () => {
           </div>
           <div class="flex flex-col gap-3">
             <div class="flex grow gap-3">
-              <InputText
-                placeholder="Add new option"
-                class="grow"
-                v-model="addQuickSearchModel"
-              ></InputText>
+              <InputText placeholder="Add new option" class="grow" v-model="addQuickSearchModel"></InputText>
               <Button icon="pi pi-plus" outlined @click="addQuickSearch"></Button>
             </div>
             <ButtonGroup>
@@ -318,19 +304,11 @@ const leaveBroker = () => {
           <div class="flex items-center gap-4">
             <div class="flex grow flex-col gap-2">
               <label for="url">Host</label>
-              <InputText
-                id="url"
-                v-model="brokerEditable.rabbitMQConnection.host"
-                autocomplete="off"
-              />
+              <InputText id="url" v-model="brokerEditable.rabbitMQConnection.host" autocomplete="off" />
             </div>
             <div class="flex grow flex-col gap-2">
               <label for="vhost">V-Host</label>
-              <InputText
-                id="vhost"
-                v-model="brokerEditable.rabbitMQConnection.vHost"
-                autocomplete="off"
-              />
+              <InputText id="vhost" v-model="brokerEditable.rabbitMQConnection.vHost" autocomplete="off" />
             </div>
           </div>
 
@@ -395,8 +373,8 @@ const leaveBroker = () => {
     <div v-else>
       <div class="flex w-1/2 grow basis-1/2 flex-col gap-3 rounded-xl border border-gray-200 p-5">
         <div class="text-lg font-medium">Broker Access Limited</div>
-        You have "Agent" permissions, which grant access only to the queues topics and queues page.
-        Access to the broker overview is restricted to "Owner" and "Manager" levels.
+        You have "Agent" permissions, which grant access only to the queues topics and queues page. Access to the broker
+        overview is restricted to "Owner" and "Manager" levels.
       </div>
       <Button
         outlined

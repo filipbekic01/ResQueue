@@ -13,20 +13,17 @@ useHead({
   meta: [
     {
       name: 'description',
-      content:
-        'Get help and support for all your queue management questions through our dedicated Discord channel.'
+      content: 'Get help and support for all your queue management questions through our dedicated Discord channel.'
     },
     {
       name: 'keywords',
-      content:
-        'support, queue management, discord support, help center, customer service, assistance'
+      content: 'support, queue management, discord support, help center, customer service, assistance'
     },
     { name: 'robots', content: 'index, follow' },
     { property: 'og:title', content: 'Support Center - Queue Management Assistance' },
     {
       property: 'og:description',
-      content:
-        'Join our Discord channel for direct support and community discussions about queue management.'
+      content: 'Join our Discord channel for direct support and community discussions about queue management.'
     },
     { property: 'og:image', content: 'https://resqueue.io/support-preview-image.jpg' }, // Replace with your support page image URL
     { property: 'og:url', content: 'https://resqueue.io/support' },

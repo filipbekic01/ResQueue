@@ -138,8 +138,8 @@ const openChangePaymentMethodDialog = () =>
         <div>{{ format(activeSubscription.endsAt, 'MMMM dd, yyyy') }}</div>
       </div>
       <Message severity="secondary">
-        Your subscription will remain active until the end of the current month. No further charges
-        will apply after that.
+        Your subscription will remain active until the end of the current month. No further charges will apply after
+        that.
       </Message>
     </template>
 

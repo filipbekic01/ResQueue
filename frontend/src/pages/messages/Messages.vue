@@ -49,13 +49,11 @@ const {
   query: { data: user }
 } = useIdentity()
 
-const { mutateAsync: syncMessagesAsync, isPending: isSyncMessagesPending } =
-  useSyncMessagesMutation()
+const { mutateAsync: syncMessagesAsync, isPending: isSyncMessagesPending } = useSyncMessagesMutation()
 
 const { mutateAsync: syncBrokerAsync, isPending: isSyncBrokerPending } = useSyncBrokerMutation()
 
-const { mutateAsync: cloneMessageAsync, isPending: isCloneMessagePending } =
-  useCloneMessageMutation()
+const { mutateAsync: cloneMessageAsync, isPending: isCloneMessagePending } = useCloneMessageMutation()
 
 const pageIndex = ref(0)
 
@@ -151,8 +149,7 @@ const syncBroker = () => {
   }
 
   confirm.require({
-    message:
-      'Do you really want to sync with remote broker? You can turn off this dialog on dashboard.',
+    message: 'Do you really want to sync with remote broker? You can turn off this dialog on dashboard.',
     icon: 'pi pi-info-circle',
     header: 'Sync Broker',
     rejectProps: {
@@ -193,16 +190,13 @@ const toggleIdPopover = (e: Event) => {
 const expandedRows = ref({})
 
 const expandAll = () => {
-  expandedRows.value =
-    paginatedMessages.value?.items.reduce((acc: any, p) => (acc[p.id] = true) && acc, {}) ?? {}
+  expandedRows.value = paginatedMessages.value?.items.reduce((acc: any, p) => (acc[p.id] = true) && acc, {}) ?? {}
 }
 const collapseAll = () => {
   expandedRows.value = {}
 }
 
-const allExpanded = computed(
-  () => Object.keys(expandedRows.value).length === paginatedMessages.value?.items.length
-)
+const allExpanded = computed(() => Object.keys(expandedRows.value).length === paginatedMessages.value?.items.length)
 
 const handleCopied = () => {
   idPopovers.value.forEach((x) => {
@@ -295,13 +289,7 @@ const cloneMessage = (id: string) => {
           :loading="isSyncMessagesPending"
           icon="pi pi-download"
         ></Button>
-        <Button
-          @click="syncBroker()"
-          outlined
-          :loading="isSyncBrokerPending"
-          label="Sync"
-          icon="pi pi-sync"
-        ></Button>
+        <Button @click="syncBroker()" outlined :loading="isSyncBrokerPending" label="Sync" icon="pi pi-sync"></Button>
       </ButtonGroup>
 
       <MessageActions
@@ -319,13 +307,7 @@ const cloneMessage = (id: string) => {
     </template>
     <template v-else-if="paginatedMessages?.items.length">
       <Popover v-for="it in paginatedMessages?.items" :key="it.id" ref="idPopovers">
-        <MessageCopy
-          v-if="broker && queue"
-          :broker="broker"
-          :queue="queue"
-          :message="it"
-          @copied="handleCopied"
-        />
+        <MessageCopy v-if="broker && queue" :broker="broker" :queue="queue" :message="it" @copied="handleCopied" />
       </Popover>
 
       <DataTable
@@ -337,32 +319,18 @@ const cloneMessage = (id: string) => {
         scroll-height="flex"
         v-model:expandedRows="expandedRows"
       >
-        <Column
-          selectionMode="multiple"
-          class="w-0"
-          style="vertical-align: top; text-align: center"
-        ></Column>
+        <Column selectionMode="multiple" class="w-0" style="vertical-align: top; text-align: center"></Column>
         <Column expander class="w-[0%]">
           <template #header>
-            <i
-              v-if="!allExpanded"
-              class="pi pi-plus grow cursor-pointer text-center font-bold"
-              @click="expandAll"
-            ></i
-            ><i
-              v-else
-              class="pi pi-minus grow cursor-pointer text-center font-bold"
-              @click="collapseAll"
-            ></i>
+            <i v-if="!allExpanded" class="pi pi-plus grow cursor-pointer text-center font-bold" @click="expandAll"></i
+            ><i v-else class="pi pi-minus grow cursor-pointer text-center font-bold" @click="collapseAll"></i>
           </template>
         </Column>
 
         <Column field="id" header="Message" class="w-[0%]">
           <template #body="{ data }">
             <div class="flex items-center gap-2">
-              <Button text size="small" @click="(e) => toggleIdPopover(e)"
-                ><i class="pi pi-copy"></i
-              ></Button>
+              <Button text size="small" @click="(e) => toggleIdPopover(e)"><i class="pi pi-copy"></i></Button>
               <span
                 @click="openMessage(data.id)"
                 class="text border-b border-dashed border-slate-600 hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
@@ -391,9 +359,7 @@ const cloneMessage = (id: string) => {
         <Column field="edit" header="" class="w-[0%]">
           <template #body="{ data }">
             <div class="flex items-center justify-end">
-              <Tag v-if="!data.rabbitmqMetadata.exchange" class="me-2 whitespace-nowrap"
-                >custom</Tag
-              >
+              <Tag v-if="!data.rabbitmqMetadata.exchange" class="me-2 whitespace-nowrap">custom</Tag>
               <Button text icon="pi pi-pencil" size="small" @click="editMessage(data.id)"></Button>
               <Button
                 text
@@ -416,18 +382,12 @@ const cloneMessage = (id: string) => {
 
         <Column field="createdAt" header="Created" class="w-[0%]">
           <template #body="{ data }"
-            ><div class="whitespace-nowrap">
-              {{ formatDistanceToNow(data.createdAt) }} ago
-            </div></template
+            ><div class="whitespace-nowrap">{{ formatDistanceToNow(data.createdAt) }} ago</div></template
           >
         </Column>
 
         <template #expansion="{ data }">
-          <FormattedMessage
-            :message="data"
-            :format="selectedMessageFormat"
-            :structure="selectedMessageStructure"
-          />
+          <FormattedMessage :message="data" :format="selectedMessageFormat" :structure="selectedMessageStructure" />
         </template>
       </DataTable>
       <Paginator

@@ -11,11 +11,9 @@ import { computed, inject, reactive, ref, type Ref } from 'vue'
 
 const toast = useToast()
 
-const { mutateAsync: createMessageAsync, isPending: isCreateMessagePending } =
-  useCreateMessageMutation()
+const { mutateAsync: createMessageAsync, isPending: isCreateMessagePending } = useCreateMessageMutation()
 
-const { mutateAsync: updateMessageAsync, isPending: isUpdateMessagePending } =
-  useUpdateMessageMutation()
+const { mutateAsync: updateMessageAsync, isPending: isUpdateMessagePending } = useUpdateMessageMutation()
 
 const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
 
@@ -88,10 +86,7 @@ const submit = async () => {
     body: editableMessage.bodyEncoding === 'json' ? JSON.parse(body.value) : body.value
   }
 
-  ;(originalMessage.value
-    ? updateMessageAsync({ id: originalMessage.value.id, dto })
-    : createMessageAsync(dto)
-  )
+  ;(originalMessage.value ? updateMessageAsync({ id: originalMessage.value.id, dto }) : createMessageAsync(dto))
     .then(() => {
       if (!originalMessage.value) {
         toast.add({

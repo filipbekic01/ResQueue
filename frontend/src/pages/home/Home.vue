@@ -44,8 +44,7 @@ useHead(
       { name: 'twitter:title', content: 'Effortless Queue Healing - Dead-Letter Queue Management' },
       {
         name: 'twitter:description',
-        content:
-          'Rescue messages and manage multiple brokers effortlessly with our queue management platform.'
+        content: 'Rescue messages and manage multiple brokers effortlessly with our queue management platform.'
       },
       { name: 'twitter:image', content: 'https://resqueue.io/your-twitter-image.jpg' }
     ],
@@ -64,9 +63,7 @@ useHead(
     <div class="flex px-8 py-24">
       <div class="flex grow flex-col items-center justify-center">
         <div class="mx-auto text-4xl font-bold">Effortless Queue Healing</div>
-        <div class="mx-auto mt-4 text-xl">
-          Dead-Letter Queue Management — Manage and Rescue with Ease
-        </div>
+        <div class="mx-auto mt-4 text-xl">Dead-Letter Queue Management — Manage and Rescue with Ease</div>
 
         <div class="mt-8 flex">
           <Button
@@ -79,13 +76,7 @@ useHead(
             @click="router.push({ name: 'pricing' })"
           ></Button>
           <RouterLink v-else :to="{ name: 'app' }"
-            ><Button
-              size="large"
-              label="Go to Dashboard"
-              raised
-              icon="pi pi-arrow-right"
-              icon-pos="right"
-            ></Button
+            ><Button size="large" label="Go to Dashboard" raised icon="pi pi-arrow-right" icon-pos="right"></Button
           ></RouterLink>
         </div>
       </div>
@@ -137,8 +128,7 @@ useHead(
           <i class="pi pi-th-large mr-3" style="font-size: 1.15rem"></i>Connect Multiple Brokers
         </div>
         <div class="ms-8 mt-3 text-lg">
-          Seamlessly manage and connect multiple brokers, ensuring a unified and efficient queue
-          management experience.
+          Seamlessly manage and connect multiple brokers, ensuring a unified and efficient queue management experience.
         </div>
       </div>
       <div class="flex-1 rounded-2xl border-slate-400 bg-white p-6 text-slate-700 shadow">
@@ -146,30 +136,26 @@ useHead(
           <i class="pi pi-send mr-3" style="font-size: 1.15rem"></i>Requeue Any Message
         </div>
         <div class="ms-8 mt-3 text-lg">
-          Enjoy the flexibility to requeue any message, not just the first one in the stack,
-          ensuring greater control over your workflow.
+          Enjoy the flexibility to requeue any message, not just the first one in the stack, ensuring greater control
+          over your workflow.
         </div>
       </div>
     </div>
     <div class="mt-4 flex gap-4">
       <div class="flex-1 rounded-2xl border-slate-400 bg-white p-6 text-slate-700 shadow">
         <div class="text-xl font-bold">
-          <i class="pi pi-paperclip mr-3" style="font-size: 1.15rem"></i>Message IDs for Easy
-          Sharing
+          <i class="pi pi-paperclip mr-3" style="font-size: 1.15rem"></i>Message IDs for Easy Sharing
         </div>
         <div class="ms-8 mt-3 text-lg">
-          Each message is assigned a unique ID, making it simple to share and collaborate with
-          colleagues.
+          Each message is assigned a unique ID, making it simple to share and collaborate with colleagues.
         </div>
       </div>
       <div class="flex-1 rounded-2xl border-slate-400 bg-white p-6 text-slate-700 shadow">
         <div class="text-xl font-bold">
-          <i class="pi pi-check-circle mr-3" style="font-size: 1.15rem"></i>Mark Messages as
-          Reviewed
+          <i class="pi pi-check-circle mr-3" style="font-size: 1.15rem"></i>Mark Messages as Reviewed
         </div>
         <div class="ms-8 mt-3 text-lg">
-          Improve organization by marking messages as reviewed, making it easier to keep track of
-          processed queues.
+          Improve organization by marking messages as reviewed, making it easier to keep track of processed queues.
         </div>
       </div>
     </div>

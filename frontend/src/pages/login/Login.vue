@@ -110,9 +110,7 @@ useHead({
           icon-pos="right"
         ></Button>
         <div class="mt-3 flex justify-center text-gray-400">
-          <RouterLink :to="'forgot-password'" class="hover:text-blue-500"
-            >Forgot account password?</RouterLink
-          >
+          <RouterLink :to="'forgot-password'" class="hover:text-blue-500">Forgot account password?</RouterLink>
         </div>
       </div>
     </div>

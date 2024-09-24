@@ -4,6 +4,6 @@ export interface UpsertMessageDto {
   brokerId: string
   queueId: string
   body: any
-  bodyEncoding: 'json' | 'base64' | "string"
+  bodyEncoding: 'json' | 'base64' | 'string'
   rabbitmqMetadata?: RabbitMQUpsertMessageMetaDto
 }

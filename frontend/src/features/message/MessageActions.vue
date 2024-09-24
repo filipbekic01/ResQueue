@@ -2,10 +2,7 @@
 import { useUpdateBrokerMutation } from '@/api/brokers/updateBrokerMutation'
 import { useArchiveMessagesMutation } from '@/api/messages/archiveMessagesMutation'
 import { usePublishMessagesMutation } from '@/api/messages/publishMessagesMutation'
-import {
-  useReviewMessagesMutation,
-  type ReviewMessagesRequest
-} from '@/api/messages/useReviewMessagesMutation'
+import { useReviewMessagesMutation, type ReviewMessagesRequest } from '@/api/messages/useReviewMessagesMutation'
 import type { FormatOption } from '@/components/SelectFormat.vue'
 import SelectFormat from '@/components/SelectFormat.vue'
 import type { StructureOption } from '@/components/SelectStructure.vue'
@@ -46,12 +43,9 @@ const {
   query: { data: user }
 } = useIdentity()
 const { mutateAsync: updateBrokerAsync } = useUpdateBrokerMutation()
-const { mutateAsync: reviewMessagesAsync, isPending: isReviewMessagesPending } =
-  useReviewMessagesMutation()
-const { mutateAsync: archiveMessagesAsync, isPending: isArchiveMessagesPending } =
-  useArchiveMessagesMutation()
-const { mutateAsync: publishMessagesAsync, isPending: isPublishMessagesPending } =
-  usePublishMessagesMutation()
+const { mutateAsync: reviewMessagesAsync, isPending: isReviewMessagesPending } = useReviewMessagesMutation()
+const { mutateAsync: archiveMessagesAsync, isPending: isArchiveMessagesPending } = useArchiveMessagesMutation()
+const { mutateAsync: publishMessagesAsync, isPending: isPublishMessagesPending } = usePublishMessagesMutation()
 const { formattedExchanges } = useExchanges(computed(() => props.broker.id))
 
 const updateSelectedMessageFormat = (value: FormatOption) => {
@@ -172,9 +166,7 @@ const reviewMessagesLabel = computed(() => {
 
   if (
     props.selectedMessageIds.length >= 1 &&
-    props.messages
-      ?.filter((x) => props.selectedMessageIds.includes(x.id))
-      .every((x) => x.isReviewed)
+    props.messages?.filter((x) => props.selectedMessageIds.includes(x.id)).every((x) => x.isReviewed)
   ) {
     message = 'Mark as Unreviewed'
   }
@@ -241,10 +233,7 @@ watch(
       return
     }
 
-    const name = props.rabbitMqQueue.parsed.name.replace(
-      access.settings.deadLetterQueueSuffix ?? '',
-      ''
-    )
+    const name = props.rabbitMqQueue.parsed.name.replace(access.settings.deadLetterQueueSuffix ?? '', '')
 
     selectedExchange.value = formattedExchanges.value.find((x) => x.parsed.name == name, '')
   },
@@ -255,14 +244,8 @@ watch(
 
 const access = props.broker.accessList.find((x) => x.userId === user.value?.id)
 if (access) {
-  emit(
-    'update:message-structure',
-    access.settings.messageStructure ? access.settings.messageStructure : 'both'
-  )
-  emit(
-    'update:message-format',
-    access.settings.messageFormat ? access.settings.messageFormat : 'clean'
-  )
+  emit('update:message-structure', access.settings.messageStructure ? access.settings.messageStructure : 'both')
+  emit('update:message-format', access.settings.messageFormat ? access.settings.messageFormat : 'clean')
 }
 </script>
 
@@ -289,10 +272,7 @@ if (access) {
     class="ms-auto"
   />
 
-  <SelectFormat
-    :model-value="messageFormat"
-    @update:model-value="(e) => updateSelectedMessageFormat(e)"
-  />
+  <SelectFormat :model-value="messageFormat" @update:model-value="(e) => updateSelectedMessageFormat(e)" />
 
   <Select
     v-model="selectedExchange"

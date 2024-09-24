@@ -59,27 +59,25 @@ useHead({
 
     <div class="mt-16 flex justify-center">
       <RouterLink :to="{ name: 'support' }" class="cursor-pointer text-gray-600 hover:text-blue-500"
-        ><i class="pi pi-question-circle me-1"></i>Experiencing issues or have additional questions?
-        Get help here.</RouterLink
+        ><i class="pi pi-question-circle me-1"></i>Experiencing issues or have additional questions? Get help
+        here.</RouterLink
       >
     </div>
 
     <div class="mx-16 pt-8 text-sm text-slate-500">
-      While we strive to keep our services accessible, the reality is that maintaining high-quality
-      offerings comes with costs. From hosting and databases to ongoing development, these expenses
-      are essential for us to continue delivering the tools you rely on. Your support through our
-      payment plans allows us to cover these costs and keep improving. We sincerely appreciate your
-      contributions and thank you for helping us grow.
+      While we strive to keep our services accessible, the reality is that maintaining high-quality offerings comes with
+      costs. From hosting and databases to ongoing development, these expenses are essential for us to continue
+      delivering the tools you rely on. Your support through our payment plans allows us to cover these costs and keep
+      improving. We sincerely appreciate your contributions and thank you for helping us grow.
     </div>
     <div class="mx-16 mt-4 text-sm text-slate-500">
-      Support is provided through our dedicated Discord channel and active community forums, with
-      the option for on-premise, one-to-one direct support through these channels. For custom plan
-      requests, don’t hesitate to reach out through any of our support channels—we're more than
-      happy to assist you.
+      Support is provided through our dedicated Discord channel and active community forums, with the option for
+      on-premise, one-to-one direct support through these channels. For custom plan requests, don’t hesitate to reach
+      out through any of our support channels—we're more than happy to assist you.
     </div>
     <div class="mx-16 mt-4 text-sm text-slate-500">
-      (*) While "unlimited" means you can add as many brokers as you need, it still refers to a
-      practical, though extensive, capacity within the system.
+      (*) While "unlimited" means you can add as many brokers as you need, it still refers to a practical, though
+      extensive, capacity within the system.
     </div>
   </WebLayout>
 </template>

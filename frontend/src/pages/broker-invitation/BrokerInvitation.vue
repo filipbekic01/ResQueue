@@ -51,9 +51,7 @@ useHead({
       </div>
       <div class="px-2 text-2xl font-semibold">
         ResQueue
-        <span class="font-normal text-gray-500"
-          ><i class="pi pi-angle-right"></i> Broker Invitation</span
-        >
+        <span class="font-normal text-gray-500"><i class="pi pi-angle-right"></i> Broker Invitation</span>
       </div>
     </RouterLink>
 
@@ -73,12 +71,9 @@ useHead({
 
       <Button @click="acceptBrokerInvitation" label="Accept Invitation"></Button>
     </div>
-    <div
-      v-else
-      class="flex w-96 flex-col gap-6 rounded-xl border bg-white p-8 text-center shadow-md"
-    >
-      Access to this link is restricted to invited users who are logged in. It appears you don't
-      have the necessary permissions to view this content.
+    <div v-else class="flex w-96 flex-col gap-6 rounded-xl border bg-white p-8 text-center shadow-md">
+      Access to this link is restricted to invited users who are logged in. It appears you don't have the necessary
+      permissions to view this content.
     </div>
   </div>
 </template>

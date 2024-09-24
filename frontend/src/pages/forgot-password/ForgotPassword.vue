@@ -15,8 +15,7 @@ const resetCode = ref('')
 const newPassword = ref('')
 
 const { mutateAsync: forgotPasswordAsync } = useForgotPasswordMutation()
-const { mutateAsync: resetPasswordAsync, isPending: isResetPasswordPending } =
-  useResetPasswordMutation()
+const { mutateAsync: resetPasswordAsync, isPending: isResetPasswordPending } = useResetPasswordMutation()
 
 const isLoading = ref(false)
 const isEmailSent = ref(false)

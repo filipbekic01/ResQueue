@@ -31,11 +31,7 @@ const updateHeaderValue = (header: string, value: HeaderValue) => {
 
 <template>
   <div class="flex flex-col gap-2">
-    <div
-      v-for="[header, value] in Object.entries(modelValue ?? {})"
-      :key="header"
-      class="flex items-center gap-2"
-    >
+    <div v-for="[header, value] in Object.entries(modelValue ?? {})" :key="header" class="flex items-center gap-2">
       <label class="w-72 text-end">{{ header }}:</label>
       <InputText
         v-if="typeof value === 'string'"
@@ -57,9 +53,7 @@ const updateHeaderValue = (header: string, value: HeaderValue) => {
       <div class="w-72"></div>
       <InputText v-model="newHeaderName" placeholder="Enter a header name" class="grow" />
       <Button
-        :disabled="
-          !newHeaderName || (modelValue && Object.keys(modelValue).includes(newHeaderName))
-        "
+        :disabled="!newHeaderName || (modelValue && Object.keys(modelValue).includes(newHeaderName))"
         type="button"
         icon="pi pi-plus"
         severity="secondary"
