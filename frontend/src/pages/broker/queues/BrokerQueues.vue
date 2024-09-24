@@ -45,8 +45,7 @@ const syncBroker = () => {
   }
 
   confirm.require({
-    message:
-      'Do you really want to sync with remote broker? You can turn off this dialog on dashboard.',
+    message: 'Do you really want to sync with remote broker? You can turn off this dialog on dashboard.',
     icon: 'pi pi-info-circle',
     header: 'Sync Broker',
     rejectProps: {
@@ -155,10 +154,7 @@ const toggleFavorite = (data: QueueDto) => {
 }
 
 const getName = (name: string) => {
-  if (
-    access.value?.settings.queueTrimPrefix &&
-    name.startsWith(access.value?.settings.queueTrimPrefix)
-  ) {
+  if (access.value?.settings.queueTrimPrefix && name.startsWith(access.value?.settings.queueTrimPrefix)) {
     return name.slice(access.value?.settings.queueTrimPrefix.length)
   }
 
@@ -223,9 +219,9 @@ watchEffect(() => {
       :sort-order="route.query.sortOrder ? parseInt(route.query.sortOrder.toString()) : undefined"
       @sort="updateSort"
     >
-      <Column field="inbox" sortable header="Inbox" class="w-[0%]">
+      <Column sortable field="name" header="Name">
         <template #body="{ data }">
-          <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-3">
             <Button text size="small" @click="toggleFavorite(data)"
               ><i
                 class="pi pi-thumbtack"
@@ -237,40 +233,33 @@ watchEffect(() => {
                 ]"
               ></i
             ></Button>
+            <div
+              @click="selectQueue(data)"
+              :title="data.parsed['name']"
+              class="overflow-hidden overflow-ellipsis hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
+              :class="[
+                {
+                  'text-gray-400': !data.parsed['messages']
+                }
+              ]"
+            >
+              {{ getName(data.parsed['name']) }}
+            </div>
+          </div>
+        </template>
+      </Column>
+
+      <Column field="inbox" sortable header="Inbox" class="w-[0%]">
+        <template #body="{ data }">
+          <div class="flex items-center justify-between gap-2">
             {{ data.totalMessages }}
           </div>
         </template>
       </Column>
 
-      <Column sortable field="name" header="Name">
+      <Column sortable sort-field="messages" field="parsed.messages" header="Messages" class="w-[0%]">
         <template #body="{ data }">
-          <div
-            @click="selectQueue(data)"
-            :title="data.parsed['name']"
-            class="overflow-hidden overflow-ellipsis hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
-            :class="[
-              {
-                'text-gray-500': !data.parsed['messages']
-              }
-            ]"
-          >
-            {{ getName(data.parsed['name']) }}
-          </div>
-        </template>
-      </Column>
-
-      <Column
-        sortable
-        sort-field="messages"
-        field="parsed.messages"
-        header="Messages"
-        class="w-[0%]"
-      >
-        <template #body="{ data }">
-          <div
-            class="flex items-center justify-start gap-3"
-            v-tooltip.left="`${data.parsed['consumers']} consumers`"
-          >
+          <div class="flex items-center justify-start gap-3" v-tooltip.left="`${data.parsed['consumers']} consumers`">
             <i
               class="pi pi-circle-fill text-xs"
               :class="[
@@ -307,13 +296,7 @@ watchEffect(() => {
       <i class="pi pi-arrow-right-arrow-left pb-6 opacity-25" style="font-size: 2rem"></i>
       <div class="text-lg">No Queues</div>
       <div class="">Make sure you sync the broker</div>
-      <Button
-        :loading="isPendingSyncBroker"
-        @click="syncBroker"
-        label="Sync"
-        icon="pi pi-sync"
-        class="mt-3"
-      ></Button>
+      <Button :loading="isPendingSyncBroker" @click="syncBroker" label="Sync" icon="pi pi-sync" class="mt-3"></Button>
     </div>
   </template>
 
