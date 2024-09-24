@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { HeaderValue } from '@/dtos/message/rabbitMQMessagePropsDto'
+import { formatISO } from 'date-fns'
 import RabbitMQHeaderValue from './RabbitMQHeaderValue.vue'
 
 defineProps<{
@@ -13,6 +14,24 @@ const formatStackTrace = (trace: string | number | boolean) =>
     .split(/\bat\b/g)
     .map((x) => x.trim()) // Remove start and end spacing
     .filter((x) => x) // Remove empty strings
+
+const parse = (value: string | number | boolean) => {
+  const str = value.toString()
+
+  if (str.startsWith('((time_t)')) {
+    var numbers = str.match(/\d+/)
+    if (numbers?.length) {
+      const timestamp = parseInt(`${numbers[0]}`)
+      if (!isNaN(timestamp)) {
+        const date = new Date(timestamp)
+
+        return formatISO(date)
+      }
+    }
+  }
+
+  return value
+}
 </script>
 
 <template>
@@ -26,12 +45,10 @@ const formatStackTrace = (trace: string | number | boolean) =>
   </div>
   <div v-else class="overflow-auto">
     <template v-if="headerKey === 'MT-Fault-StackTrace'">
-      <div v-for="sline in formatStackTrace(modelValue)" :key="sline" class="whitespace-nowrap">
-        at {{ sline }}
-      </div>
+      <div v-for="sline in formatStackTrace(modelValue)" :key="sline" class="whitespace-nowrap">at {{ sline }}</div>
     </template>
     <template v-else>
-      {{ modelValue }}
+      {{ parse(modelValue) }}
     </template>
   </div>
 </template>
