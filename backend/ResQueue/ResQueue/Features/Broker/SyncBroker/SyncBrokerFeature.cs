@@ -104,6 +104,7 @@ public class SyncBrokerFeature(
                 if (!queue.RawData.Equals(newRawData))
                 {
                     queue.RawData = newRawData;
+                    queue.TotalMessages = queue.Messages + queue.RawData["messages"].AsInt32;
                     queuesToUpdate.Add(queue);
                 }
             }
@@ -112,7 +113,8 @@ public class SyncBrokerFeature(
         // Delete queue
         foreach (var queue in queues)
         {
-            if (queue.TotalMessages > 0)
+            // Skip if local messages exist
+            if (queue.Messages > 0)
             {
                 continue;
             }
@@ -206,7 +208,9 @@ public class SyncBrokerFeature(
             foreach (var queue in queuesToUpdate)
             {
                 var updateFilter = Builders<Queue>.Filter.Eq(q => q.Id, queue.Id);
-                var updateDefinition = Builders<Queue>.Update.Set(q => q.RawData, queue.RawData);
+                var updateDefinition = Builders<Queue>.Update
+                    .Set(q => q.RawData, queue.RawData)
+                    .Set(q => q.TotalMessages, queue.TotalMessages);
 
                 var updateOneModel = new UpdateOneModel<Queue>(updateFilter, updateDefinition);
                 bulkOperations.Add(updateOneModel);

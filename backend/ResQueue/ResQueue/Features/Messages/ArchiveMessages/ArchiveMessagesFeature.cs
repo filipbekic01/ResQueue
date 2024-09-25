@@ -35,9 +35,11 @@ public class ArchiveMessagesFeature(
             });
         }
 
+        var queueId = ObjectId.Parse(request.Dto.QueueId);
+
         var filter = Builders<Message>.Filter.And(
             Builders<Message>.Filter.In(m => m.Id, request.Dto.Ids.Select(ObjectId.Parse)),
-            Builders<Message>.Filter.Eq(m => m.QueueId, ObjectId.Parse(request.Dto.QueueId)),
+            Builders<Message>.Filter.Eq(m => m.QueueId, queueId),
             Builders<Message>.Filter.Eq(m => m.UserId, user.Id)
         );
 
@@ -46,13 +48,42 @@ public class ArchiveMessagesFeature(
         using var session = await mongoClient.StartSessionAsync();
         session.StartTransaction();
 
+        // Update many messages in the messages collection
         var result = await messagesCollection.UpdateManyAsync(session, filter, update);
 
-        await queuesCollection.UpdateOneAsync(session, x => x.Id == ObjectId.Parse(request.Dto.QueueId),
-            Builders<Queue>.Update.Inc(x => x.TotalMessages, -result.ModifiedCount));
+        // Define the update pipeline
+        var updatePipeline = new[]
+        {
+            // First stage: Decrement Messages and ensure it's not less than 0
+            new BsonDocument("$set", new BsonDocument
+            {
+                {
+                    "Messages", new BsonDocument("$max", new BsonArray
+                    {
+                        0,
+                        new BsonDocument("$subtract", new BsonArray { "$Messages", result.ModifiedCount })
+                    })
+                }
+            }),
+            // Second stage: Update TotalMessages using the updated Messages and RawData.messages
+            new BsonDocument("$set", new BsonDocument
+            {
+                {
+                    "TotalMessages", new BsonDocument("$max", new BsonArray
+                    {
+                        0,
+                        new BsonDocument("$add", new BsonArray { "$Messages", "$RawData.messages" })
+                    })
+                }
+            })
+        };
 
-        await queuesCollection.UpdateOneAsync(session, x => x.Id == ObjectId.Parse(request.Dto.QueueId),
-            Builders<Queue>.Update.Max(x => x.TotalMessages, 0));
+        // Apply the update pipeline to the queues collection
+        await queuesCollection.UpdateOneAsync(
+            session,
+            x => x.Id == queueId,
+            Builders<Queue>.Update.Pipeline(updatePipeline)
+        );
 
         await session.CommitTransactionAsync();
 

@@ -71,7 +71,7 @@ public static class QueueEndpoints
                 search = search.Trim();
                 sortField = new[]
                 {
-                    "inbox", "name", "messages"
+                    "name", "messages"
                 }.Contains(sortField)
                     ? sortField
                     : null;
@@ -116,7 +116,7 @@ public static class QueueEndpoints
                         ? Builders<Queue>.Sort.Ascending(x => x.RawData[sortField])
                         : Builders<Queue>.Sort.Descending(x => x.RawData[sortField]);
 
-                    if (sortField.Equals("inbox", StringComparison.CurrentCultureIgnoreCase))
+                    if (sortField.Equals("messages", StringComparison.CurrentCultureIgnoreCase))
                     {
                         secondarySort = sortOrder == 1
                             ? Builders<Queue>.Sort.Ascending(x => x.TotalMessages)
@@ -146,6 +146,7 @@ public static class QueueEndpoints
                         Id = x.Id.ToString(),
                         RawData = JsonHelper.ConvertBsonToJson(x.RawData),
                         TotalMessages = x.TotalMessages,
+                        Messages = x.Messages,
                         IsFavorite = x.IsFavorite,
                         CreatedAt = x.CreatedAt
                     }).ToList(),

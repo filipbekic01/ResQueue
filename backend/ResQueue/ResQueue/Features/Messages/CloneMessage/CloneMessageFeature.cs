@@ -13,7 +13,9 @@ public record CloneMessagesFeatureResponse();
 
 public class CloneMessageFeature(
     UserManager<User> userManager,
-    IMongoCollection<Message> messagesCollection
+    IMongoCollection<Message> messagesCollection,
+    IMongoCollection<Queue> queuesCollection,
+    IMongoClient mongoClient
 ) : ICloneMessageFeature
 {
     public async Task<OperationResult<CloneMessagesFeatureResponse>> ExecuteAsync(CloneMessagesFeatureRequest request)
@@ -49,7 +51,41 @@ public class CloneMessageFeature(
         message.UpdatedAt = null;
         message.CreatedAt = DateTime.UtcNow;
 
-        await messagesCollection.InsertOneAsync(message);
+        using var session = await mongoClient.StartSessionAsync();
+        session.StartTransaction();
+
+        // Insert the message into the messages collection
+        await messagesCollection.InsertOneAsync(session, message);
+
+        // Define the update pipeline
+        var updatePipeline = new[]
+        {
+            // First stage: Increment Messages by 1
+            new BsonDocument("$set", new BsonDocument
+            {
+                { "Messages", new BsonDocument("$add", new BsonArray { "$Messages", 1 }) }
+            }),
+            // Second stage: Update TotalMessages using updated Messages and RawData.messages
+            new BsonDocument("$set", new BsonDocument
+            {
+                {
+                    "TotalMessages", new BsonDocument("$max", new BsonArray
+                    {
+                        0,
+                        new BsonDocument("$add", new BsonArray { "$Messages", "$RawData.messages" })
+                    })
+                }
+            })
+        };
+
+        // Apply the update pipeline to the queues collection
+        await queuesCollection.UpdateOneAsync(
+            session,
+            x => x.Id == message.QueueId,
+            Builders<Queue>.Update.Pipeline(updatePipeline)
+        );
+
+        await session.CommitTransactionAsync();
 
         return OperationResult<CloneMessagesFeatureResponse>.Success(new CloneMessagesFeatureResponse());
     }

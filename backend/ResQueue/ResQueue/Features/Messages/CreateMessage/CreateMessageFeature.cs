@@ -65,9 +65,36 @@ public class CreateMessageFeature(
         using var session = await mongoClient.StartSessionAsync();
         session.StartTransaction();
 
+        // Insert the message into the messages collection
         await messagesCollection.InsertOneAsync(session, message);
-        await queuesCollection.UpdateOneAsync(session, x => x.Id == queue.Id,
-            Builders<Queue>.Update.Inc(x => x.TotalMessages, 1));
+
+        // Define the update pipeline with multiple stages
+        var updatePipeline = new[]
+        {
+            // First stage: Increment Messages by 1
+            new BsonDocument("$set", new BsonDocument
+            {
+                { "Messages", new BsonDocument("$add", new BsonArray { "$Messages", 1 }) }
+            }),
+            // Second stage: Update TotalMessages using the updated value of Messages
+            new BsonDocument("$set", new BsonDocument
+            {
+                {
+                    "TotalMessages", new BsonDocument("$max", new BsonArray
+                    {
+                        0,
+                        new BsonDocument("$add", new BsonArray { "$Messages", "$RawData.messages" })
+                    })
+                }
+            })
+        };
+
+        // Apply the update pipeline to the queue
+        await queuesCollection.UpdateOneAsync(
+            session,
+            x => x.Id == message.QueueId,
+            Builders<Queue>.Update.Pipeline(updatePipeline)
+        );
 
         await session.CommitTransactionAsync();
 

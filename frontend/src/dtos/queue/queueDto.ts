@@ -4,4 +4,5 @@ export interface QueueDto {
   createdAt: string
   isFavorite: boolean
   totalMessages: number
+  messages: number
 }

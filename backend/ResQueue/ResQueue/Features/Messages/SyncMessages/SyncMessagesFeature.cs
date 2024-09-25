@@ -57,16 +57,44 @@ public class SyncMessagesFeature(
             using var session = await mongoClient.StartSessionAsync();
             session.StartTransaction();
 
+            // Insert the message into the messages collection
             await messagesCollection.InsertOneAsync(session, message);
 
-            await queuesCollection.UpdateOneAsync(session, x => x.Id == queue.Id,
-                Builders<Queue>.Update.Inc(x => x.RawData["messages"], -1));
+            // Prepare the update pipeline
+            var updatePipeline = new[]
+            {
+                // First stage: Update RawData.messages and Messages
+                new BsonDocument("$set", new BsonDocument
+                {
+                    {
+                        "RawData.messages", new BsonDocument("$max", new BsonArray
+                        {
+                            0,
+                            new BsonDocument("$subtract", new BsonArray { "$RawData.messages", 1 })
+                        })
+                    },
+                    { "Messages", new BsonDocument("$add", new BsonArray { "$Messages", 1 }) }
+                }),
+                // Second stage: Update TotalMessages using updated values
+                new BsonDocument("$set", new BsonDocument
+                {
+                    {
+                        "TotalMessages", new BsonDocument("$max", new BsonArray
+                        {
+                            0,
+                            new BsonDocument("$add", new BsonArray
+                            {
+                                "$Messages",
+                                "$RawData.messages"
+                            })
+                        })
+                    }
+                })
+            };
 
-            await queuesCollection.UpdateOneAsync(session, x => x.Id == queue.Id,
-                Builders<Queue>.Update.Max(x => x.RawData["messages"], 0));
-
-            await queuesCollection.UpdateOneAsync(session, x => x.Id == queue.Id,
-                Builders<Queue>.Update.Inc(x => x.TotalMessages, 1));
+            // Apply the update to the queue
+            await queuesCollection.UpdateOneAsync(session, x => x.Id == message.QueueId,
+                Builders<Queue>.Update.Pipeline(updatePipeline));
 
             await session.CommitTransactionAsync();
 

@@ -249,10 +249,10 @@ watchEffect(() => {
         </template>
       </Column>
 
-      <Column field="inbox" sortable header="Inbox" class="w-[0%]">
+      <Column field="inbox" header="Inbox" class="w-[0%]">
         <template #body="{ data }">
           <div class="flex items-center justify-between gap-2">
-            {{ data.totalMessages }}
+            {{ data.messages }}
           </div>
         </template>
       </Column>
