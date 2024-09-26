@@ -160,7 +160,7 @@ public class CreateBrokerInvitationFeature(
     private async Task SendEmail(User currentUser, string token)
     {
         var message = new MimeMessage();
-        message.From.Add(new MailboxAddress("ResQueue", "resqueue@no-reply.io"));
+        message.From.Add(new MailboxAddress("ResQueue", "no-reply@resqueue.io"));
         message.To.Add(new MailboxAddress(currentUser.UserName, currentUser.Email));
         message.Subject = "ResQueue — Broker Invitation";
 
