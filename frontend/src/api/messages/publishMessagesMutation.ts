@@ -4,6 +4,8 @@ import axios from 'axios'
 
 export interface PublishRequest {
   exchangeId: string
+  queueId: string
+  brokerId: string
   messageIds: string[]
 }
 

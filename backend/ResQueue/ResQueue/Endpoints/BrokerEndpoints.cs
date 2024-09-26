@@ -102,7 +102,7 @@ public static class BrokerEndpoints
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
                     : Results.Problem(result.Problem!);
-            }).AddRetryFilter();
+            }); // Do not add retry filter
 
         group.MapPost("/test-connection",
             async (IHttpClientFactory httpClientFactory, [FromBody] CreateBrokerDto dto) =>

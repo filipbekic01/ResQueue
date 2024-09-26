@@ -133,7 +133,7 @@ public static class MessageEndpoints
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
                     : Results.Problem(result.Problem!);
-            }).AddRetryFilter();
+            }); // Do not add retry filter
 
         group.MapPost("publish",
             async (IPublishMessagesFeature publishMessagesFeature, HttpContext httpContext,
@@ -147,7 +147,7 @@ public static class MessageEndpoints
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
                     : Results.Problem(result.Problem!);
-            }).AddRetryFilter();
+            }); // Do not add retry filter
 
         group.MapPost("review",
             async (IReviewMessagesFeature publishMessagesFeature, HttpContext httpContext,

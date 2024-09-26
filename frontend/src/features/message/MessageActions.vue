@@ -193,7 +193,9 @@ const publishMessages = () => {
     accept: () => {
       publishMessagesAsync({
         exchangeId: selectedExchange.value.id,
-        messageIds: props.selectedMessageIds
+        messageIds: props.selectedMessageIds,
+        brokerId: props.broker.id,
+        queueId: props.rabbitMqQueue.id
       })
         .then(() => {
           toast.add({

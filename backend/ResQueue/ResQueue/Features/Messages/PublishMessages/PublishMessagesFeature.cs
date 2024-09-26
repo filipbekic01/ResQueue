@@ -16,8 +16,10 @@ public record PublishMessagesFeatureResponse();
 public class PublishMessagesFeature(
     IMongoCollection<Message> messagesCollection,
     IMongoCollection<Exchange> exchangesCollection,
+    IMongoCollection<Queue> queuesCollection,
     IMongoCollection<Models.Broker> brokersCollection,
-    UserManager<User> userManager
+    UserManager<User> userManager,
+    IMongoClient mongoClient
 ) : IPublishMessagesFeature
 {
     public async Task<OperationResult<PublishMessagesFeatureResponse>> ExecuteAsync(
@@ -34,14 +36,26 @@ public class PublishMessagesFeature(
             });
         }
 
-        var exchange = await exchangesCollection
-            .Find(Builders<Exchange>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Dto.ExchangeId)))
+        var broker = await brokersCollection
+            .Find(Builders<Models.Broker>.Filter.And(
+                Builders<Models.Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Dto.BrokerId)),
+                Builders<Models.Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id)
+            ))
             .SingleAsync();
 
-        var broker = await brokersCollection.Find(Builders<Models.Broker>.Filter.And(
-            Builders<Models.Broker>.Filter.Eq(b => b.Id, exchange.BrokerId),
-            Builders<Models.Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id)
-        )).SingleAsync();
+        var exchange = await exchangesCollection
+            .Find(Builders<Exchange>.Filter.And(
+                Builders<Exchange>.Filter.Eq(b => b.BrokerId, broker.Id),
+                Builders<Exchange>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Dto.ExchangeId))
+            ))
+            .SingleAsync();
+
+        var queue = await queuesCollection
+            .Find(Builders<Queue>.Filter.And(
+                Builders<Queue>.Filter.Eq(b => b.BrokerId, broker.Id),
+                Builders<Queue>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Dto.QueueId))
+            ))
+            .SingleAsync();
 
         var messagesFilter =
             Builders<Message>.Filter.In(b => b.Id, request.Dto.MessageIds.Select(ObjectId.Parse).ToList());
@@ -137,11 +151,50 @@ public class PublishMessagesFeature(
 
                 channel.BasicPublish(exchange.RawData.GetValue("name").AsString, "", false, props, body);
 
+                using var session = await mongoClient.StartSessionAsync();
+                session.StartTransaction();
+
+                // Define the update pipeline
+                var updatePipeline = new[]
+                {
+                    // First stage: Decrement Messages and ensure it's not less than 0
+                    new BsonDocument("$set", new BsonDocument
+                    {
+                        {
+                            "Messages", new BsonDocument("$max", new BsonArray
+                            {
+                                0,
+                                new BsonDocument("$subtract", new BsonArray { "$Messages", 1 })
+                            })
+                        }
+                    }),
+                    // Second stage: Update TotalMessages using the updated Messages and RawData.messages
+                    new BsonDocument("$set", new BsonDocument
+                    {
+                        {
+                            "TotalMessages", new BsonDocument("$max", new BsonArray
+                            {
+                                0,
+                                new BsonDocument("$add", new BsonArray { "$Messages", "$RawData.messages" })
+                            })
+                        }
+                    })
+                };
+
+                // Apply the update pipeline to the queues collection
+                await queuesCollection.UpdateOneAsync(
+                    session,
+                    x => x.Id == queue.Id,
+                    Builders<Queue>.Update.Pipeline(updatePipeline)
+                );
+
                 await messagesCollection.UpdateOneAsync(
-                    Builders<Message>.Filter
-                        .Eq(b => b.Id, message.Id),
-                    Builders<Message>.Update
-                        .Set(b => b.DeletedAt, DateTime.UtcNow));
+                    session,
+                    Builders<Message>.Filter.Eq(b => b.Id, message.Id),
+                    Builders<Message>.Update.Set(b => b.DeletedAt, DateTime.UtcNow)
+                );
+
+                await session.CommitTransactionAsync();
             });
 
         return OperationResult<PublishMessagesFeatureResponse>.Success(new PublishMessagesFeatureResponse());
