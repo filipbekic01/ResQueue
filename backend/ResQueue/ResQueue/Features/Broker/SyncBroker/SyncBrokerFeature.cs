@@ -160,7 +160,6 @@ public class SyncBrokerFeature(
             {
                 exchangesToAdd.Add(new Exchange
                 {
-                    UserId = user.Id,
                     BrokerId = ObjectId.Parse(request.Id),
                     RawData = BsonDocument.Parse(element.GetRawText())
                 });

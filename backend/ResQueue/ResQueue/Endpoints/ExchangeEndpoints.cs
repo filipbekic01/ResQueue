@@ -14,26 +14,35 @@ public static class ExchangeEndpoints
             .RequireAuthorization();
 
         group.MapGet("{brokerId}",
-            async (IMongoCollection<Exchange> collection, UserManager<User> userManager, HttpContext httpContext,
+            async (IMongoCollection<Exchange> exchangesCollection,
+                IMongoCollection<Broker> brokersCollection,
+                UserManager<User> userManager,
+                HttpContext httpContext,
                 string brokerId) =>
             {
+                // Get user
                 var user = await userManager.GetUserAsync(httpContext.User);
                 if (user == null)
                 {
                     return Results.Unauthorized();
                 }
 
-                if (!ObjectId.TryParse(brokerId, out var brokerObjectId))
+                // Validate broker
+                var brokerFilter = Builders<Broker>.Filter.And(
+                    Builders<Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(brokerId)),
+                    Builders<Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id),
+                    Builders<Broker>.Filter.Eq(b => b.DeletedAt, null)
+                );
+                if (!await brokersCollection.Find(brokerFilter).AnyAsync())
                 {
-                    return Results.BadRequest("Invalid Broker ID format.");
+                    return Results.Unauthorized();
                 }
 
                 var filter = Builders<Exchange>.Filter.And(
-                    Builders<Exchange>.Filter.Eq(q => q.UserId, user.Id),
-                    Builders<Exchange>.Filter.Eq(q => q.BrokerId, brokerObjectId)
+                    Builders<Exchange>.Filter.Eq(q => q.BrokerId, ObjectId.Parse(brokerId))
                 );
 
-                var exchanges = await collection.Find(filter).ToListAsync();
+                var exchanges = await exchangesCollection.Find(filter).ToListAsync();
 
                 return Results.Ok(exchanges.Select(q => new ExchangeDto()
                 {
