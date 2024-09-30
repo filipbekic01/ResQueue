@@ -27,42 +27,126 @@ public class EventHandlerFeature(
                 settings.Value.StripeSecretWebhook
             );
 
-            if (stripeEvent.Type == Events.CustomerSubscriptionDeleted)
+            switch (stripeEvent.Type)
             {
-                var subscription = stripeEvent.Data.Object as Subscription;
-
-                var user = await userManager.FirstOrDefaultByStripeId(subscription!.CustomerId);
-                if (user is null)
+                case Events.CustomerSubscriptionDeleted or Events.CustomerSubscriptionUpdated:
                 {
-                    return OperationResult<EventHandlerResponse>.Failure(new ProblemDetails
-                    {
-                        Title = "Unauthorized Access",
-                        Detail = "The user could not be found or is not authorized.",
-                        Status = StatusCodes.Status401Unauthorized
-                    });
-                }
+                    var subscription = stripeEvent.Data.Object as Subscription;
 
-                if (user.Subscription?.StripeId != subscription.Id)
+                    var user = await userManager.FirstOrDefaultByStripeId(subscription!.CustomerId);
+                    if (user is null)
+                    {
+                        return OperationResult<EventHandlerResponse>.Failure(new ProblemDetails
+                        {
+                            Title = "Unauthorized Access",
+                            Detail = "The user could not be found or is not authorized.",
+                            Status = StatusCodes.Status401Unauthorized
+                        });
+                    }
+
+                    if (user.Subscription?.StripeId != subscription.Id)
+                    {
+                        return OperationResult<EventHandlerResponse>.Failure(new ProblemDetails
+                        {
+                            Title = "Invalid Subscription",
+                            Detail = "The subscription does not match the user's records.",
+                            Status = StatusCodes.Status400BadRequest
+                        });
+                    }
+
+                    user.Subscription.StripeStatus = subscription.Status;
+
+                    var filter = Builders<User>.Filter.Eq(q => q.Id, user.Id);
+                    var update = Builders<User>.Update
+                        .Set(q => q.Subscription, user.Subscription);
+
+                    await usersCollection.UpdateOneAsync(filter, update);
+                    break;
+                }
+                case Events.InvoicePaymentFailed or Events.InvoicePaymentSucceeded:
                 {
-                    return OperationResult<EventHandlerResponse>.Failure(new ProblemDetails
+                    var invoice = stripeEvent.Data.Object as Invoice;
+                    var subscriptionId = invoice?.SubscriptionId;
+                    var subscriptionService = new SubscriptionService();
+                    var subscription = await subscriptionService.GetAsync(subscriptionId);
+
+                    var user = await userManager.FirstOrDefaultByStripeId(subscription.CustomerId);
+
+                    if (user is not null)
                     {
-                        Title = "Invalid Subscription",
-                        Detail = "The subscription does not match the user's records.",
-                        Status = StatusCodes.Status400BadRequest
-                    });
+                        if (user.Subscription is not null)
+                        {
+                            user.Subscription.StripeStatus = subscription.Status;
+
+                            var filter = Builders<User>.Filter.Eq(q => q.Id, user.Id);
+                            var update = Builders<User>.Update.Set(q => q.Subscription!.StripeStatus,
+                                user.Subscription.StripeStatus);
+                            await usersCollection.UpdateOneAsync(filter, update);
+                        }
+                        else
+                        {
+                            return OperationResult<EventHandlerResponse>.Failure(new ProblemDetails
+                            {
+                                Title = "Subscription Not Found",
+                                Detail = "No subscription found for provided user.",
+                                Status = StatusCodes.Status404NotFound
+                            });
+                        }
+                    }
+                    else
+                    {
+                        return OperationResult<EventHandlerResponse>.Failure(new ProblemDetails
+                        {
+                            Title = "User Not Found",
+                            Detail = "No user found with the provided Stripe customer ID.",
+                            Status = StatusCodes.Status404NotFound
+                        });
+                    }
+
+                    break;
                 }
+                case Events.PaymentIntentSucceeded or Events.PaymentIntentPaymentFailed:
+                {
+                    var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
+                    var subscriptionId = paymentIntent?.Metadata["subscription_id"];
+                    var subscriptionService = new SubscriptionService();
+                    var subscription = await subscriptionService.GetAsync(subscriptionId);
 
-                user.Subscription.StripeStatus = subscription.Status;
+                    var user = await userManager.FirstOrDefaultByStripeId(subscription.CustomerId);
 
-                var filter = Builders<User>.Filter.Eq(q => q.Id, user.Id);
-                var update = Builders<User>.Update
-                    .Set(q => q.Subscription, user.Subscription);
+                    if (user is not null)
+                    {
+                        if (user.Subscription is not null)
+                        {
+                            user.Subscription.StripeStatus = subscription.Status;
 
-                await usersCollection.UpdateOneAsync(filter, update);
-            }
-            else if (stripeEvent.Type == Events.InvoicePaymentFailed)
-            {
-                // todo: send e-mail to the user
+                            var filter = Builders<User>.Filter.Eq(q => q.Id, user.Id);
+                            var update = Builders<User>.Update.Set(q => q.Subscription!.StripeStatus,
+                                user.Subscription.StripeStatus);
+                            await usersCollection.UpdateOneAsync(filter, update);
+                        }
+                        else
+                        {
+                            return OperationResult<EventHandlerResponse>.Failure(new ProblemDetails
+                            {
+                                Title = "Subscription Not Found",
+                                Detail = "No subscription found for provided user.",
+                                Status = StatusCodes.Status404NotFound
+                            });
+                        }
+                    }
+                    else
+                    {
+                        return OperationResult<EventHandlerResponse>.Failure(new ProblemDetails
+                        {
+                            Title = "User Not Found",
+                            Detail = "No user found with the provided Stripe customer ID.",
+                            Status = StatusCodes.Status404NotFound
+                        });
+                    }
+
+                    break;
+                }
             }
 
             return OperationResult<EventHandlerResponse>.Success(new EventHandlerResponse());
