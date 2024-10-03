@@ -15,6 +15,7 @@ export const usePaginatedMessagesQuery = (
     queryFn: async () => {
       const response = await axios.get<PaginatedResult<MessageDto>>(`${API_URL}/messages/paginated`, {
         params: {
+          brokerId: toValue(brokerId),
           queueId: toValue(queueId),
           pageSize: 50,
           pageIndex: toValue(pageIndex)

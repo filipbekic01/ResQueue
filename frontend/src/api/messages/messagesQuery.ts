@@ -14,6 +14,8 @@ export const useMessagesQuery = (
     queryFn: async () => {
       const response = await axios.get<MessageDto[]>(`${API_URL}/messages`, {
         params: {
+          brokerId: toValue(brokerId),
+          queueId: toValue(queueId),
           ids: toValue(ids)
         },
         withCredentials: true
