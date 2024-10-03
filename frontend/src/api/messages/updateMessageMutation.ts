@@ -12,7 +12,7 @@ export function useUpdateMessageMutation() {
         withCredentials: true
       }),
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ['message', id] })
+      queryClient.invalidateQueries({ queryKey: ['messages/paginated'] })
       queryClient.invalidateQueries({ queryKey: ['messages'] })
     }
   })

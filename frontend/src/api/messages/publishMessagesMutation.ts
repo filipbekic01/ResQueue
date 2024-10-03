@@ -18,7 +18,7 @@ export function usePublishMessagesMutation() {
         withCredentials: true
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['messages'] }) // for specific key please, check other places too
+      queryClient.invalidateQueries({ queryKey: ['messages/paginated'] })
     }
   })
 }

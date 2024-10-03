@@ -12,8 +12,8 @@ export function useArchiveMessagesMutation() {
         withCredentials: true
       }),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['messages/paginated'] })
       queryClient.invalidateQueries({ queryKey: ['messages'] })
-      queryClient.invalidateQueries({ queryKey: ['message'] })
       queryClient.invalidateQueries({ queryKey: ['queues'] })
       queryClient.invalidateQueries({ queryKey: ['queue'] })
     }

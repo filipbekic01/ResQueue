@@ -20,6 +20,7 @@ public class CloneMessageFeature(
 {
     public async Task<OperationResult<CloneMessagesFeatureResponse>> ExecuteAsync(CloneMessagesFeatureRequest request)
     {
+        // Get user
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user == null)
         {
@@ -31,9 +32,9 @@ public class CloneMessageFeature(
             });
         }
 
+        // Get message
         var filter = Builders<Message>.Filter.And(
-            Builders<Message>.Filter.Eq(m => m.Id, ObjectId.Parse(request.Id)),
-            Builders<Message>.Filter.Eq(m => m.UserId, user.Id)
+            Builders<Message>.Filter.Eq(m => m.Id, ObjectId.Parse(request.Id))
         );
 
         var message = await messagesCollection.Find(filter).SingleOrDefaultAsync();

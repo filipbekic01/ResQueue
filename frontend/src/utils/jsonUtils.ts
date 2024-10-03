@@ -34,7 +34,7 @@ export function highlightJson(json: any, colorOptions: HighlightColorOptions = {
   const colors: HighlightColorOptions = {
     ...{
       keyColor: '#0451a5', // Visual Studio Code Blue for keys
-      numberColor: '#b5cea8', // Visual Studio Code Light greenish for numbers
+      numberColor: '#339933', // Visual Studio Code Light greenish for numbers
       stringColor: '#a31515', // Visual Studio Code Dark red for strings
       trueColor: '#098658', // Visual Studio Code Green for true
       falseColor: '#b31b1b', // Visual Studio Code Red for false

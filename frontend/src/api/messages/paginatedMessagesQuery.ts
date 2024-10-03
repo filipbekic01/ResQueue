@@ -5,9 +5,13 @@ import { useQuery } from '@tanstack/vue-query'
 import axios from 'axios'
 import { computed, toValue, type MaybeRef } from 'vue'
 
-export const usePaginatedMessagesQuery = (queueId: MaybeRef<string | undefined>, pageIndex: MaybeRef<number>) =>
+export const usePaginatedMessagesQuery = (
+  brokerId: MaybeRef<string | undefined>,
+  queueId: MaybeRef<string | undefined>,
+  pageIndex: MaybeRef<number>
+) =>
   useQuery({
-    queryKey: ['messages', queueId, pageIndex],
+    queryKey: ['messages/paginated', brokerId, queueId, pageIndex],
     queryFn: async () => {
       const response = await axios.get<PaginatedResult<MessageDto>>(`${API_URL}/messages/paginated`, {
         params: {
@@ -20,5 +24,5 @@ export const usePaginatedMessagesQuery = (queueId: MaybeRef<string | undefined>,
 
       return response.data
     },
-    enabled: computed(() => !!toValue(queueId))
+    enabled: computed(() => !!toValue(brokerId) && !!toValue(queueId))
   })

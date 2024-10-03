@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useBrokersQuery } from '@/api/brokers/brokersQuery'
-import { useMessageQuery } from '@/api/messages/messageQuery'
+import { useMessagesQuery } from '@/api/messages/messagesQuery'
 import { useQueueQuery } from '@/api/queues/queueQuery'
 import rmqLogoUrl from '@/assets/rmq.svg'
 import type { FormatOption } from '@/components/SelectFormat.vue'
@@ -27,7 +27,12 @@ const router = useRouter()
 
 const { data: brokers } = useBrokersQuery()
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
-const { data: message } = useMessageQuery(computed(() => props.messageId))
+const { data: messages } = useMessagesQuery(
+  computed(() => props.brokerId),
+  computed(() => props.queueId),
+  computed(() => [props.messageId])
+)
+const message = computed(() => (messages.value?.length ? messages.value[0] : undefined))
 const { data: queue } = useQueueQuery(computed(() => props.queueId))
 const queues = computed(() => (queue.value ? [queue.value] : undefined))
 const { rabbitMqQueues } = useRabbitMqQueues(queues)

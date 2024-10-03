@@ -60,6 +60,7 @@ const pageIndex = ref(0)
 const { data: brokers } = useBrokersQuery()
 
 const { data: paginatedMessages, isPending } = usePaginatedMessagesQuery(
+  computed(() => props.brokerId),
   computed(() => props.queueId),
   pageIndex
 )

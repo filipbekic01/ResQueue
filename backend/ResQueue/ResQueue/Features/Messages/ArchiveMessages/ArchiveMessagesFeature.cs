@@ -39,8 +39,7 @@ public class ArchiveMessagesFeature(
 
         var filter = Builders<Message>.Filter.And(
             Builders<Message>.Filter.In(m => m.Id, request.Dto.Ids.Select(ObjectId.Parse)),
-            Builders<Message>.Filter.Eq(m => m.QueueId, queueId),
-            Builders<Message>.Filter.Eq(m => m.UserId, user.Id)
+            Builders<Message>.Filter.Eq(m => m.QueueId, queueId)
         );
 
         var update = Builders<Message>.Update.Set(m => m.DeletedAt, dt);

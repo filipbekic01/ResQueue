@@ -34,8 +34,7 @@ public class ReviewMessagesFeature(
         var bulkOperations = new List<WriteModel<Message>>();
 
         var filterToTrue = Builders<Message>.Filter.And(
-            Builders<Message>.Filter.In(m => m.Id, request.Dto.IdsToTrue.Select(ObjectId.Parse)),
-            Builders<Message>.Filter.Eq(m => m.UserId, user.Id)
+            Builders<Message>.Filter.In(m => m.Id, request.Dto.IdsToTrue.Select(ObjectId.Parse))
         );
         var updateToTrue = Builders<Message>.Update
             .Set(m => m.UpdatedAt, dt)
@@ -43,8 +42,7 @@ public class ReviewMessagesFeature(
         bulkOperations.Add(new UpdateManyModel<Message>(filterToTrue, updateToTrue));
 
         var filterToFalse = Builders<Message>.Filter.And(
-            Builders<Message>.Filter.In(m => m.Id, request.Dto.IdsToFalse.Select(ObjectId.Parse)),
-            Builders<Message>.Filter.Eq(m => m.UserId, user.Id)
+            Builders<Message>.Filter.In(m => m.Id, request.Dto.IdsToFalse.Select(ObjectId.Parse))
         );
         var update = Builders<Message>.Update
             .Set(m => m.UpdatedAt, dt)

@@ -15,7 +15,7 @@ export function useCloneMessageMutation() {
         }
       ),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['messages'] })
+      queryClient.invalidateQueries({ queryKey: ['messages/paginated'] })
     }
   })
 }

@@ -4,18 +4,22 @@ import { useQuery } from '@tanstack/vue-query'
 import axios from 'axios'
 import { computed, toValue, type MaybeRef } from 'vue'
 
-export const useMessageQuery = (id: MaybeRef<string | undefined>) =>
+export const useMessagesQuery = (
+  brokerId: MaybeRef<string | undefined>,
+  queueId: MaybeRef<string | undefined>,
+  ids: MaybeRef<string[] | undefined>
+) =>
   useQuery({
-    queryKey: ['message', id],
+    queryKey: ['messages', ids],
     queryFn: async () => {
       const response = await axios.get<MessageDto[]>(`${API_URL}/messages`, {
         params: {
-          ids: [toValue(id)]
+          ids: toValue(ids)
         },
         withCredentials: true
       })
 
-      return response.data[0]
+      return response.data
     },
-    enabled: computed(() => !!toValue(id))
+    enabled: computed(() => !!toValue(brokerId) && !!toValue(queueId) && !!toValue(ids)?.length)
   })

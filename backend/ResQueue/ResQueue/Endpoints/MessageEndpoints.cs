@@ -24,18 +24,45 @@ public static class MessageEndpoints
             .RequireAuthorization();
 
         group.MapGet("",
-            async (IMongoCollection<Message> messagesCollection, UserManager<User> userManager, HttpContext httpContext,
+            async (IMongoCollection<Message> messagesCollection,
+                IMongoCollection<Broker> brokersCollection,
+                IMongoCollection<Queue> queuesCollection,
+                UserManager<User> userManager, HttpContext httpContext,
+                [FromQuery] string brokerId, [FromQuery] string queueId,
                 [FromQuery(Name = "ids[]")] string[] ids) =>
             {
+                // Get user
                 var user = await userManager.GetUserAsync(httpContext.User);
                 if (user == null)
                 {
                     return Results.Unauthorized();
                 }
 
+                // Validate broker
+                var brokerFilter = Builders<Broker>.Filter.And(
+                    Builders<Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(brokerId)),
+                    Builders<Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id),
+                    Builders<Broker>.Filter.Eq(b => b.DeletedAt, null)
+                );
+                if (!await brokersCollection.Find(brokerFilter).AnyAsync())
+                {
+                    return Results.Unauthorized();
+                }
+
+                // Validate queue
+                var queueFilter = Builders<Queue>.Filter.And(
+                    Builders<Queue>.Filter.Eq(q => q.Id, ObjectId.Parse(queueId)),
+                    Builders<Queue>.Filter.Eq(q => q.BrokerId, ObjectId.Parse(brokerId))
+                );
+                if (!await queuesCollection.Find(queueFilter).AnyAsync())
+                {
+                    return Results.Unauthorized();
+                }
+
+                // Get messages
                 var filter = Builders<Message>.Filter.And(
                     Builders<Message>.Filter.In(q => q.Id, ids.Select(ObjectId.Parse)),
-                    Builders<Message>.Filter.Eq(q => q.UserId, user.Id),
+                    Builders<Message>.Filter.Eq(q => q.QueueId, ObjectId.Parse(queueId)),
                     Builders<Message>.Filter.Eq(q => q.DeletedAt, null)
                 );
 
@@ -47,27 +74,48 @@ public static class MessageEndpoints
             });
 
         group.MapGet("paginated",
-            async (IMongoCollection<Message> messagesCollection, UserManager<User> userManager, HttpContext httpContext,
-                [FromQuery] string queueId, [FromQuery] int pageIndex = 0,
+            async (IMongoCollection<Message> messagesCollection,
+                IMongoCollection<Broker> brokersCollection,
+                IMongoCollection<Queue> queuesCollection,
+                UserManager<User> userManager, HttpContext httpContext,
+                [FromQuery] string brokerId, [FromQuery] string queueId, [FromQuery] int pageIndex = 0,
                 int pageSize = 50) =>
             {
+                // Validate filters
                 pageSize = pageSize > 0 & pageSize <= 100 ? pageSize : 50;
                 pageIndex = pageIndex >= 0 ? pageIndex : 0;
 
+                // Get user
                 var user = await userManager.GetUserAsync(httpContext.User);
                 if (user == null)
                 {
                     return Results.Unauthorized();
                 }
 
-                if (!ObjectId.TryParse(queueId, out var queueIdObjectId))
+                // Validate broker
+                var brokerFilter = Builders<Broker>.Filter.And(
+                    Builders<Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(brokerId)),
+                    Builders<Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id),
+                    Builders<Broker>.Filter.Eq(b => b.DeletedAt, null)
+                );
+                if (!await brokersCollection.Find(brokerFilter).AnyAsync())
                 {
-                    return Results.BadRequest("Invalid Broker ID format.");
+                    return Results.Unauthorized();
                 }
 
+                // Validate queue
+                var queueFilter = Builders<Queue>.Filter.And(
+                    Builders<Queue>.Filter.Eq(q => q.Id, ObjectId.Parse(queueId)),
+                    Builders<Queue>.Filter.Eq(q => q.BrokerId, ObjectId.Parse(brokerId))
+                );
+                if (!await queuesCollection.Find(queueFilter).AnyAsync())
+                {
+                    return Results.Unauthorized();
+                }
+
+                // Get messages
                 var filter = Builders<Message>.Filter.And(
-                    Builders<Message>.Filter.Eq(q => q.QueueId, queueIdObjectId),
-                    Builders<Message>.Filter.Eq(q => q.UserId, user.Id),
+                    Builders<Message>.Filter.Eq(q => q.QueueId, ObjectId.Parse(queueId)),
                     Builders<Message>.Filter.Eq(q => q.DeletedAt, null)
                 );
 

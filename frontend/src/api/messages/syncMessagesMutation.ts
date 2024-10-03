@@ -12,7 +12,7 @@ export function useSyncMessagesMutation() {
         withCredentials: true
       }),
     onSuccess: (_, { queueId }) => {
-      queryClient.invalidateQueries({ queryKey: ['messages'] })
+      queryClient.invalidateQueries({ queryKey: ['messages/paginated'] })
       queryClient.invalidateQueries({ queryKey: ['queues'] })
       queryClient.invalidateQueries({ queryKey: ['queue', queueId] })
     }
