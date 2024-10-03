@@ -27,8 +27,6 @@ public class CreateSubscriptionFeature(
     {
         var dt = DateTime.UtcNow;
 
-        StripeConfiguration.ApiKey = settings.Value.StripeSecret;
-
         var dc = new Dictionary<string, string>
         {
             { StripePlans.ESSENTIALS, settings.Value.StripeEssentialsPriceId },
@@ -60,6 +58,8 @@ public class CreateSubscriptionFeature(
 
         try
         {
+            var stripeClient = new StripeClient(settings.Value.StripeSecret);
+
             var customerOptions = new CustomerCreateOptions
             {
                 Email = request.Dto.CustomerEmail,
@@ -69,8 +69,7 @@ public class CreateSubscriptionFeature(
                     DefaultPaymentMethod = request.Dto.PaymentMethodId,
                 },
             };
-            var customerService = new CustomerService();
-            var customer = await customerService.CreateAsync(customerOptions);
+            var customer = await stripeClient.V1.Customers.CreateAsync(customerOptions);
 
             var subscriptionOptions = new SubscriptionCreateOptions
             {
@@ -86,11 +85,9 @@ public class CreateSubscriptionFeature(
                 Expand = ["latest_invoice.payment_intent"],
             };
 
-            var subscriptionService = new SubscriptionService();
-            var subscription = await subscriptionService.CreateAsync(subscriptionOptions);
+            var subscription = await stripeClient.V1.Subscriptions.CreateAsync(subscriptionOptions);
 
-            var paymentMethodService = new PaymentMethodService();
-            var paymentMethod = await paymentMethodService.GetAsync(request.Dto.PaymentMethodId);
+            var paymentMethod = await stripeClient.V1.PaymentMethods.GetAsync(request.Dto.PaymentMethodId);
 
             var paymentType = paymentMethod.Card?.Brand;
             var paymentLastFour = paymentMethod.Card?.Last4;

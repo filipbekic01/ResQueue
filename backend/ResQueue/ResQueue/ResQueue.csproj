@@ -5,7 +5,9 @@
 
   <ItemGroup>
     <PackageReference Update="AspNetCore.Identity.Mongo" Version="9.0.0" />
-    <PackageReference Update="Stripe.net" Version="45.11.0" />
+    <PackageReference Update="Stripe.net" Version="46.0.0" />
+    <PackageReference Update="MailKit" Version="4.8.0" />
+    <PackageReference Update="MongoDB.Driver" Version="2.29.0" />
   </ItemGroup>
 
   <Target Name="Deploy Vue" BeforeTargets="Publish">

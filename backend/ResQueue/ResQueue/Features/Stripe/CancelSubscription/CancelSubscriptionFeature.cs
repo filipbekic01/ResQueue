@@ -22,8 +22,6 @@ public class CancelSubscriptionFeature(
 {
     public async Task<OperationResult<CancelSubscriptionResponse>> ExecuteAsync(CancelSubscriptionRequest request)
     {
-        StripeConfiguration.ApiKey = settings.Value.StripeSecret;
-
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user is null)
         {
@@ -47,8 +45,9 @@ public class CancelSubscriptionFeature(
 
         try
         {
-            var subscriptionService = new SubscriptionService();
-            var subscription = await subscriptionService.UpdateAsync(user.Subscription.StripeId,
+            var stripeClient = new StripeClient(settings.Value.StripeSecret);
+            
+            var subscription = await stripeClient.V1.Subscriptions.UpdateAsync(user.Subscription.StripeId,
                 new SubscriptionUpdateOptions
                 {
                     CancelAtPeriodEnd = true

@@ -22,8 +22,6 @@ public class ChangeCardFeature(
 {
     public async Task<OperationResult<ChangeCardResponse>> ExecuteAsync(ChangeCardRequest request)
     {
-        StripeConfiguration.ApiKey = settings.Value.StripeSecret;
-
         try
         {
             // Get user
@@ -40,12 +38,12 @@ public class ChangeCardFeature(
             }
 
             // Attach the new payment method to the customer
-            var paymentMethodService = new PaymentMethodService();
-            var paymentMethodAttachOptions = new PaymentMethodAttachOptions
+            var stripeClient = new StripeClient(settings.Value.StripeSecret);
+
+            await stripeClient.V1.PaymentMethods.AttachAsync(request.Dto.PaymentMethodId, new PaymentMethodAttachOptions
             {
                 Customer = user.StripeId
-            };
-            await paymentMethodService.AttachAsync(request.Dto.PaymentMethodId, paymentMethodAttachOptions);
+            });
 
             // Set the new payment method as the default
             var customerService = new CustomerService();
@@ -59,7 +57,7 @@ public class ChangeCardFeature(
             await customerService.UpdateAsync(user.StripeId, customerUpdateOptions);
 
             // Get details about the new payment method (e.g., card brand and last four digits)
-            var paymentMethod = await paymentMethodService.GetAsync(request.Dto.PaymentMethodId);
+            var paymentMethod = await stripeClient.V1.PaymentMethods.GetAsync(request.Dto.PaymentMethodId);
             var paymentType = paymentMethod.Card?.Brand; // e.g., "visa", "mastercard"
             var paymentLastFour = paymentMethod.Card?.Last4; // Last four digits of the card
 

@@ -29,7 +29,7 @@ public class EventHandlerFeature(
 
             switch (stripeEvent.Type)
             {
-                case Events.CustomerSubscriptionDeleted or Events.CustomerSubscriptionUpdated:
+                case EventTypes.CustomerSubscriptionDeleted or EventTypes.CustomerSubscriptionUpdated:
                 {
                     var subscription = stripeEvent.Data.Object as Subscription;
 
@@ -63,7 +63,7 @@ public class EventHandlerFeature(
                     await usersCollection.UpdateOneAsync(filter, update);
                     break;
                 }
-                case Events.InvoicePaymentFailed or Events.InvoicePaymentSucceeded:
+                case EventTypes.InvoicePaymentFailed or EventTypes.InvoicePaymentSucceeded:
                 {
                     var invoice = stripeEvent.Data.Object as Invoice;
                     var subscriptionId = invoice?.SubscriptionId;
@@ -105,7 +105,7 @@ public class EventHandlerFeature(
 
                     break;
                 }
-                case Events.PaymentIntentSucceeded or Events.PaymentIntentPaymentFailed:
+                case EventTypes.PaymentIntentSucceeded or EventTypes.PaymentIntentPaymentFailed:
                 {
                     var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
                     var subscriptionId = paymentIntent?.Metadata["subscription_id"];

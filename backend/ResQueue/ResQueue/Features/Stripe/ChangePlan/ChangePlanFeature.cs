@@ -25,8 +25,6 @@ public class ChangePlanFeature(
     {
         var dt = DateTime.UtcNow;
 
-        StripeConfiguration.ApiKey = settings.Value.StripeSecret;
-
         var dc = new Dictionary<string, string>
         {
             { StripePlans.ESSENTIALS, settings.Value.StripeEssentialsPriceId },
@@ -71,8 +69,9 @@ public class ChangePlanFeature(
         // Retrieve the subscription
         try
         {
-            var subscriptionService = new SubscriptionService();
-            var subscription = await subscriptionService.GetAsync(user.Subscription.StripeId);
+            var stripeClient = new StripeClient(settings.Value.StripeSecret);
+
+            var subscription = await stripeClient.V1.Subscriptions.GetAsync(user.Subscription.StripeId);
             if (subscription == null)
             {
                 return OperationResult<ChangePlanResponse>.Failure(new ProblemDetails
@@ -84,7 +83,7 @@ public class ChangePlanFeature(
             }
 
             // Update the subscription with the new plan
-            var updatedSubscription = await subscriptionService.UpdateAsync(subscription.Id,
+            var updatedSubscription = await stripeClient.V1.Subscriptions.UpdateAsync(subscription.Id,
                 new SubscriptionUpdateOptions
                 {
                     Items =

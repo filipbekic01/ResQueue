@@ -22,8 +22,6 @@ public class ContinueSubscriptionFeature(
 {
     public async Task<OperationResult<ContinueSubscriptionResponse>> ExecuteAsync(ContinueSubscriptionRequest request)
     {
-        StripeConfiguration.ApiKey = settings.Value.StripeSecret;
-
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user is null)
         {
@@ -47,9 +45,9 @@ public class ContinueSubscriptionFeature(
 
         try
         {
-            var subscriptionService = new SubscriptionService();
+            var stripeClient = new StripeClient(settings.Value.StripeSecret);
 
-            var subscription = await subscriptionService.GetAsync(user.Subscription.StripeId);
+            var subscription = await stripeClient.V1.Subscriptions.GetAsync(user.Subscription.StripeId);
 
             if (subscription.Status == "canceled")
             {
@@ -63,7 +61,7 @@ public class ContinueSubscriptionFeature(
 
             if (subscription.CancelAtPeriodEnd)
             {
-                var updatedSubscription = await subscriptionService.UpdateAsync(user.Subscription.StripeId,
+                var updatedSubscription = await stripeClient.V1.Subscriptions.UpdateAsync(user.Subscription.StripeId,
                     new SubscriptionUpdateOptions
                     {
                         CancelAtPeriodEnd = false
