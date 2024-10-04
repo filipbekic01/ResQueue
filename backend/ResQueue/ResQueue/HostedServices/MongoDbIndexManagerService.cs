@@ -29,13 +29,6 @@ public class MongoDbIndexManagerService(
             cancellationToken: cancellationToken
         );
 
-        // Add index on IsFavorite
-        var isFavoriteIndex = Builders<Queue>.IndexKeys.Ascending(q => q.IsFavorite);
-        await collection.Indexes.CreateOneAsync(
-            new CreateIndexModel<Queue>(isFavoriteIndex),
-            cancellationToken: cancellationToken
-        );
-
         // Add index on BrokerId
         var brokerIdIndex = Builders<Queue>.IndexKeys.Ascending(q => q.BrokerId);
         await collection.Indexes.CreateOneAsync(

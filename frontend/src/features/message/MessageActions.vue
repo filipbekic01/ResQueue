@@ -20,14 +20,20 @@ import { useDialog } from 'primevue/usedialog'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref, watch } from 'vue'
 
-const props = defineProps<{
-  messages: MessageDto[]
-  broker: BrokerDto
-  selectedMessageIds: string[]
-  messageFormat: FormatOption
-  messageStructure: StructureOption
-  rabbitMqQueue: RabbitMQQueueDto
-}>()
+const props = withDefaults(
+  defineProps<{
+    messages: MessageDto[]
+    broker: BrokerDto
+    selectedMessageIds: string[]
+    messageFormat: FormatOption
+    messageStructure: StructureOption
+    rabbitMqQueue: RabbitMQQueueDto
+    showCreateMessage?: boolean
+  }>(),
+  {
+    showCreateMessage: false
+  }
+)
 
 const emit = defineEmits<{
   (e: 'archive:message'): void
@@ -296,6 +302,7 @@ if (access) {
   ></Button>
 
   <Button
+    v-if="showCreateMessage"
     @click="openUpsertMessageDialog"
     :loading="isPublishMessagesPending"
     label=""

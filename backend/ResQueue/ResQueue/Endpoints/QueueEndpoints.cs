@@ -50,7 +50,6 @@ public static class QueueEndpoints
                     Id = x.Id.ToString(),
                     RawData = JsonHelper.ConvertBsonToJson(x.RawData),
                     TotalMessages = x.TotalMessages,
-                    IsFavorite = x.IsFavorite,
                     CreatedAt = x.CreatedAt
                 }).ToList());
             });
@@ -71,7 +70,7 @@ public static class QueueEndpoints
                 search = search.Trim();
                 sortField = new[]
                 {
-                    "name", "messages"
+                    "parsed.name", "totalMessages"
                 }.Contains(sortField)
                     ? sortField
                     : null;
@@ -108,26 +107,23 @@ public static class QueueEndpoints
 
                 var filter = Builders<Queue>.Filter.And(filters);
 
-                var sort = Builders<Queue>.Sort.Descending(q => q.IsFavorite);
+                // Sort queue
+                var sort = Builders<Queue>.Sort.Ascending(q => q.RawData["name"]);
 
                 if (sortField is not null && sortOrder is not null)
                 {
-                    var secondarySort = sortOrder == 1
-                        ? Builders<Queue>.Sort.Ascending(x => x.RawData[sortField])
-                        : Builders<Queue>.Sort.Descending(x => x.RawData[sortField]);
-
-                    if (sortField.Equals("messages", StringComparison.CurrentCultureIgnoreCase))
+                    if (sortField.Equals("totalMessages", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        secondarySort = sortOrder == 1
+                        sort = sortOrder == 1
                             ? Builders<Queue>.Sort.Ascending(x => x.TotalMessages)
                             : Builders<Queue>.Sort.Descending(x => x.TotalMessages);
                     }
-
-                    sort = Builders<Queue>.Sort.Combine(sort, secondarySort);
-                }
-                else
-                {
-                    sort = Builders<Queue>.Sort.Combine(sort, Builders<Queue>.Sort.Descending(q => q.Id));
+                    else if (sortField.Equals("parsed.name", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        sort = sortOrder == 1
+                            ? Builders<Queue>.Sort.Ascending(x => x.RawData["RawData.name"])
+                            : Builders<Queue>.Sort.Descending(x => x.RawData["RawData.name"]);
+                    }
                 }
 
                 var totalItems = await queuesCollection.CountDocumentsAsync(filter);
@@ -147,7 +143,6 @@ public static class QueueEndpoints
                         RawData = JsonHelper.ConvertBsonToJson(x.RawData),
                         TotalMessages = x.TotalMessages,
                         Messages = x.Messages,
-                        IsFavorite = x.IsFavorite,
                         CreatedAt = x.CreatedAt
                     }).ToList(),
                     PageIndex = pageIndex,
@@ -192,13 +187,11 @@ public static class QueueEndpoints
                 }
 
                 // Favorite queue
-                var filter = Builders<Queue>.Filter.And(
-                    Builders<Queue>.Filter.Eq(q => q.Id, ObjectId.Parse(id))
-                );
-
-                var update = Builders<Queue>.Update.Set(q => q.IsFavorite, dto.IsFavorite);
-
-                await queuesCollection.UpdateOneAsync(filter, update);
+                // var filter = Builders<Queue>.Filter.And(
+                //     Builders<Queue>.Filter.Eq(q => q.Id, ObjectId.Parse(id))
+                // );
+                // var update = Builders<Queue>.Update.Set(q => q.IsFavorite, dto.IsFavorite);
+                // await queuesCollection.UpdateOneAsync(filter, update);
 
                 return Results.Ok();
             });

@@ -218,11 +218,12 @@ watchEffect(() => {
       :sort-field="route.query.sortField"
       :sort-order="route.query.sortOrder ? parseInt(route.query.sortOrder.toString()) : undefined"
       @sort="updateSort"
+      :lazy="true"
     >
-      <Column sortable field="name" header="Name">
+      <Column sortable field="parsed.name" header="Name">
         <template #body="{ data }">
           <div class="flex items-center gap-3">
-            <Button text size="small" @click="toggleFavorite(data)"
+            <!-- <Button text size="small" @click="toggleFavorite(data)"
               ><i
                 class="pi pi-thumbtack"
                 :class="[
@@ -232,16 +233,11 @@ watchEffect(() => {
                   }
                 ]"
               ></i
-            ></Button>
+            ></Button> -->
             <div
               @click="selectQueue(data)"
               :title="data.parsed['name']"
               class="overflow-hidden overflow-ellipsis hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
-              :class="[
-                {
-                  'text-gray-400': !data.parsed['messages']
-                }
-              ]"
             >
               {{ getName(data.parsed['name']) }}
             </div>
@@ -249,17 +245,12 @@ watchEffect(() => {
         </template>
       </Column>
 
-      <Column field="inbox" header="Inbox" class="w-[0%]">
+      <Column sortable sort-field="totalMessages" field="parsed.messages" header="Messages" class="w-[0%]">
         <template #body="{ data }">
-          <div class="flex items-center justify-between gap-2">
-            {{ data.messages }}
-          </div>
-        </template>
-      </Column>
-
-      <Column sortable sort-field="messages" field="parsed.messages" header="Messages" class="w-[0%]">
-        <template #body="{ data }">
-          <div class="flex items-center justify-start gap-3" v-tooltip.left="`${data.parsed['consumers']} consumers`">
+          <div
+            class="flex flex-nowrap items-center justify-start gap-3"
+            v-tooltip.left="`${data.parsed['consumers']} consumers`"
+          >
             <i
               class="pi pi-circle-fill text-xs"
               :class="[
@@ -271,6 +262,9 @@ watchEffect(() => {
               style="font-size: 0.625rem"
             ></i>
             {{ data.parsed['messages'] }}
+            <div class="ms-auto flex items-center whitespace-nowrap">
+              ({{ data.messages }} <i class="pi pi-inbox ms-2"></i>)
+            </div>
           </div>
         </template>
       </Column>

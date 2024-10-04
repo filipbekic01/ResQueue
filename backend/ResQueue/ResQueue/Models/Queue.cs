@@ -9,7 +9,6 @@ public class Queue
     public ObjectId BrokerId { get; set; }
     public int TotalMessages { get; set; }
     public int Messages { get; set; }
-    public bool IsFavorite { get; set; }
     public BsonDocument RawData { get; set; } = null!;
     public DateTime CreatedAt { get; set; }
     public long NextMessageOrder { get; set; }

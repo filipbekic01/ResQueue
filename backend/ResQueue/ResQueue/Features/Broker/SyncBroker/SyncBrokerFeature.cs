@@ -80,10 +80,16 @@ public class SyncBrokerFeature(
             // Add queue
             if (!queueExists)
             {
+                var doc = BsonDocument.Parse(element.GetRawText());
+                element.TryGetProperty("messages", out var messages);
+                int.TryParse(messages.ToString(), out var messagesAsNumber);
+
                 queuesToAdd.Add(new Queue
                 {
                     BrokerId = ObjectId.Parse(request.Id),
-                    RawData = BsonDocument.Parse(element.GetRawText()),
+                    RawData = doc,
+                    NextMessageOrder = 0,
+                    TotalMessages = messagesAsNumber,
                     CreatedAt = dt
                 });
             }
@@ -101,12 +107,9 @@ public class SyncBrokerFeature(
 
                 var newRawData = BsonDocument.Parse(element.GetRawText());
 
-                if (!queue.RawData.Equals(newRawData))
-                {
-                    queue.RawData = newRawData;
-                    queue.TotalMessages = queue.Messages + queue.RawData["messages"].AsInt32;
-                    queuesToUpdate.Add(queue);
-                }
+                queue.RawData = newRawData;
+                queue.TotalMessages = queue.Messages + queue.RawData["messages"].AsInt32;
+                queuesToUpdate.Add(queue);
             }
         }
 

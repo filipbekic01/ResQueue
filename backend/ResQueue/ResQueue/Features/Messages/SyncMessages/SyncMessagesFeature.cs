@@ -46,6 +46,9 @@ public class SyncMessagesFeature(
         var factory = RabbitmqConnectionFactory.CreateAmqpFactory(broker);
         using var connection = factory.CreateConnection();
         using var channel = connection.CreateModel();
+
+        channel.BasicQos(0, 100, false);
+
         while (channel.BasicGet(queue.RawData.GetValue("name").AsString, false) is { } res)
         {
             var queueWithNewSequence = await queuesCollection.FindOneAndUpdateAsync(queueFilter,

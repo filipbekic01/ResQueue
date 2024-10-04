@@ -147,7 +147,7 @@ const toggleCollapse = () => {
           }
         ]"
       >
-        <RouterLink :to="{ name: 'home' }">
+        <RouterLink :to="{ name: 'app' }">
           <div class="flex grow items-center justify-end rounded-lg bg-black p-2.5">
             <i class="pi pi-database rotate-90 text-white" style="font-size: 1.5rem"></i>
           </div>

@@ -295,6 +295,7 @@ const cloneMessage = (id: string) => {
 
       <MessageActions
         v-if="broker && paginatedMessages?.items && rabbitMqQueue"
+        show-create-message
         :broker="broker"
         :rabbit-mq-queue="rabbitMqQueue"
         :selected-message-ids="selectedMessageIds"
@@ -334,7 +335,7 @@ const cloneMessage = (id: string) => {
               <Button text size="small" @click="(e) => toggleIdPopover(e)"><i class="pi pi-copy"></i></Button>
               <span
                 @click="openMessage(data.id)"
-                class="text border-b border-dashed border-slate-600 hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
+                class="border-b border-dashed border-slate-600 hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
                 >{{ data.id.slice(-8) }}
               </span>
             </div>
