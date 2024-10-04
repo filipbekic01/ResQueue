@@ -215,52 +215,29 @@ watchEffect(() => {
       :value="rabbitMqQueues"
       removable-sort
       class="grow overflow-auto"
+      striped-rows
       :sort-field="route.query.sortField"
       :sort-order="route.query.sortOrder ? parseInt(route.query.sortOrder.toString()) : undefined"
       @sort="updateSort"
       :lazy="true"
     >
-      <Column sortable field="parsed.name" header="Name">
+      <Column sortable field="parsed.name" header="Name" class="overflow-hidden overflow-ellipsis">
         <template #body="{ data }">
-          <div class="flex items-center gap-3">
-            <!-- <Button text size="small" @click="toggleFavorite(data)"
-              ><i
-                class="pi pi-thumbtack"
-                :class="[
-                  {
-                    'rotate-12 text-slate-400': !data.isFavorite,
-                    'text-slate-700': data.isFavorite
-                  }
-                ]"
-              ></i
-            ></Button> -->
-            <div
-              @click="selectQueue(data)"
-              :title="data.parsed['name']"
-              class="overflow-hidden overflow-ellipsis hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
-            >
-              {{ getName(data.parsed['name']) }}
-            </div>
+          <div
+            @click="selectQueue(data)"
+            class="w-0 overflow-ellipsis hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
+          >
+            {{ getName(data.parsed['name']) }}
           </div>
         </template>
       </Column>
 
-      <Column sortable sort-field="totalMessages" field="parsed.messages" header="Messages" class="w-[0%]">
+      <Column sortable sort-field="totalMessages" field="parsed.messages" header="Messages" class="w-0">
         <template #body="{ data }">
           <div
             class="flex flex-nowrap items-center justify-start gap-3"
             v-tooltip.left="`${data.parsed['consumers']} consumers`"
           >
-            <i
-              class="pi pi-circle-fill text-xs"
-              :class="[
-                {
-                  'text-emerald-400': data.parsed['consumers'],
-                  'text-gray-400': !data.parsed['consumers']
-                }
-              ]"
-              style="font-size: 0.625rem"
-            ></i>
             {{ data.parsed['messages'] }}
             <div class="ms-auto flex items-center whitespace-nowrap">
               ({{ data.messages }} <i class="pi pi-inbox ms-2"></i>)
@@ -269,11 +246,17 @@ watchEffect(() => {
         </template>
       </Column>
 
-      <Column field="parsed.type" header="Type" class="w-[0%]"> </Column>
-
-      <Column field="parsed.features" header="Features" class="w-[0%]">
+      <Column field="parsed.type" header="Type" class="w-0">
         <template #body="{ data }">
-          <div v-show="data.parsed['durable']" severity="info">D</div>
+          <Tag>{{ data.parsed['type'] }}</Tag>
+        </template>
+      </Column>
+
+      <Column field="parsed.features" header="Features" class="w-0">
+        <template #body="{ data }">
+          <div class="flex justify-center">
+            <Tag v-show="data.parsed['durable']" v-tooltip.left="'Durable'">D</Tag>
+          </div>
         </template>
       </Column>
     </DataTable>

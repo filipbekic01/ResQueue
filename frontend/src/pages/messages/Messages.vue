@@ -318,18 +318,19 @@ const cloneMessage = (id: string) => {
         data-key="id"
         scrollable
         class="max-w-full grow overflow-hidden"
+        striped-rows
         scroll-height="flex"
         v-model:expandedRows="expandedRows"
       >
         <Column selectionMode="multiple" class="w-0" style="vertical-align: top; text-align: center"></Column>
-        <Column expander class="w-[0%]">
+        <Column expander class="w-0">
           <template #header>
             <i v-if="!allExpanded" class="pi pi-plus grow cursor-pointer text-center font-bold" @click="expandAll"></i
             ><i v-else class="pi pi-minus grow cursor-pointer text-center font-bold" @click="collapseAll"></i>
           </template>
         </Column>
 
-        <Column field="id" header="Message" class="w-[0%]">
+        <Column field="id" header="Message" class="w-0">
           <template #body="{ data }">
             <div class="flex items-center gap-2">
               <Button text size="small" @click="(e) => toggleIdPopover(e)"><i class="pi pi-copy"></i></Button>
@@ -342,7 +343,7 @@ const cloneMessage = (id: string) => {
           </template>
         </Column>
 
-        <Column field="flags" class="w-[0%]">
+        <Column field="flags" class="w-0">
           <template #body="{ data }">
             <div class="flex items-center gap-2">
               <Tag v-if="data.isReviewed" icon="pi pi-check"></Tag>
@@ -352,13 +353,13 @@ const cloneMessage = (id: string) => {
 
         <Column field="summary" header="Summary" class="overflow-hidden">
           <template #body="{ data }">
-            <div class="overflow-hidden overflow-ellipsis text-nowrap">
+            <div class="w-0 text-nowrap">
               {{ messageSummary({ ...data }) }}
             </div>
           </template>
         </Column>
 
-        <Column field="edit" header="" class="w-[0%]">
+        <Column field="edit" header="" class="w-0">
           <template #body="{ data }">
             <div class="flex items-center justify-end">
               <Tag v-if="!data.rabbitmqMetadata.exchange" class="me-2 whitespace-nowrap">custom</Tag>
@@ -374,7 +375,7 @@ const cloneMessage = (id: string) => {
           </template>
         </Column>
 
-        <Column field="updatedAt" header="Updated" class="w-[0%]">
+        <Column field="updatedAt" header="Updated" class="w-0">
           <template #body="{ data }"
             ><div class="whitespace-nowrap text-slate-500">
               {{ data.updatedAt ? `${formatDistanceToNow(data.updatedAt)}` : 'never' }}
@@ -382,7 +383,7 @@ const cloneMessage = (id: string) => {
           >
         </Column>
 
-        <Column field="createdAt" header="Created" class="w-[0%]">
+        <Column field="createdAt" header="Created" class="w-0">
           <template #body="{ data }"
             ><div class="whitespace-nowrap">{{ formatDistanceToNow(data.createdAt) }} ago</div></template
           >
