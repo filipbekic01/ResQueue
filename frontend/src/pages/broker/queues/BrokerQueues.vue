@@ -2,11 +2,9 @@
 import { useBrokersQuery } from '@/api/brokers/brokersQuery'
 import { useSyncBrokerMutation } from '@/api/brokers/syncBrokerMutation'
 import { useUpdateBrokerMutation } from '@/api/brokers/updateBrokerMutation'
-import { useFavoriteQueueMutation } from '@/api/queues/favoriteQueueMutation'
 import { usePaginatedQueuesQuery } from '@/api/queues/paginatedQueuesQuery'
 import { useIdentity } from '@/composables/identityComposable'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
-import type { QueueDto } from '@/dtos/queue/queueDto'
 import { errorToToast } from '@/utils/errorUtils'
 import Button from 'primevue/button'
 import Column from 'primevue/column'
@@ -33,7 +31,6 @@ const {
 const { data: brokers } = useBrokersQuery()
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
 const access = computed(() => broker.value?.accessList.find((x) => x.userId == user.value?.id))
-const { mutateAsync: favoriteQueueAsync } = useFavoriteQueueMutation()
 const { mutateAsync: syncBrokerAsync, isPending: isPendingSyncBroker } = useSyncBrokerMutation()
 
 const { mutateAsync: updateBrokerAsync } = useUpdateBrokerMutation()
@@ -142,15 +139,6 @@ const updateSort = (e: DataTableSortEvent) => {
       sortOrder: e.sortOrder ? e.sortOrder : undefined
     }
   })
-}
-
-const toggleFavorite = (data: QueueDto) => {
-  favoriteQueueAsync({
-    queueId: data.id,
-    dto: {
-      isFavorite: !data.isFavorite
-    }
-  }).catch((e) => toast.add(errorToToast(e)))
 }
 
 const getName = (name: string) => {
