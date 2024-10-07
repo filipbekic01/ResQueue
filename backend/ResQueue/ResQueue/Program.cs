@@ -40,7 +40,7 @@ public class Program
         {
             corsOptions.AddPolicy("AllowAll", policy =>
             {
-                policy.WithOrigins("http://localhost:5173");
+                policy.SetIsOriginAllowed(_ => true);
                 policy.AllowAnyHeader();
                 policy.AllowAnyMethod();
                 policy.AllowCredentials();
@@ -153,6 +153,7 @@ public class Program
         apiGroup.MapMessageEndpoints();
         apiGroup.MapStripeEndpoints();
         apiGroup.MapUserEndpoints();
+        apiGroup.MapTestEndpoints();
 
         app.Run();
     }
