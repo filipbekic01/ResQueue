@@ -117,6 +117,13 @@ public class Program
 
         app.UseCors("AllowAll");
 
+        // Temporary internal server error fix until this issue is officially fixed.
+        // https://github.com/dotnet/aspnetcore/issues/22281
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseExceptionHandler(configure => configure.Run(_ => Task.CompletedTask));
+        }
+
         string[] frontendRoutes =
         [
             "^login",
