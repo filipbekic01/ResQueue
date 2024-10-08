@@ -103,7 +103,7 @@ const handleCopied = () => {
         :messages="[message]"
         v-model:message-format="selectedMessageFormat"
         v-model:message-structure="selectedMessageStructure"
-        @archive:message="backToMessages"
+        @archive:messages="backToMessages"
       />
     </div>
 

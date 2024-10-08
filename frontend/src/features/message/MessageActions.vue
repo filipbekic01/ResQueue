@@ -36,7 +36,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  (e: 'archive:message'): void
+  (e: 'archive:messages'): void
   (e: 'update:message-format', format: FormatOption): void
   (e: 'update:message-structure', structure: StructureOption): void
 }>()
@@ -153,7 +153,7 @@ const archiveMessages = () => {
         ids: props.selectedMessageIds,
         queueId: props.rabbitMqQueue.id
       }).then(() => {
-        emit('archive:message')
+        emit('archive:messages')
 
         toast.add({
           severity: 'info',

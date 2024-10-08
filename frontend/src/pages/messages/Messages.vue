@@ -261,6 +261,8 @@ const cloneMessage = (id: string) => {
     reject: () => {}
   })
 }
+
+const removeSelection = () => (selectedMessages.value = [])
 </script>
 
 <template>
@@ -302,6 +304,7 @@ const cloneMessage = (id: string) => {
         :messages="paginatedMessages?.items"
         v-model:message-structure="selectedMessageStructure"
         v-model:message-format="selectedMessageFormat"
+        @archive:messages="removeSelection"
       />
     </div>
     <template v-if="isPending">
