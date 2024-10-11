@@ -21,6 +21,7 @@ public static class RabbitmqConnectionFactory
             UserName = rabbitMqConnection.Username,
             Password = rabbitMqConnection.Password,
             VirtualHost = rabbitMqConnection.VHost,
+            DispatchConsumersAsync = true,
         };
 
         if (rabbitMqConnection.AmqpTls)

@@ -1,8 +1,10 @@
+using System.Diagnostics;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using RabbitMQ.Client.Events;
 using ResQueue.Mappers;
 using ResQueue.Models;
 
@@ -22,6 +24,7 @@ public class SyncMessagesFeature(
 {
     public async Task<OperationResult<SyncMessagesFeatureResponse>> ExecuteAsync(SyncMessagesFeatureRequest request)
     {
+        // Get user
         var user = await userManager.GetUserAsync(request.ClaimsPrincipal);
         if (user == null)
         {
@@ -33,77 +36,139 @@ public class SyncMessagesFeature(
             });
         }
 
+        // Get queue
         var queueFilter = Builders<Queue>.Filter.Eq(b => b.Id, ObjectId.Parse(request.QueueId));
 
         var queue = await queuesCollection.Find(queueFilter).SingleAsync();
 
+        // Get broker
         var brokerFilter = Builders<Models.Broker>.Filter.And(
             Builders<Models.Broker>.Filter.Eq(b => b.Id, queue.BrokerId),
             Builders<Models.Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id)
         );
         var broker = await brokersCollection.Find(brokerFilter).SingleAsync();
 
+        // RabbitMQ subscriber
         var factory = RabbitmqConnectionFactory.CreateAmqpFactory(broker);
         using var connection = factory.CreateConnection();
         using var channel = connection.CreateModel();
 
-        channel.BasicQos(0, 100, false);
+        channel.BasicQos(0, 50, false);
 
-        while (channel.BasicGet(queue.RawData.GetValue("name").AsString, false) is { } res)
+        var consumer = new AsyncEventingBasicConsumer(channel);
+        var queueName = queue.RawData.GetValue("name").AsString;
+
+        // var tcs = new TaskCompletionSource();
+
+        var conTag = Guid.NewGuid().ToString();
+
+        consumer.Received += async (model, ea) =>
         {
-            var queueWithNewSequence = await queuesCollection.FindOneAndUpdateAsync(queueFilter,
-                Builders<Queue>.Update.Inc(x => x.NextMessageOrder, 1));
-
-            var message =
-                RabbitMQMessageMapper.ToDocument(queue.Id, user.Id, queueWithNewSequence.NextMessageOrder, res);
-
-            using var session = await mongoClient.StartSessionAsync();
-            session.StartTransaction();
-
-            // Insert the message into the messages collection
-            await messagesCollection.InsertOneAsync(session, message);
-
-            // Prepare the update pipeline
-            var updatePipeline = new[]
+            try
             {
-                // First stage: Update RawData.messages and Messages
-                new BsonDocument("$set", new BsonDocument
-                {
-                    {
-                        "RawData.messages", new BsonDocument("$max", new BsonArray
-                        {
-                            0,
-                            new BsonDocument("$subtract", new BsonArray { "$RawData.messages", 1 })
-                        })
-                    },
-                    { "Messages", new BsonDocument("$add", new BsonArray { "$Messages", 1 }) }
-                }),
-                // Second stage: Update TotalMessages using updated values
-                new BsonDocument("$set", new BsonDocument
-                {
-                    {
-                        "TotalMessages", new BsonDocument("$max", new BsonArray
-                        {
-                            0,
-                            new BsonDocument("$add", new BsonArray
-                            {
-                                "$Messages",
-                                "$RawData.messages"
-                            })
-                        })
-                    }
-                })
-            };
+                await SaveMessage(queueFilter, queue, user, ea);
 
-            // Apply the update to the queue
-            await queuesCollection.UpdateOneAsync(session, x => x.Id == message.QueueId,
-                Builders<Queue>.Update.Pipeline(updatePipeline));
+                channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
+            }
+            catch (Exception ex)
+            {
+                channel.BasicNack(deliveryTag: ea.DeliveryTag, multiple: false, requeue: true);
+            }
+        };
 
-            await session.CommitTransactionAsync();
+        var isRunning = true;
+        consumer.ConsumerCancelled += (sender, args) =>
+        {
+            isRunning = false;
+            return Task.CompletedTask;
+        };
+        consumer.Shutdown += (sender, args) => { return Task.CompletedTask; };
 
-            channel.BasicAck(res.DeliveryTag, false);
+        channel.BasicConsume(
+            queue: queueName,
+            autoAck: false,
+            consumerTag: conTag,
+            noLocal: false, // Must be false in RabbitMQ
+            exclusive: false,
+            new Dictionary<string, object>(),
+            consumer: consumer
+        );
+
+        var isCancelled = false;
+        while (!isCancelled)
+        {
+            var messageCount = channel.MessageCount(queueName);
+            if (messageCount == 0)
+            {
+                channel.BasicCancel(conTag);
+                isCancelled = true;
+            }
+
+            await Task.Delay(TimeSpan.FromMilliseconds(100));
         }
 
+        while (isRunning)
+        {
+            await Task.Delay(TimeSpan.FromMilliseconds(100));
+        }
+
+        // Wait for the consumer to finish processing
+        // await tcs.Task;
+
         return OperationResult<SyncMessagesFeatureResponse>.Success(new SyncMessagesFeatureResponse());
+    }
+
+    private async Task SaveMessage(FilterDefinition<Queue> queueFilter, Queue queue, User user,
+        BasicDeliverEventArgs ea)
+    {
+        var queueWithNewSequence = await queuesCollection.FindOneAndUpdateAsync(queueFilter,
+            Builders<Queue>.Update.Inc(x => x.NextMessageOrder, 1));
+
+        var message = RabbitMQMessageMapper.ToDocument(
+            queue.Id, user.Id, queueWithNewSequence.NextMessageOrder, ea);
+
+        using var session = await mongoClient.StartSessionAsync();
+        session.StartTransaction();
+
+        // Insert the message into the messages collection
+        await messagesCollection.InsertOneAsync(session, message);
+
+        // Prepare the update pipeline
+        var updatePipeline = new[]
+        {
+            // First stage: Update RawData.messages and Messages
+            new BsonDocument("$set", new BsonDocument
+            {
+                {
+                    "RawData.messages", new BsonDocument("$max", new BsonArray
+                    {
+                        0,
+                        new BsonDocument("$subtract", new BsonArray { "$RawData.messages", 1 })
+                    })
+                },
+                { "Messages", new BsonDocument("$add", new BsonArray { "$Messages", 1 }) }
+            }),
+            // Second stage: Update TotalMessages using updated values
+            new BsonDocument("$set", new BsonDocument
+            {
+                {
+                    "TotalMessages", new BsonDocument("$max", new BsonArray
+                    {
+                        0,
+                        new BsonDocument("$add", new BsonArray
+                        {
+                            "$Messages",
+                            "$RawData.messages"
+                        })
+                    })
+                }
+            })
+        };
+
+        // Apply the update to the queue
+        await queuesCollection.UpdateOneAsync(session, x => x.Id == message.QueueId,
+            Builders<Queue>.Update.Pipeline(updatePipeline));
+
+        await session.CommitTransactionAsync();
     }
 }

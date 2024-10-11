@@ -2,13 +2,14 @@ using System.Collections;
 using System.Text;
 using MongoDB.Bson;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using ResQueue.Models;
 
 namespace ResQueue.Mappers;
 
 public static class RabbitMQMessageMapper
 {
-    public static Message ToDocument(ObjectId queueId, ObjectId userId, long messageOrder, BasicGetResult res)
+    public static Message ToDocument(ObjectId queueId, ObjectId userId, long messageOrder, BasicDeliverEventArgs res)
     {
         var props = new RabbitMQMessageProperties();
 
@@ -111,7 +112,7 @@ public static class RabbitMQMessageMapper
             _ => value
         };
 
-    private static BsonValue GetBody(BasicGetResult res)
+    private static BsonValue GetBody(BasicDeliverEventArgs res)
     {
         var encoding = new UTF8Encoding(false, true);
         string stringValue;
