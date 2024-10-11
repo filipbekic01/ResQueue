@@ -213,7 +213,7 @@ watchEffect(() => {
         <template #body="{ data }">
           <div
             @click="selectQueue(data)"
-            class="w-0 overflow-ellipsis hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
+            class="w-0 overflow-ellipsis whitespace-nowrap hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
           >
             {{ getName(data.parsed['name']) }}
           </div>

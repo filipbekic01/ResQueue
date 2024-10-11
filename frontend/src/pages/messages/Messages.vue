@@ -263,6 +263,9 @@ const cloneMessage = (id: string) => {
 }
 
 const removeSelection = () => (selectedMessages.value = [])
+
+const pullOptionsRef = ref()
+const togglePullOptions = (event: Event) => pullOptionsRef.value.toggle(event)
 </script>
 
 <template>
@@ -284,6 +287,7 @@ const removeSelection = () => (selectedMessages.value = [])
     </template>
     <div class="flex flex-wrap items-start gap-2 border-b px-4 py-2">
       <Button @click="backToQueues" outlined label="Queues" icon="pi pi-arrow-left"></Button>
+
       <ButtonGroup>
         <Button
           @click="() => syncMessages()"
@@ -292,16 +296,24 @@ const removeSelection = () => (selectedMessages.value = [])
           :loading="isSyncMessagesPending"
           icon="pi pi-download"
         ></Button>
-        <Button @click="syncBroker()" outlined :loading="isSyncBrokerPending" label="Sync" icon="pi pi-sync"></Button>
+        <!-- <Button @click="syncBroker()" outlined :loading="isSyncBrokerPending" label="Sync" icon="pi pi-sync"></Button> -->
+        <Button outlined @click="togglePullOptions" icon="pi pi-ellipsis-v"></Button>
       </ButtonGroup>
+
+      <Popover ref="pullOptionsRef">
+        <div class="w-72">
+          To view the current number of available messages for pulling, please synchronize the entire broker again.
+        </div>
+        <Button class="mt-2" link icon="pi pi-sync" label="Sync Broker" @click="syncBroker()"></Button>
+      </Popover>
 
       <MessageActions
         v-if="broker && paginatedMessages?.items && rabbitMqQueue"
-        show-create-message
         :broker="broker"
         :rabbit-mq-queue="rabbitMqQueue"
         :selected-message-ids="selectedMessageIds"
         :messages="paginatedMessages?.items"
+        is-messages-page
         v-model:message-structure="selectedMessageStructure"
         v-model:message-format="selectedMessageFormat"
         @archive:messages="removeSelection"

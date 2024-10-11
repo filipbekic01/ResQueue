@@ -8,7 +8,11 @@ using ResQueue.Models;
 
 namespace ResQueue.Features.Messages.ArchiveMessages;
 
-public record ArchiveMessagesFeatureRequest(ClaimsPrincipal ClaimsPrincipal, ArchiveMessagesDto Dto);
+public record ArchiveMessagesFeatureRequest(
+    ClaimsPrincipal ClaimsPrincipal,
+    ArchiveMessagesDto Dto,
+    bool Purge
+);
 
 public record ArchiveMessagesFeatureResponse();
 
@@ -42,13 +46,15 @@ public class ArchiveMessagesFeature(
             Builders<Message>.Filter.Eq(m => m.QueueId, queueId)
         );
 
+        var purgeFilter = Builders<Message>.Filter.Eq(m => m.QueueId, queueId);
+
         var update = Builders<Message>.Update.Set(m => m.DeletedAt, dt);
 
         using var session = await mongoClient.StartSessionAsync();
         session.StartTransaction();
 
         // Update many messages in the messages collection
-        var result = await messagesCollection.UpdateManyAsync(session, filter, update);
+        var result = await messagesCollection.UpdateManyAsync(session, request.Purge ? purgeFilter : filter, update);
 
         // Define the update pipeline
         var updatePipeline = new[]

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Operations;
 using ResQueue.Dtos;
 using ResQueue.Features.Messages.ArchiveMessages;
 using ResQueue.Features.Messages.CloneMessage;
@@ -213,11 +214,12 @@ public static class MessageEndpoints
 
         group.MapDelete("",
             async (IArchiveMessagesFeature archiveMessagesFeature, [FromBody] ArchiveMessagesDto dto,
-                HttpContext httpContext) =>
+                HttpContext httpContext, [FromQuery] bool purge = false) =>
             {
                 var result = await archiveMessagesFeature.ExecuteAsync(new ArchiveMessagesFeatureRequest(
                     ClaimsPrincipal: httpContext.User,
-                    Dto: dto
+                    Dto: dto,
+                    Purge: purge
                 ));
 
                 return result.IsSuccess

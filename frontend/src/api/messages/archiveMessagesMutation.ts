@@ -6,10 +6,16 @@ export function useArchiveMessagesMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: { ids: string[]; queueId: string }) =>
+    mutationFn: (data: { ids: string[]; queueId: string; purge: boolean }) =>
       axios.delete(`${API_URL}/messages`, {
-        data,
-        withCredentials: true
+        data: {
+          ids: data.ids,
+          queueId: data.queueId
+        },
+        withCredentials: true,
+        params: {
+          purge: data.purge ? data.purge : undefined
+        }
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['messages/paginated'] })

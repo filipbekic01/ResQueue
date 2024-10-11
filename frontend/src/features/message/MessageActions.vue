@@ -14,6 +14,10 @@ import type { BrokerDto } from '@/dtos/broker/brokerDto'
 import type { MessageDto } from '@/dtos/message/messageDto'
 import type { RabbitMQQueueDto } from '@/dtos/queue/rabbitMQQueueDto'
 import { errorToToast } from '@/utils/errorUtils'
+import ButtonGroup from 'primevue/buttongroup'
+import Menu from 'primevue/menu'
+import type { MenuItem } from 'primevue/menuitem'
+import Popover from 'primevue/popover'
 import Select from 'primevue/select'
 import { useConfirm } from 'primevue/useconfirm'
 import { useDialog } from 'primevue/usedialog'
@@ -28,10 +32,10 @@ const props = withDefaults(
     messageFormat: FormatOption
     messageStructure: StructureOption
     rabbitMqQueue: RabbitMQQueueDto
-    showCreateMessage?: boolean
+    isMessagesPage?: boolean
   }>(),
   {
-    showCreateMessage: false
+    isMessagesPage: false
   }
 )
 
@@ -134,10 +138,12 @@ const reviewMessages = () => {
   })
 }
 
-const archiveMessages = () => {
+const archiveMessages = (purge: boolean = false) => {
   confirm.require({
     header: 'Archive Messages',
-    message: `Do you want to archive ${props.selectedMessageIds.length} messages?`,
+    message: purge
+      ? `Do you want to purge the queue?`
+      : `Do you want to archive ${props.selectedMessageIds.length} messages?`,
     icon: 'pi pi-info-circle',
     rejectProps: {
       label: 'Cancel',
@@ -151,7 +157,8 @@ const archiveMessages = () => {
     accept: () => {
       archiveMessagesAsync({
         ids: props.selectedMessageIds,
-        queueId: props.rabbitMqQueue.id
+        queueId: props.rabbitMqQueue.id,
+        purge
       }).then(() => {
         emit('archive:messages')
 
@@ -255,6 +262,23 @@ if (access) {
   emit('update:message-structure', access.settings.messageStructure ? access.settings.messageStructure : 'both')
   emit('update:message-format', access.settings.messageFormat ? access.settings.messageFormat : 'clean')
 }
+
+const moreActionsRef = ref()
+const toggleMoreActions = (event: Event) => {
+  moreActionsRef.value.toggle(event)
+}
+
+const moreActions: MenuItem[] = [
+  {
+    label: 'Archive All Messages',
+    command: () => archiveMessages(true)
+  }
+]
+
+const structureAndFormatRef = ref()
+const toggleStructureAndFormat = (event: Event) => {
+  structureAndFormatRef.value.toggle(event)
+}
 </script>
 
 <template>
@@ -262,25 +286,36 @@ if (access) {
     @click="() => reviewMessages()"
     outlined
     :loading="isReviewMessagesPending"
-    :disabled="isReviewMessagesPending || !props.selectedMessageIds.length"
+    :disabled="isReviewMessagesPending || !selectedMessageIds.length"
     :label="reviewMessagesLabel"
-  ></Button>
-  <Button
-    @click="() => archiveMessages()"
-    outlined
-    :loading="isArchiveMessagesPending"
-    :disabled="isArchiveMessagesPending || !props.selectedMessageIds.length"
-    severity="danger"
-    label="Archive"
+    icon="pi pi-check-square"
   ></Button>
 
-  <SelectStructure
-    :model-value="messageStructure"
-    @update:model-value="(e) => updateSelectedMessageStructure(e)"
-    class="ms-auto"
-  />
+  <ButtonGroup>
+    <Button
+      @click="() => archiveMessages()"
+      outlined
+      :loading="isArchiveMessagesPending"
+      :disabled="isArchiveMessagesPending || !selectedMessageIds.length"
+      severity="danger"
+      icon="pi pi-trash"
+      label="Archive"
+    ></Button>
+    <template v-if="isMessagesPage">
+      <Button icon="pi pi-ellipsis-v" outlined severity="danger" @click="toggleMoreActions"></Button>
+      <Menu popup :model="moreActions" ref="moreActionsRef"></Menu>
+    </template>
+  </ButtonGroup>
 
-  <SelectFormat :model-value="messageFormat" @update:model-value="(e) => updateSelectedMessageFormat(e)" />
+  <Button icon="pi pi-eye" class="ms-auto" outlined @click="toggleStructureAndFormat"></Button>
+  <Popover ref="structureAndFormatRef">
+    <div class="flex flex-col gap-2">
+      <div>Show message parts:</div>
+      <SelectStructure :model-value="messageStructure" @update:model-value="(e) => updateSelectedMessageStructure(e)" />
+      <div>Format options:</div>
+      <SelectFormat :model-value="messageFormat" @update:model-value="(e) => updateSelectedMessageFormat(e)" />
+    </div>
+  </Popover>
 
   <Select
     v-model="selectedExchange"
@@ -302,7 +337,7 @@ if (access) {
   ></Button>
 
   <Button
-    v-if="showCreateMessage"
+    v-if="isMessagesPage"
     @click="openUpsertMessageDialog"
     :loading="isPublishMessagesPending"
     label=""
