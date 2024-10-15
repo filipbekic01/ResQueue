@@ -22,6 +22,7 @@ using ResQueue.Features.Stripe.ChangePlan;
 using ResQueue.Features.Stripe.ContinueSubscription;
 using ResQueue.Features.Stripe.CreateSubscription;
 using ResQueue.Features.Stripe.EventHandler;
+using ResQueue.Features.Stripe.UpdateSeats;
 using ResQueue.Models;
 
 namespace ResQueue;
@@ -91,6 +92,7 @@ public class Program
         builder.Services.AddTransient<IContinueSubscriptionFeature, ContinueSubscriptionFeature>();
         builder.Services.AddTransient<IChangePlanFeature, ChangePlanFeature>();
         builder.Services.AddTransient<IChangeCardFeature, ChangeCardFeature>();
+        builder.Services.AddTransient<IUpdateSeatsFeature, UpdateSeatsFeature>();
         builder.Services.AddTransient<IEventHandlerFeature, EventHandlerFeature>();
 
         builder.Services.ConfigureApplicationCookie(options =>

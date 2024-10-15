@@ -7,6 +7,7 @@ using ResQueue.Features.Stripe.ChangePlan;
 using ResQueue.Features.Stripe.ContinueSubscription;
 using ResQueue.Features.Stripe.CreateSubscription;
 using ResQueue.Features.Stripe.EventHandler;
+using ResQueue.Features.Stripe.UpdateSeats;
 using ResQueue.Models;
 
 namespace ResQueue.Endpoints;
@@ -109,6 +110,27 @@ public static class StripeEndpoints
                     ? Results.Ok(new { Message = "Subscription continued successfully" })
                     : Results.Problem(result.Problem!);
             }).RequireAuthorization();
+
+        group.MapPost("update-seats", async (HttpContext httpContext,
+            IUpdateSeatsFeature updateSeatsFeature,
+            UpdateSeatsDto dto,
+            UserManager<User> userManager) =>
+        {
+            var user = await userManager.GetUserAsync(httpContext.User);
+            if (user == null)
+            {
+                return Results.Unauthorized();
+            }
+
+            var result = await updateSeatsFeature.ExecuteAsync(new(
+                user.Id.ToString(),
+                dto
+            ));
+
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.Problem(result.Problem!);
+        });
 
         group.MapPost("event-handler", async (HttpContext httpContext, IEventHandlerFeature feature) =>
         {
