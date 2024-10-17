@@ -18,7 +18,6 @@ public record SyncBrokerFeatureResponse();
 public class SyncBrokerFeature(
     IHttpClientFactory httpClientFactory,
     UserManager<User> userManager,
-    IMongoCollection<Queue> queuesCollection,
     IMongoCollection<Models.Broker> brokersCollection,
     IMongoCollection<Exchange> exchangesCollection,
     IMongoClient mongoClient

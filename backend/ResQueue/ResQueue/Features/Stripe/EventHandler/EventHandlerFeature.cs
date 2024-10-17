@@ -1,6 +1,7 @@
+using Marten;
+using Marten.Patching;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using MongoDB.Driver;
 using ResQueue.Models;
 using Stripe;
 using Subscription = Stripe.Subscription;
@@ -13,8 +14,7 @@ public record EventHandlerResponse();
 
 public class EventHandlerFeature(
     IOptions<Settings> settings,
-    ResqueueUserManager userManager,
-    IMongoCollection<User> usersCollection
+    IDocumentSession documentSession
 ) : IEventHandlerFeature
 {
     public async Task<OperationResult<EventHandlerResponse>> ExecuteAsync(EventHandlerRequest request)
@@ -33,7 +33,8 @@ public class EventHandlerFeature(
                 {
                     var subscription = stripeEvent.Data.Object as Subscription;
 
-                    var user = await userManager.FirstOrDefaultByStripeId(subscription!.CustomerId);
+                    var user = await documentSession.Query<User>().Where(x => x.StripeId == subscription.CustomerId)
+                        .FirstOrDefaultAsync();
                     if (user is null)
                     {
                         return OperationResult<EventHandlerResponse>.Failure(new ProblemDetails
@@ -56,11 +57,11 @@ public class EventHandlerFeature(
 
                     user.Subscription.StripeStatus = subscription.Status;
 
-                    var filter = Builders<User>.Filter.Eq(q => q.Id, user.Id);
-                    var update = Builders<User>.Update
-                        .Set(q => q.Subscription, user.Subscription);
+                    documentSession.Patch<User>(user.Id)
+                        .Set(x => x.Subscription, user.Subscription);
 
-                    await usersCollection.UpdateOneAsync(filter, update);
+                    await documentSession.SaveChangesAsync();
+
                     break;
                 }
                 case EventTypes.InvoicePaymentFailed or EventTypes.InvoicePaymentSucceeded:
@@ -70,18 +71,18 @@ public class EventHandlerFeature(
                     var subscriptionService = new SubscriptionService();
                     var subscription = await subscriptionService.GetAsync(subscriptionId);
 
-                    var user = await userManager.FirstOrDefaultByStripeId(subscription.CustomerId);
-
+                    var user = await documentSession.Query<User>().Where(x => x.StripeId == subscription.CustomerId)
+                        .FirstOrDefaultAsync();
                     if (user is not null)
                     {
                         if (user.Subscription is not null)
                         {
                             user.Subscription.StripeStatus = subscription.Status;
 
-                            var filter = Builders<User>.Filter.Eq(q => q.Id, user.Id);
-                            var update = Builders<User>.Update.Set(q => q.Subscription!.StripeStatus,
-                                user.Subscription.StripeStatus);
-                            await usersCollection.UpdateOneAsync(filter, update);
+                            documentSession.Patch<User>(user.Id)
+                                .Set(x => x.Subscription.StripeStatus, user.Subscription.StripeStatus);
+
+                            await documentSession.SaveChangesAsync();
                         }
                         else
                         {
@@ -112,18 +113,18 @@ public class EventHandlerFeature(
                     var subscriptionService = new SubscriptionService();
                     var subscription = await subscriptionService.GetAsync(subscriptionId);
 
-                    var user = await userManager.FirstOrDefaultByStripeId(subscription.CustomerId);
-
+                    var user = await documentSession.Query<User>().Where(x => x.StripeId == subscription.CustomerId)
+                        .FirstOrDefaultAsync();
                     if (user is not null)
                     {
                         if (user.Subscription is not null)
                         {
                             user.Subscription.StripeStatus = subscription.Status;
 
-                            var filter = Builders<User>.Filter.Eq(q => q.Id, user.Id);
-                            var update = Builders<User>.Update.Set(q => q.Subscription!.StripeStatus,
-                                user.Subscription.StripeStatus);
-                            await usersCollection.UpdateOneAsync(filter, update);
+                            documentSession.Patch<User>(user.Id)
+                                .Set(x => x.Subscription.StripeStatus, user.Subscription.StripeStatus);
+
+                            await documentSession.SaveChangesAsync();
                         }
                         else
                         {

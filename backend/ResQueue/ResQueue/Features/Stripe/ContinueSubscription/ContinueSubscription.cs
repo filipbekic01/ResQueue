@@ -1,8 +1,9 @@
 using System.Security.Claims;
+using Marten;
+using Marten.Patching;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using MongoDB.Driver;
 using ResQueue.Models;
 using Stripe;
 
@@ -15,8 +16,8 @@ public record ContinueSubscriptionRequest(
 public record ContinueSubscriptionResponse();
 
 public class ContinueSubscriptionFeature(
-    IMongoCollection<User> usersCollection,
     IOptions<Settings> settings,
+    IDocumentSession documentSession,
     UserManager<User> userManager
 ) : IContinueSubscriptionFeature
 {
@@ -70,10 +71,10 @@ public class ContinueSubscriptionFeature(
                 user.Subscription.StripeStatus = updatedSubscription.Status;
                 user.Subscription.EndsAt = null;
 
-                var filter = Builders<User>.Filter.Eq(q => q.Id, user.Id);
-                var update = Builders<User>.Update.Set(q => q.Subscription, user.Subscription);
+                documentSession.Patch<User>(user.Id)
+                    .Set(x => x.Subscription, user.Subscription);
 
-                await usersCollection.UpdateOneAsync(filter, update);
+                await documentSession.SaveChangesAsync();
 
                 return OperationResult<ContinueSubscriptionResponse>.Success(new ContinueSubscriptionResponse());
             }

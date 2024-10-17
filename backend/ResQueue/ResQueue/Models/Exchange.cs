@@ -1,11 +1,8 @@
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-
 namespace ResQueue.Models;
 
 public class Exchange
 {
-    [BsonId] public ObjectId Id { get; set; }
-    public ObjectId BrokerId { get; set; }
-    public BsonDocument RawData { get; set; } = null!;
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public string BrokerId { get; set; }
+    public string RawData { get; set; } = null!;
 }

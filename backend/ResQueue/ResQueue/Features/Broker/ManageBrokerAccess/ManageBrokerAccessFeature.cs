@@ -1,8 +1,8 @@
 using System.Security.Claims;
+using Marten;
+using Marten.Patching;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using ResQueue.Dtos.Broker;
 using ResQueue.Enums;
 using ResQueue.Models;
@@ -18,7 +18,7 @@ public record ManageBrokerAccessFeatureResponse();
 
 public class ManageBrokerAccessFeature(
     UserManager<User> userManager,
-    IMongoCollection<Models.Broker> brokersCollection
+    IDocumentSession documentSession
 ) : IManageBrokerAccessFeature
 {
     public async Task<OperationResult<ManageBrokerAccessFeatureResponse>> ExecuteAsync(
@@ -49,8 +49,9 @@ public class ManageBrokerAccessFeature(
         }
 
         // Fetch the broker
-        var brokerFilter = Builders<Models.Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Dto.BrokerId));
-        var broker = await brokersCollection.Find(brokerFilter).SingleAsync();
+        var broker = await documentSession.Query<Models.Broker>()
+            .Where(x => x.Id == request.Dto.BrokerId)
+            .SingleAsync();
 
         if (request.Dto.AccessLevel is null)
         {
@@ -93,10 +94,10 @@ public class ManageBrokerAccessFeature(
         // Remove access
         broker.AccessList = broker.AccessList.Where(x => x.UserId != targetUser.Id).ToList();
 
-        var filter = Builders<Models.Broker>.Filter.Eq(q => q.Id, broker.Id);
-        var update = Builders<Models.Broker>.Update.Set(q => q.AccessList, broker.AccessList);
+        documentSession.Patch<Models.Broker>(x => x.Id == broker.Id)
+            .Set(x => x.AccessList, broker.AccessList);
 
-        await brokersCollection.UpdateOneAsync(filter, update);
+        await documentSession.SaveChangesAsync();
 
         return OperationResult<ManageBrokerAccessFeatureResponse>.Success(new ManageBrokerAccessFeatureResponse());
     }
@@ -135,10 +136,10 @@ public class ManageBrokerAccessFeature(
         var access = broker.AccessList.Single(x => x.UserId == targetUser.Id);
         access.AccessLevel = request.Dto.AccessLevel!.Value;
 
-        var filter = Builders<Models.Broker>.Filter.Eq(q => q.Id, broker.Id);
-        var update = Builders<Models.Broker>.Update.Set(q => q.AccessList, broker.AccessList);
+        documentSession.Patch<Models.Broker>(x => x.Id == broker.Id)
+            .Set(x => x.AccessList, broker.AccessList);
 
-        await brokersCollection.UpdateOneAsync(filter, update);
+        await documentSession.SaveChangesAsync();
 
         return OperationResult<ManageBrokerAccessFeatureResponse>.Success(new ManageBrokerAccessFeatureResponse());
     }

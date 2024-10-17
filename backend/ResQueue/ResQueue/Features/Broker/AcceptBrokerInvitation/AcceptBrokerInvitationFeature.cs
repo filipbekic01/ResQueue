@@ -1,7 +1,8 @@
 using System.Security.Claims;
+using Marten;
+using Marten.Patching;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
 using ResQueue.Constants;
 using ResQueue.Dtos.Broker;
 using ResQueue.Enums;
@@ -18,9 +19,7 @@ public record AcceptBrokerInvitationResponse();
 
 public class AcceptBrokerInvitationFeature(
     UserManager<User> userManager,
-    IMongoClient mongoClient,
-    IMongoCollection<Models.Broker> brokersCollection,
-    IMongoCollection<BrokerInvitation> invitationsCollection
+    IDocumentSession documentSession
 ) : IAcceptBrokerInvitationFeature
 {
     public async Task<OperationResult<AcceptBrokerInvitationResponse>> ExecuteAsync(
@@ -49,11 +48,12 @@ public class AcceptBrokerInvitationFeature(
         }
 
         // Get invitation
-        var invitationFilter = Builders<BrokerInvitation>.Filter.And(
-            Builders<BrokerInvitation>.Filter.Eq(b => b.Token, request.Dto.Token),
-            Builders<BrokerInvitation>.Filter.Eq(b => b.InviteeId, userInvitee.Id)
-        );
-        var invitation = await invitationsCollection.Find(invitationFilter).FirstOrDefaultAsync();
+
+        var invitation = await documentSession.Query<BrokerInvitation>()
+            .Where(x => x.Token == request.Dto.Token)
+            .Where(x => x.InviteeId == userInvitee.Id)
+            .FirstOrDefaultAsync();
+
         if (invitation == null)
         {
             return OperationResult<AcceptBrokerInvitationResponse>.Failure(new ProblemDetails
@@ -84,12 +84,10 @@ public class AcceptBrokerInvitationFeature(
             });
         }
 
-        using var session = await mongoClient.StartSessionAsync();
-        session.StartTransaction();
-
         // Get broker
-        var brokerFilter = Builders<Models.Broker>.Filter.Eq(b => b.Id, invitation.BrokerId);
-        var broker = await brokersCollection.Find(brokerFilter).FirstOrDefaultAsync();
+        var broker = await documentSession.Query<Models.Broker>()
+            .Where(x => x.Id == invitation.BrokerId)
+            .FirstOrDefaultAsync();
         if (broker == null)
         {
             return OperationResult<AcceptBrokerInvitationResponse>.Failure(new ProblemDetails
@@ -101,10 +99,8 @@ public class AcceptBrokerInvitationFeature(
         }
 
         // Update invitation
-        var updateBrokerInvitation = Builders<BrokerInvitation>.Update
-            .Set(b => b.IsAccepted, true);
-
-        await invitationsCollection.UpdateOneAsync(invitationFilter, updateBrokerInvitation);
+        documentSession.Patch<BrokerInvitation>(broker.Id)
+            .Set(x => x.IsAccepted, true);
 
         // Update broker access list
         var accessList = broker.AccessList;
@@ -118,18 +114,16 @@ public class AcceptBrokerInvitationFeature(
             });
         }
 
-        accessList.Add(new()
+        accessList.Add(new BrokerAccess
         {
             UserId = userInvitee.Id,
             AccessLevel = AccessLevel.Agent
         });
 
-        var updateBroker = Builders<Models.Broker>.Update
-            .Set(b => b.AccessList, broker.AccessList);
+        documentSession.Patch<Models.Broker>(broker.Id)
+            .Set(x => x.AccessList, broker.AccessList);
 
-        await brokersCollection.UpdateOneAsync(brokerFilter, updateBroker);
-
-        await session.CommitTransactionAsync();
+        await documentSession.SaveChangesAsync();
 
         return OperationResult<AcceptBrokerInvitationResponse>.Success(new());
     }

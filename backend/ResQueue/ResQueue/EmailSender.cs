@@ -7,7 +7,7 @@ using ResQueue.Models;
 
 namespace ResQueue;
 
-public class DummyEmailSender(
+public class EmailSender(
     IOptions<Settings> settings
 ) : IEmailSender<User>
 {

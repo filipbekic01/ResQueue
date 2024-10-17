@@ -1,7 +1,7 @@
+using Marten;
+using Marten.Patching;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using ResQueue.Constants;
 using ResQueue.Dtos;
 using ResQueue.Dtos.Broker;
@@ -9,7 +9,6 @@ using ResQueue.Enums;
 using ResQueue.Features.Broker.AcceptBrokerInvitation;
 using ResQueue.Features.Broker.CreateBrokerInvitation;
 using ResQueue.Features.Broker.ManageBrokerAccess;
-using ResQueue.Features.Broker.SyncBroker;
 using ResQueue.Features.Broker.UpdateBroker;
 using ResQueue.Filters;
 using ResQueue.Mappers;
@@ -25,22 +24,21 @@ public static class BrokerEndpoints
             .RequireAuthorization();
 
         group.MapGet("",
-            async (IMongoCollection<Broker> collection, UserManager<User> userManager, HttpContext httpContext) =>
+            async (IDocumentSession documentSession, UserManager<User> userManager, HttpContext httpContext) =>
             {
                 // Get user
-                var user = await userManager.GetUserAsync(httpContext.User);
+                var user = await userManager.FindByEmailAsync(httpContext.User.Identity.Name);
                 if (user == null)
                 {
                     return Results.Unauthorized();
                 }
 
                 // Get brokers
-                var filter = Builders<Broker>.Filter.And(
-                    Builders<Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id),
-                    Builders<Broker>.Filter.Eq(b => b.DeletedAt, null)
-                );
-                var sort = Builders<Broker>.Sort.Descending(b => b.Id);
-                var brokers = await collection.Find(filter).Sort(sort).ToListAsync();
+                var brokers = await documentSession.Query<Broker>()
+                    .Where(x => x.AccessList.Any(y => y.UserId == user.Id))
+                    .Where(x => x.DeletedAt == null)
+                    .OrderBy(x => x.Id)
+                    .ToListAsync();
 
                 // Filter brokers by permissions
                 if (user.Subscription?.Type != StripePlans.ULTIMATE)
@@ -54,26 +52,34 @@ public static class BrokerEndpoints
             });
 
         group.MapPost("",
-            async (IMongoCollection<Broker> brokersCollection, [FromBody] CreateBrokerDto dto,
+            async (IDocumentSession documentSession, [FromBody] CreateBrokerDto dto,
                 UserManager<User> userManager,
                 HttpContext httpContext) =>
             {
                 // Get user
-                var user = await userManager.GetUserAsync(httpContext.User);
+                var user = await userManager.FindByEmailAsync(httpContext.User.Identity.Name);
                 if (user == null)
                 {
                     return Results.Unauthorized();
                 }
 
+                if (dto.PostgresConnection is null)
+                {
+                    return Results.Problem(new ProblemDetails
+                    {
+                        Title = "Invalid Connection",
+                        Detail = "Please provide valid connection details.",
+                        Status = StatusCodes.Status403Forbidden
+                    });
+                }
+
                 // Validate free plan broker count
                 if (user.Subscription is null)
                 {
-                    var filter = Builders<Broker>.Filter.And(
-                        Builders<Broker>.Filter.Eq(b => b.CreatedByUserId, user.Id),
-                        Builders<Broker>.Filter.Eq(b => b.DeletedAt, null)
-                    );
-
-                    if (await brokersCollection.Find(filter).AnyAsync())
+                    if (await documentSession.Query<Broker>()
+                            .Where(x => x.CreatedByUserId == user.Id)
+                            .Where(x => x.DeletedAt == null)
+                            .AnyAsync())
                     {
                         return Results.Problem(new ProblemDetails
                         {
@@ -86,28 +92,29 @@ public static class BrokerEndpoints
 
                 var broker = CreateBrokerDtoMapper.ToBroker(user.Id, dto);
 
-                await brokersCollection.InsertOneAsync(broker);
+                documentSession.Insert(broker);
+                await documentSession.SaveChangesAsync();
 
                 return Results.Ok(BrokerMapper.ToDto(broker));
             });
 
-        group.MapPost("{id}/sync",
-            async (ISyncBrokerFeature syncBrokerFeature, HttpContext httpContext, string id) =>
-            {
-                var result = await syncBrokerFeature.ExecuteAsync(new SyncBrokerFeatureRequest(
-                    ClaimsPrincipal: httpContext.User,
-                    Id: id
-                ));
-
-                return result.IsSuccess
-                    ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem!);
-            }); // Do not add retry filter
+        // group.MapPost("{id}/sync",
+        //     async (ISyncBrokerFeature syncBrokerFeature, HttpContext httpContext, string id) =>
+        //     {
+        //         var result = await syncBrokerFeature.ExecuteAsync(new SyncBrokerFeatureRequest(
+        //             ClaimsPrincipal: httpContext.User,
+        //             Id: id
+        //         ));
+        //
+        //         return result.IsSuccess
+        //             ? Results.Ok(result.Value)
+        //             : Results.Problem(result.Problem!);
+        //     }); // Do not add retry filter
 
         group.MapPost("/test-connection",
             async (IHttpClientFactory httpClientFactory, [FromBody] CreateBrokerDto dto) =>
             {
-                var broker = CreateBrokerDtoMapper.ToBroker(ObjectId.Empty, dto);
+                var broker = CreateBrokerDtoMapper.ToBroker(string.Empty, dto);
 
                 var httpClient = RabbitmqConnectionFactory.CreateManagementClient(httpClientFactory, broker);
                 try
@@ -160,28 +167,19 @@ public static class BrokerEndpoints
 
         group.MapGet("/invitations",
             async (HttpContext httpContext, UserManager<User> userManager,
-                IMongoCollection<BrokerInvitation> collection) =>
+                IDocumentSession documentSession) =>
             {
-                var user = await userManager.GetUserAsync(httpContext.User);
+                var user = await userManager.FindByEmailAsync(httpContext.User.Identity.Name);
                 if (user == null)
                 {
                     return Results.Unauthorized();
                 }
 
-                var filterList = new List<FilterDefinition<BrokerInvitation>>
-                {
-                    Builders<BrokerInvitation>.Filter.Gt(b => b.ExpiresAt, DateTime.UtcNow),
-                    Builders<BrokerInvitation>.Filter.Eq(b => b.IsAccepted, false),
-                    Builders<BrokerInvitation>.Filter.Eq(b => b.InviterId, user.Id)
-                };
-
-                var filter = Builders<BrokerInvitation>.Filter.And(filterList);
-
-                var sort = Builders<BrokerInvitation>.Sort.Descending(b => b.CreatedAt);
-
-                var invitations = await collection
-                    .Find(filter)
-                    .Sort(sort)
+                var invitations = await documentSession.Query<BrokerInvitation>()
+                    .Where(x => x.ExpiresAt > DateTime.UtcNow)
+                    .Where(x => x.IsAccepted == false)
+                    .Where(x => x.InviterId == user.Id)
+                    .OrderBy(x => x.CreatedAt)
                     .ToListAsync();
 
                 return Results.Ok(invitations.Select(b => new BrokerInvitationDto
@@ -200,21 +198,19 @@ public static class BrokerEndpoints
             }).AddRetryFilter();
 
         group.MapGet("/invitations/{token}",
-            async (string token, IMongoCollection<BrokerInvitation> collection, UserManager<User> userManager,
+            async (string token, IDocumentSession documentSession, UserManager<User> userManager,
                 HttpContext httpContext) =>
             {
-                var user = await userManager.GetUserAsync(httpContext.User);
+                var user = await userManager.FindByEmailAsync(httpContext.User.Identity.Name);
                 if (user == null)
                 {
                     return Results.Unauthorized();
                 }
 
-                var filter = Builders<BrokerInvitation>.Filter.And(
-                    Builders<BrokerInvitation>.Filter.Eq(b => b.InviteeId, user.Id),
-                    Builders<BrokerInvitation>.Filter.Eq(b => b.Token, token)
-                );
-
-                var brokerInvitation = await collection.Find(filter).FirstOrDefaultAsync();
+                var brokerInvitation = await documentSession.Query<BrokerInvitation>()
+                    .Where(x => x.InviteeId == user.Id)
+                    .Where(x => x.Token == token)
+                    .FirstOrDefaultAsync();
 
                 if (brokerInvitation == null)
                 {
@@ -223,10 +219,10 @@ public static class BrokerEndpoints
 
                 return Results.Ok(new BrokerInvitationDto()
                 {
-                    Id = brokerInvitation.Id.ToString(),
-                    BrokerId = brokerInvitation.BrokerId.ToString(),
-                    InviterId = brokerInvitation.InviterId.ToString(),
-                    InviteeId = brokerInvitation.InviteeId.ToString(),
+                    Id = brokerInvitation.Id,
+                    BrokerId = brokerInvitation.BrokerId,
+                    InviterId = brokerInvitation.InviterId,
+                    InviteeId = brokerInvitation.InviteeId,
                     InviterEmail = brokerInvitation.InviterEmail,
                     Token = brokerInvitation.Token,
                     CreatedAt = brokerInvitation.CreatedAt,
@@ -265,24 +261,17 @@ public static class BrokerEndpoints
             }).AddRetryFilter();
 
         group.MapPost("/invitations/{id}/expire",
-            async (HttpContext httpContext, IMongoCollection<BrokerInvitation> collection,
+            async (HttpContext httpContext, IDocumentSession documentSession,
                 UserManager<User> userManager, string id) =>
             {
-                var user = await userManager.GetUserAsync(httpContext.User);
+                var user = await userManager.FindByEmailAsync(httpContext.User.Identity.Name);
                 if (user == null)
                 {
                     return Results.Unauthorized();
                 }
 
-                var filter = Builders<BrokerInvitation>.Filter.And(
-                    Builders<BrokerInvitation>.Filter.Eq(b => b.Id, ObjectId.Parse(id)),
-                    Builders<BrokerInvitation>.Filter.Eq(b => b.InviterId, user.Id)
-                );
-
-                var update = Builders<BrokerInvitation>.Update
-                    .Set(b => b.ExpiresAt, DateTime.UtcNow);
-
-                await collection.UpdateOneAsync(filter, update);
+                documentSession.Patch<BrokerInvitation>(x => x.Id == id && x.InviterId == user.Id)
+                    .Set(x => x.ExpiresAt, DateTime.UtcNow);
 
                 return Results.Ok();
             }).AddRetryFilter();
@@ -303,24 +292,18 @@ public static class BrokerEndpoints
             }).AddRetryFilter();
 
         group.MapDelete("/{id}",
-            async (IMongoCollection<Broker> collection, UserManager<User> userManager, HttpContext httpContext,
+            async (IDocumentSession documentSession, UserManager<User> userManager, HttpContext httpContext,
                 string id) =>
             {
-                var user = await userManager.GetUserAsync(httpContext.User);
+                var user = await userManager.FindByEmailAsync(httpContext.User.Identity.Name);
                 if (user == null)
                 {
                     return Results.Unauthorized();
                 }
 
-                var filter = Builders<Broker>.Filter.And(
-                    Builders<Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(id)),
-                    Builders<Broker>.Filter.ElemMatch(b => b.AccessList,
-                        a => a.UserId == user.Id && a.AccessLevel == AccessLevel.Owner)
-                );
-
-                var update = Builders<Broker>.Update.Set(b => b.DeletedAt, DateTime.UtcNow);
-
-                await collection.UpdateOneAsync(filter, update);
+                documentSession.Patch<Broker>(x =>
+                        x.Id == id && x.AccessList.Any(y => y.UserId == user.Id && y.AccessLevel == AccessLevel.Owner))
+                    .Set(x => x.DeletedAt, DateTime.UtcNow);
 
                 return Results.Ok();
             }).AddRetryFilter();

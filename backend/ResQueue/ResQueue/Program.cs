@@ -1,29 +1,22 @@
-using AspNetCore.Identity.Mongo;
+using Marten;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Rewrite;
-using MongoDB.Bson;
 using ResQueue.Endpoints;
 using ResQueue.Features.Broker.AcceptBrokerInvitation;
 using ResQueue.Features.Broker.CreateBrokerInvitation;
 using ResQueue.Features.Broker.ManageBrokerAccess;
-using ResQueue.Features.Broker.SyncBroker;
 using ResQueue.Features.Broker.UpdateBroker;
-using ResQueue.Features.Messages.ArchiveMessages;
-using ResQueue.Features.Messages.CloneMessage;
-using ResQueue.Features.Messages.CreateMessage;
-using ResQueue.Features.Messages.PublishMessages;
-using ResQueue.Features.Messages.ReviewMessages;
-using ResQueue.Features.Messages.SyncMessages;
-using ResQueue.Features.Messages.UpdateMessage;
 using ResQueue.Features.Stripe.CancelSubscription;
 using ResQueue.Features.Stripe.ChangeCard;
 using ResQueue.Features.Stripe.ChangePlan;
 using ResQueue.Features.Stripe.ContinueSubscription;
 using ResQueue.Features.Stripe.CreateSubscription;
 using ResQueue.Features.Stripe.EventHandler;
-using ResQueue.Features.Stripe.UpdateSeats;
+using ResQueue.MartenIdentity;
 using ResQueue.Models;
+using Weasel.Core;
 
 namespace ResQueue;
 
@@ -50,50 +43,61 @@ public class Program
 
         builder.Services.AddHttpClient();
 
-        builder.Services.AddIdentityMongoDbProvider<User, Role, ObjectId>(opt =>
-                {
-                    opt.Password.RequiredLength = 4;
-                    opt.Password.RequireDigit = false;
-                    opt.Password.RequireLowercase = false;
-                    opt.Password.RequireNonAlphanumeric = false;
-                    opt.Password.RequireUppercase = false;
+        builder.Services.AddMarten(opt =>
+        {
+            opt.Connection("host=localhost;port=5432;database=sandbox;username=postgres;password=postgres;");
 
-                    opt.User.RequireUniqueEmail = true;
-                },
-                mongoOptions =>
-                {
-                    mongoOptions.ConnectionString = $"{settings.MongoDBConnectionString}";
-                    mongoOptions.UsersCollection = "users";
-                    mongoOptions.RolesCollection = "roles";
-                    mongoOptions.MigrationCollection = "_migrations";
-                })
-            .AddUserManager<ResqueueUserManager>();
+            opt.UseSystemTextJsonForSerialization();
 
-        builder.Services.AddMongoDb();
+            if (builder.Environment.IsDevelopment())
+            {
+                opt.AutoCreateSchemaObjects = AutoCreate.All;
+            }
+        });
 
-        builder.Services.AddSingleton<IEmailSender<User>, DummyEmailSender>();
+        builder.Services.AddIdentity<User, IdentityRole>(opt =>
+            {
+                opt.Password.RequiredLength = 4;
+                opt.Password.RequireDigit = false;
+                opt.Password.RequireLowercase = false;
+                opt.Password.RequireNonAlphanumeric = false;
+                opt.Password.RequireUppercase = false;
 
-        builder.Services.AddTransient<ISyncBrokerFeature, SyncBrokerFeature>();
+                opt.User.RequireUniqueEmail = true;
+            })
+            .AddMartenStores<User, IdentityRole>()
+            .AddDefaultTokenProviders();
+
+        var documentSession = builder.Services.BuildServiceProvider().GetRequiredService<IDocumentSession>();
+        builder.Services.AddDataProtection();
+        builder.Services.Configure<KeyManagementOptions>(o =>
+        {
+            o.XmlRepository = new MartenDbXmlRepository(documentSession);
+        });
+
+        builder.Services.AddSingleton<IEmailSender<User>, EmailSender>();
+
+        // builder.Services.AddTransient<ISyncBrokerFeature, SyncBrokerFeature>();
         builder.Services.AddTransient<IUpdateBrokerFeature, UpdateBrokerFeature>();
         builder.Services.AddTransient<IManageBrokerAccessFeature, ManageBrokerAccessFeature>();
         builder.Services.AddTransient<ICreateBrokerInvitationFeature, CreateBrokerInvitationFeature>();
         builder.Services.AddTransient<IAcceptBrokerInvitationFeature, AcceptBrokerInvitationFeature>();
 
-        builder.Services.AddTransient<ISyncMessagesFeature, SyncMessagesFeature>();
-        builder.Services.AddTransient<ICreateMessageFeature, CreateMessageFeature>();
-        builder.Services.AddTransient<IPublishMessagesFeature, PublishMessagesFeature>();
-        builder.Services.AddTransient<IArchiveMessagesFeature, ArchiveMessagesFeature>();
-        builder.Services.AddTransient<ICloneMessageFeature, CloneMessageFeature>();
-        builder.Services.AddTransient<IUpdateMessageFeature, UpdateMessageFeature>();
-        builder.Services.AddTransient<IReviewMessagesFeature, ReviewMessagesFeature>();
+        // builder.Services.AddTransient<ISyncMessagesFeature, SyncMessagesFeature>();
+        // builder.Services.AddTransient<ICreateMessageFeature, CreateMessageFeature>();
+        // builder.Services.AddTransient<IPublishMessagesFeature, PublishMessagesFeature>();
+        // builder.Services.AddTransient<IArchiveMessagesFeature, ArchiveMessagesFeature>();
+        // builder.Services.AddTransient<ICloneMessageFeature, CloneMessageFeature>();
+        // builder.Services.AddTransient<IUpdateMessageFeature, UpdateMessageFeature>();
+        // builder.Services.AddTransient<IReviewMessagesFeature, ReviewMessagesFeature>();
 
         builder.Services.AddTransient<ICreateSubscriptionFeature, CreateSubscriptionFeature>();
         builder.Services.AddTransient<ICancelSubscriptionFeature, CancelSubscriptionFeature>();
         builder.Services.AddTransient<IContinueSubscriptionFeature, ContinueSubscriptionFeature>();
         builder.Services.AddTransient<IChangePlanFeature, ChangePlanFeature>();
         builder.Services.AddTransient<IChangeCardFeature, ChangeCardFeature>();
-        builder.Services.AddTransient<IUpdateSeatsFeature, UpdateSeatsFeature>();
         builder.Services.AddTransient<IEventHandlerFeature, EventHandlerFeature>();
+        // builder.Services.AddTransient<IUpdateSeatsFeature, UpdateSeatsFeature>();
 
         builder.Services.ConfigureApplicationCookie(options =>
         {
@@ -158,11 +162,10 @@ public class Program
         apiGroup.MapAuthEndpoints();
         apiGroup.MapBrokerEndpoints();
         apiGroup.MapQueueEndpoints();
-        apiGroup.MapExchangeEndpoints();
         apiGroup.MapMessageEndpoints();
-        apiGroup.MapStripeEndpoints();
+        // apiGroup.MapStripeEndpoints();
         apiGroup.MapUserEndpoints();
-        apiGroup.MapTestEndpoints();
+        // apiGroup.MapTestEndpoints();
 
         app.Run();
     }

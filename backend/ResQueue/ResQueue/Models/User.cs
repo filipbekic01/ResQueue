@@ -1,9 +1,13 @@
-using AspNetCore.Identity.Mongo.Model;
+using Microsoft.AspNetCore.Identity;
+using ResQueue.MartenIdentity;
 
 namespace ResQueue.Models;
 
-public class User : MongoUser
+public class User : IdentityUser, IClaimsUser
 {
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public IList<string> RoleClaims { get; set; }
+
     public string FullName { get; set; } = null!;
 
     public string Avatar { get; set; } = null!;
@@ -14,6 +18,7 @@ public class User : MongoUser
     public DateTime CreatedAt { get; set; }
 
     public Subscription? Subscription { get; set; }
+
 
     public UserSettings Settings { get; set; } = new()
     {

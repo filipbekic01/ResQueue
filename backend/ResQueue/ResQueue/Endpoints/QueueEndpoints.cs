@@ -1,9 +1,11 @@
+using Dapper;
+using Marten;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
-using MongoDB.Driver;
+using Npgsql;
 using ResQueue.Dtos;
 using ResQueue.Models;
+using ResQueue.Models.Postgres;
 
 namespace ResQueue.Endpoints;
 
@@ -14,48 +16,8 @@ public static class QueueEndpoints
         RouteGroupBuilder group = routes.MapGroup("queues")
             .RequireAuthorization();
 
-        group.MapGet("",
-            async (IMongoCollection<Queue> queuesCollection, IMongoCollection<Broker> brokersCollection,
-                UserManager<User> userManager, HttpContext httpContext,
-                [FromQuery(Name = "ids[]")] string[] ids) =>
-            {
-                // Get user
-                var user = await userManager.GetUserAsync(httpContext.User);
-                if (user == null)
-                {
-                    return Results.Unauthorized();
-                }
-
-                // Get queue broker id
-                var queueFilter = Builders<Queue>.Filter.In(b => b.Id, ids.Select(ObjectId.Parse).ToList());
-                var brokerId = await queuesCollection.Find(queueFilter).Project(x => x.BrokerId).SingleAsync();
-
-                // Validate broker
-                var brokerFilter = Builders<Broker>.Filter.And(
-                    Builders<Broker>.Filter.Eq(b => b.Id, brokerId),
-                    Builders<Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id),
-                    Builders<Broker>.Filter.Eq(b => b.DeletedAt, null)
-                );
-                if (!await brokersCollection.Find(brokerFilter).AnyAsync())
-                {
-                    return Results.Unauthorized();
-                }
-
-                // Get queues
-                var queuesFilter = Builders<Queue>.Filter.In(q => q.Id, ids.Select(ObjectId.Parse).ToList());
-                var queues = await queuesCollection.Find(queuesFilter).ToListAsync();
-
-                return Results.Ok(queues.Select(x => new QueueDto()
-                {
-                    Id = x.Id.ToString(),
-                    RawData = JsonHelper.ConvertBsonToJson(x.RawData),
-                    TotalMessages = x.TotalMessages,
-                    CreatedAt = x.CreatedAt
-                }).ToList());
-            });
-
         group.MapGet("paginated",
-            async (IMongoCollection<Queue> queuesCollection, IMongoCollection<Broker> brokersCollection,
+            async (IDocumentSession documentSession,
                 UserManager<User> userManager, HttpContext httpContext,
                 [FromQuery] string brokerId,
                 [FromQuery] string? sortField,
@@ -77,123 +39,45 @@ public static class QueueEndpoints
                 sortOrder = sortField is not null && sortOrder is 1 or -1 ? sortOrder : null;
 
                 // Get user
-                var user = await userManager.GetUserAsync(httpContext.User);
+                var user = await userManager.FindByEmailAsync(httpContext.User.Identity.Name);
                 if (user == null)
                 {
                     return Results.Unauthorized();
                 }
 
                 // Validate broker
-                var brokerFilter = Builders<Broker>.Filter.And(
-                    Builders<Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(brokerId)),
-                    Builders<Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id),
-                    Builders<Broker>.Filter.Eq(b => b.DeletedAt, null)
-                );
-                if (!await brokersCollection.Find(brokerFilter).AnyAsync())
+
+                if (!await documentSession.Query<Broker>()
+                        .Where(x => x.Id == brokerId)
+                        .Where(x => x.AccessList.Any(access => access.UserId == user.Id))
+                        .Where(x => x.DeletedAt == null)
+                        .AnyAsync())
                 {
                     return Results.Unauthorized();
                 }
 
-                // Get queue
-                var filters = new List<FilterDefinition<Queue>>
+                using (var connection =
+                       new NpgsqlConnection(
+                           "host=localhost;port=5432;database=sandbox1;username=postgres;password=postgres;"))
                 {
-                    Builders<Queue>.Filter.Eq(q => q.BrokerId, ObjectId.Parse(brokerId))
-                };
+                    var sql = $"SELECT * FROM transport.queues;";
+                    var queuesFromView = await connection.QueryAsync<QueueView>(sql);
 
-                if (!string.IsNullOrWhiteSpace(search))
-                {
-                    filters.Add(Builders<Queue>.Filter.Regex("RawData.name", new BsonRegularExpression(search, "i")));
-                }
-
-                var filter = Builders<Queue>.Filter.And(filters);
-
-                // Sort queue
-                var sort = Builders<Queue>.Sort.Ascending(q => q.RawData["name"]);
-
-                if (sortField is not null && sortOrder is not null)
-                {
-                    if (sortField.Equals("totalMessages", StringComparison.CurrentCultureIgnoreCase))
+                    return Results.Ok(queuesFromView.Select(x => new QueueViewDto()
                     {
-                        sort = sortOrder == 1
-                            ? Builders<Queue>.Sort.Ascending(x => x.TotalMessages)
-                            : Builders<Queue>.Sort.Descending(x => x.TotalMessages);
-                    }
-                    else if (sortField.Equals("parsed.name", StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        sort = sortOrder == 1
-                            ? Builders<Queue>.Sort.Ascending(x => x.RawData["RawData.name"])
-                            : Builders<Queue>.Sort.Descending(x => x.RawData["RawData.name"]);
-                    }
+                        QueueName = x.queue_name,
+                        QueueAutoDelete = x.queue_auto_delete,
+                        Ready = x.ready,
+                        Scheduled = x.scheduled,
+                        Errored = x.errored,
+                        DeadLettered = x.dead_lettered,
+                        Locked = x.locked,
+                        ConsumeCount = x.consume_count,
+                        ErrorCount = x.error_count,
+                        DeadLetterCount = x.dead_letter_count,
+                        CountDuration = x.count_duration
+                    }).ToList());
                 }
-
-                var totalItems = await queuesCollection.CountDocumentsAsync(filter);
-                var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-
-                var queues = await queuesCollection.Find(filter)
-                    .Sort(sort)
-                    .Skip((pageIndex) * pageSize)
-                    .Limit(pageSize)
-                    .ToListAsync();
-
-                var result = new PaginatedResult<QueueDto>
-                {
-                    Items = queues.Select(x => new QueueDto()
-                    {
-                        Id = x.Id.ToString(),
-                        RawData = JsonHelper.ConvertBsonToJson(x.RawData),
-                        TotalMessages = x.TotalMessages,
-                        Messages = x.Messages,
-                        CreatedAt = x.CreatedAt
-                    }).ToList(),
-                    PageIndex = pageIndex,
-                    TotalPages = totalPages,
-                    PageSize = pageSize,
-                    TotalCount = (int)totalItems,
-                };
-
-                return Results.Ok(result);
-            });
-
-        group.MapPost("{id}/favorite",
-            async (IMongoCollection<Queue> queuesCollection, IMongoCollection<Broker> brokersCollection,
-                UserManager<User> userManager,
-                HttpContext httpContext, [FromBody] FavoriteQueueDto dto,
-                string id) =>
-            {
-                // Get user
-                var user = await userManager.GetUserAsync(httpContext.User);
-                if (user == null)
-                {
-                    return Results.Unauthorized();
-                }
-
-                // Get queue broker id
-                var queueFilter = Builders<Queue>.Filter.And(
-                    Builders<Queue>.Filter.Eq(b => b.Id, ObjectId.Parse(id))
-                );
-
-                var brokerId = await queuesCollection.Find(queueFilter).Project(x => x.BrokerId).SingleAsync();
-
-                // Validate broker
-                var brokerFilter = Builders<Broker>.Filter.And(
-                    Builders<Broker>.Filter.Eq(b => b.Id, brokerId),
-                    Builders<Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id),
-                    Builders<Broker>.Filter.Eq(b => b.DeletedAt, null)
-                );
-
-                if (!await brokersCollection.Find(brokerFilter).AnyAsync())
-                {
-                    return Results.Unauthorized();
-                }
-
-                // Favorite queue
-                // var filter = Builders<Queue>.Filter.And(
-                //     Builders<Queue>.Filter.Eq(q => q.Id, ObjectId.Parse(id))
-                // );
-                // var update = Builders<Queue>.Update.Set(q => q.IsFavorite, dto.IsFavorite);
-                // await queuesCollection.UpdateOneAsync(filter, update);
-
-                return Results.Ok();
             });
     }
 }

@@ -1,26 +1,21 @@
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Options;
-
 namespace ResQueue.Models;
 
 public class RabbitMQMessageProperties
 {
-    [BsonIgnoreIfNull] public string? AppId { get; set; }
-    [BsonIgnoreIfNull] public string? ClusterId { get; set; }
-    [BsonIgnoreIfNull] public string? ContentEncoding { get; set; }
-    [BsonIgnoreIfNull] public string? ContentType { get; set; }
-    [BsonIgnoreIfNull] public string? CorrelationId { get; set; }
-    [BsonIgnoreIfNull] public byte? DeliveryMode { get; set; }
-    [BsonIgnoreIfNull] public string? Expiration { get; set; }
+    public string? AppId { get; set; }
+    public string? ClusterId { get; set; }
+    public string? ContentEncoding { get; set; }
+    public string? ContentType { get; set; }
+    public string? CorrelationId { get; set; }
+    public byte? DeliveryMode { get; set; }
+    public string? Expiration { get; set; }
 
-    [BsonDictionaryOptions(DictionaryRepresentation.Document)]
-    [BsonIgnoreIfNull]
     public IDictionary<string, object>? Headers { get; set; }
 
-    [BsonIgnoreIfNull] public string? MessageId { get; set; }
-    [BsonIgnoreIfNull] public byte? Priority { get; set; }
-    [BsonIgnoreIfNull] public string? ReplyTo { get; set; }
-    [BsonIgnoreIfNull] public long? Timestamp { get; set; }
-    [BsonIgnoreIfNull] public string? Type { get; set; }
-    [BsonIgnoreIfNull] public string? UserId { get; set; }
+    public string? MessageId { get; set; }
+    public byte? Priority { get; set; }
+    public string? ReplyTo { get; set; }
+    public long? Timestamp { get; set; }
+    public string? Type { get; set; }
+    public string? UserId { get; set; }
 }

@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Text;
-using MongoDB.Bson;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using ResQueue.Models;
@@ -9,7 +8,7 @@ namespace ResQueue.Mappers;
 
 public static class RabbitMQMessageMapper
 {
-    public static Message ToDocument(ObjectId queueId, ObjectId userId, long messageOrder, BasicDeliverEventArgs res)
+    public static Message ToDocument(string queueId, string userId, long messageOrder, BasicDeliverEventArgs res)
     {
         var props = new RabbitMQMessageProperties();
 
@@ -94,7 +93,7 @@ public static class RabbitMQMessageMapper
                 RoutingKey = res.RoutingKey,
                 Properties = props
             },
-            Body = GetBody(res),
+            Body = "", // GetBody(res)
             MessageOrder = messageOrder,
             CreatedAt = DateTime.UtcNow
         };
@@ -112,24 +111,24 @@ public static class RabbitMQMessageMapper
             _ => value
         };
 
-    private static BsonValue GetBody(BasicDeliverEventArgs res)
-    {
-        var encoding = new UTF8Encoding(false, true);
-        string stringValue;
-        try
-        {
-            stringValue = encoding.GetString(res.Body.Span);
-        }
-        catch (DecoderFallbackException)
-        {
-            return new BsonBinaryData(res.Body.ToArray());
-        }
-
-        if (BsonDocument.TryParse(Encoding.UTF8.GetString(res.Body.Span), out var doc))
-        {
-            return doc;
-        }
-
-        return stringValue;
-    }
+    // private static BsonValue GetBody(BasicDeliverEventArgs res)
+    // {
+    //     var encoding = new UTF8Encoding(false, true);
+    //     string stringValue;
+    //     try
+    //     {
+    //         stringValue = encoding.GetString(res.Body.Span);
+    //     }
+    //     catch (DecoderFallbackException)
+    //     {
+    //         return new BsonBinaryData(res.Body.ToArray());
+    //     }
+    //
+    //     if (BsonDocument.TryParse(Encoding.UTF8.GetString(res.Body.Span), out var doc))
+    //     {
+    //         return doc;
+    //     }
+    //
+    //     return stringValue;
+    // }
 }

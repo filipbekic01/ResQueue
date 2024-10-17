@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using RabbitMQ.Client;
 using ResQueue.Models;
+using ConnectionFactory = RabbitMQ.Client.ConnectionFactory;
 
 namespace ResQueue;
 

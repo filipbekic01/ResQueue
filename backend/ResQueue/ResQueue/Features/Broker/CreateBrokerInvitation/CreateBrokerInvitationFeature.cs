@@ -3,12 +3,11 @@ using System.Security.Cryptography;
 using System.Text;
 using MailKit.Net.Smtp;
 using MailKit.Security;
+using Marten;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using ResQueue.Constants;
 using ResQueue.Dtos.Broker;
 using ResQueue.Enums;
@@ -25,9 +24,7 @@ public record CreateBrokerInvitationResponse();
 
 public class CreateBrokerInvitationFeature(
     UserManager<User> userManager,
-    IMongoCollection<Models.Broker> brokersCollection,
-    IMongoCollection<User> usersCollection,
-    IMongoCollection<BrokerInvitation> invitationsCollection,
+    IDocumentSession documentSession,
     IOptions<Settings> settings
 ) : ICreateBrokerInvitationFeature
 {
@@ -35,8 +32,9 @@ public class CreateBrokerInvitationFeature(
         CreateBrokerInvitationRequest request)
     {
         // Get the user to invite
-        var inviteeFilter = Builders<User>.Filter.Eq(b => b.NormalizedEmail, request.Dto.Email.ToUpper());
-        var userInvitee = await usersCollection.Find(inviteeFilter).FirstOrDefaultAsync();
+        var userInvitee = await documentSession.Query<User>()
+            .Where(x => x.NormalizedEmail == request.Dto.Email.ToUpper())
+            .FirstOrDefaultAsync();
         if (userInvitee == null)
         {
             return OperationResult<CreateBrokerInvitationResponse>.Failure(new ProblemDetails
@@ -80,12 +78,11 @@ public class CreateBrokerInvitationFeature(
         }
 
         // Get the current user
-        var brokerInvitationFilter = Builders<BrokerInvitation>.Filter.And(
-            Builders<BrokerInvitation>.Filter.Eq(b => b.IsAccepted, false),
-            Builders<BrokerInvitation>.Filter.Gt(b => b.ExpiresAt, DateTime.UtcNow),
-            Builders<BrokerInvitation>.Filter.Eq(b => b.InviteeId, userInvitee.Id)
-        );
-        var hasInvitations = await invitationsCollection.Find(brokerInvitationFilter).AnyAsync();
+        var hasInvitations = await documentSession.Query<BrokerInvitation>()
+            .Where(x => x.IsAccepted == true)
+            .Where(x => x.ExpiresAt > DateTime.UtcNow)
+            .Where(x => x.InviteeId == userInvitee.Id)
+            .AnyAsync();
         if (hasInvitations)
         {
             return OperationResult<CreateBrokerInvitationResponse>.Failure(new ProblemDetails
@@ -97,8 +94,9 @@ public class CreateBrokerInvitationFeature(
         }
 
         // Fetch the broker
-        var brokerFilter = Builders<Models.Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Dto.BrokerId));
-        var broker = await brokersCollection.Find(brokerFilter).FirstOrDefaultAsync();
+        var broker = await documentSession.Query<Models.Broker>()
+            .Where(x => x.Id == request.Dto.BrokerId)
+            .FirstOrDefaultAsync();
         if (broker == null)
         {
             return OperationResult<CreateBrokerInvitationResponse>.Failure(new ProblemDetails
@@ -131,7 +129,9 @@ public class CreateBrokerInvitationFeature(
             BrokerName = broker.Name,
         };
 
-        await invitationsCollection.InsertOneAsync(invitation);
+        documentSession.Insert(invitation);
+
+        await documentSession.SaveChangesAsync();
 
         await SendEmail(userInvitee, invitation.Token);
 

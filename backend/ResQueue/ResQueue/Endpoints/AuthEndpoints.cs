@@ -1,10 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Marten;
+using Marten.Patching;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
 using ResQueue.Dtos;
-using ResQueue.Dtos.Stripe;
-using ResQueue.Features.Stripe.CreateSubscription;
 using ResQueue.Filters;
 using ResQueue.Models;
 
@@ -18,7 +17,7 @@ public static class AuthEndpoints
 
         group.MapGet("me", async (HttpContext httpContext, UserManager<User> userManager) =>
         {
-            var user = await userManager.GetUserAsync(httpContext.User);
+            var user = await userManager.FindByEmailAsync(httpContext.User.Identity.Name);
             if (user == null)
             {
                 return Results.Unauthorized();
@@ -26,7 +25,7 @@ public static class AuthEndpoints
 
             return Results.Ok(new UserDto()
             {
-                Id = user.Id.ToString(),
+                Id = user.Id,
                 FullName = user.FullName,
                 Avatar = user.Avatar,
                 Email = user.Email!,
@@ -65,7 +64,7 @@ public static class AuthEndpoints
         }).RequireAuthorization();
 
         group.MapPost("register",
-            async (UserManager<User> userManager, [FromBody] RegisterDto dto, ICreateSubscriptionFeature feature) =>
+            async (UserManager<User> userManager, [FromBody] RegisterDto dto) =>
             {
                 if (!string.IsNullOrWhiteSpace(dto.Email) && !new EmailAddressAttribute().IsValid(dto.Email))
                 {
@@ -93,45 +92,60 @@ public static class AuthEndpoints
                     return Results.Problem(errors);
                 }
 
-                if (!string.IsNullOrEmpty(dto.PaymentMethodId) && !string.IsNullOrEmpty(dto.Plan))
-                {
-                    var featureResult = await feature.ExecuteAsync(new CreateSubscriptionRequest(
-                        UserId: user.Id.ToString(),
-                        new CreateSubscriptionDto(
-                            CustomerEmail: user.Email,
-                            PaymentMethodId: dto.PaymentMethodId,
-                            Plan: dto.Plan,
-                            Coupon: dto.Coupon
-                        )
-                    ));
-
-                    if (!featureResult.IsSuccess)
-                    {
-                        await userManager.DeleteAsync(user);
-
-                        return Results.Problem(featureResult.Problem!);
-                    }
-                }
+                // if (!string.IsNullOrEmpty(dto.PaymentMethodId) && !string.IsNullOrEmpty(dto.Plan))
+                // {
+                //     var featureResult = await feature.ExecuteAsync(new CreateSubscriptionRequest(
+                //         UserId: user.Id.ToString(),
+                //         new CreateSubscriptionDto(
+                //             CustomerEmail: user.Email,
+                //             PaymentMethodId: dto.PaymentMethodId,
+                //             Plan: dto.Plan,
+                //             Coupon: dto.Coupon
+                //         )
+                //     ));
+                //
+                //     if (!featureResult.IsSuccess)
+                //     {
+                //         await userManager.DeleteAsync(user);
+                //
+                //         return Results.Problem(featureResult.Problem!);
+                //     }
+                // }
 
                 return Results.Ok();
             }).AllowAnonymousOnly();
 
         group.MapPatch("me/avatar",
-            async (HttpContext httpContext, UserManager<User> userManager,
-                IMongoCollection<User> usersCollection) =>
+            async (HttpContext httpContext, UserManager<User> userManager, IDocumentSession documentSession) =>
             {
-                var user = await userManager.GetUserAsync(httpContext.User);
+                // Get the current user
+                var user = await userManager.FindByEmailAsync(httpContext.User.Identity.Name);
                 if (user == null)
                 {
                     return Results.Unauthorized();
                 }
 
-                var filter = Builders<User>.Filter.Eq(u => u.Id, user.Id);
+                // Load the user document by id
+                var existingUser = await documentSession.LoadAsync<User>(user.Id);
+                if (existingUser == null)
+                {
+                    return Results.NotFound();
+                }
 
-                var update = Builders<User>.Update.Set(u => u.Avatar,
-                    UserAvatarGenerator.GenerateUniqueAvatar(user.Id.ToString()));
+                // Update the avatar for the user
+                var newAvatar = UserAvatarGenerator.GenerateUniqueAvatar(user.Id);
+                if (string.IsNullOrEmpty(newAvatar))
+                {
+                    return Results.Problem(new ProblemDetails()
+                    {
+                        Title = "Invalid avatar generated.",
+                        Detail = "Something went wrong with avatar generator.",
+                    });
+                }
 
-                await usersCollection.UpdateOneAsync(filter, update);
+                documentSession.Patch<User>(user.Id).Set(x => x.Avatar, newAvatar);
+
+                await documentSession.SaveChangesAsync();
 
                 return Results.Ok();
             }).RequireAuthorization();
@@ -139,39 +153,30 @@ public static class AuthEndpoints
         group.MapPatch("me",
             async
             (HttpContext httpContext, UserManager<User> userManager, [FromBody] UpdateUserDto dto,
-                IMongoCollection<User> usersCollection) =>
+                IDocumentSession documentSession) =>
             {
-                var user = await userManager.GetUserAsync(httpContext.User);
+                var user = await userManager.FindByEmailAsync(httpContext.User.Identity.Name);
                 if (user == null)
                 {
                     return Results.Unauthorized();
                 }
 
-                var filter = Builders<User>.Filter.Eq(u => u.Id, user.Id);
-                var update = Builders<User>.Update.Combine();
+                var patch = documentSession.Patch<User>(user.Id);
 
                 var trimmed = dto.FullName?.Trim();
                 if (!string.IsNullOrEmpty(trimmed))
                 {
-                    update = Builders<User>.Update.Set(u => u.FullName, trimmed);
+                    patch.Set(x => x.FullName, trimmed);
                 }
 
                 // Update UserConfig if provided
                 if (dto.Settings != null)
                 {
-                    update = Builders<User>.Update.Combine(
-                        update,
-                        Builders<User>.Update.Set(u => u.Settings.ShowSyncConfirmDialogs,
-                            dto.Settings.ShowSyncConfirmDialogs),
-                        Builders<User>.Update.Set(u => u.Settings.CollapseSidebar,
-                            dto.Settings.CollapseSidebar)
-                    );
+                    patch.Set(x => x.Settings.ShowSyncConfirmDialogs, dto.Settings.ShowSyncConfirmDialogs);
+                    patch.Set(x => x.Settings.CollapseSidebar, dto.Settings.CollapseSidebar);
                 }
 
-                if (update != Builders<User>.Update.Combine()) // Check if there's any update to apply
-                {
-                    await usersCollection.UpdateOneAsync(filter, update);
-                }
+                await documentSession.SaveChangesAsync();
 
                 return Results.Ok();
             }).RequireAuthorization();

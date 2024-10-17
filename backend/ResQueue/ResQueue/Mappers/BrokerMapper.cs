@@ -9,21 +9,19 @@ public class BrokerMapper
     public static BrokerDto ToDto(Broker broker)
     {
         return new BrokerDto(
-            Id: broker.Id.ToString(),
-            CreatedByUserId: broker.CreatedByUserId.ToString(),
+            Id: broker.Id,
+            CreatedByUserId: broker.CreatedByUserId,
             System: broker.System,
             Name: broker.Name,
-            RabbitMQConnection: broker.RabbitMQConnection is { } rabbitMqConnection
-                ? new RabbitMQConnectionDto(
-                    ManagementPort: rabbitMqConnection.ManagementPort,
-                    ManagementTls: rabbitMqConnection.ManagementTls,
-                    AmqpPort: rabbitMqConnection.AmqpPort,
-                    AmqpTls: rabbitMqConnection.AmqpTls,
-                    Host: rabbitMqConnection.Host,
-                    VHost: rabbitMqConnection.VHost
+            PostgresConnection: broker.PostgresConnection is { } postgresConnection
+                ? new PostgresConnectionDto(
+                    Host: postgresConnection.Host,
+                    Database: postgresConnection.Database,
+                    Port: postgresConnection.Port
                 )
                 : null,
-            AccessList: broker.AccessList.Select(y => new BrokerAccessDto()
+            AccessList:
+            broker.AccessList.Select(y => new BrokerAccessDto()
             {
                 UserId = y.UserId.ToString(),
                 AccessLevel = y.AccessLevel,
@@ -38,10 +36,14 @@ public class BrokerMapper
                     DefaultQueueSearch: y.Settings.DefaultQueueSearch
                 )
             }).ToList(),
-            CreatedAt: broker.CreatedAt,
-            UpdatedAt: broker.UpdatedAt,
-            SyncedAt: broker.SyncedAt,
-            DeletedAt: broker.DeletedAt
+            CreatedAt:
+            broker.CreatedAt,
+            UpdatedAt:
+            broker.UpdatedAt,
+            SyncedAt:
+            broker.SyncedAt,
+            DeletedAt:
+            broker.DeletedAt
         );
     }
 }

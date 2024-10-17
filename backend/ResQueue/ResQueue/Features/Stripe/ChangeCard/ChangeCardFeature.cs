@@ -1,7 +1,7 @@
+using Marten;
+using Marten.Patching;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using ResQueue.Dtos.Stripe;
 using ResQueue.Models;
 using Stripe;
@@ -16,7 +16,7 @@ public record ChangeCardRequest(
 public record ChangeCardResponse();
 
 public class ChangeCardFeature(
-    IMongoCollection<User> usersCollection,
+    IDocumentSession documentSession,
     IOptions<Settings> settings
 ) : IChangeCardFeature
 {
@@ -25,8 +25,7 @@ public class ChangeCardFeature(
         try
         {
             // Get user
-            var filter = Builders<User>.Filter.Eq(q => q.Id, ObjectId.Parse(request.UserId));
-            var user = await usersCollection.Find(filter).FirstOrDefaultAsync();
+            var user = await documentSession.Query<User>().Where(x => x.Id == request.UserId).SingleAsync();
             if (user == null || string.IsNullOrEmpty(user.StripeId))
             {
                 return OperationResult<ChangeCardResponse>.Failure(new ProblemDetails
@@ -61,12 +60,11 @@ public class ChangeCardFeature(
             var paymentType = paymentMethod.Card?.Brand; // e.g., "visa", "mastercard"
             var paymentLastFour = paymentMethod.Card?.Last4; // Last four digits of the card
 
-            // Update MongoDB with the new card details
-            var update = Builders<User>.Update
-                .Set(q => q.PaymentType, paymentType)
-                .Set(q => q.PaymentLastFour, paymentLastFour);
+            var patch = documentSession.Patch<User>(user.Id);
+            patch.Set(q => q.PaymentType, paymentType);
+            patch.Set(q => q.PaymentLastFour, paymentLastFour);
 
-            await usersCollection.UpdateOneAsync(filter, update);
+            await documentSession.SaveChangesAsync();
 
             return OperationResult<ChangeCardResponse>.Success(new ChangeCardResponse());
         }

@@ -1,4 +1,4 @@
-using MongoDB.Driver;
+using Npgsql;
 
 namespace ResQueue.Filters;
 
@@ -17,7 +17,7 @@ public static class RetryFilterExtensions
                 {
                     return await next(invocationContext);
                 }
-                catch (MongoException ex) when (IsTransientError(ex))
+                catch (PostgresException ex) when (ex.IsTransient)
                 {
                     retryCount++;
                     if (retryCount >= maxRetryAttempts)
@@ -38,29 +38,4 @@ public static class RetryFilterExtensions
             return Results.Problem("Unexpected error.", statusCode: StatusCodes.Status500InternalServerError);
         });
     }
-
-    private static readonly int[] MongoDbTransientErrorCodes =
-    [
-        6, // HostUnreachable
-        7, // HostNotFound
-        89, // NetworkTimeout
-        91, // ShutdownInProgress
-        189, // PrimarySteppedDown
-        262, // ExceededTimeLimit
-        9001, // SocketException
-        10107, // NotMaster
-        11600, // InterruptedAtShutdown
-        11602, // InterruptedDueToReplStateChange
-        13435, // NotMasterNoSlaveOk
-        13436, // NotMasterOrSecondary
-        251, // NoSuchTransaction
-        112 // WriteConflict
-    ];
-
-    private static bool IsTransientError(MongoException ex) => ex switch
-    {
-        MongoCommandException cmdEx => MongoDbTransientErrorCodes.Contains(cmdEx.Code),
-        MongoConnectionException or MongoNotPrimaryException or MongoNodeIsRecoveringException => true,
-        _ => false
-    };
 }

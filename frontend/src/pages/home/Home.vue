@@ -2,7 +2,7 @@
 import awsLogoUrl from '@/assets/aws.svg'
 import azureLogoUrl from '@/assets/azure.svg'
 import mdLogoUrl from '@/assets/md.svg'
-import rmqLogoUrl from '@/assets/rmq.svg'
+import pgLogoUrl from '@/assets/postgres.svg'
 import { useIdentity } from '@/composables/identityComposable'
 import WebLayout from '@/layouts/WebLayout.vue'
 import { useHead } from '@unhead/vue'
@@ -85,10 +85,10 @@ useHead(
     <div class="flex items-center gap-4">
       <div class="flex-1 rounded-2xl border-slate-400 bg-white p-4 text-slate-700 shadow">
         <div class="flex items-center gap-2 text-xl font-bold">
-          <div class="w-8 rounded-lg bg-[#ff6600] p-1.5">
-            <img :src="rmqLogoUrl" />
+          <div class="w-8 rounded-lg bg-[#336791] p-1.5">
+            <img :src="pgLogoUrl" />
           </div>
-          RabbitMQ
+          PostgreSQL
           <i class="pi pi-check-circle ms-auto text-emerald-600" style="font-size: 1.15rem"></i>
         </div>
       </div>

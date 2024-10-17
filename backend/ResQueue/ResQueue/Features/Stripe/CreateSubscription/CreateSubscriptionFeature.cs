@@ -1,7 +1,7 @@
+using Marten;
+using Marten.Patching;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using ResQueue.Constants;
 using ResQueue.Dtos.Stripe;
 using ResQueue.Models;
@@ -19,7 +19,7 @@ public record CreateSubscriptionRequest(
 public record CreateSubscriptionResponse();
 
 public class CreateSubscriptionFeature(
-    IMongoCollection<User> usersCollection,
+    IDocumentSession documentSession,
     IOptions<Settings> settings
 ) : ICreateSubscriptionFeature
 {
@@ -43,8 +43,7 @@ public class CreateSubscriptionFeature(
             });
         }
 
-        var filter = Builders<User>.Filter.Eq(q => q.Id, ObjectId.Parse(request.UserId));
-        var user = await usersCollection.Find(filter).SingleAsync();
+        var user = await documentSession.Query<User>().Where(x => x.Id == request.UserId).SingleAsync();
 
         if (user.Subscription?.StripeStatus == "active")
         {
@@ -113,13 +112,13 @@ public class CreateSubscriptionFeature(
                 }
             };
 
-            var update = Builders<User>.Update
-                .Set(q => q.StripeId, customer.Id)
-                .Set(q => q.PaymentType, paymentType)
-                .Set(q => q.PaymentLastFour, paymentLastFour)
-                .Set(q => q.Subscription, user.Subscription);
+            var patch = documentSession.Patch<User>(user.Id);
+            patch.Set(q => q.StripeId, customer.Id);
+            patch.Set(q => q.PaymentType, paymentType);
+            patch.Set(q => q.PaymentLastFour, paymentLastFour);
+            patch.Set(q => q.Subscription, user.Subscription);
 
-            await usersCollection.UpdateOneAsync(filter, update);
+            await documentSession.SaveChangesAsync();
 
             return OperationResult<CreateSubscriptionResponse>.Success(new CreateSubscriptionResponse());
         }

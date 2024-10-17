@@ -1,8 +1,8 @@
 using System.Security.Claims;
+using Marten;
+using Marten.Patching;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using ResQueue.Dtos;
 using ResQueue.Enums;
 using ResQueue.Models;
@@ -15,7 +15,7 @@ public record UpdateBrokerFeatureResponse();
 
 public class UpdateBrokerFeature(
     UserManager<User> userManager,
-    IMongoCollection<Models.Broker> brokersCollection
+    IDocumentSession documentSession
 ) : IUpdateBrokerFeature
 {
     public async Task<OperationResult<UpdateBrokerFeatureResponse>> ExecuteAsync(UpdateBrokerFeatureRequest request)
@@ -31,12 +31,11 @@ public class UpdateBrokerFeature(
             });
         }
 
-        var filter = Builders<Models.Broker>.Filter.And(
-            Builders<Models.Broker>.Filter.Eq(b => b.Id, ObjectId.Parse(request.Id)),
-            Builders<Models.Broker>.Filter.ElemMatch(b => b.AccessList, a => a.UserId == user.Id)
-        );
+        var broker = await documentSession.Query<Models.Broker>()
+            .Where(x => x.AccessList.Any(y => y.UserId == user.Id))
+            .Where(x => x.Id == request.Id)
+            .SingleAsync();
 
-        var broker = await brokersCollection.Find(filter).SingleAsync();
         var access = broker.AccessList.Single(x => x.UserId == user.Id);
         access.Settings = new BrokerSettings()
         {
@@ -50,10 +49,10 @@ public class UpdateBrokerFeature(
             DefaultQueueSearch = request.Dto.Settings.DefaultQueueSearch
         };
 
-        var update = Builders<Models.Broker>.Update
-            .Set(b => b.Name, request.Dto.Name)
-            .Set(b => b.AccessList, broker.AccessList)
-            .Set(b => b.UpdatedAt, DateTime.UtcNow);
+        var patch = documentSession.Patch<Models.Broker>(broker.Id);
+        patch.Set(x => x.Name, request.Dto.Name);
+        patch.Set(b => b.AccessList, broker.AccessList);
+        patch.Set(b => b.UpdatedAt, DateTime.UtcNow);
 
         if (broker.AccessList
             .Any(x => x.UserId == user.Id &&
@@ -64,22 +63,20 @@ public class UpdateBrokerFeature(
                 if (!string.IsNullOrEmpty(rabbitMqConnection.Username) &&
                     !string.IsNullOrEmpty(rabbitMqConnection.Password))
                 {
-                    update = update
-                        .Set(b => b.RabbitMQConnection!.Username, rabbitMqConnection.Username)
-                        .Set(b => b.RabbitMQConnection!.Password, rabbitMqConnection.Password);
+                    patch.Set(b => b.RabbitMQConnection!.Username, rabbitMqConnection.Username);
+                    patch.Set(b => b.RabbitMQConnection!.Password, rabbitMqConnection.Password);
                 }
 
-                update = update
-                    .Set(b => b.RabbitMQConnection!.ManagementPort, rabbitMqConnection.ManagementPort)
-                    .Set(b => b.RabbitMQConnection!.ManagementTls, rabbitMqConnection.ManagementTls)
-                    .Set(b => b.RabbitMQConnection!.AmqpPort, rabbitMqConnection.AmqpPort)
-                    .Set(b => b.RabbitMQConnection!.AmqpTls, rabbitMqConnection.AmqpTls)
-                    .Set(b => b.RabbitMQConnection!.Host, rabbitMqConnection.Host)
-                    .Set(b => b.RabbitMQConnection!.VHost, rabbitMqConnection.VHost);
+                patch.Set(b => b.RabbitMQConnection!.ManagementPort, rabbitMqConnection.ManagementPort);
+                patch.Set(b => b.RabbitMQConnection!.ManagementTls, rabbitMqConnection.ManagementTls);
+                patch.Set(b => b.RabbitMQConnection!.AmqpPort, rabbitMqConnection.AmqpPort);
+                patch.Set(b => b.RabbitMQConnection!.AmqpTls, rabbitMqConnection.AmqpTls);
+                patch.Set(b => b.RabbitMQConnection!.Host, rabbitMqConnection.Host);
+                patch.Set(b => b.RabbitMQConnection!.VHost, rabbitMqConnection.VHost);
             }
         }
 
-        await brokersCollection.UpdateOneAsync(filter, update);
+        await documentSession.SaveChangesAsync();
 
         return OperationResult<UpdateBrokerFeatureResponse>.Success(new UpdateBrokerFeatureResponse());
     }

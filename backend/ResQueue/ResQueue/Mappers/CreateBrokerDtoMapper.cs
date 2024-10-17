@@ -1,4 +1,3 @@
-using MongoDB.Bson;
 using ResQueue.Constants;
 using ResQueue.Dtos;
 using ResQueue.Enums;
@@ -8,7 +7,7 @@ namespace ResQueue.Mappers;
 
 public static class CreateBrokerDtoMapper
 {
-    public static Broker ToBroker(ObjectId userId, CreateBrokerDto dto)
+    public static Broker ToBroker(string userId, CreateBrokerDto dto)
     {
         var dateTime = DateTime.UtcNow;
 
@@ -23,20 +22,16 @@ public static class CreateBrokerDtoMapper
                 }
             ],
             CreatedByUserId = userId,
-            System = BrokerSystems.RABBIT_MQ,
+            System = BrokerSystems.POSTGRES,
             Name = dto.Name,
-            RabbitMQConnection = dto.RabbitMQConnection is { } rabbitMqConnection
-                ? new()
-                {
-                    ManagementPort = rabbitMqConnection.ManagementPort,
-                    ManagementTls = rabbitMqConnection.ManagementTls,
-                    AmqpPort = rabbitMqConnection.AmqpPort,
-                    AmqpTls = rabbitMqConnection.AmqpTls,
-                    Host = rabbitMqConnection.Host,
-                    Username = rabbitMqConnection.Username,
-                    Password = rabbitMqConnection.Password,
-                    VHost = rabbitMqConnection.VHost,
-                }
+            PostgresConnection = dto.PostgresConnection is { } postgresConnection
+                ? new PostgresConnection(
+                    Host: postgresConnection.Host,
+                    Username: postgresConnection.Username,
+                    Password: postgresConnection.Password,
+                    Database: postgresConnection.Database,
+                    Port: postgresConnection.Port
+                )
                 : null,
             CreatedAt = dateTime,
             UpdatedAt = dateTime

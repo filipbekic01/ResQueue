@@ -29,8 +29,6 @@ const props = withDefaults(
     messages: MessageDto[]
     broker: BrokerDto
     selectedMessageIds: string[]
-    messageFormat: FormatOption
-    messageStructure: StructureOption
     rabbitMqQueue: RabbitMQQueueDto
     isMessagesPage?: boolean
   }>(),
@@ -307,7 +305,7 @@ const toggleStructureAndFormat = (event: Event) => {
     </template>
   </ButtonGroup>
 
-  <Button icon="pi pi-eye" class="ms-auto" outlined @click="toggleStructureAndFormat"></Button>
+  <!-- <Button icon="pi pi-eye" class="ms-auto" outlined @click="toggleStructureAndFormat"></Button>
   <Popover ref="structureAndFormatRef">
     <div class="flex flex-col gap-2">
       <div>Show message parts:</div>
@@ -315,7 +313,7 @@ const toggleStructureAndFormat = (event: Event) => {
       <div>Format options:</div>
       <SelectFormat :model-value="messageFormat" @update:model-value="(e) => updateSelectedMessageFormat(e)" />
     </div>
-  </Popover>
+  </Popover> -->
 
   <Select
     v-model="selectedExchange"

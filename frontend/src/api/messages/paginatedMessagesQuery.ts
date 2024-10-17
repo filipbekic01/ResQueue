@@ -1,5 +1,5 @@
 import { API_URL } from '@/constants/api'
-import type { MessageDto } from '@/dtos/message/messageDto'
+import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
 import type { PaginatedResult } from '@/dtos/paginatedResultDto'
 import { useQuery } from '@tanstack/vue-query'
 import axios from 'axios'
@@ -13,7 +13,7 @@ export const usePaginatedMessagesQuery = (
   useQuery({
     queryKey: ['messages/paginated', brokerId, queueId, pageIndex],
     queryFn: async () => {
-      const response = await axios.get<PaginatedResult<MessageDto>>(`${API_URL}/messages/paginated`, {
+      const response = await axios.get<PaginatedResult<MessageDeliveryDto>>(`${API_URL}/messages/paginated`, {
         params: {
           brokerId: toValue(brokerId),
           queueId: toValue(queueId),

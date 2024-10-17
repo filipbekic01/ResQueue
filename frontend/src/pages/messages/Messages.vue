@@ -1,37 +1,22 @@
 <script lang="ts" setup>
 import { useBrokersQuery } from '@/api/brokers/brokersQuery'
-import { useSyncBrokerMutation } from '@/api/brokers/syncBrokerMutation'
-import { useCloneMessageMutation } from '@/api/messages/cloneMessageMutation'
+import { useMoveMessagesMutation } from '@/api/messages/moveMessagesMutation'
 import { usePaginatedMessagesQuery } from '@/api/messages/paginatedMessagesQuery'
-import { useSyncMessagesMutation } from '@/api/messages/syncMessagesMutation'
-import { useQueueQuery } from '@/api/queues/queueQuery'
+import { useRequeueMessagesMutation } from '@/api/messages/requeueMessagesMutation'
 import eboxUrl from '@/assets/ebox.svg'
-import rmqLogoUrl from '@/assets/rmq.svg'
-import { type FormatOption } from '@/components/SelectFormat.vue'
-import type { StructureOption } from '@/components/SelectStructure.vue'
-import { useIdentity } from '@/composables/identityComposable'
-import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
-import UpsertMessageDialog from '@/dialogs/UpsertMessageDialog.vue'
-import type { RabbitMQMessageDto } from '@/dtos/message/rabbitMQMessageDto'
+import pgLogoUrl from '@/assets/postgres.svg'
+import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
 import Avatars from '@/features/avatars/Avatars.vue'
-import FormattedMessage from '@/features/formatted-message/FormattedMessage.vue'
-import MessageCopy from '@/features/message-copy/MessageCopy.vue'
-import MessageActions from '@/features/message/MessageActions.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { errorToToast } from '@/utils/errorUtils'
-import { messageSummary } from '@/utils/messageUtils'
-import { formatDistanceToNow } from 'date-fns'
+import { highlightJson } from '@/utils/jsonUtils'
 import Button from 'primevue/button'
-import ButtonGroup from 'primevue/buttongroup'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import type { PageState } from 'primevue/paginator'
-import type { PopoverMethods } from 'primevue/popover'
-import Tag from 'primevue/tag'
 import { useConfirm } from 'primevue/useconfirm'
-import { useDialog } from 'primevue/usedialog'
 import { useToast } from 'primevue/usetoast'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{
@@ -40,20 +25,8 @@ const props = defineProps<{
 }>()
 
 const router = useRouter()
-
 const confirm = useConfirm()
-const dialog = useDialog()
 const toast = useToast()
-
-const {
-  query: { data: user }
-} = useIdentity()
-
-const { mutateAsync: syncMessagesAsync, isPending: isSyncMessagesPending } = useSyncMessagesMutation()
-
-const { mutateAsync: syncBrokerAsync, isPending: isSyncBrokerPending } = useSyncBrokerMutation()
-
-const { mutateAsync: cloneMessageAsync, isPending: isCloneMessagePending } = useCloneMessageMutation()
 
 const pageIndex = ref(0)
 
@@ -65,12 +38,7 @@ const { data: paginatedMessages, isPending } = usePaginatedMessagesQuery(
   pageIndex
 )
 
-const { data: queue } = useQueueQuery(computed(() => props.queueId))
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
-
-const queues = computed(() => (queue.value ? [queue.value] : undefined))
-const { rabbitMqQueues } = useRabbitMqQueues(queues)
-const rabbitMqQueue = computed(() => rabbitMqQueues.value[0] ?? undefined)
 
 const backToQueues = () => {
   router.push({
@@ -81,170 +49,40 @@ const backToQueues = () => {
   })
 }
 
-const syncMessages = () => {
-  if (!user.value?.settings.showSyncConfirmDialogs) {
-    syncMessagesRequest()
-    return
-  }
-
-  confirm.require({
-    header: 'Sync Messages',
-    message: 'Do you want to import new messages?',
-    icon: 'pi pi-info-circle',
-    rejectProps: {
-      label: 'Cancel',
-      severity: 'secondary',
-      outlined: true
-    },
-    acceptProps: {
-      label: 'Sync Messages',
-      severity: ''
-    },
-    accept: () => syncMessagesRequest(),
-    reject: () => {}
-  })
-}
-
-const syncMessagesRequest = () => {
-  syncMessagesAsync({
-    brokerId: props.brokerId,
-    queueId: props.queueId
-  })
-    .then(() => {
-      toast.add({
-        severity: 'success',
-        summary: 'Sync Completed!',
-        detail: `Messages for queue ${queue.value?.id} synced!`,
-        life: 3000
-      })
-    })
-    .catch((e) => toast.add(errorToToast(e)))
-}
-
-const openMessage = (id: string) => {
-  router.push({
-    name: 'message',
-    params: {
-      brokerId: broker.value?.id,
-      queueId: queue.value?.id,
-      messageId: id
-    }
-  })
-}
-
-const selectedMessages = ref<RabbitMQMessageDto[]>([])
-const selectedMessageIds = computed(() => selectedMessages.value.map((x) => x.id))
-
 const changePage = (e: PageState) => {
   pageIndex.value = e.page
 }
 
-const syncLabel = computed(() => {
-  return `Pull (${rabbitMqQueue.value?.parsed.messages})`
-})
-
-const syncBroker = () => {
-  if (!user.value?.settings.showSyncConfirmDialogs) {
-    syncBrokerRequest()
-    return
+const toggleMessage = (msg?: MessageDeliveryDto) => {
+  if (!msg) {
+    selectedMessageId.value = 0
+  } else if (selectedMessageId.value === msg.message_delivery_id) {
+    selectedMessageId.value = 0
+  } else {
+    selectedMessageId.value = msg.message_delivery_id
   }
-
-  confirm.require({
-    message: 'Do you really want to sync with remote broker? You can turn off this dialog on dashboard.',
-    icon: 'pi pi-info-circle',
-    header: 'Sync Broker',
-    rejectProps: {
-      label: 'Cancel',
-      severity: 'secondary',
-      outlined: true
-    },
-    acceptProps: {
-      label: 'Sync Broker',
-      severity: ''
-    },
-    accept: () => syncBrokerRequest(),
-    reject: () => {}
-  })
 }
 
-const syncBrokerRequest = () => {
-  if (!broker.value) {
-    return
-  }
+const selectedQueueType = ref('Active Messages')
+const queueTypeOptions = ['Active Messages', 'Errors Messages', 'Skipped Messages']
 
-  syncBrokerAsync(broker.value?.id).then(() => {
-    toast.add({
-      severity: 'success',
-      summary: 'Sync Completed!',
-      detail: `Broker ${broker.value?.name} synced!`,
-      life: 3000
-    })
-  })
-}
-
-const idPopovers = ref<PopoverMethods[]>([])
-
-const toggleIdPopover = (e: Event) => {
-  idPopovers.value[0]?.toggle(e)
-}
-
-const expandedRows = ref({})
-
-const expandAll = () => {
-  expandedRows.value = paginatedMessages.value?.items.reduce((acc: any, p) => (acc[p.id] = true) && acc, {}) ?? {}
-}
-const collapseAll = () => {
-  expandedRows.value = {}
-}
-
-const allExpanded = computed(() => Object.keys(expandedRows.value).length === paginatedMessages.value?.items.length)
-
-const handleCopied = () => {
-  idPopovers.value.forEach((x) => {
-    x.hide()
-  })
-}
-
-const selectedMessageFormat = ref<FormatOption>('raw')
-const selectedMessageStructure = ref<StructureOption>('body')
-
-watch(
-  () => broker.value,
-  (broker) => {
-    const access = broker?.accessList.find((x) => x.userId === user.value?.id)
-    const format = access?.settings.messageFormat
-    const structure = access?.settings.messageStructure
-
-    if (format && structure) {
-      selectedMessageFormat.value = format
-      selectedMessageStructure.value = structure
-    }
-  },
-  {
-    immediate: true
-  }
+// Selected messages
+const selectedMessageId = ref<number>(24)
+const selectedMessage = computed(() =>
+  paginatedMessages.value?.items.find((x) => x.message_delivery_id === selectedMessageId.value)
 )
 
-const editMessage = (id: string) => {
-  dialog.open(UpsertMessageDialog, {
-    data: {
-      broker: broker.value,
-      queue: rabbitMqQueue.value,
-      message: paginatedMessages.value?.items.find((x) => x.id === id)
-    },
-    props: {
-      header: 'Message Editor',
-      position: 'top',
-      modal: true,
-      draggable: false
-    }
-  })
-}
+const selectedMessages = ref<MessageDeliveryDto[]>([])
+const selectedMessageIds = computed(() =>
+  selectedMessages.value?.length ? selectedMessages.value.map((x) => x.message_delivery_id) : []
+)
 
-const cloneMessage = (id: string) => {
+// Requeue messages
+const { mutateAsync: requeueMessagesAsync, isPending: isRequeueMessagesPending } = useRequeueMessagesMutation()
+const requeueMessages = () => {
   confirm.require({
-    header: 'Clone Message',
-    message: `You're about to clone message. New message will appear at the end of table view.`,
+    header: 'Requeue Messages',
+    message: `Do you want to requeue all the messages?`,
     icon: 'pi pi-info-circle',
     rejectProps: {
       label: 'Cancel',
@@ -252,36 +90,82 @@ const cloneMessage = (id: string) => {
       outlined: true
     },
     acceptProps: {
-      label: 'Clone',
-      severity: 'primary'
+      label: 'Requeue',
+      severity: ''
     },
     accept: () => {
-      cloneMessageAsync(id).catch((e) => toast.add(errorToToast(e)))
+      requeueMessagesAsync({
+        messageCount: 1,
+        queueName: props.queueId,
+        redeliveryCoun: 10,
+        sourceQueueType: 1,
+        targetQueueType: 2
+      })
+        .then(() => {
+          toast.add({
+            severity: 'info',
+            summary: 'Requeue Completed',
+            detail: `Messages requeued to destination.`,
+            life: 3000
+          })
+        })
+        .catch((e) => toast.add(errorToToast(e)))
     },
     reject: () => {}
   })
 }
 
-const removeSelection = () => (selectedMessages.value = [])
-
-const pullOptionsRef = ref()
-const togglePullOptions = (event: Event) => pullOptionsRef.value.toggle(event)
+// Move messages
+const { mutateAsync: moveMessagesAsync, isPending: isMoveMessagesPending } = useMoveMessagesMutation()
+const moveMessages = () => {
+  confirm.require({
+    header: 'Move Messages',
+    message: `Do you want to move selected the messages?`,
+    icon: 'pi pi-info-circle',
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Move',
+      severity: ''
+    },
+    accept: () => {
+      moveMessagesAsync({
+        queueName: props.queueId,
+        queueType: 1,
+        messageDeliveryId: selectedMessageIds.value
+      })
+        .then(() => {
+          toast.add({
+            severity: 'info',
+            summary: 'Move completed',
+            detail: `Message move to destination.`,
+            life: 3000
+          })
+        })
+        .catch((e) => toast.add(errorToToast(e)))
+    },
+    reject: () => {}
+  })
+}
 </script>
 
 <template>
   <AppLayout>
     <template #prepend>
       <div
-        class="flex h-[42px] w-[42px] cursor-pointer items-center justify-center rounded-xl bg-[#FF6600] text-2xl text-white active:scale-95"
+        class="flex h-[42px] w-[42px] cursor-pointer items-center justify-center rounded-xl bg-[#336791] text-2xl text-white active:scale-95"
         @click="backToQueues"
       >
-        <img :src="rmqLogoUrl" class="w-7 select-none" />
+        <img :src="pgLogoUrl" class="w-7 select-none" />
       </div>
     </template>
     <template #title>
       <span class="cursor-pointer hover:underline" @click="backToQueues">{{ broker?.name }}</span>
     </template>
-    <template #description>{{ rabbitMqQueue?.parsed.name }}</template>
+    <template #description>Queue: {{ props.queueId }}</template>
     <template #append>
       <Avatars v-if="broker" :user-ids="broker.accessList.map((x) => x.userId)" />
     </template>
@@ -289,131 +173,71 @@ const togglePullOptions = (event: Event) => pullOptionsRef.value.toggle(event)
       <Button @click="backToQueues" outlined label="Queues" icon="pi pi-arrow-left"></Button>
 
       <ButtonGroup>
-        <Button
-          @click="() => syncMessages()"
-          outlined
-          :label="syncLabel"
-          :loading="isSyncMessagesPending"
-          icon="pi pi-download"
-        ></Button>
-        <!-- <Button @click="syncBroker()" outlined :loading="isSyncBrokerPending" label="Sync" icon="pi pi-sync"></Button> -->
-        <Button outlined @click="togglePullOptions" icon="pi pi-ellipsis-v"></Button>
+        <Button outlined label="Requeue" icon="pi pi-sync"></Button>
+        <Button outlined label="Delete" icon="pi pi-trash"></Button>
       </ButtonGroup>
 
-      <Popover ref="pullOptionsRef">
-        <div class="w-72">
-          To view the current number of available messages for pulling, please synchronize the entire broker again.
-        </div>
-        <Button class="mt-2" link icon="pi pi-sync" label="Sync Broker" @click="syncBroker()"></Button>
-      </Popover>
+      <ButtonGroup>
+        <Button outlined label="Retry " icon="pi pi-arrow-top"></Button>
+      </ButtonGroup>
 
-      <MessageActions
-        v-if="broker && paginatedMessages?.items && rabbitMqQueue"
-        :broker="broker"
-        :rabbit-mq-queue="rabbitMqQueue"
-        :selected-message-ids="selectedMessageIds"
-        :messages="paginatedMessages?.items"
-        is-messages-page
-        v-model:message-structure="selectedMessageStructure"
-        v-model:message-format="selectedMessageFormat"
-        @archive:messages="removeSelection"
-      />
+      <Select class="ms-auto" :allow-empty="false" v-model="selectedQueueType" :options="queueTypeOptions"></Select>
+      <!-- <Paginator
+        class="ms-auto"
+        @page="changePage"
+        :rows="50"
+        :always-show="false"
+        :total-records="paginatedMessages?.totalCount"
+      ></Paginator> -->
     </div>
     <template v-if="isPending">
       <div class="p-5"><i class="pi pi-spinner pi-spin me-2"></i>Loading messages...</div>
     </template>
     <template v-else-if="paginatedMessages?.items.length">
-      <Popover v-for="it in paginatedMessages?.items" :key="it.id" ref="idPopovers">
-        <MessageCopy v-if="broker && queue" :broker="broker" :queue="queue" :message="it" @copied="handleCopied" />
-      </Popover>
-
-      <DataTable
-        v-model:selection="selectedMessages"
-        :value="paginatedMessages?.items"
-        data-key="id"
-        scrollable
-        class="max-w-full grow overflow-hidden"
-        striped-rows
-        scroll-height="flex"
-        v-model:expandedRows="expandedRows"
-      >
-        <Column selectionMode="multiple" class="w-0" style="vertical-align: top; text-align: center"></Column>
-        <Column expander class="w-0">
-          <template #header>
-            <i v-if="!allExpanded" class="pi pi-plus grow cursor-pointer text-center font-bold" @click="expandAll"></i
-            ><i v-else class="pi pi-minus grow cursor-pointer text-center font-bold" @click="collapseAll"></i>
-          </template>
-        </Column>
-
-        <Column field="id" header="Message" class="w-0">
-          <template #body="{ data }">
-            <div class="flex items-center gap-2">
-              <Button text size="small" @click="(e) => toggleIdPopover(e)"><i class="pi pi-copy"></i></Button>
-              <span
-                @click="openMessage(data.id)"
-                class="border-b border-dashed border-slate-600 hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
-                >{{ data.id.slice(-8) }}
-              </span>
-            </div>
-          </template>
-        </Column>
-
-        <Column field="flags" class="w-0">
-          <template #body="{ data }">
-            <div class="flex items-center gap-2">
-              <Tag v-if="data.isReviewed" icon="pi pi-check"></Tag>
-            </div>
-          </template>
-        </Column>
-
-        <Column field="summary" header="Summary" class="overflow-hidden">
-          <template #body="{ data }">
-            <div class="w-0 text-nowrap">
-              {{ messageSummary({ ...data }) }}
-            </div>
-          </template>
-        </Column>
-
-        <Column field="edit" header="" class="w-0">
-          <template #body="{ data }">
-            <div class="flex items-center justify-end">
-              <Tag v-if="!data.rabbitmqMetadata.exchange" class="me-2 whitespace-nowrap">custom</Tag>
-              <Button text icon="pi pi-pencil" size="small" @click="editMessage(data.id)"></Button>
-              <Button
-                text
-                icon="pi pi-clone"
-                size="small"
-                :loading="isCloneMessagePending"
-                @click="cloneMessage(data.id)"
-              ></Button>
-            </div>
-          </template>
-        </Column>
-
-        <Column field="updatedAt" header="Updated" class="w-0">
-          <template #body="{ data }"
-            ><div class="whitespace-nowrap text-slate-500">
-              {{ data.updatedAt ? `${formatDistanceToNow(data.updatedAt)}` : 'never' }}
-            </div></template
+      <div class="flex flex-col overflow-auto">
+        <div
+          class="flex grow flex-col overflow-auto"
+          :class="[
+            {
+              'basis-1/2': selectedMessageId
+            }
+          ]"
+        >
+          <DataTable
+            v-model:selection="selectedMessages"
+            :value="paginatedMessages?.items"
+            data-key="message_delivery_id"
+            scrollable
+            class="max-w-full grow overflow-hidden"
+            striped-rows
+            scroll-height="flex"
+            :lazy="true"
           >
-        </Column>
-
-        <Column field="createdAt" header="Created" class="w-0">
-          <template #body="{ data }"
-            ><div class="whitespace-nowrap">{{ formatDistanceToNow(data.createdAt) }} ago</div></template
-          >
-        </Column>
-
-        <template #expansion="{ data }">
-          <FormattedMessage :message="data" :format="selectedMessageFormat" :structure="selectedMessageStructure" />
-        </template>
-      </DataTable>
-      <Paginator
-        @page="changePage"
-        :rows="50"
-        :always-show="false"
-        :total-records="paginatedMessages?.totalCount"
-      ></Paginator>
+            <Column selectionMode="multiple" class="w-0" style="vertical-align: top; text-align: center"></Column>
+            <Column field="message_delivery_id" header="ID" class="w-0 whitespace-nowrap">
+              <template #body="{ data }">
+                <div class="flex items-center gap-2">
+                  <div>#{{ data.message_delivery_id }}</div>
+                  <span class="cursor-pointer text-blue-500 hover:text-blue-300" @click="toggleMessage(data)"
+                    >(view)</span
+                  >
+                </div>
+              </template>
+            </Column>
+            <Column field="message.body" header="Body"></Column>
+            <Column field="message.sent_time" header="Sent" class="w-0 whitespace-nowrap"></Column>
+          </DataTable>
+        </div>
+        <div v-if="selectedMessage" class="flex basis-1/2 flex-col overflow-auto border-t">
+          <div class="flex items-center justify-between">
+            Message #{{ selectedMessage?.message_delivery_id }}
+            <Button text size="small" icon="pi pi-times" @click="toggleMessage(undefined)"></Button>
+          </div>
+          <div class="overflow-auto whitespace-pre">
+            <div class="bg-gray-100 px-3 pb-3" v-html="highlightJson(selectedMessage)"></div>
+          </div>
+        </div>
+      </div>
     </template>
     <template v-else>
       <div class="mt-24 flex grow flex-col items-center">

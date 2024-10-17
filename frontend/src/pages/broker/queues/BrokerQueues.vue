@@ -2,7 +2,7 @@
 import { useBrokersQuery } from '@/api/brokers/brokersQuery'
 import { useSyncBrokerMutation } from '@/api/brokers/syncBrokerMutation'
 import { useUpdateBrokerMutation } from '@/api/brokers/updateBrokerMutation'
-import { usePaginatedQueuesQuery } from '@/api/queues/paginatedQueuesQuery'
+import { useQueuesQuery } from '@/api/queues/queuesQuery'
 import { useIdentity } from '@/composables/identityComposable'
 import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
 import { errorToToast } from '@/utils/errorUtils'
@@ -79,7 +79,7 @@ const changePage = (e: PageState) => {
   pageIndex.value = e.page
 }
 
-const { data: paginatedQueues, isPending } = usePaginatedQueuesQuery(
+const { data: paginatedQueues, isPending } = useQueuesQuery(
   computed(() => props.brokerId),
   pageIndex,
   computed(() => route.query.search?.toString()),
@@ -88,27 +88,14 @@ const { data: paginatedQueues, isPending } = usePaginatedQueuesQuery(
   computed(() => !!route.query.filtersReady)
 )
 
-const totalCountFrozen = ref(0)
-watch(
-  () => paginatedQueues.value,
-  (v) => {
-    if (v) {
-      totalCountFrozen.value = v?.totalCount
-    }
-  },
-  {
-    immediate: true
-  }
-)
-
-const { rabbitMqQueues } = useRabbitMqQueues(computed(() => paginatedQueues.value?.items))
+// const { rabbitMqQueues } = useRabbitMqQueues(computed(() => paginatedQueues.value?.items))
 
 const selectQueue = (data: any) => {
   router.push({
     name: 'messages',
     params: {
       brokerId: broker.value?.id,
-      queueId: data.id
+      queueId: data.queueName
     }
   })
 }
@@ -139,14 +126,6 @@ const updateSort = (e: DataTableSortEvent) => {
       sortOrder: e.sortOrder ? e.sortOrder : undefined
     }
   })
-}
-
-const getName = (name: string) => {
-  if (access.value?.settings.queueTrimPrefix && name.startsWith(access.value?.settings.queueTrimPrefix)) {
-    return name.slice(access.value?.settings.queueTrimPrefix.length)
-  }
-
-  return name
 }
 
 watchEffect(() => {
@@ -195,32 +174,42 @@ watchEffect(() => {
   <template v-if="isPending">
     <div class="p-5"><i class="pi pi-spinner pi-spin me-2"></i>Loading queues...</div>
   </template>
-  <template v-else-if="rabbitMqQueues.length">
+  <template v-else-if="paginatedQueues?.length">
     <DataTable
       scrollable
       data-key="id"
       scroll-height="flex"
-      :value="rabbitMqQueues"
+      :value="paginatedQueues"
       removable-sort
       class="grow overflow-auto"
       striped-rows
       :sort-field="route.query.sortField"
       :sort-order="route.query.sortOrder ? parseInt(route.query.sortOrder.toString()) : undefined"
       @sort="updateSort"
-      :lazy="true"
     >
-      <Column sortable field="parsed.name" header="Name" class="overflow-hidden overflow-ellipsis">
+      <Column sortable field="queue_name" header="Name" class="overflow-hidden overflow-ellipsis">
         <template #body="{ data }">
           <div
             @click="selectQueue(data)"
             class="w-0 overflow-ellipsis whitespace-nowrap hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
           >
-            {{ getName(data.parsed['name']) }}
+            {{ data['queueName'] }}
           </div>
         </template>
       </Column>
 
-      <Column sortable sort-field="totalMessages" field="parsed.messages" header="Messages" class="w-0">
+      <Column sortable field="queueAutoDelete" header="AutoDelete" class="w-[0]"></Column>
+      <Column sortable field="ready" header="Ready" class="w-[0]"></Column>
+      <Column sortable field="scheduled" header="Scheduled" class="w-[0]"></Column>
+      <Column sortable field="errored" header="Errored" class="w-[0]"></Column>
+      <Column sortable field="deadLettered" header="DeadLettered" class="w-[0]"></Column>
+      <Column sortable field="locked" header="Locked" class="w-[0]"></Column>
+      <Column sortable field="consumeCount" header="ConsumeCount" class="w-[0]"></Column>
+      <Column sortable field="errorCount" header="ErrorCount" class="w-[0]"></Column>
+      <Column sortable field="deadLetterCount" header="DeadLetterCount" class="w-[0]"></Column>
+      <Column sortable field="countDuration" header="CountDuration" class="w-[0]"></Column>
+
+      <!-- <Column sortable sort-field="totalMessages" field="parsed.messages" header="Messages" class="w-0">
         <template #body="{ data }">
           <div
             class="flex flex-nowrap items-center justify-start gap-3"
@@ -246,7 +235,7 @@ watchEffect(() => {
             <Tag v-show="data.parsed['durable']" v-tooltip.left="'Durable'">D</Tag>
           </div>
         </template>
-      </Column>
+      </Column> -->
     </DataTable>
   </template>
   <template v-else-if="route.query.search">
@@ -264,12 +253,4 @@ watchEffect(() => {
       <Button :loading="isPendingSyncBroker" @click="syncBroker" label="Sync" icon="pi pi-sync" class="mt-3"></Button>
     </div>
   </template>
-
-  <Paginator
-    class="mt-auto"
-    @page="changePage"
-    :rows="50"
-    :always-show="false"
-    :total-records="totalCountFrozen"
-  ></Paginator>
 </template>

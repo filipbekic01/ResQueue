@@ -1,8 +1,9 @@
 using System.Security.Claims;
+using Marten;
+using Marten.Patching;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using MongoDB.Driver;
 using ResQueue.Models;
 using Stripe;
 
@@ -15,7 +16,7 @@ public record CancelSubscriptionRequest(
 public record CancelSubscriptionResponse();
 
 public class CancelSubscriptionFeature(
-    IMongoCollection<User> usersCollection,
+    IDocumentSession documentSession,
     IOptions<Settings> settings,
     UserManager<User> userManager
 ) : ICancelSubscriptionFeature
@@ -46,7 +47,7 @@ public class CancelSubscriptionFeature(
         try
         {
             var stripeClient = new StripeClient(settings.Value.StripeSecret);
-            
+
             var subscription = await stripeClient.V1.Subscriptions.UpdateAsync(user.Subscription.StripeId,
                 new SubscriptionUpdateOptions
                 {
@@ -56,10 +57,10 @@ public class CancelSubscriptionFeature(
             user.Subscription.StripeStatus = subscription.Status;
             user.Subscription.EndsAt = subscription.CurrentPeriodEnd;
 
-            var filter = Builders<User>.Filter.Eq(q => q.Id, user.Id);
-            var update = Builders<User>.Update.Set(q => q.Subscription, user.Subscription);
+            documentSession.Patch<User>(user.Id)
+                .Set(x => x.Subscription, user.Subscription);
 
-            await usersCollection.UpdateOneAsync(filter, update);
+            await documentSession.SaveChangesAsync();
 
             return OperationResult<CancelSubscriptionResponse>.Success(new CancelSubscriptionResponse());
         }

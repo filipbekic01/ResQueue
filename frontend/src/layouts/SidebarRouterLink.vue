@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import rmqLogoUrl from '@/assets/rmq.svg'
+import pgLogoUrl from '@/assets/postgres.svg'
 import { useIdentity } from '@/composables/identityComposable'
 import { computed } from 'vue'
 import { useRoute, type RouteLocationAsRelativeGeneric } from 'vue-router'
@@ -69,15 +69,14 @@ const showWarning = computed(() => {
     ]"
   >
     <img
-      v-if="icon === 'pi pi-rabbitmq'"
-      :src="rmqLogoUrl"
+      v-if="icon === 'pi pi-postgres'"
+      :src="pgLogoUrl"
       style="width: 1.2rem"
       :class="[
         'rounded p-1',
         {
           'mr-3': !collapsed,
-          'bg-slate-900': isRoute(to),
-          'bg-slate-600': !isRoute(to)
+          'bg-slate-200': true
         }
       ]"
     />

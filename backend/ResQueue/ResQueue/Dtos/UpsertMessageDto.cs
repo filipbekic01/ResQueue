@@ -12,6 +12,4 @@ public class UpsertMessageDto
     ///  "json" or "base64"
     /// </summary>
     public string BodyEncoding { get; set; } = null!;
-
-    public RabbitmqUpsertMessageMetadataDto? RabbitmqMetadata { get; set; }
 }

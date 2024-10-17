@@ -7,7 +7,6 @@ using ResQueue.Features.Stripe.ChangePlan;
 using ResQueue.Features.Stripe.ContinueSubscription;
 using ResQueue.Features.Stripe.CreateSubscription;
 using ResQueue.Features.Stripe.EventHandler;
-using ResQueue.Features.Stripe.UpdateSeats;
 using ResQueue.Models;
 
 namespace ResQueue.Endpoints;
@@ -22,7 +21,7 @@ public static class StripeEndpoints
             async (UserManager<User> userManager, [FromBody] SubscribeDto dto, ICreateSubscriptionFeature feature,
                 HttpContext httpContext) =>
             {
-                var user = await userManager.GetUserAsync(httpContext.User);
+                var user = await userManager.FindByEmailAsync(httpContext.User.Identity.Name);
                 if (user == null)
                 {
                     return Results.Unauthorized();
@@ -34,7 +33,7 @@ public static class StripeEndpoints
                 }
 
                 var result = await feature.ExecuteAsync(new CreateSubscriptionRequest(
-                    UserId: user.Id.ToString(),
+                    UserId: user.Id,
                     new CreateSubscriptionDto(
                         CustomerEmail: user.Email!,
                         PaymentMethodId: dto.PaymentMethodId,
@@ -64,7 +63,7 @@ public static class StripeEndpoints
             async (UserManager<User> userManager, [FromBody] ChangeCardDto dto, IChangeCardFeature feature,
                 HttpContext httpContext) =>
             {
-                var user = await userManager.GetUserAsync(httpContext.User);
+                var user = await userManager.FindByEmailAsync(httpContext.User.Identity.Name);
                 if (user == null)
                 {
                     return Results.Unauthorized();
@@ -76,7 +75,7 @@ public static class StripeEndpoints
                 }
 
                 var result = await feature.ExecuteAsync(new ChangeCardRequest(
-                    UserId: user.Id.ToString(),
+                    UserId: user.Id,
                     new ChangeCardDto(
                         PaymentMethodId: dto.PaymentMethodId
                     )
@@ -111,26 +110,26 @@ public static class StripeEndpoints
                     : Results.Problem(result.Problem!);
             }).RequireAuthorization();
 
-        group.MapPost("update-seats", async (HttpContext httpContext,
-            IUpdateSeatsFeature updateSeatsFeature,
-            UpdateSeatsDto dto,
-            UserManager<User> userManager) =>
-        {
-            var user = await userManager.GetUserAsync(httpContext.User);
-            if (user == null)
-            {
-                return Results.Unauthorized();
-            }
-
-            var result = await updateSeatsFeature.ExecuteAsync(new(
-                user.Id.ToString(),
-                dto
-            ));
-
-            return result.IsSuccess
-                ? Results.Ok(result.Value)
-                : Results.Problem(result.Problem!);
-        });
+        // group.MapPost("update-seats", async (HttpContext httpContext,
+        //     IUpdateSeatsFeature updateSeatsFeature,
+        //     UpdateSeatsDto dto,
+        //     UserManager<User> userManager) =>
+        // {
+        //     var user = await userManager.FindByEmailAsync(httpContext.User.Identity.Name);
+        //     if (user == null)
+        //     {
+        //         return Results.Unauthorized();
+        //     }
+        //
+        //     var result = await updateSeatsFeature.ExecuteAsync(new(
+        //         user.Id,
+        //         dto
+        //     ));
+        //
+        //     return result.IsSuccess
+        //         ? Results.Ok(result.Value)
+        //         : Results.Problem(result.Problem!);
+        // });
 
         group.MapPost("event-handler", async (HttpContext httpContext, IEventHandlerFeature feature) =>
         {

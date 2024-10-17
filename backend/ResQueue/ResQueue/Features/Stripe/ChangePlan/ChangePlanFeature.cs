@@ -1,8 +1,9 @@
 using System.Security.Claims;
+using Marten;
+using Marten.Patching;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using MongoDB.Driver;
 using ResQueue.Constants;
 using ResQueue.Models;
 using Stripe;
@@ -17,7 +18,7 @@ public record ChangePlanResponse();
 
 public class ChangePlanFeature(
     UserManager<User> userManager,
-    IMongoCollection<User> usersCollection,
+    IDocumentSession documentSession,
     IOptions<Settings> settings
 ) : IChangePlanFeature
 {
@@ -107,12 +108,10 @@ public class ChangePlanFeature(
             user.Subscription.SubscriptionItem.StripeProduct = updatedSubscription.Items.First().Price.ProductId;
             user.Subscription.SubscriptionItem.UpdatedAt = dt;
 
-            var subscriptionUpdate = Builders<User>.Update
-                .Set(q => q.Subscription, user.Subscription);
+            var patch = documentSession.Patch<User>(user.Id);
+            patch.Set(x => x.Subscription, user.Subscription);
 
-            var filter = Builders<User>.Filter.Eq(q => q.Id, user.Id);
-
-            await usersCollection.UpdateOneAsync(filter, subscriptionUpdate);
+            await documentSession.SaveChangesAsync();
 
             return OperationResult<ChangePlanResponse>.Success(new ChangePlanResponse());
         }
