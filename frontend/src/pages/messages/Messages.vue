@@ -3,6 +3,7 @@ import { useBrokersQuery } from '@/api/brokers/brokersQuery'
 import { useMoveMessagesMutation } from '@/api/messages/moveMessagesMutation'
 import { usePaginatedMessagesQuery } from '@/api/messages/paginatedMessagesQuery'
 import { useRequeueMessagesMutation } from '@/api/messages/requeueMessagesMutation'
+import { useQueueTypesQuery } from '@/api/queues/queueTypesQuery'
 import eboxUrl from '@/assets/ebox.svg'
 import pgLogoUrl from '@/assets/postgres.svg'
 import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
@@ -16,7 +17,7 @@ import DataTable from 'primevue/datatable'
 import type { PageState } from 'primevue/paginator'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
-import { computed, ref } from 'vue'
+import { computed, ref, watch, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{
@@ -63,8 +64,36 @@ const toggleMessage = (msg?: MessageDeliveryDto) => {
   }
 }
 
-const selectedQueueType = ref('Active Messages')
-const queueTypeOptions = ['Active Messages', 'Errors Messages', 'Skipped Messages']
+// Queue types
+const selectedQueueType = ref<number>()
+const { data: queueTypes } = useQueueTypesQuery(props.queueId)
+const getQueueTypeLabel = (type: number) => {
+  if (type === 1) {
+    return 'Active Messages'
+  } else if (type === 2) {
+    return 'Error Messages'
+  } else if (type === 3) {
+    return 'Skipped Messages'
+  } else {
+    return 'Unknown'
+  }
+}
+const queueTypeOptions = computed(() =>
+  queueTypes.value
+    ? queueTypes.value.map((qt) => ({
+        label: getQueueTypeLabel(qt.type),
+        value: qt.id
+      }))
+    : []
+)
+
+watchEffect(() => {
+  if (queueTypes.value === undefined) {
+    return
+  }
+
+  selectedQueueType.value = queueTypes.value.find((x) => x.type == 1)?.id ?? undefined
+})
 
 // Selected messages
 const selectedMessageId = ref<number>(24)
@@ -172,16 +201,24 @@ const moveMessages = () => {
     <div class="flex flex-wrap items-start gap-2 border-b px-4 py-2">
       <Button @click="backToQueues" outlined label="Queues" icon="pi pi-arrow-left"></Button>
 
-      <ButtonGroup>
-        <Button outlined label="Requeue" icon="pi pi-sync"></Button>
-        <Button outlined label="Delete" icon="pi pi-trash"></Button>
-      </ButtonGroup>
+      <Button outlined :loading="isMoveMessagesPending" label="Move" @click="moveMessages" icon="pi pi-sync"></Button>
+      <Button
+        outlined
+        :loading="isRequeueMessagesPending"
+        label="Requeue"
+        @click="requeueMessages"
+        icon="pi pi-sync"
+      ></Button>
+      <!-- <Button outlined label="Delete" icon="pi pi-trash"></Button> -->
 
-      <ButtonGroup>
-        <Button outlined label="Retry " icon="pi pi-arrow-top"></Button>
-      </ButtonGroup>
-
-      <Select class="ms-auto" :allow-empty="false" v-model="selectedQueueType" :options="queueTypeOptions"></Select>
+      <Select
+        class="ms-auto"
+        option-label="label"
+        option-value="value"
+        :allow-empty="false"
+        v-model="selectedQueueType"
+        :options="queueTypeOptions"
+      ></Select>
       <!-- <Paginator
         class="ms-auto"
         @page="changePage"

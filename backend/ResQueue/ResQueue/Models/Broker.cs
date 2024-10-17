@@ -7,7 +7,6 @@ public class Broker
     public List<BrokerAccess> AccessList { get; set; } = [];
     public string System { get; set; } = null!;
     public string Name { get; set; } = null!;
-    public RabbitMQConnection? RabbitMQConnection { get; set; }
     public PostgresConnection? PostgresConnection { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }

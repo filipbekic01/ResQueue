@@ -9,7 +9,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Broker from '../pages/broker/Broker.vue'
 import ControlPanel from '../pages/control-panel/ControlPanel.vue'
 import Home from '../pages/home/Home.vue'
-import Message from '../pages/message/Message.vue'
 import Messages from '../pages/messages/Messages.vue'
 import Pricing from '../pages/pricing/Pricing.vue'
 import Support from '../pages/support/Support.vue'
@@ -88,12 +87,6 @@ const router = createRouter({
       name: 'messages',
       props: true,
       component: Messages
-    },
-    {
-      path: '/app/brokers/:brokerId/queues/:queueId/messages/:messageId',
-      name: 'message',
-      props: true,
-      component: Message
     }
   ]
 })

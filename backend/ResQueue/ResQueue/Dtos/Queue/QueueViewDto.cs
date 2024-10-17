@@ -1,6 +1,6 @@
 namespace ResQueue.Dtos;
 
-public class QueueDto
+public class QueueViewDto
 {
     public string QueueName { get; set; }
     public bool QueueAutoDelete { get; set; }

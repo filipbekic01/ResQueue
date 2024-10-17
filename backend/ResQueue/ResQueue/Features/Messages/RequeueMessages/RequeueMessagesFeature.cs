@@ -28,7 +28,7 @@ public class RequeueMessagesFeature : IRequeueMessagesFeature
         // parameters.Add("delay", request.Dto.Delay); 
         parameters.Add("redelivery_count", request.Dto.RedeliveryCount);
 
-        var result = await connection.ExecuteAsync("CALL requeue_messages()", parameters);
+        var result = await connection.ExecuteAsync("CALL transport.requeue_messages()", parameters);
 
         if (result > 0)
         {

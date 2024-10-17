@@ -8,6 +8,8 @@ using ResQueue.Features.Broker.AcceptBrokerInvitation;
 using ResQueue.Features.Broker.CreateBrokerInvitation;
 using ResQueue.Features.Broker.ManageBrokerAccess;
 using ResQueue.Features.Broker.UpdateBroker;
+using ResQueue.Features.Messages.MoveMessage;
+using ResQueue.Features.Messages.RequeueMessages;
 using ResQueue.Features.Stripe.CancelSubscription;
 using ResQueue.Features.Stripe.ChangeCard;
 using ResQueue.Features.Stripe.ChangePlan;
@@ -83,13 +85,8 @@ public class Program
         builder.Services.AddTransient<ICreateBrokerInvitationFeature, CreateBrokerInvitationFeature>();
         builder.Services.AddTransient<IAcceptBrokerInvitationFeature, AcceptBrokerInvitationFeature>();
 
-        // builder.Services.AddTransient<ISyncMessagesFeature, SyncMessagesFeature>();
-        // builder.Services.AddTransient<ICreateMessageFeature, CreateMessageFeature>();
-        // builder.Services.AddTransient<IPublishMessagesFeature, PublishMessagesFeature>();
-        // builder.Services.AddTransient<IArchiveMessagesFeature, ArchiveMessagesFeature>();
-        // builder.Services.AddTransient<ICloneMessageFeature, CloneMessageFeature>();
-        // builder.Services.AddTransient<IUpdateMessageFeature, UpdateMessageFeature>();
-        // builder.Services.AddTransient<IReviewMessagesFeature, ReviewMessagesFeature>();
+        builder.Services.AddTransient<IRequeueMessagesFeature, RequeueMessagesFeature>();
+        builder.Services.AddTransient<IMoveMessagesFeature, MoveMessagesFeature>();
 
         builder.Services.AddTransient<ICreateSubscriptionFeature, CreateSubscriptionFeature>();
         builder.Services.AddTransient<ICancelSubscriptionFeature, CancelSubscriptionFeature>();

@@ -112,44 +112,7 @@ public static class BrokerEndpoints
         //     }); // Do not add retry filter
 
         group.MapPost("/test-connection",
-            async (IHttpClientFactory httpClientFactory, [FromBody] CreateBrokerDto dto) =>
-            {
-                var broker = CreateBrokerDtoMapper.ToBroker(string.Empty, dto);
-
-                var httpClient = RabbitmqConnectionFactory.CreateManagementClient(httpClientFactory, broker);
-                try
-                {
-                    var response = await httpClient.GetAsync("api/whoami");
-                    response.EnsureSuccessStatusCode();
-                }
-                catch (Exception ex)
-                {
-                    return Results.Problem(new ProblemDetails
-                    {
-                        Title = "Connection to Management Endpoint Failed",
-                        Detail = $"Unable to connect to the RabbitMQ management endpoint. Error: {ex.Message}",
-                        Status = StatusCodes.Status400BadRequest,
-                    });
-                }
-
-                var factory = RabbitmqConnectionFactory.CreateAmqpFactory(broker);
-                try
-                {
-                    using var connection = factory.CreateConnection();
-                    using var channel = connection.CreateModel();
-                }
-                catch (Exception ex)
-                {
-                    return Results.Problem(new ProblemDetails
-                    {
-                        Title = "AMQP Connection Failed",
-                        Detail = $"Failed to establish a connection to the RabbitMQ AMQP endpoint. Error: {ex.Message}",
-                        Status = StatusCodes.Status400BadRequest,
-                    });
-                }
-
-                return Results.Ok();
-            });
+            async (IHttpClientFactory httpClientFactory, [FromBody] CreateBrokerDto dto) => { return Results.BadRequest(); });
 
         group.MapPost("/access",
             async ([FromBody] ManageBrokerAccessDto dto,

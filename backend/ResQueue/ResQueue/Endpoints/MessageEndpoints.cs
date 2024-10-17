@@ -55,6 +55,7 @@ public static class MessageEndpoints
                                 FROM transport.message m
                                 JOIN transport.message_delivery md ON m.transport_message_id = md.transport_message_id
                                 WHERE md.transport_message_id IS NOT NULL
+                                    AND md.queue_id = @QueueId
                                 ORDER BY md.enqueue_time ASC
                                 LIMIT @PageSize OFFSET @Offset";
 
@@ -68,7 +69,7 @@ public static class MessageEndpoints
                             messageDelivery.message = message;
                             return messageDelivery;
                         },
-                        new { PageSize = pageSize, Offset = offset },
+                        new { PageSize = pageSize, Offset = offset, QueueId = queueId },
                         splitOn: "message_delivery_id"
                     ).ToList();
 

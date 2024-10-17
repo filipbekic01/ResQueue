@@ -58,21 +58,18 @@ public class UpdateBrokerFeature(
             .Any(x => x.UserId == user.Id &&
                       x.AccessLevel is AccessLevel.Owner or AccessLevel.Manager))
         {
-            if (request.Dto.RabbitMqConnection is { } rabbitMqConnection)
+            if (request.Dto.PostgresConnection is { } postgresConnection)
             {
-                if (!string.IsNullOrEmpty(rabbitMqConnection.Username) &&
-                    !string.IsNullOrEmpty(rabbitMqConnection.Password))
+                if (!string.IsNullOrEmpty(postgresConnection.Username) &&
+                    !string.IsNullOrEmpty(postgresConnection.Password))
                 {
-                    patch.Set(b => b.RabbitMQConnection!.Username, rabbitMqConnection.Username);
-                    patch.Set(b => b.RabbitMQConnection!.Password, rabbitMqConnection.Password);
+                    patch.Set(b => b.PostgresConnection!.Username, postgresConnection.Username);
+                    patch.Set(b => b.PostgresConnection!.Password, postgresConnection.Password);
                 }
 
-                patch.Set(b => b.RabbitMQConnection!.ManagementPort, rabbitMqConnection.ManagementPort);
-                patch.Set(b => b.RabbitMQConnection!.ManagementTls, rabbitMqConnection.ManagementTls);
-                patch.Set(b => b.RabbitMQConnection!.AmqpPort, rabbitMqConnection.AmqpPort);
-                patch.Set(b => b.RabbitMQConnection!.AmqpTls, rabbitMqConnection.AmqpTls);
-                patch.Set(b => b.RabbitMQConnection!.Host, rabbitMqConnection.Host);
-                patch.Set(b => b.RabbitMQConnection!.VHost, rabbitMqConnection.VHost);
+                patch.Set(b => b.PostgresConnection!.Host, postgresConnection.Host);
+                patch.Set(b => b.PostgresConnection!.Database, postgresConnection.Database);
+                patch.Set(b => b.PostgresConnection!.Port, postgresConnection.Port);
             }
         }
 

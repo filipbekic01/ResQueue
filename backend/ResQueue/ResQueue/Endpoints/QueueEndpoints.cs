@@ -79,5 +79,26 @@ public static class QueueEndpoints
                     }).ToList());
                 }
             });
+
+        group.MapGet("types",
+            async (IDocumentSession documentSession,
+                UserManager<User> userManager, HttpContext httpContext, [FromQuery] string queueName) =>
+            {
+                using (var connection =
+                       new NpgsqlConnection(
+                           "host=localhost;port=5432;database=sandbox1;username=postgres;password=postgres;"))
+                {
+                    var sql = $"SELECT * FROM transport.queue WHERE name = @QueueName";
+                    var queues = await connection.QueryAsync<Queue>(sql, new { QueueName = queueName });
+
+                    return Results.Ok(queues.Select(x => new QueueDto(
+                        Id: x.id,
+                        Name: x.name,
+                        Updated: x.updated,
+                        Type: x.type,
+                        AutoDelete: x.auto_delete
+                    )).ToList());
+                }
+            });
     }
 }

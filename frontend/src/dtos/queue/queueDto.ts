@@ -1,8 +1,7 @@
 export interface QueueDto {
-  id: string
-  rawData: string
-  createdAt: string
-  isFavorite: boolean
-  totalMessages: number
-  messages: number
+  id: number
+  name: string
+  updated: string
+  type: number
+  autoDelete: boolean
 }

@@ -4,15 +4,14 @@ import { useSyncBrokerMutation } from '@/api/brokers/syncBrokerMutation'
 import { useUpdateBrokerMutation } from '@/api/brokers/updateBrokerMutation'
 import { useQueuesQuery } from '@/api/queues/queuesQuery'
 import { useIdentity } from '@/composables/identityComposable'
-import { useRabbitMqQueues } from '@/composables/rabbitMqQueuesComposable'
 import { errorToToast } from '@/utils/errorUtils'
 import Button from 'primevue/button'
 import Column from 'primevue/column'
 import DataTable, { type DataTableSortEvent } from 'primevue/datatable'
-import Paginator, { type PageState } from 'primevue/paginator'
+import { type PageState } from 'primevue/paginator'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
-import { computed, ref, watch, watchEffect } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps<{
@@ -208,34 +207,6 @@ watchEffect(() => {
       <Column sortable field="errorCount" header="ErrorCount" class="w-[0]"></Column>
       <Column sortable field="deadLetterCount" header="DeadLetterCount" class="w-[0]"></Column>
       <Column sortable field="countDuration" header="CountDuration" class="w-[0]"></Column>
-
-      <!-- <Column sortable sort-field="totalMessages" field="parsed.messages" header="Messages" class="w-0">
-        <template #body="{ data }">
-          <div
-            class="flex flex-nowrap items-center justify-start gap-3"
-            v-tooltip.left="`${data.parsed['consumers']} consumers`"
-          >
-            {{ data.parsed['messages'] }}
-            <div class="ms-auto flex items-center whitespace-nowrap">
-              ({{ data.messages }} <i class="pi pi-inbox ms-2"></i>)
-            </div>
-          </div>
-        </template>
-      </Column>
-
-      <Column field="parsed.type" header="Type" class="w-0">
-        <template #body="{ data }">
-          <Tag>{{ data.parsed['type'] }}</Tag>
-        </template>
-      </Column>
-
-      <Column field="parsed.features" header="Features" class="w-0">
-        <template #body="{ data }">
-          <div class="flex justify-center">
-            <Tag v-show="data.parsed['durable']" v-tooltip.left="'Durable'">D</Tag>
-          </div>
-        </template>
-      </Column> -->
     </DataTable>
   </template>
   <template v-else-if="route.query.search">

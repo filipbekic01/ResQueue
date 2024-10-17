@@ -1,13 +1,5 @@
 <script lang="ts" setup>
-import { useExchanges } from '@/composables/exchangesComposable'
 import Message from 'primevue/message'
-import { computed } from 'vue'
-
-const props = defineProps<{
-  brokerId: string
-}>()
-
-const { formattedExchanges } = useExchanges(computed(() => props.brokerId))
 </script>
 
 <template>
@@ -17,7 +9,6 @@ const { formattedExchanges } = useExchanges(computed(() => props.brokerId))
       broker topology will be included in a future ResQueue release.</Message
     >
     <DataTable
-      :value="formattedExchanges"
       scrollable
       scroll-height="flex"
       class="grow border-t"

@@ -14,16 +14,6 @@
     </Target>
 
     <ItemGroup>
-        <Compile Remove="Features\Messages\ArchiveMessages\**\*.cs"/>
-        <Compile Remove="Features\Messages\CloneMessage\**\*.cs"/>
-        <Compile Remove="Features\Messages\CreateMessage\**\*.cs"/>
-        <Compile Remove="Features\Messages\UpdateMessage\**\*.cs"/>
-        <Compile Remove="Features\Messages\PublishMessages\**\*.cs"/>
-        <Compile Remove="Features\Messages\ReviewMessages\**\*.cs"/>
-        <Compile Remove="Features\Messages\SyncMessages\**\*.cs"/>
-
-        <Compile Remove="Features\Broker\SyncBroker\**\*.cs"/>
-
         <Compile Remove="Features\Stripe\UpdateSeats\**\*.cs"/>
     </ItemGroup>
 </Project>

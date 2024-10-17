@@ -27,7 +27,7 @@ public class MoveMessagesFeature : IMoveMessagesFeature
         parameters.Add("queue_name", request.Dto.QueueName);
         parameters.Add("queue_type", request.Dto.QueueType);
 
-        var result = await connection.ExecuteAsync("CALL requeue_messages()", parameters);
+        var result = await connection.ExecuteAsync("CALL transport.requeue_messages()", parameters);
 
         if (result > 0)
         {
