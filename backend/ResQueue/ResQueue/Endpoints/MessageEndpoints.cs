@@ -22,7 +22,7 @@ public static class MessageEndpoints
         group.MapGet("paginated",
             async (IDocumentSession documentSession,
                 UserManager<User> userManager, HttpContext httpContext,
-                [FromQuery] string brokerId, [FromQuery] string queueId, [FromQuery] int pageIndex = 0,
+                [FromQuery] string brokerId, [FromQuery] long queueId, [FromQuery] int pageIndex = 0,
                 int pageSize = 4) =>
             {
                 // Validate filters
@@ -56,11 +56,14 @@ public static class MessageEndpoints
                                 JOIN transport.message_delivery md ON m.transport_message_id = md.transport_message_id
                                 WHERE md.transport_message_id IS NOT NULL
                                     AND md.queue_id = @QueueId
-                                ORDER BY md.enqueue_time ASC
+                                ORDER BY md.transport_message_id 
                                 LIMIT @PageSize OFFSET @Offset";
 
-                    var sqlCount = @"SELECT COUNT(*) FROM transport.message";
-                    var total = await db.ExecuteScalarAsync<int>(sqlCount);
+                    var sqlCount = @"SELECT COUNT(*) FROM transport.message_delivery where queue_id = @QueueId";
+                    var total = await db.ExecuteScalarAsync<int>(sqlCount, new
+                    {
+                        QueueId = queueId
+                    });
 
                     var messages = db.Query<Message, MessageDelivery, MessageDelivery>(
                         sql,

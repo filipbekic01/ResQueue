@@ -7,7 +7,7 @@ import { computed, toValue, type MaybeRef } from 'vue'
 
 export const usePaginatedMessagesQuery = (
   brokerId: MaybeRef<string | undefined>,
-  queueId: MaybeRef<string | undefined>,
+  queueId: MaybeRef<number | undefined>,
   pageIndex: MaybeRef<number>
 ) =>
   useQuery({
@@ -26,4 +26,5 @@ export const usePaginatedMessagesQuery = (
       return response.data
     },
     enabled: computed(() => !!toValue(brokerId) && !!toValue(queueId))
+    // refetchInterval: 3000
   })

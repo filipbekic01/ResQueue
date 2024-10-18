@@ -15,20 +15,12 @@ public class RequeueMessagesFeature : IRequeueMessagesFeature
 {
     public async Task<OperationResult<RequeueMessagesResponse>> ExecuteAsync(RequeueMessagesRequest request)
     {
-        using var connection =
+        await using var connection =
             new NpgsqlConnection("host=localhost;port=5432;database=sandbox1;username=postgres;password=postgres;");
 
         await connection.OpenAsync();
 
-        var parameters = new DynamicParameters();
-        parameters.Add("queue_name", request.Dto.QueueName);
-        parameters.Add("source_queue_type", request.Dto.SourceQueueType);
-        parameters.Add("target_queue_type", request.Dto.TargetQueueType);
-        parameters.Add("message_count", request.Dto.MessageCount);
-        // parameters.Add("delay", request.Dto.Delay); 
-        parameters.Add("redelivery_count", request.Dto.RedeliveryCount);
-
-        var result = await connection.ExecuteAsync("CALL transport.requeue_messages()", parameters);
+        var result = await CallRoutineAsync(request, connection);
 
         if (result > 0)
         {
@@ -41,5 +33,21 @@ public class RequeueMessagesFeature : IRequeueMessagesFeature
             Detail = "You can't adjust your own permission settings.",
             Status = StatusCodes.Status403Forbidden
         });
+    }
+
+    private static async Task<int?> CallRoutineAsync(RequeueMessagesRequest request, NpgsqlConnection connection)
+    {
+        var parameters = new DynamicParameters();
+        parameters.Add("queue_name", request.Dto.QueueName);
+        parameters.Add("source_queue_type", request.Dto.SourceQueueType);
+        parameters.Add("target_queue_type", request.Dto.TargetQueueType);
+        parameters.Add("message_count", request.Dto.MessageCount);
+        parameters.Add("delay", request.Dto.Delay);
+        parameters.Add("redelivery_count", request.Dto.RedeliveryCount);
+
+        return await connection.QuerySingleAsync<int?>(
+            "SELECT transport.requeue_messages(@queue_name, @source_queue_type, @target_queue_type, @message_count, @delay::interval, @redelivery_count)",
+            parameters
+        );
     }
 }

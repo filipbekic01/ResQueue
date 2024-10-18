@@ -1,14 +1,11 @@
 <script lang="ts" setup>
 import { useBrokersQuery } from '@/api/brokers/brokersQuery'
-import { useSyncBrokerMutation } from '@/api/brokers/syncBrokerMutation'
 import { useUpdateBrokerMutation } from '@/api/brokers/updateBrokerMutation'
-import { useQueuesQuery } from '@/api/queues/queuesQuery'
+import { useQueuesViewQuery } from '@/api/queues/queuesViewQuery'
 import { useIdentity } from '@/composables/identityComposable'
 import { errorToToast } from '@/utils/errorUtils'
-import Button from 'primevue/button'
 import Column from 'primevue/column'
 import DataTable, { type DataTableSortEvent } from 'primevue/datatable'
-import { type PageState } from 'primevue/paginator'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref, watchEffect } from 'vue'
@@ -30,71 +27,19 @@ const {
 const { data: brokers } = useBrokersQuery()
 const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
 const access = computed(() => broker.value?.accessList.find((x) => x.userId == user.value?.id))
-const { mutateAsync: syncBrokerAsync, isPending: isPendingSyncBroker } = useSyncBrokerMutation()
 
 const { mutateAsync: updateBrokerAsync } = useUpdateBrokerMutation()
 
-const syncBroker = () => {
-  if (!user.value?.settings.showSyncConfirmDialogs) {
-    syncBrokerRequest()
-    return
-  }
-
-  confirm.require({
-    message: 'Do you really want to sync with remote broker? You can turn off this dialog on dashboard.',
-    icon: 'pi pi-info-circle',
-    header: 'Sync Broker',
-    rejectProps: {
-      label: 'Cancel',
-      severity: 'secondary',
-      outlined: true
-    },
-    acceptProps: {
-      label: 'Sync Broker',
-      severity: ''
-    },
-    accept: () => syncBrokerRequest(),
-    reject: () => {}
-  })
-}
-
-const syncBrokerRequest = () => {
-  if (!broker.value) {
-    return
-  }
-
-  syncBrokerAsync(broker.value?.id).then(() => {
-    toast.add({
-      severity: 'success',
-      summary: 'Sync Completed!',
-      detail: `Broker ${broker.value?.name} synced!`,
-      life: 3000
-    })
-  })
-}
-
 const pageIndex = ref(0)
-const changePage = (e: PageState) => {
-  pageIndex.value = e.page
-}
 
-const { data: paginatedQueues, isPending } = useQueuesQuery(
-  computed(() => props.brokerId),
-  pageIndex,
-  computed(() => route.query.search?.toString()),
-  computed(() => route.query.sortField?.toString()),
-  computed(() => route.query.sortOrder?.toString()),
-  computed(() => !!route.query.filtersReady)
-)
-
-// const { rabbitMqQueues } = useRabbitMqQueues(computed(() => paginatedQueues.value?.items))
+const { data: queuesView, isPending } = useQueuesViewQuery(computed(() => props.brokerId))
 
 const selectQueue = (data: any) => {
   router.push({
     name: 'messages',
     params: {
       brokerId: broker.value?.id,
-      queueId: data.queueName
+      queueName: data.queueName
     }
   })
 }
@@ -173,12 +118,12 @@ watchEffect(() => {
   <template v-if="isPending">
     <div class="p-5"><i class="pi pi-spinner pi-spin me-2"></i>Loading queues...</div>
   </template>
-  <template v-else-if="paginatedQueues?.length">
+  <template v-else-if="queuesView?.length">
     <DataTable
       scrollable
       data-key="id"
       scroll-height="flex"
-      :value="paginatedQueues"
+      :value="queuesView"
       removable-sort
       class="grow overflow-auto"
       striped-rows
@@ -214,14 +159,6 @@ watchEffect(() => {
       <i class="pi pi-filter-slash pb-6 opacity-25" style="font-size: 2rem"></i>
       <div class="text-lg">No Results</div>
       <div class="">No queues found for given filters</div>
-    </div>
-  </template>
-  <template v-else>
-    <div class="mt-24 flex grow flex-col items-center">
-      <i class="pi pi-arrow-right-arrow-left pb-6 opacity-25" style="font-size: 2rem"></i>
-      <div class="text-lg">No Queues</div>
-      <div class="">Make sure you sync the broker</div>
-      <Button :loading="isPendingSyncBroker" @click="syncBroker" label="Sync" icon="pi pi-sync" class="mt-3"></Button>
     </div>
   </template>
 </template>

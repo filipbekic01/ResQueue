@@ -10,8 +10,8 @@ public class MessageDelivery
     public DateTime expiration_time { get; set; }
     public string partition_key { get; set; }
     public string routing_key { get; set; }
-    public Guid consumer_id { get; set; }
-    public Guid lock_id { get; set; }
+    public Guid? consumer_id { get; set; }
+    public Guid? lock_id { get; set; }
     public int delivery_count { get; set; }
     public int max_delivery_count { get; set; }
     public DateTime last_delivered { get; set; }

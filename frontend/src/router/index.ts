@@ -83,7 +83,7 @@ const router = createRouter({
       ]
     },
     {
-      path: '/app/brokers/:brokerId/queues/:queueId/messages',
+      path: '/app/brokers/:brokerId/queues/:queueName/messages',
       name: 'messages',
       props: true,
       component: Messages

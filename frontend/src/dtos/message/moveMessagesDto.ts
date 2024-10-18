@@ -1,5 +1,11 @@
 export interface MoveMessagesDto {
-  messageDeliveryId: number[]
+  messages: MoveMessageDeliveryDto[]
   queueName: string
   queueType: number
+}
+
+interface MoveMessageDeliveryDto {
+  messageDeliveryId: number
+  lockId: string
+  headers: string
 }

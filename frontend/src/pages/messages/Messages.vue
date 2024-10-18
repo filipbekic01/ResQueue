@@ -3,7 +3,8 @@ import { useBrokersQuery } from '@/api/brokers/brokersQuery'
 import { useMoveMessagesMutation } from '@/api/messages/moveMessagesMutation'
 import { usePaginatedMessagesQuery } from '@/api/messages/paginatedMessagesQuery'
 import { useRequeueMessagesMutation } from '@/api/messages/requeueMessagesMutation'
-import { useQueueTypesQuery } from '@/api/queues/queueTypesQuery'
+import { useQueuesQuery } from '@/api/queues/queuesQuery'
+import { useQueuesViewQuery } from '@/api/queues/queuesViewQuery'
 import eboxUrl from '@/assets/ebox.svg'
 import pgLogoUrl from '@/assets/postgres.svg'
 import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
@@ -14,7 +15,8 @@ import { highlightJson } from '@/utils/jsonUtils'
 import Button from 'primevue/button'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
-import type { PageState } from 'primevue/paginator'
+import InputNumber from 'primevue/inputnumber'
+import InputText from 'primevue/inputtext'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref, watch, watchEffect } from 'vue'
@@ -22,24 +24,15 @@ import { useRouter } from 'vue-router'
 
 const props = defineProps<{
   brokerId: string
-  queueId: string
+  queueName: string
 }>()
 
+// Utils
 const router = useRouter()
 const confirm = useConfirm()
 const toast = useToast()
 
 const pageIndex = ref(0)
-
-const { data: brokers } = useBrokersQuery()
-
-const { data: paginatedMessages, isPending } = usePaginatedMessagesQuery(
-  computed(() => props.brokerId),
-  computed(() => props.queueId),
-  pageIndex
-)
-
-const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
 
 const backToQueues = () => {
   router.push({
@@ -50,24 +43,20 @@ const backToQueues = () => {
   })
 }
 
-const changePage = (e: PageState) => {
-  pageIndex.value = e.page
-}
+// Broker
+const { data: brokers } = useBrokersQuery()
+const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
 
-const toggleMessage = (msg?: MessageDeliveryDto) => {
-  if (!msg) {
-    selectedMessageId.value = 0
-  } else if (selectedMessageId.value === msg.message_delivery_id) {
-    selectedMessageId.value = 0
-  } else {
-    selectedMessageId.value = msg.message_delivery_id
-  }
-}
+// Queues View
+const { data: queuesView } = useQueuesViewQuery(computed(() => props.brokerId))
 
-// Queue types
-const selectedQueueType = ref<number>()
-const { data: queueTypes } = useQueueTypesQuery(props.queueId)
-const getQueueTypeLabel = (type: number) => {
+// Queues
+const { data: queues } = useQueuesQuery(props.queueName)
+
+const selectedQueueId = ref<number>()
+const selectedQueue = computed(() => queues.value?.find((x) => x.id === selectedQueueId.value))
+
+const getQueueName = (type: number) => {
   if (type === 1) {
     return 'Active Messages'
   } else if (type === 2) {
@@ -78,22 +67,44 @@ const getQueueTypeLabel = (type: number) => {
     return 'Unknown'
   }
 }
-const queueTypeOptions = computed(() =>
-  queueTypes.value
-    ? queueTypes.value.map((qt) => ({
-        label: getQueueTypeLabel(qt.type),
-        value: qt.id
-      }))
-    : []
-)
+
+const queueOptions = computed(() => {
+  if (!queues.value) {
+    return []
+  }
+
+  return [...queues.value]
+    .sort((a, b) => a.type - b.type)
+    .map((qt) => ({
+      label: getQueueName(qt.type),
+      value: qt.id
+    }))
+})
 
 watchEffect(() => {
-  if (queueTypes.value === undefined) {
+  if (!queueOptions.value.length) {
     return
   }
 
-  selectedQueueType.value = queueTypes.value.find((x) => x.type == 1)?.id ?? undefined
+  selectedQueueId.value = queueOptions.value.find((x) => x)?.value ?? undefined
 })
+
+// Messages
+const { data: paginatedMessages, isPending } = usePaginatedMessagesQuery(
+  computed(() => props.brokerId),
+  computed(() => selectedQueueId.value),
+  pageIndex
+)
+
+const toggleMessage = (msg?: MessageDeliveryDto) => {
+  if (!msg) {
+    selectedMessageId.value = 0
+  } else if (selectedMessageId.value === msg.message_delivery_id) {
+    selectedMessageId.value = 0
+  } else {
+    selectedMessageId.value = msg.message_delivery_id
+  }
+}
 
 // Selected messages
 const selectedMessageId = ref<number>(24)
@@ -108,6 +119,20 @@ const selectedMessageIds = computed(() =>
 
 // Requeue messages
 const { mutateAsync: requeueMessagesAsync, isPending: isRequeueMessagesPending } = useRequeueMessagesMutation()
+
+const requeuePopover = ref()
+
+const requeueMessageCount = ref(0)
+const requeueRedeliveryCount = ref(10)
+const requeueDelay = ref('0 seconds')
+const requeueTargetQueueId = ref<number>()
+const requeueTargetQueue = computed(() => queues.value?.find((x) => x.id === requeueTargetQueueId.value))
+const requeueTargetQueueOptions = computed(() => queueOptions.value.filter((x) => x.value !== selectedQueue.value?.id))
+
+watchEffect(() => {
+  requeueTargetQueueId.value = requeueTargetQueueOptions.value.find((x) => x)?.value
+})
+
 const requeueMessages = () => {
   confirm.require({
     header: 'Requeue Messages',
@@ -123,16 +148,21 @@ const requeueMessages = () => {
       severity: ''
     },
     accept: () => {
+      if (!selectedQueue.value || !requeueTargetQueue.value) {
+        return
+      }
+
       requeueMessagesAsync({
-        messageCount: 1,
-        queueName: props.queueId,
-        redeliveryCoun: 10,
-        sourceQueueType: 1,
-        targetQueueType: 2
+        queueName: selectedQueue.value.name,
+        sourceQueueType: selectedQueue.value.type,
+        targetQueueType: requeueTargetQueue.value?.type,
+        messageCount: requeueMessageCount.value,
+        redeliveryCount: requeueRedeliveryCount.value,
+        delay: requeueDelay.value
       })
         .then(() => {
           toast.add({
-            severity: 'info',
+            severity: 'success',
             summary: 'Requeue Completed',
             detail: `Messages requeued to destination.`,
             life: 3000
@@ -146,6 +176,38 @@ const requeueMessages = () => {
 
 // Move messages
 const { mutateAsync: moveMessagesAsync, isPending: isMoveMessagesPending } = useMoveMessagesMutation()
+
+const movePopover = ref()
+
+const moveQueueViewQueueName = ref(props.queueName)
+const { data: moveQueues } = useQueuesQuery(moveQueueViewQueueName.value)
+const moveQueueId = ref<number>()
+const moveQueue = computed(() => moveQueues.value?.find((x) => x.id === moveQueueId.value))
+const moveTransactional = ref(false)
+
+watchEffect(() => {
+  const sortedQueues = [...(moveQueues.value ?? [])].sort((a, b) => a.type - b.type)
+
+  if (moveQueueViewQueueName.value === props.queueName) {
+    moveQueueId.value = sortedQueues.filter((x) => x.type !== selectedQueue.value?.type).find((x) => x)?.id
+  } else {
+    moveQueueId.value = sortedQueues.find((x) => x)?.id
+  }
+})
+
+const moveQueueOptions = computed(() => {
+  if (!moveQueues.value) {
+    return []
+  }
+
+  return [...moveQueues.value]
+    .sort((a, b) => a.type - b.type)
+    .map((qt) => ({
+      label: getQueueName(qt.type),
+      value: qt.id
+    }))
+})
+
 const moveMessages = () => {
   confirm.require({
     header: 'Move Messages',
@@ -161,16 +223,31 @@ const moveMessages = () => {
       severity: ''
     },
     accept: () => {
+      if (
+        !moveQueue.value ||
+        !moveQueueViewQueueName.value ||
+        !selectedMessages.value ||
+        !selectedMessages.value.length
+      ) {
+        return
+      }
+
+      const messagesCount = selectedMessages.value.length
+
       moveMessagesAsync({
-        queueName: props.queueId,
-        queueType: 1,
-        messageDeliveryId: selectedMessageIds.value
+        queueName: moveQueueViewQueueName.value,
+        queueType: moveQueue.value.type,
+        messages: selectedMessages.value.map((msg) => ({
+          messageDeliveryId: msg.message_delivery_id,
+          lockId: msg.lock_id,
+          headers: msg.transport_headers
+        }))
       })
-        .then(() => {
+        .then((resp) => {
           toast.add({
             severity: 'info',
-            summary: 'Move completed',
-            detail: `Message move to destination.`,
+            summary: 'Move Completed',
+            detail: `Moved ${resp.succeededCount}/${messagesCount} to destination.`,
             life: 3000
           })
         })
@@ -194,21 +271,85 @@ const moveMessages = () => {
     <template #title>
       <span class="cursor-pointer hover:underline" @click="backToQueues">{{ broker?.name }}</span>
     </template>
-    <template #description>Queue: {{ props.queueId }}</template>
+    <template #description>Queue: {{ props.queueName }}</template>
     <template #append>
       <Avatars v-if="broker" :user-ids="broker.accessList.map((x) => x.userId)" />
     </template>
     <div class="flex flex-wrap items-start gap-2 border-b px-4 py-2">
       <Button @click="backToQueues" outlined label="Queues" icon="pi pi-arrow-left"></Button>
 
-      <Button outlined :loading="isMoveMessagesPending" label="Move" @click="moveMessages" icon="pi pi-sync"></Button>
+      <!-- <Button
+        outlined
+        :loading="isMoveMessagesPending"
+        label="Move"
+        @click="(e) => movePopover.toggle(e)"
+        icon="pi pi-sync"
+      ></Button>
+      <Popover ref="movePopover" class="w-72">
+        <div class="flex flex-col gap-3">
+          <div class="flex flex-col gap-1">
+            <label>Target queue</label>
+            <Select
+              filter
+              v-model="moveQueueViewQueueName"
+              :options="queuesView"
+              option-label="queueName"
+              option-value="queueName"
+            ></Select>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label>Target queue type</label>
+            <Select
+              v-model="moveQueueId"
+              :options="moveQueueOptions"
+              option-label="label"
+              option-value="value"
+            ></Select>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <Checkbox v-model="moveTransactional" binary />
+            <label>In transaction</label>
+          </div>
+
+          <Button @click="moveMessages" icon="pi pi-arrow-right" icon-pos="right" label="Move"></Button>
+        </div>
+      </Popover> -->
+
       <Button
         outlined
         :loading="isRequeueMessagesPending"
         label="Requeue"
-        @click="requeueMessages"
+        @click="(e) => requeuePopover.toggle(e)"
         icon="pi pi-sync"
       ></Button>
+      <Popover ref="requeuePopover" class="w-72">
+        <div class="flex flex-col gap-3">
+          <div class="flex flex-col gap-1">
+            <label>Target queue</label>
+            <Select
+              v-model="requeueTargetQueueId"
+              :options="requeueTargetQueueOptions"
+              option-label="label"
+              option-value="value"
+            ></Select>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label>Message count</label>
+            <InputNumber name="requeueMessageCount" v-model="requeueMessageCount"></InputNumber>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label>Delay (Postgres interval)</label>
+            <InputText v-model="requeueDelay"></InputText>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label>Redelivery count (default 10)</label>
+            <InputNumber v-model="requeueRedeliveryCount"></InputNumber>
+          </div>
+
+          <Button @click="requeueMessages" icon="pi pi-arrow-right" icon-pos="right" label="Requeue"></Button>
+        </div>
+      </Popover>
       <!-- <Button outlined label="Delete" icon="pi pi-trash"></Button> -->
 
       <Select
@@ -216,8 +357,8 @@ const moveMessages = () => {
         option-label="label"
         option-value="value"
         :allow-empty="false"
-        v-model="selectedQueueType"
-        :options="queueTypeOptions"
+        v-model="selectedQueueId"
+        :options="queueOptions"
       ></Select>
       <!-- <Paginator
         class="ms-auto"

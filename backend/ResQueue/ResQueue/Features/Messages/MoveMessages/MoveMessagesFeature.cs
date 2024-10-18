@@ -10,35 +10,57 @@ public record MoveMessagesRequest(
     MoveMessagesDto Dto
 );
 
-public record MoveMessagesResponse();
+public record MoveMessagesResponse(
+    int SucceededCount
+);
 
 public class MoveMessagesFeature : IMoveMessagesFeature
 {
     public async Task<OperationResult<MoveMessagesResponse>> ExecuteAsync(MoveMessagesRequest request)
     {
-        using var connection =
+        await using var connection =
             new NpgsqlConnection("host=localhost;port=5432;database=sandbox1;username=postgres;password=postgres;");
 
         await connection.OpenAsync();
 
-        var parameters = new DynamicParameters();
-        parameters.Add("message_delivery_id", request.Dto.MessageDeliveryId);
-        parameters.Add("lock_id", NewId.NextGuid());
-        parameters.Add("queue_name", request.Dto.QueueName);
-        parameters.Add("queue_type", request.Dto.QueueType);
-
-        var result = await connection.ExecuteAsync("CALL transport.requeue_messages()", parameters);
-
-        if (result > 0)
+        if (request.Dto.Transactional)
         {
-            return OperationResult<MoveMessagesResponse>.Success(new MoveMessagesResponse());
+            await using var transaction = await connection.BeginTransactionAsync();
+
+            foreach (var message in request.Dto.Messages)
+            {
+                await CallRoutine(request, message, connection);
+            }
+
+            await transaction.CommitAsync();
+
+            return OperationResult<MoveMessagesResponse>.Success(new MoveMessagesResponse(request.Dto.Messages.Length));
         }
 
-        return OperationResult<MoveMessagesResponse>.Failure(new ProblemDetails
+        var succeededCount = 0;
+        foreach (var message in request.Dto.Messages)
         {
-            Title = "Forbidden",
-            Detail = "You can't adjust your own permission settings.",
-            Status = StatusCodes.Status403Forbidden
-        });
+            if (await CallRoutine(request, message, connection) > 0)
+            {
+                succeededCount++;
+            }
+        }
+
+        return OperationResult<MoveMessagesResponse>.Success(new MoveMessagesResponse(succeededCount));
+    }
+
+    private static async Task<int?> CallRoutine(MoveMessagesRequest request, MoveMessageDeliveryDto message,
+        NpgsqlConnection connection)
+    {
+        var parameters = new DynamicParameters();
+        parameters.Add("message_delivery_id", message.MessageDeliveryId);
+        parameters.Add("queue_name", request.Dto.QueueName);
+        parameters.Add("queue_type", request.Dto.QueueType);
+        parameters.Add("headers", message.Headers);
+        parameters.Add("lock_id", message.LockId);
+
+        return await connection.QuerySingleAsync<int?>(
+            $"SELECT transport.move_message(@message_delivery_id, @lock_id::uuid, @queue_name, @queue_type, @headers::jsonb)",
+            parameters);
     }
 }
