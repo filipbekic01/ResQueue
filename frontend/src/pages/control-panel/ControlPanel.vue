@@ -168,16 +168,6 @@ const upgradePlan = () => {
   })
 }
 
-const openFaqDialog = () => {
-  dialog.open(FaqDialog, {
-    props: {
-      header: 'Frequently Asked Questions',
-      modal: true,
-      draggable: false
-    }
-  })
-}
-
 const updateSeats = (seats: number) => {
   updateSeatsAsync({ seats })
     .then(() => {
@@ -216,17 +206,6 @@ const seatOptions = computed(() => {
     <div class="px-7 pt-5 text-3xl font-bold">Control Panel</div>
     <div class="px-7 text-slate-600">Manage settings and access your account details.</div>
     <div class="flex max-w-[70rem] flex-col gap-7 p-7">
-      <Message severity="secondary">
-        <div class="flex items-center gap-2">
-          <div
-            class="flex cursor-pointer items-center gap-1.5 text-blue-500 hover:text-blue-400"
-            @click="openFaqDialog"
-          >
-            <i class="pi pi-question-circle"></i>Frequently Asked Questions
-          </div>
-          <div>Please review our FAQ before using the application for the best experience.</div>
-        </div>
-      </Message>
       <div class="flex items-start gap-7">
         <div class="flex grow items-center rounded-xl border border-gray-200 p-5">
           <img
@@ -284,8 +263,8 @@ const seatOptions = computed(() => {
               <i class="pi pi-check-circle text-green-500"></i>
               <span> Your account is validated via e-mail.</span>
             </div>
-            <div v-else class="flex items-center gap-2">
-              <i class="pi pi-exclamation-circle text-orange-400"></i>
+            <div v-else class="flex items-center gap-2 text-slate-500">
+              <i class="pi pi-exclamation-circle"></i>
               Validate account via e-mail.
             </div>
           </div>
@@ -301,7 +280,7 @@ const seatOptions = computed(() => {
         </div>
       </div>
 
-      <div class="flex items-start gap-7">
+      <!-- <div class="flex items-start gap-7">
         <div class="grow rounded-xl border border-slate-200 p-5">
           <div class="flex items-center">
             <div>
@@ -370,8 +349,9 @@ const seatOptions = computed(() => {
             <PricingCards />
           </div>
         </div>
-      </div>
-      <div>
+      </div> -->
+
+      <!-- <div>
         <div class="rounded-xl border border-gray-200 p-5">
           <div class="text-lg font-medium">Configuration</div>
 
@@ -386,7 +366,7 @@ const seatOptions = computed(() => {
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
   </AppLayout>
 </template>

@@ -1,11 +1,8 @@
 <script lang="ts" setup>
-import { useBrokersQuery } from '@/api/brokers/brokersQuery'
 import { usePaginatedMessagesQuery } from '@/api/messages/paginatedMessagesQuery'
 import eboxUrl from '@/assets/ebox.svg'
-import mtLogoUrl from '@/assets/masstransit.svg'
 import { useQueues } from '@/composables/queuesComposable'
 import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
-import Avatars from '@/features/avatars/Avatars.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { highlightJson } from '@/utils/jsonUtils'
 import Button from 'primevue/button'
@@ -16,7 +13,6 @@ import { useRouter } from 'vue-router'
 import MessagesRequeue from './MessagesRequeue.vue'
 
 const props = defineProps<{
-  brokerId: string
   queueName: string
 }>()
 
@@ -26,22 +22,12 @@ const pageIndex = ref(0)
 
 const backToQueues = () => {
   router.push({
-    name: 'queues',
-    params: {
-      brokerId: props.brokerId
-    }
+    name: 'queues'
   })
 }
 
-// Broker
-const { data: brokers } = useBrokersQuery()
-const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
-
 // Queues
-const {
-  query: { data: queues },
-  queueOptions
-} = useQueues(computed(() => props.queueName))
+const { queueOptions } = useQueues(computed(() => props.queueName))
 
 const selectedQueueId = ref<number>()
 
@@ -55,7 +41,6 @@ watchEffect(() => {
 
 // Messages
 const { data: paginatedMessages, isPending } = usePaginatedMessagesQuery(
-  computed(() => props.brokerId),
   computed(() => selectedQueueId.value),
   pageIndex
 )
@@ -84,22 +69,7 @@ const selectedMessageIds = computed(() =>
 
 <template>
   <AppLayout>
-    <template #prepend>
-      <div
-        class="flex h-[42px] w-[42px] cursor-pointer items-center justify-center rounded-xl bg-gray-200 text-2xl text-white"
-        @click="backToQueues"
-      >
-        <img :src="mtLogoUrl" class="w-8 select-none" />
-      </div>
-    </template>
-    <template #title>
-      <span class="cursor-pointer hover:underline" @click="backToQueues">{{ broker?.name }}</span>
-    </template>
-    <template #description>Queue: {{ props.queueName }}</template>
-    <template #append>
-      <Avatars v-if="broker" :user-ids="broker.accessList.map((x) => x.userId)" />
-    </template>
-    <div class="flex flex-wrap items-start gap-2 border-b px-4 py-2">
+    <div class="flex flex-wrap items-start gap-2 border-y px-4 py-2">
       <Button @click="backToQueues" outlined label="Queues" icon="pi pi-arrow-left"></Button>
 
       <MessagesRequeue :queue-name="props.queueName" :selected-queue-id="selectedQueueId" />

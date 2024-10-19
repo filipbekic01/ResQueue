@@ -11,28 +11,23 @@ import { useToast } from 'primevue/usetoast'
 import { computed, ref, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-const props = defineProps<{
-  brokerId: string
-}>()
-
 const router = useRouter()
 const route = useRoute()
 const toast = useToast()
-const confirm = useConfirm()
 
 const {
   query: { data: user }
 } = useIdentity()
 
 const { data: brokers } = useBrokersQuery()
-const broker = computed(() => brokers.value?.find((x) => x.id === props.brokerId))
+const broker = computed(() => brokers.value?.find((x) => x.id === '9193dfce-5676-4b36-b7d3-7909a40696da'))
 const access = computed(() => broker.value?.accessList.find((x) => x.userId == user.value?.id))
 
 const { mutateAsync: updateBrokerAsync } = useUpdateBrokerMutation()
 
 const pageIndex = ref(0)
 
-const { data: queuesView, isPending } = useQueuesViewQuery(computed(() => props.brokerId))
+const { data: queuesView, isPending } = useQueuesViewQuery(computed(() => '9193dfce-5676-4b36-b7d3-7909a40696da'))
 
 const selectQueue = (data: any) => {
   router.push({
