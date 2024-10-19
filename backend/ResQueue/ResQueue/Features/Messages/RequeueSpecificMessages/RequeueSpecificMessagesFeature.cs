@@ -14,7 +14,7 @@ public record MoveMessagesResponse(
     int SucceededCount
 );
 
-public class MoveMessagesFeature : IMoveMessagesFeature
+public class RequeueSpecificMessagesFeature : IRequeueSpecificMessagesFeature
 {
     public async Task<OperationResult<MoveMessagesResponse>> ExecuteAsync(MoveMessagesRequest request)
     {

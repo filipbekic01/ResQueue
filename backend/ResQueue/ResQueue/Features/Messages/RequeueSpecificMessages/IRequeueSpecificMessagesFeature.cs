@@ -1,6 +1,6 @@
 namespace ResQueue.Features.Messages.MoveMessage;
 
-public interface IMoveMessagesFeature
+public interface IRequeueSpecificMessagesFeature
 {
     Task<OperationResult<MoveMessagesResponse>> ExecuteAsync(MoveMessagesRequest request);
 }
