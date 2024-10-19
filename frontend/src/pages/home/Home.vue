@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import awsLogoUrl from '@/assets/aws.svg'
 import azureLogoUrl from '@/assets/azure.svg'
+import mtLogoUrl from '@/assets/masstransit.svg'
 import mdLogoUrl from '@/assets/md.svg'
-import pgLogoUrl from '@/assets/postgres.svg'
 import { useIdentity } from '@/composables/identityComposable'
 import WebLayout from '@/layouts/WebLayout.vue'
 import { useHead } from '@unhead/vue'
@@ -62,8 +62,11 @@ useHead(
   <WebLayout>
     <div class="flex px-8 py-24">
       <div class="flex grow flex-col items-center justify-center">
-        <div class="mx-auto text-4xl font-bold">Effortless Queue Healing</div>
-        <div class="mx-auto mt-4 text-xl">Dead-Letter Queue Management — Manage and Rescue with Ease</div>
+        <h1 class="mx-auto text-4xl font-bold">Unified SQL Broker Manager</h1>
+        <h2 class="mx-auto mt-4 text-center text-xl">
+          A robust web-based interface for effortlessly managing various <br />SQL broker implementations, including
+          MassTransit.
+        </h2>
 
         <div class="mt-8 flex">
           <Button
@@ -82,44 +85,31 @@ useHead(
       </div>
     </div>
 
-    <div class="flex items-center gap-4">
+    <div class="mx-auto flex w-[400px] items-center gap-4">
       <div class="flex-1 rounded-2xl border-slate-400 bg-white p-4 text-slate-700 shadow">
         <div class="flex items-center gap-2 text-xl font-bold">
-          <div class="w-8 rounded-lg bg-[#336791] p-1.5">
-            <img :src="pgLogoUrl" />
+          <div class="w-8 rounded-lg bg-gray-200 p-1">
+            <img :src="mtLogoUrl" />
           </div>
-          PostgreSQL
+          <h3>MassTransit</h3>
           <i class="pi pi-check-circle ms-auto text-emerald-600" style="font-size: 1.15rem"></i>
         </div>
+        <ul class="mt-2">
+          <li>
+            <i class="pi pi-check mx-1 text-emerald-600"></i>
+            MassTransit.SqlTransport.PostgreSQL
+          </li>
+          <li>
+            <i class="pi pi-check mx-1 text-emerald-600"></i>
+            MassTransit.SqlTransport.SqlServer
+          </li>
+        </ul>
       </div>
+    </div>
 
-      <div class="flex-1 rounded-2xl border-slate-400 bg-white p-4 text-slate-700 shadow">
-        <div class="flex items-center gap-2 text-xl font-bold">
-          <div class="w-8 rounded-lg bg-[#007FFF] p-1.5">
-            <img :src="azureLogoUrl" />
-          </div>
-          Azure Service Bus
-          <i
-            v-tooltip.top="'Coming soon...'"
-            class="pi pi-calendar-clock ms-auto text-slate-600"
-            style="font-size: 1.15rem"
-          ></i>
-        </div>
-      </div>
-
-      <div class="flex-1 rounded-2xl border-slate-400 bg-white p-4 text-slate-700 shadow">
-        <div class="flex items-center gap-2 text-xl font-bold">
-          <div class="w-8 rounded-lg border border-slate-300 bg-[#fff] p-1.5">
-            <img :src="awsLogoUrl" />
-          </div>
-          Amazon SQS
-          <i
-            v-tooltip.top="'Coming soon...'"
-            class="pi pi-calendar-clock ms-auto text-slate-600"
-            style="font-size: 1.15rem"
-          ></i>
-        </div>
-      </div>
+    <div class="mt-6 text-center text-gray-600">
+      Interested in support for additional SQL transport libraries?
+      <RouterLink :to="'support'">Let's discuss it.</RouterLink>
     </div>
 
     <div class="mt-16 flex gap-4">

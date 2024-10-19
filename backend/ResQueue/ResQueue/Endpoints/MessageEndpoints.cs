@@ -100,11 +100,11 @@ public static class MessageEndpoints
                     : Results.Problem(result.Problem!);
             });
 
-        group.MapPost("move",
-            async (IMoveMessagesFeature feature, HttpContext httpContext,
-                [FromBody] MoveMessagesDto dto) =>
+        group.MapPost("requeue-specific",
+            async (IRequeueSpecificMessagesFeature feature, HttpContext httpContext,
+                [FromBody] RequeueSpecificMessagesDto dto) =>
             {
-                var result = await feature.ExecuteAsync(new MoveMessagesRequest(
+                var result = await feature.ExecuteAsync(new RequeueSpecificMessagesRequest(
                     dto
                 ));
 

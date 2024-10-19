@@ -1,14 +1,9 @@
 namespace ResQueue.Dtos;
 
-public record MoveMessagesDto(
-    MoveMessageDeliveryDto[] Messages,
-    string QueueName,
-    int QueueType,
+public record RequeueSpecificMessagesDto(
+    long[] MessageDeliveryIds,
+    int TargetQueueType,
+    string Delay,
+    int RedeliveryCount,
     bool Transactional
-);
-
-public record MoveMessageDeliveryDto(
-    long MessageDeliveryId,
-    string LockId,
-    string Headers
 );

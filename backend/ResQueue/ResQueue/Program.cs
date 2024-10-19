@@ -86,7 +86,7 @@ public class Program
         builder.Services.AddTransient<IAcceptBrokerInvitationFeature, AcceptBrokerInvitationFeature>();
 
         builder.Services.AddTransient<IRequeueMessagesFeature, RequeueMessagesFeature>();
-        builder.Services.AddTransient<IMoveMessagesFeature, MoveMessagesFeature>();
+        builder.Services.AddTransient<IRequeueSpecificMessagesFeature, RequeueSpecificMessagesFeature>();
 
         builder.Services.AddTransient<ICreateSubscriptionFeature, CreateSubscriptionFeature>();
         builder.Services.AddTransient<ICancelSubscriptionFeature, CancelSubscriptionFeature>();

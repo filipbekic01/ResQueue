@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import pgLogoUrl from '@/assets/postgres.svg'
+import mtLogoUrl from '@/assets/masstransit.svg'
 import { useIdentity } from '@/composables/identityComposable'
 import { computed } from 'vue'
 import { useRoute, type RouteLocationAsRelativeGeneric } from 'vue-router'
@@ -70,13 +70,12 @@ const showWarning = computed(() => {
   >
     <img
       v-if="icon === 'pi pi-postgres'"
-      :src="pgLogoUrl"
-      style="width: 1.2rem"
+      :src="mtLogoUrl"
+      style="width: 1.25rem"
       :class="[
-        'rounded p-1',
+        'rounded',
         {
-          'mr-3': !collapsed,
-          'bg-slate-200': true
+          'mr-3': !collapsed
         }
       ]"
     />

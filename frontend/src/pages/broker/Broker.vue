@@ -2,7 +2,7 @@
 import { useBrokersQuery } from '@/api/brokers/brokersQuery'
 import { useSyncBrokerMutation } from '@/api/brokers/syncBrokerMutation'
 import { useUpdateBrokerMutation } from '@/api/brokers/updateBrokerMutation'
-import pgLogoUrl from '@/assets/postgres.svg'
+import mtLogoUrl from '@/assets/masstransit.svg'
 import { useIdentity } from '@/composables/identityComposable'
 import Avatars from '@/features/avatars/Avatars.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
@@ -105,14 +105,14 @@ const updateTabValue = (a: any) => router.push({ name: a })
   <AppLayout hide-header>
     <template v-if="broker">
       <div class="flex px-4 pb-2 pt-4">
-        <div class="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#336791] text-2xl text-white">
-          <img :src="pgLogoUrl" class="w-14" />
+        <div class="flex h-20 w-20 items-center justify-center rounded-2xl bg-gray-200 text-2xl text-white">
+          <img :src="mtLogoUrl" class="w-16" />
         </div>
 
         <div class="flex flex-col justify-center ps-3">
-          <div class="font-semibold">PostgreSQL</div>
+          <div class="font-semibold">MassTransit</div>
           <div class="text-2xl font-bold">{{ broker.name }}</div>
-          <div class="flex items-center gap-2 text-slate-500">MassTransit</div>
+          <div class="flex items-center gap-2 text-slate-500"><i class="pi pi-database"></i>PostgreSQL</div>
           <!-- <div class="flex items-center gap-2 text-slate-500">
             <i
               class="pi pi-sync"
