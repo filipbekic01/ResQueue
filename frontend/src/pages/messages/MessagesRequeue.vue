@@ -3,10 +3,15 @@ import { useRequeueMessagesMutation } from '@/api/messages/requeueMessagesMutati
 import { useQueues } from '@/composables/queuesComposable'
 import { errorToToast } from '@/utils/errorUtils'
 import Button from 'primevue/button'
+import ButtonGroup from 'primevue/buttongroup'
+import InputGroup from 'primevue/inputgroup'
 import InputNumber from 'primevue/inputnumber'
 import InputText from 'primevue/inputtext'
 import Popover from 'primevue/popover'
 import Select from 'primevue/select'
+import Tab from 'primevue/tab'
+import Tabs from 'primevue/tabs'
+import ToggleButton from 'primevue/togglebutton'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref, watchEffect } from 'vue'
@@ -84,7 +89,6 @@ const requeueMessages = () => {
 
 <template>
   <Button
-    outlined
     :loading="isRequeueMessagesPending"
     label="Requeue"
     @click="(e) => requeuePopover.toggle(e)"
@@ -93,7 +97,11 @@ const requeueMessages = () => {
   <Popover ref="requeuePopover" class="w-72">
     <div class="flex flex-col gap-3">
       <div class="flex flex-col gap-1">
-        <label>Target queue</label>
+        <label class="flex">Message count<span class="ms-auto text-blue-500">bulk mode</span></label>
+        <InputNumber name="requeueMessageCount" v-model="requeueMessageCount"></InputNumber>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label>Destination</label>
         <Select
           v-model="requeueTargetQueueId"
           :options="requeueTargetQueueOptions"
@@ -101,12 +109,9 @@ const requeueMessages = () => {
           option-value="queue.id"
         ></Select>
       </div>
+
       <div class="flex flex-col gap-1">
-        <label>Message count</label>
-        <InputNumber name="requeueMessageCount" v-model="requeueMessageCount"></InputNumber>
-      </div>
-      <div class="flex flex-col gap-1">
-        <label>Delay (Postgres interval)</label>
+        <label>Delay</label>
         <InputText v-model="requeueDelay"></InputText>
       </div>
       <div class="flex flex-col gap-1">

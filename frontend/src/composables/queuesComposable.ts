@@ -3,11 +3,11 @@ import { computed, type Ref } from 'vue'
 
 const getQueueName = (type: number) => {
   if (type === 1) {
-    return 'Active Messages'
+    return 'Ready'
   } else if (type === 2) {
-    return 'Error Messages'
+    return 'Error'
   } else if (type === 3) {
-    return 'Skipped Messages'
+    return 'Skipped'
   } else {
     return 'Unknown'
   }

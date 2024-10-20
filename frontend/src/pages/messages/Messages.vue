@@ -8,6 +8,8 @@ import { highlightJson } from '@/utils/jsonUtils'
 import Button from 'primevue/button'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
+import type { MenuItem } from 'primevue/menuitem'
+import SelectButton from 'primevue/selectbutton'
 import { computed, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import MessagesRequeue from './MessagesRequeue.vue'
@@ -19,12 +21,6 @@ const props = defineProps<{
 const router = useRouter()
 
 const pageIndex = ref(0)
-
-const backToQueues = () => {
-  router.push({
-    name: 'queues'
-  })
-}
 
 // Queues
 const { queueOptions } = useQueues(computed(() => props.queueName))
@@ -65,31 +61,75 @@ const selectedMessages = ref<MessageDeliveryDto[]>([])
 const selectedMessageIds = computed(() =>
   selectedMessages.value?.length ? selectedMessages.value.map((x) => x.message_delivery_id) : []
 )
+
+const items = computed((): MenuItem[] => {
+  return [
+    {
+      label: 'Queues',
+      icon: 'pi pi-arrow-left',
+      command: () => {
+        router.push({
+          name: 'queues'
+        })
+      }
+    },
+    {
+      label: 'Requeue',
+      icon: 'pi pi-replay',
+      items: [
+        {
+          label: 'Requeue Selected'
+        },
+        {
+          label: 'Requeue Bulk'
+        }
+      ]
+    },
+    {
+      label: 'Delete',
+      icon: 'pi pi-trash',
+      command: () => {
+        router.push({
+          name: 'queues'
+        })
+      }
+    }
+  ]
+})
 </script>
 
 <template>
   <AppLayout>
-    <div class="flex flex-wrap items-start gap-2 border-y px-4 py-2">
-      <Button @click="backToQueues" outlined label="Queues" icon="pi pi-arrow-left"></Button>
+    <div class="flex items-center border-b">
+      <Menubar :model="items" class="border-0" />
+      <SelectButton
+        class="me-3 ms-auto"
+        option-label="queueNameByType"
+        option-value="queue.id"
+        :allow-empty="false"
+        v-model="selectedQueueId"
+        :options="queueOptions"
+      ></SelectButton>
+    </div>
+    <!-- <Button @click="backToQueues" icon="pi pi-arrow-left"></Button>
 
       <MessagesRequeue :queue-name="props.queueName" :selected-queue-id="selectedQueueId" />
 
-      <Select
+      <SelectButton
         class="ms-auto"
         option-label="queueNameByType"
         option-value="queue.id"
         :allow-empty="false"
         v-model="selectedQueueId"
         :options="queueOptions"
-      ></Select>
-      <!-- <Paginator
+      ></SelectButton> -->
+    <!-- <Paginator
         class="ms-auto"
         @page="changePage"
         :rows="50"
         :always-show="false"
         :total-records="paginatedMessages?.totalCount"
       ></Paginator> -->
-    </div>
     <template v-if="isPending">
       <div class="p-5"><i class="pi pi-spinner pi-spin me-2"></i>Loading messages...</div>
     </template>
@@ -135,7 +175,7 @@ const selectedMessageIds = computed(() =>
             <Button text size="small" icon="pi pi-times" @click="toggleMessage(undefined)"></Button>
           </div>
           <div class="overflow-auto whitespace-pre">
-            <div class="bg-gray-100 px-3 pb-3" v-html="highlightJson(selectedMessage)"></div>
+            <div class="px-3 pb-3" v-html="highlightJson(selectedMessage)"></div>
           </div>
         </div>
       </div>
