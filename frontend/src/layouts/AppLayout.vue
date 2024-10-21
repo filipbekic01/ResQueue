@@ -48,11 +48,6 @@ const items = computed((): MenuItem[] => {
           </div>
         </div>
       </div>
-
-      <div class="ms-auto flex flex-col text-end text-sm">
-        <div>PostgreSQL</div>
-        <div>ResQueue v1.0.0</div>
-      </div>
     </div>
 
     <div class="flex grow flex-col overflow-auto">
