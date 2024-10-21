@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { usePaginatedMessagesQuery } from '@/api/messages/paginatedMessagesQuery'
-import eboxUrl from '@/assets/ebox.svg'
-import { useQueues } from '@/composables/queuesComposable'
+import { useQueue } from '@/composables/queueComposable'
 import RequeueDialog from '@/dialogs/RequeueDialog.vue'
 import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
 import AppLayout from '@/layouts/AppLayout.vue'
@@ -14,10 +13,9 @@ import SelectButton from 'primevue/selectbutton'
 import { useDialog } from 'primevue/usedialog'
 import { computed, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
-import MessagesRequeue from './MessagesRequeue.vue'
 
 const props = defineProps<{
-  queueName: string
+  queueView: string
 }>()
 
 const dialog = useDialog()
@@ -26,7 +24,7 @@ const router = useRouter()
 const pageIndex = ref(0)
 
 // Queues
-const { queueOptions } = useQueues(computed(() => props.queueName))
+const { queueOptions } = useQueue(computed(() => props.queueView))
 
 const selectedQueueId = ref<number>()
 
@@ -39,7 +37,7 @@ watchEffect(() => {
 })
 
 // Messages
-const { data: paginatedMessages, isPending } = usePaginatedMessagesQuery(
+const { data: paginatedMessages } = usePaginatedMessagesQuery(
   computed(() => selectedQueueId.value),
   pageIndex
 )
@@ -77,28 +75,36 @@ const items = computed((): MenuItem[] => {
       }
     },
     {
-      label: 'Requeue',
+      label: `Requeue ${selectedMessageIds.value.length ? `(${selectedMessageIds.value.length})` : ''}`,
       icon: 'pi pi-replay',
-      items: [
-        {
-          label: 'Requeue Selected'
-        },
-        {
-          label: 'Requeue Bulk',
-          command: () => {
-            dialog.open(RequeueDialog, {
-              props: {
-                header: 'Requeue Messages',
-                style: {
-                  width: '25rem'
-                },
-                modal: true,
-                draggable: false
-              }
-            })
+      command: () => {
+        dialog.open(RequeueDialog, {
+          props: {
+            header: 'Requeue Messages',
+            style: {
+              width: '25rem'
+            },
+            modal: true,
+            draggable: false
           }
-        }
-      ]
+        })
+      }
+    },
+    {
+      label: `Batch Requeue`,
+      icon: 'pi pi-replay',
+      command: () => {
+        dialog.open(RequeueDialog, {
+          props: {
+            header: 'Requeue Messages',
+            style: {
+              width: '25rem'
+            },
+            modal: true,
+            draggable: false
+          }
+        })
+      }
     },
     {
       label: 'Delete',
@@ -117,14 +123,16 @@ const items = computed((): MenuItem[] => {
   <AppLayout>
     <div class="flex items-center border-b">
       <Menubar :model="items" class="z-20 border-0" />
-      <SelectButton
-        class="me-3 ms-auto"
-        option-label="queueNameByType"
-        option-value="queue.id"
-        :allow-empty="false"
-        v-model="selectedQueueId"
-        :options="queueOptions"
-      ></SelectButton>
+      <div class="ms-auto flex items-center gap-3">
+        <SelectButton
+          class="me-3"
+          option-label="queueNameByType"
+          option-value="queue.id"
+          :allow-empty="false"
+          v-model="selectedQueueId"
+          :options="queueOptions"
+        ></SelectButton>
+      </div>
     </div>
     <!-- <Button @click="backToQueues" icon="pi pi-arrow-left"></Button>
 

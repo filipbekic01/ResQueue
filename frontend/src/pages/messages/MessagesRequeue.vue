@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useRequeueMessagesMutation } from '@/api/messages/requeueMessagesMutation'
-import { useQueues } from '@/composables/queuesComposable'
+import { useQueues } from '@/composables/queueComposable'
 import { errorToToast } from '@/utils/errorUtils'
 import Button from 'primevue/button'
 import ButtonGroup from 'primevue/buttongroup'

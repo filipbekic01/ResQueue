@@ -10,7 +10,7 @@ using Message = ResQueue.Models.Postgres.Message;
 
 namespace ResQueue.Endpoints;
 
-public static class MessageEndpoints
+public static class MessagesEndpoints
 {
     public static void MapMessageEndpoints(this IEndpointRouteBuilder routes)
     {

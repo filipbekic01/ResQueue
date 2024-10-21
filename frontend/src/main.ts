@@ -31,7 +31,7 @@ app.use(VueQueryPlugin, {
 })
 
 app.use(PrimeVue, {
-  ripple: false,
+  ripple: true,
   theme: 'none'
 })
 

@@ -7,7 +7,7 @@ using ResQueue.Models.Postgres;
 
 namespace ResQueue.Endpoints;
 
-public static class QueueEndpoints
+public static class QueuesEndpoints
 {
     public static void MapQueueEndpoints(this IEndpointRouteBuilder routes)
     {
@@ -34,6 +34,34 @@ public static class QueueEndpoints
                 CountDuration = x.count_duration
             }).ToList());
         });
+
+        group.MapGet("view/{queueName}",
+            async ([FromQuery] string brokerId, IOptions<Settings> settings, string queueName) =>
+            {
+                await using var connection = new NpgsqlConnection(settings.Value.PostgreSQLConnectionString);
+
+                var queueView =
+                    await connection.QuerySingleAsync<QueueView>(
+                        $"SELECT * FROM transport.queues WHERE queue_name = @QueueName;", new
+                        {
+                            QueueName = queueName
+                        });
+
+                return Results.Ok(new QueueViewDto()
+                {
+                    QueueName = queueView.queue_name,
+                    QueueAutoDelete = queueView.queue_auto_delete,
+                    Ready = queueView.ready,
+                    Scheduled = queueView.scheduled,
+                    Errored = queueView.errored,
+                    DeadLettered = queueView.dead_lettered,
+                    Locked = queueView.locked,
+                    ConsumeCount = queueView.consume_count,
+                    ErrorCount = queueView.error_count,
+                    DeadLetterCount = queueView.dead_letter_count,
+                    CountDuration = queueView.count_duration
+                });
+            });
 
         group.MapGet("", async ([FromQuery] string queueName, IOptions<Settings> settings) =>
         {
