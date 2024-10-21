@@ -4,9 +4,6 @@ import { useQueue } from '@/composables/queueComposable'
 import RequeueDialog, { type RequeueDialogData } from '@/dialogs/RequeueDialog.vue'
 import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { highlightJson } from '@/utils/jsonUtils'
-import { formatDistance } from 'date-fns'
-import Button from 'primevue/button'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import type { MenuItem } from 'primevue/menuitem'
@@ -14,6 +11,7 @@ import SelectButton from 'primevue/selectbutton'
 import { useDialog } from 'primevue/usedialog'
 import { computed, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
+import MessagesMessage from './MessagesMessage.vue'
 
 const props = defineProps<{
   queueName: string
@@ -168,12 +166,12 @@ const items = computed((): MenuItem[] => {
     ></Paginator>
  -->
     <template v-if="paginatedMessages?.items.length">
-      <div class="flex flex-col overflow-auto">
+      <div class="flex grow flex-col overflow-auto">
         <div
           class="flex grow flex-col overflow-auto"
           :class="[
             {
-              'basis-1/2': selectedMessageId
+              'basis-[20%]': selectedMessageId
             }
           ]"
         >
@@ -210,15 +208,7 @@ const items = computed((): MenuItem[] => {
             >
           </DataTable>
         </div>
-        <div v-if="selectedMessage" class="flex basis-1/2 resize flex-col overflow-auto border-t">
-          <div class="flex items-center justify-between">
-            Message #{{ selectedMessage?.message_delivery_id }}
-            <Button text size="small" icon="pi pi-times" @click="toggleMessage(undefined)"></Button>
-          </div>
-          <div class="overflow-auto whitespace-pre">
-            <div class="px-3 pb-3" v-html="highlightJson(selectedMessage)"></div>
-          </div>
-        </div>
+        <MessagesMessage :selected-message="selectedMessage" @close="toggleMessage(undefined)" v-if="selectedMessage" />
       </div>
     </template>
   </AppLayout>
