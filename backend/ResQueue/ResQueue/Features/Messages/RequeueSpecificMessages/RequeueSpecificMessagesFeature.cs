@@ -1,4 +1,5 @@
 using Dapper;
+using Microsoft.Extensions.Options;
 using Npgsql;
 using ResQueue.Dtos;
 
@@ -12,13 +13,14 @@ public record RequeueSpecificMessagesResponse(
     int SucceededCount
 );
 
-public class RequeueSpecificMessagesFeature : IRequeueSpecificMessagesFeature
+public class RequeueSpecificMessagesFeature(
+    IOptions<Settings> settings
+) : IRequeueSpecificMessagesFeature
 {
     public async Task<OperationResult<RequeueSpecificMessagesResponse>> ExecuteAsync(
         RequeueSpecificMessagesRequest request)
     {
-        await using var connection =
-            new NpgsqlConnection("host=localhost;port=5432;database=sandbox1;username=postgres;password=postgres;");
+        await using var connection = new NpgsqlConnection(settings.Value.PostgreSQLConnectionString);
 
         await connection.OpenAsync();
 

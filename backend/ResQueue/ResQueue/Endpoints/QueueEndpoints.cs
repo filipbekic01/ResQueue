@@ -1,5 +1,6 @@
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Npgsql;
 using ResQueue.Dtos;
 using ResQueue.Models.Postgres;
@@ -12,11 +13,9 @@ public static class QueueEndpoints
     {
         RouteGroupBuilder group = routes.MapGroup("queues");
 
-        group.MapGet("view", async ([FromQuery] string brokerId) =>
+        group.MapGet("view", async ([FromQuery] string brokerId, IOptions<Settings> settings) =>
         {
-            await using var connection =
-                new NpgsqlConnection(
-                    "host=localhost;port=5432;database=sandbox1;username=postgres;password=postgres;");
+            await using var connection = new NpgsqlConnection(settings.Value.PostgreSQLConnectionString);
 
             var queuesFromView = await connection.QueryAsync<QueueView>($"SELECT * FROM transport.queues;");
 
@@ -36,11 +35,10 @@ public static class QueueEndpoints
             }).ToList());
         });
 
-        group.MapGet("", async ([FromQuery] string queueName) =>
+        group.MapGet("", async ([FromQuery] string queueName, IOptions<Settings> settings) =>
         {
-            await using var connection =
-                new NpgsqlConnection(
-                    "host=localhost;port=5432;database=sandbox1;username=postgres;password=postgres;");
+            await using var connection = new NpgsqlConnection(settings.Value.PostgreSQLConnectionString);
+
             var sql = $"SELECT * FROM transport.queue WHERE name = @QueueName";
             var queues = await connection.QueryAsync<Queue>(sql, new { QueueName = queueName });
 

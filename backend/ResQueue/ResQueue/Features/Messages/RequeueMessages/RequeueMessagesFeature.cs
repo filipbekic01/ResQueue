@@ -1,5 +1,6 @@
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Npgsql;
 using ResQueue.Dtos;
 
@@ -11,12 +12,13 @@ public record RequeueMessagesRequest(
 
 public record RequeueMessagesResponse();
 
-public class RequeueMessagesFeature : IRequeueMessagesFeature
+public class RequeueMessagesFeature(
+    IOptions<Settings> settings
+) : IRequeueMessagesFeature
 {
     public async Task<OperationResult<RequeueMessagesResponse>> ExecuteAsync(RequeueMessagesRequest request)
     {
-        await using var connection =
-            new NpgsqlConnection("host=localhost;port=5432;database=sandbox1;username=postgres;password=postgres;");
+        await using var connection = new NpgsqlConnection(settings.Value.PostgreSQLConnectionString);
 
         await connection.OpenAsync();
 

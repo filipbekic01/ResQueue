@@ -1,5 +1,6 @@
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Npgsql;
 using ResQueue.Dtos;
 using ResQueue.Features.Messages.MoveMessage;
@@ -15,17 +16,17 @@ public static class MessageEndpoints
     {
         RouteGroupBuilder group = routes.MapGroup("messages");
 
-        group.MapGet("paginated", async ([FromQuery] long queueId, [FromQuery] int pageIndex = 0, int pageSize = 4) =>
-        {
-            // Validate filters
-            pageSize = 15; // pageSize > 0 & pageSize <= 100 ? pageSize : 50;
-            pageIndex = pageIndex >= 0 ? pageIndex : 0;
+        group.MapGet("paginated",
+            async (IOptions<Settings> settings, [FromQuery] long queueId, [FromQuery] int pageIndex = 0,
+                int pageSize = 4) =>
+            {
+                // Validate filters
+                pageSize = 15; // pageSize > 0 & pageSize <= 100 ? pageSize : 50;
+                pageIndex = pageIndex >= 0 ? pageIndex : 0;
 
-            await using var db =
-                new NpgsqlConnection(
-                    "host=localhost;port=5432;database=sandbox1;username=postgres;password=postgres;");
-            var offset = pageIndex * pageSize;
-            var sql = @"SELECT m.*, md.*
+                await using var db = new NpgsqlConnection(settings.Value.PostgreSQLConnectionString);
+                var offset = pageIndex * pageSize;
+                var sql = @"SELECT m.*, md.*
                                 FROM transport.message m
                                 JOIN transport.message_delivery md ON m.transport_message_id = md.transport_message_id
                                 WHERE md.transport_message_id IS NOT NULL
@@ -33,32 +34,32 @@ public static class MessageEndpoints
                                 ORDER BY md.transport_message_id 
                                 LIMIT @PageSize OFFSET @Offset";
 
-            var sqlCount = @"SELECT COUNT(*) FROM transport.message_delivery where queue_id = @QueueId";
-            var total = await db.ExecuteScalarAsync<int>(sqlCount, new
-            {
-                QueueId = queueId
-            });
-
-            var messages = db.Query<Message, MessageDelivery, MessageDelivery>(
-                sql,
-                (message, messageDelivery) =>
+                var sqlCount = @"SELECT COUNT(*) FROM transport.message_delivery where queue_id = @QueueId";
+                var total = await db.ExecuteScalarAsync<int>(sqlCount, new
                 {
-                    messageDelivery.message = message;
-                    return messageDelivery;
-                },
-                new { PageSize = pageSize, Offset = offset, QueueId = queueId },
-                splitOn: "message_delivery_id"
-            ).ToList();
+                    QueueId = queueId
+                });
 
-            return Results.Ok(new PaginatedResult<MessageDelivery>()
-            {
-                Items = messages,
-                PageIndex = pageIndex,
-                TotalPages = (int)Math.Ceiling((double)total / pageSize),
-                PageSize = pageSize,
-                TotalCount = total,
+                var messages = db.Query<Message, MessageDelivery, MessageDelivery>(
+                    sql,
+                    (message, messageDelivery) =>
+                    {
+                        messageDelivery.message = message;
+                        return messageDelivery;
+                    },
+                    new { PageSize = pageSize, Offset = offset, QueueId = queueId },
+                    splitOn: "message_delivery_id"
+                ).ToList();
+
+                return Results.Ok(new PaginatedResult<MessageDelivery>()
+                {
+                    Items = messages,
+                    PageIndex = pageIndex,
+                    TotalPages = (int)Math.Ceiling((double)total / pageSize),
+                    PageSize = pageSize,
+                    TotalCount = total,
+                });
             });
-        });
 
         group.MapPost("requeue",
             async (IRequeueMessagesFeature feature, [FromBody] RequeueMessagesDto dto) =>

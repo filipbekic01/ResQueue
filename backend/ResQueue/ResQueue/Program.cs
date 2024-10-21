@@ -13,7 +13,7 @@ public class Program
 
         var settingsSection = builder.Configuration.GetRequiredSection("Settings");
         builder.Services.Configure<Settings>(settingsSection);
-        var settings = settingsSection.Get<Settings>()!;
+        // var settings = settingsSection.Get<Settings>()!;
 
         builder.Services.AddCors(corsOptions =>
         {

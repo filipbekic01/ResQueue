@@ -2,6 +2,7 @@
 import { usePaginatedMessagesQuery } from '@/api/messages/paginatedMessagesQuery'
 import eboxUrl from '@/assets/ebox.svg'
 import { useQueues } from '@/composables/queuesComposable'
+import RequeueDialog from '@/dialogs/RequeueDialog.vue'
 import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { highlightJson } from '@/utils/jsonUtils'
@@ -10,6 +11,7 @@ import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import type { MenuItem } from 'primevue/menuitem'
 import SelectButton from 'primevue/selectbutton'
+import { useDialog } from 'primevue/usedialog'
 import { computed, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import MessagesRequeue from './MessagesRequeue.vue'
@@ -18,6 +20,7 @@ const props = defineProps<{
   queueName: string
 }>()
 
+const dialog = useDialog()
 const router = useRouter()
 
 const pageIndex = ref(0)
@@ -81,7 +84,19 @@ const items = computed((): MenuItem[] => {
           label: 'Requeue Selected'
         },
         {
-          label: 'Requeue Bulk'
+          label: 'Requeue Bulk',
+          command: () => {
+            dialog.open(RequeueDialog, {
+              props: {
+                header: 'Requeue Messages',
+                style: {
+                  width: '25rem'
+                },
+                modal: true,
+                draggable: false
+              }
+            })
+          }
         }
       ]
     },
@@ -101,7 +116,7 @@ const items = computed((): MenuItem[] => {
 <template>
   <AppLayout>
     <div class="flex items-center border-b">
-      <Menubar :model="items" class="border-0" />
+      <Menubar :model="items" class="z-20 border-0" />
       <SelectButton
         class="me-3 ms-auto"
         option-label="queueNameByType"
@@ -130,10 +145,8 @@ const items = computed((): MenuItem[] => {
         :always-show="false"
         :total-records="paginatedMessages?.totalCount"
       ></Paginator> -->
-    <template v-if="isPending">
-      <div class="p-5"><i class="pi pi-spinner pi-spin me-2"></i>Loading messages...</div>
-    </template>
-    <template v-else-if="paginatedMessages?.items.length">
+
+    <template v-if="paginatedMessages?.items.length">
       <div class="flex flex-col overflow-auto">
         <div
           class="flex grow flex-col overflow-auto"
@@ -178,13 +191,6 @@ const items = computed((): MenuItem[] => {
             <div class="px-3 pb-3" v-html="highlightJson(selectedMessage)"></div>
           </div>
         </div>
-      </div>
-    </template>
-    <template v-else>
-      <div class="mt-24 flex grow flex-col items-center">
-        <img :src="eboxUrl" class="w-56 pb-5 opacity-50" />
-        <div class="text-lg">No Messages</div>
-        <div class="">Make sure you pull the messages.</div>
       </div>
     </template>
   </AppLayout>
