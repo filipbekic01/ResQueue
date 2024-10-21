@@ -26,7 +26,6 @@ const popoverCopyLinkToClipboard = (id: string) => {
   const link = router.resolve({
     name: 'message',
     params: {
-      brokerId: props.broker.id,
       queueId: props.queue.id,
       messageId: id
     }

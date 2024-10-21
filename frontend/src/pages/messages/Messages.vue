@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import { usePaginatedMessagesQuery } from '@/api/messages/paginatedMessagesQuery'
 import { useQueue } from '@/composables/queueComposable'
-import RequeueDialog from '@/dialogs/RequeueDialog.vue'
+import RequeueDialog, { type RequeueDialogData } from '@/dialogs/RequeueDialog.vue'
 import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { highlightJson } from '@/utils/jsonUtils'
+import { formatDistance } from 'date-fns'
 import Button from 'primevue/button'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
@@ -15,7 +16,7 @@ import { computed, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{
-  queueView: string
+  queueName: string
 }>()
 
 const dialog = useDialog()
@@ -24,7 +25,7 @@ const router = useRouter()
 const pageIndex = ref(0)
 
 // Queues
-const { queueOptions } = useQueue(computed(() => props.queueView))
+const { queueOptions } = useQueue(computed(() => props.queueName))
 
 const selectedQueueId = ref<number>()
 
@@ -63,6 +64,7 @@ const selectedMessageIds = computed(() =>
   selectedMessages.value?.length ? selectedMessages.value.map((x) => x.message_delivery_id) : []
 )
 
+const jesus = ref()
 const items = computed((): MenuItem[] => {
   return [
     {
@@ -78,9 +80,20 @@ const items = computed((): MenuItem[] => {
       label: `Requeue ${selectedMessageIds.value.length ? `(${selectedMessageIds.value.length})` : ''}`,
       icon: 'pi pi-replay',
       command: () => {
+        if (!selectedQueueId.value) {
+          return
+        }
+
+        const data: RequeueDialogData = {
+          selectedQueueId: selectedQueueId.value,
+          batch: false,
+          deliveryMessageIds: selectedMessageIds.value
+        }
+
         dialog.open(RequeueDialog, {
+          data,
           props: {
-            header: 'Requeue Messages',
+            header: 'Requeue',
             style: {
               width: '25rem'
             },
@@ -94,9 +107,20 @@ const items = computed((): MenuItem[] => {
       label: `Batch Requeue`,
       icon: 'pi pi-replay',
       command: () => {
+        if (!selectedQueueId.value) {
+          return
+        }
+
+        const data: RequeueDialogData = {
+          selectedQueueId: selectedQueueId.value,
+          batch: true,
+          deliveryMessageIds: []
+        }
+
         dialog.open(RequeueDialog, {
+          data,
           props: {
-            header: 'Requeue Messages',
+            header: 'Batch Requeue',
             style: {
               width: '25rem'
             },
@@ -121,6 +145,7 @@ const items = computed((): MenuItem[] => {
 
 <template>
   <AppLayout>
+    <Popover ref="jesus"> jesus </Popover>
     <div class="flex items-center border-b">
       <Menubar :model="items" class="z-20 border-0" />
       <div class="ms-auto flex items-center gap-3">
@@ -134,26 +159,14 @@ const items = computed((): MenuItem[] => {
         ></SelectButton>
       </div>
     </div>
-    <!-- <Button @click="backToQueues" icon="pi pi-arrow-left"></Button>
-
-      <MessagesRequeue :queue-name="props.queueName" :selected-queue-id="selectedQueueId" />
-
-      <SelectButton
-        class="ms-auto"
-        option-label="queueNameByType"
-        option-value="queue.id"
-        :allow-empty="false"
-        v-model="selectedQueueId"
-        :options="queueOptions"
-      ></SelectButton> -->
     <!-- <Paginator
-        class="ms-auto"
-        @page="changePage"
-        :rows="50"
-        :always-show="false"
-        :total-records="paginatedMessages?.totalCount"
-      ></Paginator> -->
-
+      class="ms-auto"
+      @page="changePage"
+      :rows="50"
+      :always-show="false"
+      :total-records="paginatedMessages?.totalCount"
+    ></Paginator>
+ -->
     <template v-if="paginatedMessages?.items.length">
       <div class="flex flex-col overflow-auto">
         <div
@@ -175,22 +188,29 @@ const items = computed((): MenuItem[] => {
             :lazy="true"
           >
             <Column selectionMode="multiple" class="w-0" style="vertical-align: top; text-align: center"></Column>
-            <Column field="message_delivery_id" header="ID" class="w-0 whitespace-nowrap">
+            <Column field="message_delivery_id" header="ID" class="w-0 whitespace-nowrap"> </Column>
+            <Column field="message.message_type" header="" class="w-0 whitespace-nowrap">
               <template #body="{ data }">
-                <div class="flex items-center gap-2">
-                  <div>#{{ data.message_delivery_id }}</div>
-                  <span class="cursor-pointer text-blue-500 hover:text-blue-300" @click="toggleMessage(data)"
-                    >(view)</span
-                  >
-                </div>
+                <span class="cursor-pointer text-blue-500 hover:text-blue-300" @click="toggleMessage(data)"
+                  ><i class="pi pi-eye"></i
+                ></span>
               </template>
             </Column>
-            <Column field="message.message_type" header="URN" class="whitespace-nowrap"></Column>
+            <Column field="message.message_type" header="URN" class="whitespace-nowrap"> </Column>
+            <Column field="message.lock_id" header="" class="w-0 whitespace-nowrap">
+              <template #body="{ data }">
+                <i :class="`pi pi-${data.lock_id ? 'lock' : ''}`"></i>
+              </template>
+            </Column>
             <Column field="priority" header="Priority" class="w-0 whitespace-nowrap"></Column>
-            <Column field="enqueue_time" header="Enqueue Time" class="w-0 whitespace-nowrap"></Column>
+            <Column field="enqueue_time" header="Enqueue Time" class="w-0 whitespace-nowrap">
+              <template #body="{ data }">
+                <div class="flex gap-2" v-if="data.enqueue_time">{{ data.enqueue_time }}</div>
+              </template></Column
+            >
           </DataTable>
         </div>
-        <div v-if="selectedMessage" class="flex basis-1/2 flex-col overflow-auto border-t">
+        <div v-if="selectedMessage" class="flex basis-1/2 resize flex-col overflow-auto border-t">
           <div class="flex items-center justify-between">
             Message #{{ selectedMessage?.message_delivery_id }}
             <Button text size="small" icon="pi pi-times" @click="toggleMessage(undefined)"></Button>

@@ -8,7 +8,7 @@ export const useQueueViewQuery = (queueName: MaybeRef<string>, enabled: MaybeRef
   useQuery({
     queryKey: ['queue-view', queueName],
     queryFn: async () => {
-      const response = await axios.get<QueueViewDto>(`${API_URL}/queues/view/${queueName}`, {
+      const response = await axios.get<QueueViewDto>(`${API_URL}/queues/view/${toValue(queueName)}`, {
         withCredentials: true
       })
 
