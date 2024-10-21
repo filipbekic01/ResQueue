@@ -5,6 +5,14 @@
 @import './primevue/tailwind.css';
 @import 'tailwindcss/utilities';
 
+.p-tablist-tab-list {
+  @apply bg-transparent;
+}
+
+.p-menubar {
+  @apply z-20 bg-transparent dark:bg-transparent;
+}
+
 html {
   // font-size: 0.875rem;
   font-size: 14px;

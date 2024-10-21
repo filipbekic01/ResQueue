@@ -2,6 +2,7 @@
 import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
 import { highlightJson } from '@/utils/jsonUtils'
 import Button from 'primevue/button'
+import { onBeforeUnmount, onMounted } from 'vue'
 import MessageBlock from './MessageBlock.vue'
 
 defineProps<{
@@ -11,10 +12,24 @@ defineProps<{
 const emit = defineEmits<{
   (e: 'close'): void
 }>()
+
+const handleEscKey = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    emit('close')
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleEscKey)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleEscKey)
+})
 </script>
 <template>
-  <div class="flex shrink-0 basis-[80%] flex-col overflow-auto">
-    <div class="flex items-center justify-between border-y bg-surface-100 px-3 py-2">
+  <div class="absolute bottom-0 end-0 start-0 z-50 flex h-[40%] w-full flex-col overflow-auto bg-surface-0">
+    <div class="flex items-center justify-between border-y bg-surface-300 px-3 py-0.5">
       Message {{ selectedMessage?.message_delivery_id }}
       <Button text size="small" icon="pi pi-times" @click="emit('close')"></Button>
     </div>

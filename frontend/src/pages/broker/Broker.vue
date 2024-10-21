@@ -10,7 +10,7 @@ const updateTabValue = (a: any) => router.push({ name: a })
 
 <template>
   <AppLayout>
-    <Tabs :value="route.name?.toString() ?? ''" @update:value="updateTabValue">
+    <Tabs :value="route.name?.toString() ?? ''" @update:value="updateTabValue" :pt:tabList:class="'bg-transparent'">
       <TabList>
         <Tab value="overview">Overview</Tab>
         <Tab value="topics">Topics</Tab>

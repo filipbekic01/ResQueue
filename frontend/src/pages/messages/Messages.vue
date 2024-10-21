@@ -143,9 +143,8 @@ const items = computed((): MenuItem[] => {
 
 <template>
   <AppLayout>
-    <Popover ref="jesus"> jesus </Popover>
-    <div class="flex items-center border-b">
-      <Menubar :model="items" class="z-20 border-0" />
+    <div class="flex items-center border-b dark:border-b-surface-700">
+      <Menubar :model="items" class="border-0" />
       <div class="ms-auto flex items-center gap-3">
         <SelectButton
           class="me-3"
@@ -184,16 +183,18 @@ const items = computed((): MenuItem[] => {
             striped-rows
             scroll-height="flex"
             :lazy="true"
+            row-hover
+            @row-click="(e) => toggleMessage(e.data)"
           >
             <Column selectionMode="multiple" class="w-0" style="vertical-align: top; text-align: center"></Column>
             <Column field="message_delivery_id" header="ID" class="w-0 whitespace-nowrap"> </Column>
-            <Column field="message.message_type" header="" class="w-0 whitespace-nowrap">
+            <!-- <Column field="message.message_type" header="" class="w-0 whitespace-nowrap">
               <template #body="{ data }">
                 <span class="cursor-pointer text-blue-500 hover:text-blue-300" @click="toggleMessage(data)"
                   ><i class="pi pi-eye"></i
                 ></span>
               </template>
-            </Column>
+            </Column> -->
             <Column field="message.message_type" header="URN" class="whitespace-nowrap"> </Column>
             <Column field="message.lock_id" header="" class="w-0 whitespace-nowrap">
               <template #body="{ data }">
@@ -208,7 +209,7 @@ const items = computed((): MenuItem[] => {
             >
           </DataTable>
         </div>
-        <MessagesMessage :selected-message="selectedMessage" @close="toggleMessage(undefined)" v-if="selectedMessage" />
+        <MessagesMessage v-if="selectedMessage" :selected-message="selectedMessage" @close="toggleMessage(undefined)" />
       </div>
     </template>
   </AppLayout>

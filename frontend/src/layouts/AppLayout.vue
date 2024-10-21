@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import mtLogoUrlDark from '@/assets/masstransit-dark.svg'
 import mtLogoUrl from '@/assets/masstransit.svg'
 import type { MenuItem } from 'primevue/menuitem'
 import { computed, ref } from 'vue'
@@ -34,16 +35,17 @@ const items = computed((): MenuItem[] => {
 </script>
 
 <template>
-  <div class="flex h-screen flex-col dark:bg-zinc-950">
-    <div class="flex items-center px-4 pb-2 pt-4">
+  <div class="flex h-screen flex-col">
+    <div class="flex items-center px-4 pb-4 pt-4 shadow">
       <div class="flex">
-        <div class="flex h-14 w-14 items-center justify-center rounded-xl text-2xl text-white">
-          <img :src="mtLogoUrl" class="w-full" />
+        <div class="flex h-14 w-14 items-center justify-center rounded-xl text-2xl">
+          <img :src="mtLogoUrl" class="w-full dark:hidden" />
+          <img :src="mtLogoUrlDark" class="hidden w-full dark:block" />
         </div>
 
-        <div class="flex flex-col justify-center ps-3">
-          <div class="text-2xl font-semibold">MassTransit</div>
-          <div class="flex items-center gap-2 text-slate-500">
+        <div class="ms-4 flex flex-col justify-center">
+          <div class="text-2xl font-semibold text-primary">MassTransit</div>
+          <div class="flex items-center gap-2">
             <Breadcrumb style="padding: 0" :home="home" :model="items" />
           </div>
         </div>
