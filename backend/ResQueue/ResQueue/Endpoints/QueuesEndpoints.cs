@@ -13,7 +13,7 @@ public static class QueuesEndpoints
     {
         RouteGroupBuilder group = routes.MapGroup("queues");
 
-        group.MapGet("view", async ([FromQuery] string brokerId, IOptions<Settings> settings) =>
+        group.MapGet("view", async (IOptions<Settings> settings) =>
         {
             await using var connection = new NpgsqlConnection(settings.Value.PostgreSQLConnectionString);
 
@@ -36,7 +36,7 @@ public static class QueuesEndpoints
         });
 
         group.MapGet("view/{queueName}",
-            async ([FromQuery] string brokerId, IOptions<Settings> settings, string queueName) =>
+            async (IOptions<Settings> settings, string queueName) =>
             {
                 await using var connection = new NpgsqlConnection(settings.Value.PostgreSQLConnectionString);
 

@@ -62,7 +62,7 @@ public class RequeueSpecificMessagesFeature(
         parameters.Add("redelivery_count", request.Dto.RedeliveryCount);
 
         return await connection.QuerySingleAsync<int?>(
-            $"SELECT transport.requeue_message(@message_delivery_id, @queue_type, @delay::interval, @redelivery_count)",
+            $"SELECT transport.requeue_message(@message_delivery_id, @target_queue_type, @delay::interval, @redelivery_count)",
             parameters);
     }
 }

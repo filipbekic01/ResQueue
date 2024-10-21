@@ -27,11 +27,10 @@ public static class MessagesEndpoints
                 await using var db = new NpgsqlConnection(settings.Value.PostgreSQLConnectionString);
                 var offset = pageIndex * pageSize;
                 var sql = @"SELECT m.*, md.*
-                                FROM transport.message m
-                                JOIN transport.message_delivery md ON m.transport_message_id = md.transport_message_id
-                                WHERE md.transport_message_id IS NOT NULL
-                                    AND md.queue_id = @QueueId
-                                ORDER BY md.transport_message_id 
+                                FROM transport.message_delivery md
+                                LEFT JOIN transport.message m ON m.transport_message_id = md.transport_message_id
+                                WHERE md.queue_id = @QueueId
+                                ORDER BY md.message_delivery_id 
                                 LIMIT @PageSize OFFSET @Offset";
 
                 var sqlCount = @"SELECT COUNT(*) FROM transport.message_delivery where queue_id = @QueueId";
