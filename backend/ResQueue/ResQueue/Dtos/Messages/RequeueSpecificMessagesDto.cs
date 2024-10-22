@@ -1,4 +1,4 @@
-namespace ResQueue.Dtos;
+namespace ResQueue.Dtos.Messages;
 
 public record RequeueSpecificMessagesDto(
     long[] MessageDeliveryIds,

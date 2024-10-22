@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using ResQueue.Dtos;
-using ResQueue.Features.Messages.MoveMessage;
+using ResQueue.Dtos.Messages;
 using ResQueue.Features.Messages.RequeueMessages;
+using ResQueue.Features.Messages.RequeueSpecificMessages;
 using ResQueue.Models.Postgres;
 using Message = ResQueue.Models.Postgres.Message;
 
@@ -20,7 +21,7 @@ public static class MessagesEndpoints
             async (IOptions<Settings> settings, [FromQuery] long queueId, [FromQuery] int pageIndex = 0,
                 int pageSize = 4) =>
             {
-                pageSize = 50; 
+                pageSize = 50;
                 pageIndex = pageIndex >= 0 ? pageIndex : 0;
 
                 await using var db = new NpgsqlConnection(settings.Value.PostgreSQLConnectionString);

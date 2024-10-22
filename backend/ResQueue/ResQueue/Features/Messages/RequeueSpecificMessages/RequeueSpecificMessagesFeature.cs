@@ -1,9 +1,9 @@
 using Dapper;
 using Microsoft.Extensions.Options;
 using Npgsql;
-using ResQueue.Dtos;
+using ResQueue.Dtos.Messages;
 
-namespace ResQueue.Features.Messages.MoveMessage;
+namespace ResQueue.Features.Messages.RequeueSpecificMessages;
 
 public record RequeueSpecificMessagesRequest(
     RequeueSpecificMessagesDto Dto
