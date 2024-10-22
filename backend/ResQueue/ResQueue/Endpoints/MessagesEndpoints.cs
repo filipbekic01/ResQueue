@@ -20,7 +20,7 @@ public static class MessagesEndpoints
             async (IOptions<Settings> settings, [FromQuery] long queueId, [FromQuery] int pageIndex = 0,
                 int pageSize = 4) =>
             {
-                pageSize = 50; 
+                pageSize = 50;
                 pageIndex = pageIndex >= 0 ? pageIndex : 0;
 
                 await using var db = new NpgsqlConnection(settings.Value.PostgreSQLConnectionString);
