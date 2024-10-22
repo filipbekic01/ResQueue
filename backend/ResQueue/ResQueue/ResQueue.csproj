@@ -36,7 +36,7 @@
         <Copy SourceFiles="@(CopyDist)" DestinationFiles="@(CopyDist->'$(PublishDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')"/>
     </Target>
 
-    <Target Name="PushToNuGet" AfterTargets="Pack">
+    <Target Name="PushToNuGet" AfterTargets="Pack" Condition="'$(IsCI)' == 'true'">
         <Exec Command="dotnet nuget push $(OutputPath)\$(PackageId).$(Version).nupkg --api-key $(NuGetApiKey) --source https://github.com/filipbekic01/resqueue.git"/>
     </Target>
 

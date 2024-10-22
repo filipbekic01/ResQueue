@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NuGetApiKey: ${{ secrets.NUGET_API_KEY }}
+      IsCI: "true"
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
@@ -15,7 +16,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: "8.0.x"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -32,11 +33,3 @@ jobs:
       - name: Publish
         working-directory: backend/ResQueue
         run: dotnet publish --os linux --arch amd64 /t:PublishContainer -p:ContainerRepository=filipbekic01/resqueue -p:ContainerRegistry=ghcr.io
-
-      - name: Install DigitalOcean doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-
-      - name: Deploy App
-        run: doctl apps create-deployment e458791e-bb7d-4018-ae50-50a9ac8ffdc8 --force-rebuild --wait
