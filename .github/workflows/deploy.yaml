@@ -24,11 +24,11 @@ jobs:
           node-version: 20.x
 
       - name: Build the project
-        working-directory: backend/ResQueue
+        working-directory: backend/ResQueue/ResQueue
         run: dotnet build --configuration Release
 
       - name: Pack the NuGet package
-        working-directory: backend/ResQueue
+        working-directory: backend/ResQueue/ResQueue
         run: dotnet pack --configuration Release
 
       - name: Push the NuGet package
