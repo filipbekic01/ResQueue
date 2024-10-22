@@ -18,6 +18,6 @@ public class OperationResult<T>
         Problem = problem;
     }
 
-    public static OperationResult<T> Success(T value) => new OperationResult<T>(value);
-    public static OperationResult<T> Failure(ProblemDetails problem) => new OperationResult<T>(problem);
+    public static OperationResult<T> Success(T value) => new(value);
+    public static OperationResult<T> Failure(ProblemDetails problem) => new(problem);
 }

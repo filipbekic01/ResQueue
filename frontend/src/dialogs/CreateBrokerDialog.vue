@@ -25,6 +25,13 @@ const newBroker = reactive<CreateBrokerDto>({
     amqpTls: true,
     host: 'localhost',
     vHost: '/'
+  },
+  postgresConnection: {
+    username: 'postgres',
+    password: 'postgres',
+    database: 'sandbox',
+    port: 5431,
+    host: 'localhost'
   }
 })
 
@@ -58,21 +65,21 @@ const testConnection = () => {
         <InputText v-model="newBroker.name" id="name" autocomplete="off" />
       </div>
     </div>
-    <template v-if="newBroker.rabbitMQConnection">
+    <template v-if="newBroker.postgresConnection">
       <div class="flex gap-3">
         <div class="flex grow flex-col gap-2">
-          <label for="rabbitMQConnection.username" class="font-semibold">Username</label>
+          <label for="postgresConnection.username" class="font-semibold">Username</label>
           <InputText
-            v-model="newBroker.rabbitMQConnection.username"
-            id="rabbitMQConnection.username"
+            v-model="newBroker.postgresConnection.username"
+            id="postgresConnection.username"
             autocomplete="off"
           />
         </div>
         <div class="flex grow flex-col gap-2">
-          <label for="rabbitMQConnection.password" class="font-semibold">Password</label>
+          <label for="postgresConnection.password" class="font-semibold">Password</label>
           <InputText
-            id="rabbitMQConnection.password"
-            v-model="newBroker.rabbitMQConnection.password"
+            id="postgresConnection.password"
+            v-model="newBroker.postgresConnection.password"
             type="password"
             autocomplete="off"
           />
@@ -80,17 +87,27 @@ const testConnection = () => {
       </div>
 
       <div class="flex gap-3">
-        <div class="flex basis-1/2 flex-col gap-2">
-          <label for="rabbitMQConnection.host" class="font-semibold">Host</label>
-          <InputText id="rabbitMQConnection.host" v-model="newBroker.rabbitMQConnection.host" autocomplete="off" />
+        <div class="flex grow basis-2/3 flex-col gap-2">
+          <label for="postgresConnection.host" class="font-semibold">Host</label>
+          <InputText id="postgresConnection.host" v-model="newBroker.postgresConnection.host" autocomplete="off" />
         </div>
-        <div class="flex basis-1/2 flex-col gap-2">
+        <div class="flex basis-1/3 flex-col gap-2">
+          <label for="postgresConnection.managementPort" class="flex font-semibold">Port</label>
+          <InputNumber
+            :use-grouping="false"
+            id="postgresConnection.managementPort"
+            v-model="newBroker.postgresConnection.port"
+            type="password"
+            autocomplete="off"
+          />
+        </div>
+        <!-- <div class="flex basis-1/2 flex-col gap-2">
           <label for="vhost" class="font-semibold">V-Host</label>
           <InputText id="vhost" v-model="newBroker.rabbitMQConnection.vHost" autocomplete="off" />
-        </div>
+        </div> -->
       </div>
 
-      <div class="flex gap-3">
+      <!-- <div class="flex gap-3">
         <div class="flex grow flex-col gap-2">
           <label for="rabbitMQConnection.managementPort" class="flex font-semibold"
             >API Port
@@ -135,7 +152,7 @@ const testConnection = () => {
             autocomplete="off"
           />
         </div>
-      </div>
+      </div> -->
     </template>
   </div>
   <div class="flex gap-2">

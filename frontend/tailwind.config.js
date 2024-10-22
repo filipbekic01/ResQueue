@@ -1,12 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
-  theme: {
-    extend: {
-      fontFamily: {
-        inter: ['Inter', 'sans-serif']
-      }
-    }
-  },
-  plugins: []
+  darkMode: 'class',
+  // eslint-disable-next-line no-undef
+  plugins: [require('tailwindcss-primeui')]
 }

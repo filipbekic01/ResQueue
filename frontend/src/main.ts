@@ -1,5 +1,4 @@
 import './assets/main.scss'
-import { NoirPreset } from '@/config/noirPreset'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import { createHead } from '@unhead/vue'
 import PrimeVue from 'primevue/config'
@@ -33,12 +32,7 @@ app.use(VueQueryPlugin, {
 
 app.use(PrimeVue, {
   ripple: true,
-  theme: {
-    preset: NoirPreset,
-    options: {
-      darkModeSelector: '.dark-mode'
-    }
-  }
+  theme: 'none'
 })
 
 app.directive('tooltip', Tooltip)

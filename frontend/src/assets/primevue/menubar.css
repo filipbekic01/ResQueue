@@ -1,0 +1,149 @@
+.p-menubar {
+  @apply bg-surface-0 dark:bg-surface-900 text-surface-700 dark:text-surface-0 border-surface-200 dark:border-surface-700 flex items-center gap-2 rounded-md border px-3 py-2;
+}
+
+.p-menubar-start,
+.p-megamenu-end {
+  @apply flex items-center;
+}
+
+.p-menubar-root-list,
+.p-menubar-submenu {
+  @apply m-0 flex list-none p-0 outline-none;
+}
+
+.p-menubar-root-list {
+  @apply flex-wrap items-center gap-2;
+}
+
+.p-menubar-root-list > .p-menubar-item > .p-menubar-item-content {
+  @apply rounded-md;
+}
+
+.p-menubar-root-list > .p-menubar-item > .p-menubar-item-content > .p-menubar-item-link {
+  @apply px-3 py-2;
+}
+
+.p-menubar-item-content {
+  @apply text-surface-700 dark:text-surface-0 rounded-sm transition-colors duration-200;
+}
+
+.p-menubar-item-link {
+  @apply relative flex cursor-pointer select-none items-center gap-2 overflow-hidden px-3 py-2 text-inherit no-underline outline-none;
+}
+
+.p-menubar-item-icon {
+  @apply text-surface-400 dark:text-surface-500;
+}
+
+.p-menubar-submenu-icon {
+  @apply text-surface-400 dark:text-surface-500 ml-auto h-[0.875rem] w-[0.875rem] text-sm;
+}
+
+.p-menubar-item.p-focus > .p-menubar-item-content {
+  @apply bg-surface-100 dark:bg-surface-800 text-surface-800 dark:text-surface-0;
+}
+
+.p-menubar-item.p-focus > .p-menubar-item-content .p-menubar-item-icon {
+  @apply text-surface-500 dark:text-surface-400;
+}
+
+.p-menubar-item.p-focus > .p-menubar-item-content .p-menubar-submenu-icon {
+  @apply text-surface-500 dark:text-surface-400;
+}
+
+.p-menubar-item:not(.p-disabled) > .p-menubar-item-content:hover {
+  @apply bg-surface-100 dark:bg-surface-800 text-surface-800 dark:text-surface-0;
+}
+
+.p-menubar-item:not(.p-disabled) > .p-menubar-item-content:hover .p-menubar-item-icon {
+  @apply text-surface-500 dark:text-surface-400;
+}
+
+.p-menubar-item:not(.p-disabled) > .p-menubar-item-content:hover .p-menubar-submenu-icon {
+  @apply text-surface-500 dark:text-surface-400;
+}
+
+.p-menubar-item-active > .p-menubar-item-content {
+  @apply bg-surface-100 dark:bg-surface-800 text-surface-800 dark:text-surface-0;
+}
+
+.p-menubar-item-active > .p-menubar-item-content .p-menubar-item-icon {
+  @apply text-surface-500 dark:text-surface-400;
+}
+
+.p-menubar-item-active > .p-menubar-item-content .p-menubar-submenu-icon {
+  @apply text-surface-500 dark:text-surface-400;
+}
+
+.p-menubar-submenu {
+  @apply bg-surface-0 dark:bg-surface-900 border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-0 absolute z-10 hidden min-w-52 flex-col gap-[2px] rounded-md border p-1 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)];
+}
+
+.p-menubar-submenu .p-menubar-separator {
+  @apply border-surface-200 dark:border-surface-700 border-t;
+}
+
+.p-menubar-submenu .p-menubar-item {
+  @apply relative;
+}
+
+.p-menubar-submenu > .p-menubar-item-active > .p-menubar-submenu {
+  @apply left-full top-0 block;
+}
+
+.p-menubar-end {
+  @apply ml-auto self-center;
+}
+
+.p-menubar-button {
+  @apply text-surface-500 dark:text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 focus-visible:outline-primary relative hidden h-7 w-7 cursor-pointer items-center justify-center rounded-full border-none bg-transparent transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2;
+}
+
+.p-menubar-mobile {
+  @apply relative;
+}
+
+.p-menubar-mobile .p-menubar-button {
+  @apply flex;
+}
+
+.p-menubar-mobile .p-menubar-root-list {
+  @apply border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 absolute left-0 top-full z-10 hidden w-full flex-col gap-[2px] rounded-md border p-1 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)];
+}
+
+.p-menubar-mobile .p-menubar-root-list > .p-menubar-item > .p-menubar-item-content > .p-menubar-item-link {
+  @apply px-3 py-3;
+}
+
+.p-menubar-mobile-active .p-menubar-root-list {
+  @apply flex;
+}
+
+.p-menubar-mobile .p-menubar-root-list .p-menubar-item {
+  @apply static w-full;
+}
+
+.p-menubar-mobile .p-menubar-root-list .p-menubar-separator {
+  @apply border-surface-200 dark:border-surface-700 border-t;
+}
+
+.p-menubar-mobile .p-menubar-root-list > .p-menubar-item > .p-menubar-item-content .p-menubar-submenu-icon {
+  @apply ml-auto transition-transform duration-[200ms];
+}
+
+.p-menubar-mobile .p-menubar-root-list > .p-menubar-item-active > .p-menubar-item-content .p-menubar-submenu-icon {
+  @apply -rotate-180;
+}
+
+.p-menubar-mobile .p-menubar-submenu .p-menubar-submenu-icon {
+  @apply rotate-90 transition-transform duration-200;
+}
+
+.p-menubar-mobile .p-menubar-item-active > .p-menubar-item-content .p-menubar-submenu-icon {
+  @apply -rotate-90;
+}
+
+.p-menubar-mobile .p-menubar-submenu {
+  @apply static w-full border-none pe-0 ps-4 shadow-none;
+}
