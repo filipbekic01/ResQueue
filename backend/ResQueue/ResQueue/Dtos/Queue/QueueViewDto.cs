@@ -2,7 +2,7 @@ namespace ResQueue.Dtos;
 
 public class QueueViewDto
 {
-    public string QueueName { get; set; }
+    public string? QueueName { get; set; }
     public int QueueAutoDelete { get; set; }
     public long Ready { get; set; }
     public long Scheduled { get; set; }

@@ -11,7 +11,7 @@ public class MyStateInstance : SagaStateMachineInstance
     public Guid CorrelationId { get; set; }
     public int CurrentState { get; set; }
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 }
 
 public class MyStateDefinition : SagaDefinition<MyStateInstance>
@@ -34,10 +34,6 @@ public class MyStateMachine : MassTransitStateMachine<MyStateInstance>
 
         Initially(
             When(EventOne)
-                .Then((_) =>
-                {
-                    var x = 5;
-                })
                 .TransitionTo(Submitted)
         );
 
@@ -52,8 +48,8 @@ public class MyStateMachine : MassTransitStateMachine<MyStateInstance>
                 }));
     }
 
-    public Event<EventOne> EventOne { get; private set; }
-    public Event<EventTwo> EventTwo { get; private set; }
+    public Event<EventOne> EventOne { get; private set; } = null!;
+    public Event<EventTwo> EventTwo { get; private set; } = null!;
 
-    public State Submitted { get; private set; }
+    public State Submitted { get; private set; } = null!;
 }

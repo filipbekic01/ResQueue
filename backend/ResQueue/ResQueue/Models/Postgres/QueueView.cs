@@ -2,7 +2,7 @@ namespace ResQueue.Models.Postgres;
 
 public class QueueView
 {
-    public string queue_name { get; set; }
+    public string? queue_name { get; set; }
     public int queue_auto_delete { get; set; }
     public long ready { get; set; }
     public long scheduled { get; set; }
