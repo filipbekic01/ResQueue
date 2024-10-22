@@ -18,8 +18,21 @@ export const usePaginatedMessagesQuery = (queueId: MaybeRef<number | undefined>,
         withCredentials: true
       })
 
+      response.data.items.forEach((x) => {
+        try {
+          x.transport_headers = JSON.parse(x.transport_headers ?? '{}')
+        } catch {
+          x.transport_headers = {}
+        }
+
+        try {
+          x.message.host = JSON.parse(x.message.host ?? '{}')
+        } catch {
+          x.message.host = {}
+        }
+      })
+
       return response.data
     },
     enabled: computed(() => !!toValue(queueId))
-    // refetchInterval: 3000
   })

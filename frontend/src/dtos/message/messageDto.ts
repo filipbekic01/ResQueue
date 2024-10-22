@@ -14,7 +14,7 @@ export interface MessageDto {
   destination_address: string
   response_address: string
   fault_address: string
-  sent_time: Date
+  sent_time: string
   headers: string
-  host: string
+  host: any
 }

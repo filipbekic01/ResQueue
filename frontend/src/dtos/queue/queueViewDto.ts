@@ -1,6 +1,6 @@
 export interface QueueViewDto {
   queueName: string
-  queueAutoDelete: boolean
+  queueAutoDelete: number
   ready: number
   scheduled: number
   errored: number

@@ -1,20 +1,20 @@
 using Microsoft.AspNetCore.Rewrite;
+using Microsoft.Extensions.Options;
 using ResQueue.Endpoints;
 using ResQueue.Features.Messages.MoveMessage;
 using ResQueue.Features.Messages.RequeueMessages;
 
 namespace ResQueue;
 
-public class Program
+public static class ResQueueExtensions
 {
-    public static void Main(string[] args)
+    public static WebApplicationBuilder AddResQueue(this WebApplicationBuilder builder,
+        Action<Settings> configureOptions)
     {
-        var builder = WebApplication.CreateBuilder(args);
+        // Configure IOptions<ResQueueOptions>
+        builder.Services.Configure(configureOptions);
 
-        var settingsSection = builder.Configuration.GetRequiredSection("Settings");
-        builder.Services.Configure<Settings>(settingsSection);
-        // var settings = settingsSection.Get<Settings>()!;
-
+        // Configure CORS
         builder.Services.AddCors(corsOptions =>
         {
             corsOptions.AddPolicy("AllowAll", policy =>
@@ -26,34 +26,43 @@ public class Program
             });
         });
 
+        // Add HTTP Client
         builder.Services.AddHttpClient();
 
+        // Register features
         builder.Services.AddTransient<IRequeueMessagesFeature, RequeueMessagesFeature>();
         builder.Services.AddTransient<IRequeueSpecificMessagesFeature, RequeueSpecificMessagesFeature>();
 
-        var app = builder.Build();
+        return builder;
+    }
 
+    public static IApplicationBuilder UseResQueue(this WebApplication app)
+    {
+        // Use CORS policy
         app.UseCors("AllowAll");
 
-        // Temporary internal server error fix until this issue is officially fixed.
-        // https://github.com/dotnet/aspnetcore/issues/22281
+        // Temporary internal server error fix
         if (!app.Environment.IsDevelopment())
         {
             app.UseExceptionHandler(configure => configure.Run(_ => Task.CompletedTask));
         }
 
+        // Configure frontend route rewriting
         string[] frontendRoutes =
-        [
+        {
             "^login",
             "^forgot-password$",
             "^support$",
             "^pricing$",
             "^app",
-        ];
+        };
+
         app.UseRewriter(frontendRoutes.Aggregate(
             new RewriteOptions(),
             (options, route) => options.AddRewrite(route, "/index.html", true))
         );
+
+        // Serve static files
         app.UseDefaultFiles();
         app.UseStaticFiles(new StaticFileOptions()
         {
@@ -66,10 +75,11 @@ public class Program
             }
         });
 
-        var apiGroup = app.MapGroup("api");
+        // Map API endpoints
+        var apiGroup = app.MapGroup("resqueue");
         apiGroup.MapQueueEndpoints();
         apiGroup.MapMessageEndpoints();
 
-        app.Run();
+        return app;
     }
 }

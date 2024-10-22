@@ -32,9 +32,6 @@ const selectQueue = (data: any) => {
       removable-sort
       class="grow overflow-auto"
       striped-rows
-      :sort-field="route.query.sortField"
-      :sort-order="route.query.sortOrder ? parseInt(route.query.sortOrder.toString()) : undefined"
-      @sort="updateSort"
     >
       <Column sortable field="queue_name" header="Name" class="overflow-hidden overflow-ellipsis">
         <template #body="{ data }">
@@ -47,7 +44,12 @@ const selectQueue = (data: any) => {
         </template>
       </Column>
 
-      <Column sortable field="queueAutoDelete" header="AutoDelete" class="w-[0]"></Column>
+      <Column sortable field="queueAutoDelete" header="AutoDelete" class="w-[0]">
+        <template #body="{ data }">
+          <div v-show="data['queueAutoDelete']" class="text-nowrap">{{ data['queueAutoDelete'] / 60 }}m</div>
+          <div v-show="!data['queueAutoDelete']">-</div>
+        </template>
+      </Column>
       <Column sortable field="ready" header="Ready" class="w-[0]"></Column>
       <Column sortable field="scheduled" header="Scheduled" class="w-[0]"></Column>
       <Column sortable field="errored" header="Errored" class="w-[0]"></Column>

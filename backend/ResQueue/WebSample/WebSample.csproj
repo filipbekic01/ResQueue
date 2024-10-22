@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\ResQueue\ResQueue.csproj"/>
+    </ItemGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="MassTransit" Version="8.3.1-develop.2089"/>
+        <PackageReference Include="MassTransit.Azure.ServiceBus.Core" Version="8.3.1-develop.2089"/>
+        <PackageReference Include="MassTransit.Marten" Version="8.3.1-develop.2089"/>
+        <PackageReference Include="MassTransit.SqlTransport.PostgreSQL" Version="8.3.1-develop.2089"/>
+        <PackageReference Include="MassTransit.SqlTransport.SqlServer" Version="8.3.1-develop.2089"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1"/>
+    </ItemGroup>
+</Project>

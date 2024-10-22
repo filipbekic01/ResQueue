@@ -14,7 +14,7 @@ export interface MessageDeliveryDto {
   delivery_count: number
   max_delivery_count: number
   last_delivered?: string
-  transport_headers: string
+  transport_headers: any
 
   message: MessageDto // Message interface reference
 }

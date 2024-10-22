@@ -36,7 +36,11 @@ watchEffect(() => {
 })
 
 // Messages
-const { data: paginatedMessages } = usePaginatedMessagesQuery(
+const {
+  data: paginatedMessages,
+  refetch: refetchPaginatedMessages,
+  isPending
+} = usePaginatedMessagesQuery(
   computed(() => selectedQueueId.value),
   pageIndex
 )
@@ -62,7 +66,6 @@ const selectedMessageIds = computed(() =>
   selectedMessages.value?.length ? selectedMessages.value.map((x) => x.message_delivery_id) : []
 )
 
-const jesus = ref()
 const items = computed((): MenuItem[] => {
   return [
     {
@@ -72,6 +75,14 @@ const items = computed((): MenuItem[] => {
         router.push({
           name: 'queues'
         })
+      }
+    },
+    {
+      label: `Refresh`,
+      icon: `pi pi-refresh`,
+      disabled: isPending.value,
+      command: () => {
+        refetchPaginatedMessages()
       }
     },
     {
@@ -195,7 +206,18 @@ const items = computed((): MenuItem[] => {
                 ></span>
               </template>
             </Column> -->
-            <Column field="message.message_type" header="URN" class="whitespace-nowrap"> </Column>
+            <Column field="message.message_type" header="URN" class="w-0 whitespace-nowrap">
+              <template #body="{ data }">
+                {{ data.message.message_type.replace('urn:message:', '') }}
+              </template>
+            </Column>
+            <Column field="message.transport_headers" header="" class="whitespace-nowrap">
+              <template #body="{ data }">
+                <div v-if="data.transport_headers['MT-Fault-Message']" class="flex gap-3 text-red-950">
+                  <i class="pi pi-exclamation-circle text-red-700"></i>{{ data.transport_headers['MT-Fault-Message'] }}
+                </div>
+              </template>
+            </Column>
             <Column field="message.lock_id" header="" class="w-0 whitespace-nowrap">
               <template #body="{ data }">
                 <i :class="`pi pi-${data.lock_id ? 'lock' : ''}`"></i>
