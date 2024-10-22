@@ -2,6 +2,26 @@
     <PropertyGroup>
         <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
         <OutputType>Library</OutputType>
+
+        <!-- NuGet package properties -->
+        <PackageId>ResQueue.MassTransit</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>Filip Bekić</Authors>
+        <Company>ResQueue</Company>
+        <Description>MassTransit SQL Transport Web UI</Description>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/filipbekic01/resqueue</RepositoryUrl>
+        <PackageProjectUrl>https://resqueue.io</PackageProjectUrl>
+        <PackageIcon>icon.png</PackageIcon>
+        <RepositoryType>git</RepositoryType>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <TargetFramework>net8.0</TargetFramework>
+
+        <!-- Output path for the NuGet package -->
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PackageOutputPath>$(OutputPath)</PackageOutputPath>
     </PropertyGroup>
 
     <Target Name="Deploy Vue" BeforeTargets="Publish">
@@ -12,6 +32,10 @@
             <CopyDist Include="../../../frontend/dist/**/*.*"/>
         </ItemGroup>
         <Copy SourceFiles="@(CopyDist)" DestinationFiles="@(CopyDist->'$(PublishDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')"/>
+    </Target>
+
+    <Target Name="PushToNuGet" AfterTargets="Pack">
+        <Exec Command="dotnet nuget push $(OutputPath)\$(PackageId).$(Version).nupkg --api-key $(NuGetApiKey) --source $(NuGetSource)"/>
     </Target>
 
     <ItemGroup>
