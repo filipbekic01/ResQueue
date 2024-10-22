@@ -12,7 +12,6 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/filipbekic01/resqueue</RepositoryUrl>
         <PackageProjectUrl>https://resqueue.io</PackageProjectUrl>
-        <PackageIcon>icon.png</PackageIcon>
         <RepositoryType>git</RepositoryType>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <TargetFramework>net8.0</TargetFramework>
