@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using ResQueue.Dtos;
+using ResQueue.Dtos.Queue;
 using ResQueue.Models.Postgres;
 
 namespace ResQueue.Endpoints;

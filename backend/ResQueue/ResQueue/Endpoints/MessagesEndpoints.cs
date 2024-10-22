@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using ResQueue.Dtos;
-using ResQueue.Features.Messages.MoveMessage;
+using ResQueue.Dtos.Messages;
 using ResQueue.Features.Messages.RequeueMessages;
+using ResQueue.Features.Messages.RequeueSpecificMessages;
 using ResQueue.Models.Postgres;
 using Message = ResQueue.Models.Postgres.Message;
 

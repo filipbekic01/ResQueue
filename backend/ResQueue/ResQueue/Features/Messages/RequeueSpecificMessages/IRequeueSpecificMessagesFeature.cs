@@ -1,4 +1,4 @@
-namespace ResQueue.Features.Messages.MoveMessage;
+namespace ResQueue.Features.Messages.RequeueSpecificMessages;
 
 public interface IRequeueSpecificMessagesFeature
 {

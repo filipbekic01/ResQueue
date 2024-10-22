@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Options;
 using ResQueue.Endpoints;
-using ResQueue.Features.Messages.MoveMessage;
 using ResQueue.Features.Messages.RequeueMessages;
+using ResQueue.Features.Messages.RequeueSpecificMessages;
 
 namespace ResQueue;
 

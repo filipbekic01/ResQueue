@@ -1,4 +1,4 @@
-namespace ResQueue.Dtos;
+namespace ResQueue.Dtos.Queue;
 
 public class QueueViewDto
 {
