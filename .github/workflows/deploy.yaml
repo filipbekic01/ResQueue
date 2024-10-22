@@ -30,6 +30,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish
+      - name: Build the project
         working-directory: backend/ResQueue
-        run: dotnet publish --os linux --arch amd64 /t:PublishContainer -p:ContainerRepository=filipbekic01/resqueue -p:ContainerRegistry=ghcr.io
+        run: dotnet build --configuration Release
+
+      - name: Pack the NuGet package
+        working-directory: backend/ResQueue
+        run: dotnet pack --configuration Release
+
+      - name: Push the NuGet package
+        working-directory: backend/ResQueue
+        run: dotnet nuget push bin/Release/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://nuget.org
