@@ -22,6 +22,9 @@
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <PackageOutputPath>$(OutputPath)</PackageOutputPath>
+
+        <!-- Required for NuGet package -->
+        <IsPackable>true</IsPackable>
     </PropertyGroup>
 
     <Target Name="Deploy Vue" BeforeTargets="Publish">
@@ -35,7 +38,7 @@
     </Target>
 
     <Target Name="PushToNuGet" AfterTargets="Pack">
-        <Exec Command="dotnet nuget push $(OutputPath)\$(PackageId).$(Version).nupkg --api-key $(NuGetApiKey) --source $(NuGetSource)"/>
+        <Exec Command="dotnet nuget push $(OutputPath)\$(PackageId).$(Version).nupkg --api-key $(NuGetApiKey) --source https://github.com/filipbekic01/resqueue.git"/>
     </Target>
 
     <ItemGroup>

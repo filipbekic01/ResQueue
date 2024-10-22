@@ -6,6 +6,8 @@ on:
 jobs:
   Deploy:
     runs-on: ubuntu-latest
+    env:
+      NuGetApiKey: ${{ secrets.NUGET_API_KEY }}
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
