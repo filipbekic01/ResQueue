@@ -7,38 +7,17 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    Avatar: typeof import('primevue/avatar')['default']
-    AvatarGroup: typeof import('primevue/avatargroup')['default']
     Breadcrumb: typeof import('primevue/breadcrumb')['default']
     Button: typeof import('primevue/button')['default']
-    ButtonGroup: typeof import('primevue/buttongroup')['default']
-    Checkbox: typeof import('primevue/checkbox')['default']
     Column: typeof import('primevue/column')['default']
     DataTable: typeof import('primevue/datatable')['default']
-    InputNumber: typeof import('primevue/inputnumber')['default']
-    InputSwitch: typeof import('primevue/inputswitch')['default']
-    InputText: typeof import('primevue/inputtext')['default']
-    Menu: typeof import('primevue/menu')['default']
     Menubar: typeof import('primevue/menubar')['default']
-    Message: typeof import('primevue/message')['default']
-    Paginator: typeof import('primevue/paginator')['default']
-    Popover: typeof import('primevue/popover')['default']
-    RabbitMqHeadersInput: typeof import('./src/components/RabbitMqHeadersInput.vue')['default']
-    RadioButton: typeof import('primevue/radiobutton')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    Select: typeof import('primevue/select')['default']
-    SelectButton: typeof import('primevue/selectbutton')['default']
     SelectFormat: typeof import('./src/components/SelectFormat.vue')['default']
     SelectStructure: typeof import('./src/components/SelectStructure.vue')['default']
-    SplitButton: typeof import('primevue/splitbutton')['default']
     Tab: typeof import('primevue/tab')['default']
     TabList: typeof import('primevue/tablist')['default']
     Tabs: typeof import('primevue/tabs')['default']
-    Tag: typeof import('primevue/tag')['default']
-    ToggleSwitch: typeof import('primevue/toggleswitch')['default']
-  }
-  export interface ComponentCustomProperties {
-    Tooltip: typeof import('primevue/tooltip')['default']
   }
 }

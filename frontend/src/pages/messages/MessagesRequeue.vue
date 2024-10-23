@@ -1,17 +1,12 @@
 <script lang="ts" setup>
 import { useRequeueMessagesMutation } from '@/api/messages/requeueMessagesMutation'
-import { useQueues } from '@/composables/queueComposable'
+import { useQueue } from '@/composables/queueComposable'
 import { errorToToast } from '@/utils/errorUtils'
 import Button from 'primevue/button'
-import ButtonGroup from 'primevue/buttongroup'
-import InputGroup from 'primevue/inputgroup'
 import InputNumber from 'primevue/inputnumber'
 import InputText from 'primevue/inputtext'
 import Popover from 'primevue/popover'
 import Select from 'primevue/select'
-import Tab from 'primevue/tab'
-import Tabs from 'primevue/tabs'
-import ToggleButton from 'primevue/togglebutton'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref, watchEffect } from 'vue'
@@ -28,7 +23,7 @@ const { mutateAsync: requeueMessagesAsync, isPending: isRequeueMessagesPending }
 const {
   query: { data: queues },
   queueOptions
-} = useQueues(computed(() => props.queueName))
+} = useQueue(computed(() => props.queueName))
 
 const selectedQueue = computed(() => queues.value?.find((x) => x.id === props.selectedQueueId))
 
