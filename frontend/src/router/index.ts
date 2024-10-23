@@ -9,7 +9,7 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
+      path: '/resqueue',
       redirect: '/overview',
       component: Broker,
       children: [
@@ -40,7 +40,7 @@ const router = createRouter({
       ]
     },
     {
-      path: '/queues/:queueName',
+      path: '/resqueue/queues/:queueName',
       name: 'messages',
       props: true,
       component: Messages
