@@ -13,7 +13,7 @@
 
         <!-- NuGet package properties -->
         <PackageId>ResQueue.MassTransit</PackageId>
-        <Version>1.0.0-beta.5</Version>
+        <Version>1.0.0-beta.6</Version>
         <Authors>Filip Bekić</Authors>
         <Company>ResQueue</Company>
         <Description>MassTransit SQL Transport Web UI</Description>
