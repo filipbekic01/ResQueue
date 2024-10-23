@@ -1,6 +1,4 @@
-using System.Reflection;
 using Microsoft.AspNetCore.Rewrite;
-using Microsoft.Extensions.FileProviders;
 using ResQueue.Endpoints;
 using ResQueue.Features.Messages.RequeueMessages;
 using ResQueue.Features.Messages.RequeueSpecificMessages;
@@ -14,20 +12,6 @@ public static class ResQueueExtensions
     {
         builder.Services.Configure(configureOptions);
 
-        if (Environment.GetEnvironmentVariable("ResQueueDevMode") == "true")
-        {
-            builder.Services.AddCors(corsOptions =>
-            {
-                corsOptions.AddPolicy("AllowAll", policy =>
-                {
-                    policy.SetIsOriginAllowed(_ => true);
-                    policy.AllowAnyHeader();
-                    policy.AllowAnyMethod();
-                    policy.AllowCredentials();
-                });
-            });
-        }
-
         // todo: Remove if not used anymore.
         builder.Services.AddHttpClient();
 
@@ -40,44 +24,14 @@ public static class ResQueueExtensions
     public static IApplicationBuilder UseResQueue(this WebApplication app)
     {
         string[] frontendRoutes =
-        {
-            "^resqueue-ui",
-        };
+        [
+            "^resqueue-ui"
+        ];
 
         app.UseRewriter(frontendRoutes.Aggregate(
             new RewriteOptions(),
-            (options, route) => options.AddRewrite(route, "/index.html", true))
+            (options, route) => options.AddRewrite(route, "/_content/ResQueue.MassTransit/index.html", true))
         );
-
-        if (Environment.GetEnvironmentVariable("ResQueueDevMode") == "true")
-        {
-            app.UseCors("AllowAll");
-
-            app.UseDefaultFiles();
-            app.UseStaticFiles();
-        }
-        else
-        {
-            var assembly = typeof(ResQueueExtensions).GetTypeInfo().Assembly;
-            var embeddedProvider = new EmbeddedFileProvider(assembly, "ResQueue.staticwebassets");
-
-            app.UseDefaultFiles(new DefaultFilesOptions()
-            {
-                FileProvider = embeddedProvider
-            });
-
-            app.UseStaticFiles(new StaticFileOptions()
-            {
-                FileProvider = embeddedProvider,
-                OnPrepareResponse = (context) =>
-                {
-                    context.Context.Response.Headers.CacheControl =
-                        context.Context.Request.Path.StartsWithSegments("/assets")
-                            ? "public, max-age=31536000, immutable"
-                            : "no-cache, no-store";
-                }
-            });
-        }
 
         var apiGroup = app.MapGroup("resqueue-api");
         apiGroup.MapQueueEndpoints();
@@ -86,3 +40,15 @@ public static class ResQueueExtensions
         return app;
     }
 }
+
+// app.UseStaticFiles(new StaticFileOptions()
+// {
+//     FileProvider = embeddedProvider,
+//     OnPrepareResponse = (context) =>
+//     {
+//         context.Context.Response.Headers.CacheControl =
+//             context.Context.Request.Path.StartsWithSegments("/assets")
+//                 ? "public, max-age=31536000, immutable"
+//                 : "no-cache, no-store";
+//     }
+// });

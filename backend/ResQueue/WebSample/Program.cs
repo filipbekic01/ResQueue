@@ -1,5 +1,7 @@
+using System.Reflection;
 using Marten;
 using MassTransit;
+using Microsoft.Extensions.FileProviders;
 using ResQueue;
 
 namespace WebSample;
@@ -10,6 +12,17 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        builder.Services.AddCors(corsOptions =>
+        {
+            corsOptions.AddPolicy("AllowAll", policy =>
+            {
+                policy.SetIsOriginAllowed(_ => true);
+                policy.AllowAnyHeader();
+                policy.AllowAnyMethod();
+                policy.AllowCredentials();
+            });
+        });
+        
         builder.AddResQueue(opt =>
         {
             opt.PostgreSQLConnectionString =
@@ -26,7 +39,7 @@ public class Program
             options.Username = "postgres";
             options.Password = "postgres";
         });
-        
+
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
@@ -59,10 +72,13 @@ public class Program
         });
 
         var app = builder.Build();
-        
+        app.UseCors("AllowAll");
         app.UseSwagger();
         app.UseSwaggerUI();
 
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
+        
         app.MapGet("/", () => "Hello World!");
 
         app.UseResQueue();

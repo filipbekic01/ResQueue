@@ -17,8 +17,4 @@
         <PackageReference Include="ResQueue.MassTransit" Version="1.0.0-beta.8" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0"/>
     </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\ResQueue\ResQueue.csproj"/>
-    </ItemGroup>
 </Project>
