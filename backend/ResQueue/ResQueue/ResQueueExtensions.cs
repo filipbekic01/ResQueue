@@ -50,7 +50,7 @@ public static class ResQueueExtensions
         // Configure frontend route rewriting
         string[] frontendRoutes =
         {
-            "^resqueue",
+            "^resqueue-ui",
         };
 
         app.UseRewriter(frontendRoutes.Aggregate(
@@ -72,7 +72,7 @@ public static class ResQueueExtensions
         });
 
         // Map API endpoints
-        var apiGroup = app.MapGroup("resqueue/api");
+        var apiGroup = app.MapGroup("resqueue-api");
         apiGroup.MapQueueEndpoints();
         apiGroup.MapMessageEndpoints();
 

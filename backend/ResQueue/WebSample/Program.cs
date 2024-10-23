@@ -26,6 +26,9 @@ public class Program
             options.Username = "postgres";
             options.Password = "postgres";
         });
+        
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
 
         builder.Services.AddPostgresMigrationHostedService();
 
@@ -56,6 +59,9 @@ public class Program
         });
 
         var app = builder.Build();
+        
+        app.UseSwagger();
+        app.UseSwaggerUI();
 
         app.MapGet("/", () => "Hello World!");
 
