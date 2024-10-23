@@ -10,29 +10,31 @@ const router = createRouter({
   routes: [
     {
       path: '/resqueue-ui',
-      redirect: '/overview',
+      redirect: {
+        name: 'overview'
+      },
       component: Broker,
       children: [
         {
-          path: '/overview',
+          path: '/resqueue-ui/overview',
           name: 'overview',
           props: true,
           component: BrokerOverview
         },
         {
-          path: '/topics',
+          path: '/resqueue-ui/topics',
           name: 'topics',
           props: true,
           component: BrokerTopics
         },
         {
-          path: '/queues',
+          path: '/resqueue-ui/queues',
           name: 'queues',
           props: true,
           component: BrokerQueues
         },
         {
-          path: '/jobs',
+          path: '/resqueue-ui/jobs',
           name: 'jobs',
           props: true,
           component: BrokerQueues

@@ -9,10 +9,11 @@
     <PropertyGroup>
         <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
         <OutputType>Library</OutputType>
+        <IsPackable>true</IsPackable>
 
         <!-- NuGet package properties -->
         <PackageId>ResQueue.MassTransit</PackageId>
-        <Version>1.0.0-beta.3</Version>
+        <Version>1.0.0-beta.5</Version>
         <Authors>Filip Bekić</Authors>
         <Company>ResQueue</Company>
         <Description>MassTransit SQL Transport Web UI</Description>
@@ -28,33 +29,12 @@
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <PackageOutputPath>$(OutputPath)</PackageOutputPath>
-
-        <!-- Required for NuGet package -->
-        <IsPackable>true</IsPackable>
     </PropertyGroup>
-
-<!--    <Target Name="Deploy Vue" BeforeTargets="Publish">-->
-<!--        <Exec Command="npm ci" WorkingDirectory="../../../frontend"/>-->
-<!--        <Exec Command="npm run build:prod" WorkingDirectory="../../../frontend"/>-->
-<!--        <RemoveDir Directories="$(PublishDir)wwwroot"/>-->
-<!--        <ItemGroup>-->
-<!--            <CopyDist Include="../../../frontend/dist/**/*.*"/>-->
-<!--        </ItemGroup>-->
-<!--        <Copy SourceFiles="@(CopyDist)" DestinationFiles="@(CopyDist->'$(PublishDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')"/>-->
-<!--    </Target>-->
-
-    <ItemGroup>
-        <Compile Remove="Features\Stripe\UpdateSeats\**\*.cs"/>
-    </ItemGroup>
-
+    
     <ItemGroup>
         <PackageReference Include="Dapper" Version="2.1.35"/>
         <PackageReference Include="Npgsql" Version="8.0.5"/>
         <PackageReference Include="Marten" Version="7.30.1"/>
         <PackageReference Include="NewId" Version="4.0.1"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Remove="Properties\launchSettings.json"/>
     </ItemGroup>
 </Project>

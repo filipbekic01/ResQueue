@@ -1,5 +1,6 @@
+using System.Reflection;
 using Microsoft.AspNetCore.Rewrite;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.FileProviders;
 using ResQueue.Endpoints;
 using ResQueue.Features.Messages.RequeueMessages;
 using ResQueue.Features.Messages.RequeueSpecificMessages;
@@ -11,25 +12,25 @@ public static class ResQueueExtensions
     public static WebApplicationBuilder AddResQueue(this WebApplicationBuilder builder,
         Action<Settings> configureOptions)
     {
-        // Configure IOptions<ResQueueOptions>
         builder.Services.Configure(configureOptions);
 
-        // Configure CORS
-        builder.Services.AddCors(corsOptions =>
+        if (builder.Environment.IsDevelopment())
         {
-            corsOptions.AddPolicy("AllowAll", policy =>
+            builder.Services.AddCors(corsOptions =>
             {
-                policy.SetIsOriginAllowed(_ => true);
-                policy.AllowAnyHeader();
-                policy.AllowAnyMethod();
-                policy.AllowCredentials();
+                corsOptions.AddPolicy("AllowAll", policy =>
+                {
+                    policy.SetIsOriginAllowed(_ => true);
+                    policy.AllowAnyHeader();
+                    policy.AllowAnyMethod();
+                    policy.AllowCredentials();
+                });
             });
-        });
+        }
 
-        // Add HTTP Client
+        // todo: Remove if not used anymore.
         builder.Services.AddHttpClient();
 
-        // Register features
         builder.Services.AddTransient<IRequeueMessagesFeature, RequeueMessagesFeature>();
         builder.Services.AddTransient<IRequeueSpecificMessagesFeature, RequeueSpecificMessagesFeature>();
 
@@ -38,16 +39,6 @@ public static class ResQueueExtensions
 
     public static IApplicationBuilder UseResQueue(this WebApplication app)
     {
-        // Use CORS policy
-        app.UseCors("AllowAll");
-
-        // Temporary internal server error fix
-        if (!app.Environment.IsDevelopment())
-        {
-            app.UseExceptionHandler(configure => configure.Run(_ => Task.CompletedTask));
-        }
-
-        // Configure frontend route rewriting
         string[] frontendRoutes =
         {
             "^resqueue-ui",
@@ -57,21 +48,37 @@ public static class ResQueueExtensions
             new RewriteOptions(),
             (options, route) => options.AddRewrite(route, "/index.html", true))
         );
-
-        // Serve static files
-        app.UseDefaultFiles();
-        app.UseStaticFiles(new StaticFileOptions()
+        
+        if (app.Environment.IsDevelopment())
         {
-            OnPrepareResponse = (context) =>
+            app.UseCors("AllowAll");
+            
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+        }
+        else
+        {
+            var assembly = typeof(ResQueueExtensions).GetTypeInfo().Assembly;
+            var embeddedProvider = new EmbeddedFileProvider(assembly, "ResQueue.staticwebassets");
+        
+            app.UseDefaultFiles(new DefaultFilesOptions()
             {
-                context.Context.Response.Headers.CacheControl =
-                    context.Context.Request.Path.StartsWithSegments("/assets")
-                        ? "public, max-age=31536000, immutable"
-                        : "no-cache, no-store";
-            }
-        });
+                FileProvider = embeddedProvider
+            });
+        
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                FileProvider = embeddedProvider,
+                OnPrepareResponse = (context) =>
+                {
+                    context.Context.Response.Headers.CacheControl =
+                        context.Context.Request.Path.StartsWithSegments("/assets")
+                            ? "public, max-age=31536000, immutable"
+                            : "no-cache, no-store";
+                }
+            });
+        }
 
-        // Map API endpoints
         var apiGroup = app.MapGroup("resqueue-api");
         apiGroup.MapQueueEndpoints();
         apiGroup.MapMessageEndpoints();
