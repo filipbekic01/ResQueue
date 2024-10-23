@@ -1,6 +1,7 @@
 using System.Reflection;
 using Marten;
 using MassTransit;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.FileProviders;
 using ResQueue;
 
@@ -78,7 +79,6 @@ public class Program
 
         app.UseDefaultFiles();
         app.UseStaticFiles();
-        
         app.MapGet("/", () => "Hello World!");
 
         app.UseResQueue();
