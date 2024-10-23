@@ -14,7 +14,7 @@ public static class ResQueueExtensions
     {
         builder.Services.Configure(configureOptions);
 
-        if (builder.Environment.IsDevelopment())
+        if (Environment.GetEnvironmentVariable("ResQueueDevMode") == "true")
         {
             builder.Services.AddCors(corsOptions =>
             {
@@ -48,11 +48,11 @@ public static class ResQueueExtensions
             new RewriteOptions(),
             (options, route) => options.AddRewrite(route, "/index.html", true))
         );
-        
-        if (app.Environment.IsDevelopment())
+
+        if (Environment.GetEnvironmentVariable("ResQueueDevMode") == "true")
         {
             app.UseCors("AllowAll");
-            
+
             app.UseDefaultFiles();
             app.UseStaticFiles();
         }
@@ -60,12 +60,12 @@ public static class ResQueueExtensions
         {
             var assembly = typeof(ResQueueExtensions).GetTypeInfo().Assembly;
             var embeddedProvider = new EmbeddedFileProvider(assembly, "ResQueue.staticwebassets");
-        
+
             app.UseDefaultFiles(new DefaultFilesOptions()
             {
                 FileProvider = embeddedProvider
             });
-        
+
             app.UseStaticFiles(new StaticFileOptions()
             {
                 FileProvider = embeddedProvider,
