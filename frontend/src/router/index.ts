@@ -1,3 +1,4 @@
+import resqueueConfig from '@/config/resqueue'
 import Broker from '@/pages/broker/Broker.vue'
 import BrokerOverview from '@/pages/overview/BrokerOverview.vue'
 import BrokerQueues from '@/pages/queues/BrokerQueues.vue'
@@ -6,7 +7,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Messages from '../pages/messages/Messages.vue'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory('/' + resqueueConfig.prefix),
   routes: [
     {
       path: '/resqueue-ui',
