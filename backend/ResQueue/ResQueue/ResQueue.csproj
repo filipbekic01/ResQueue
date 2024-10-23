@@ -7,6 +7,14 @@
     </PropertyGroup>
 
     <PropertyGroup>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="../../../README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+
+    <PropertyGroup>
         <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
         <OutputType>Library</OutputType>
         <IsPackable>true</IsPackable>
@@ -30,7 +38,7 @@
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <PackageOutputPath>$(OutputPath)</PackageOutputPath>
     </PropertyGroup>
-    
+
     <ItemGroup>
         <PackageReference Include="Dapper" Version="2.1.35"/>
         <PackageReference Include="Npgsql" Version="8.0.5"/>
