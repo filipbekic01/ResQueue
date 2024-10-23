@@ -23,6 +23,19 @@ jobs:
         with:
           node-version: 20.x
 
+      - name: Install Node dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build Vue frontend
+        working-directory: frontend
+        run: npm run build:prod
+
+      - name: Copy Vue dist to wwwroot
+        run: |
+          rm -rf backend/ResQueue/ResQueue/wwwroot
+          cp -R frontend/dist backend/ResQueue/ResQueue/wwwroot
+
       - name: Build the project
         working-directory: backend/ResQueue/ResQueue
         run: dotnet build --configuration Release
