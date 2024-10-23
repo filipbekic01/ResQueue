@@ -12,6 +12,13 @@
 
     <ItemGroup>
         <None Include="../../../README.md" Pack="true" PackagePath="\"/>
+        <None Include="buildTransitive\ResQueue.MassTransit.targets" Pack="true" PackagePath="buildTransitive/"/>
+
+        <None Include="../../../frontend/dist/**/*" Pack="true">
+            <PackagePath>resqueue-wwwroot/</PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>resqueue-wwwroot\%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </None>
     </ItemGroup>
 
     <PropertyGroup>
@@ -21,7 +28,7 @@
 
         <!-- NuGet package properties -->
         <PackageId>ResQueue.MassTransit</PackageId>
-        <Version>1.0.0-beta.9</Version>
+        <Version>1.0.0-beta.13</Version>
         <Authors>Filip Bekić</Authors>
         <Company>ResQueue</Company>
         <Description>MassTransit SQL Transport Web UI</Description>

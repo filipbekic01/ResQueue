@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Rewrite;
+using Microsoft.Extensions.FileProviders;
 using ResQueue.Endpoints;
 using ResQueue.Features.Messages.RequeueMessages;
 using ResQueue.Features.Messages.RequeueSpecificMessages;
@@ -23,15 +24,26 @@ public static class ResQueueExtensions
 
     public static IApplicationBuilder UseResQueue(this WebApplication app)
     {
-        string[] frontendRoutes =
-        [
-            "^resqueue-ui"
-        ];
+        // string[] frontendRoutes =
+        // [
+        //     "^resqueue-ui"
+        // ];
+        //
+        // app.UseRewriter(frontendRoutes.Aggregate(
+        //     new RewriteOptions(),
+        //     (options, route) => options.AddRewrite(route, "/_content/ResQueue.MassTransit/index.html", true))
+        // );
+        //
+        // var apiGroup = app.MapGroup("resqueue-api");
+        // apiGroup.MapQueueEndpoints();
+        // apiGroup.MapMessageEndpoints();
 
-        app.UseRewriter(frontendRoutes.Aggregate(
-            new RewriteOptions(),
-            (options, route) => options.AddRewrite(route, "/_content/ResQueue.MassTransit/index.html", true))
-        );
+        app.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider =
+                new PhysicalFileProvider(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resqueue-wwwroot")),
+            RequestPath = "/resqueue"
+        });
 
         var apiGroup = app.MapGroup("resqueue-api");
         apiGroup.MapQueueEndpoints();
