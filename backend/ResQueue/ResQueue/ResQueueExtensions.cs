@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Rewrite;
+using Microsoft.Extensions.FileProviders;
 using ResQueue.Endpoints;
 using ResQueue.Features.Messages.RequeueMessages;
 using ResQueue.Features.Messages.RequeueSpecificMessages;
@@ -21,19 +22,39 @@ public static class ResQueueExtensions
         return builder;
     }
 
-    public static IApplicationBuilder UseResQueue(this WebApplication app)
+    public static IApplicationBuilder UseResQueue(this WebApplication app, string prefix = "resqueue",
+        Action<RouteGroupBuilder>? configureApi = null)
     {
+        app.MapGet("resqueue-4e8efb80-6aae-496f-b8bf-611b63e725bc/config.js", () => Results.Content(
+            $$"""
+              globalThis.resqueueConfig = {
+                  prefix: "{{prefix}}"
+              }
+              """
+            , "text/javascript"
+        ));
+
         string[] frontendRoutes =
         [
-            "^resqueue-ui"
+            "",
+            "/resqueue-ui",
         ];
 
         app.UseRewriter(frontendRoutes.Aggregate(
             new RewriteOptions(),
-            (options, route) => options.AddRewrite(route, "/_content/ResQueue.MassTransit/index.html", true))
+            (options, route) => options.AddRewrite($"^{prefix}{route}$",
+                "/resqueue-4e8efb80-6aae-496f-b8bf-611b63e725bc/index.html", true))
         );
 
-        var apiGroup = app.MapGroup("resqueue-api");
+        app.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider =
+                new PhysicalFileProvider(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resqueue-wwwroot")),
+            RequestPath = "/resqueue-4e8efb80-6aae-496f-b8bf-611b63e725bc"
+        });
+
+        var apiGroup = app.MapGroup("resqueue-4e8efb80-6aae-496f-b8bf-611b63e725bc/api");
+        configureApi?.Invoke(apiGroup);
         apiGroup.MapQueueEndpoints();
         apiGroup.MapMessageEndpoints();
 
