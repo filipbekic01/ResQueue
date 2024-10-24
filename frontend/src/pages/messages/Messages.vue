@@ -1,15 +1,13 @@
 <script lang="ts" setup>
 import { usePaginatedMessagesQuery } from '@/api/messages/paginatedMessagesQuery'
 import { useQueue } from '@/composables/queueComposable'
-import RequeueDialog, { type RequeueDialogData } from '@/dialogs/RequeueDialog.vue'
+import RequeueDialog from '@/dialogs/RequeueDialog.vue'
 import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import type { MenuItem } from 'primevue/menuitem'
 import SelectButton from 'primevue/selectbutton'
-import Tag from 'primevue/tag'
-import { useDialog } from 'primevue/usedialog'
 import { computed, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import MessagesMessage from './MessagesMessage.vue'
@@ -18,7 +16,6 @@ const props = defineProps<{
   queueName: string
 }>()
 
-const dialog = useDialog()
 const router = useRouter()
 
 const pageIndex = ref(0)
