@@ -34,16 +34,26 @@ public static class ResQueueExtensions
             , "text/javascript"
         ));
 
+        var rewriteOptions = new RewriteOptions()
+            .AddRewrite("^(.*)/$", "$1", false); // Remove trailing slash
+
         string[] frontendRoutes =
         [
             "",
+            "/overview",
+            "/topics",
+            "/queues",
+            "/jobs",
+            "/queues/[^/]+",
         ];
 
-        app.UseRewriter(frontendRoutes.Aggregate(
-            new RewriteOptions(),
-            (options, route) => options.AddRewrite($"^{prefix}{route}$",
-                "/resqueue-4e8efb80-6aae-496f-b8bf-611b63e725bc/index.html", true))
-        );
+        rewriteOptions = frontendRoutes.Aggregate(rewriteOptions, (options, route) => options.AddRewrite(
+            regex: $"^{prefix}{route}$",
+            replacement: "/resqueue-4e8efb80-6aae-496f-b8bf-611b63e725bc/index.html",
+            skipRemainingRules: true
+        ));
+
+        app.UseRewriter(rewriteOptions);
 
         app.UseStaticFiles(new StaticFileOptions
         {

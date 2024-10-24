@@ -4,6 +4,7 @@
         <Content Include="$(MSBuildThisFileDirectory)../resqueue-wwwroot/**/*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>resqueue-wwwroot\%(RecursiveDir)%(Filename)%(Extension)</Link>
+            <Visible>false</Visible>
         </Content>
     </ItemGroup>
 </Project>
