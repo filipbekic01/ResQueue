@@ -28,7 +28,19 @@ To set up **ResQueue**, follow these simple steps:
 
     var app = builder.Build();
 
-    app.UseResQueue();
+    // Basic setup will open the ResQueue UI at the default path, /resqueue, in
+    // the browser. By default, no authorization is applied, just clean endpoints, 
+    // usually good enough for development.
+
+    // app.UseResQueue();
+
+    // Production code should use a custom URL prefix for the ResQueue UI. In this
+    // case, the UI will be accessible at /custom-prefix. You can also apply
+    // additional configuration, such as adding authorization or other middleware.
+    app.UseResQueue("custom-prefix", options =>
+    {
+        options.RequireAuthorization();
+    });
 
     // Run the app
     app.Run();
