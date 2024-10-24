@@ -1,6 +1,6 @@
 # ResQueue
 
-**ResQueue** is a web-based UI management tool designed for SQL-based message transports. Currently, it offers seamless integration with MassTransit, and we're open to adding support for additional frameworks based on user feedback and demand.
+**ResQueue** (pronounced /ˈrɛskjuː/) is a web-based UI management tool designed for SQL-based message transports. Currently, it offers seamless integration with MassTransit, and we're open to adding support for additional frameworks based on user feedback and demand.
 
 Join our community on [Discord](https://discord.gg/322AAB4xKx) for updates, support, and discussions.
 
