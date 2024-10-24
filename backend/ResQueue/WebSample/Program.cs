@@ -77,8 +77,6 @@ public class Program
         app.UseSwagger();
         app.UseSwaggerUI();
 
-        // app.UseDefaultFiles();
-        // app.UseStaticFiles();
         app.MapGet("/", () => "Hello World!");
 
         app.UseResQueue();

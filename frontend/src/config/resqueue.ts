@@ -1,7 +1,13 @@
-export default (
+export interface ResqeueConfig {
+  prefix: string
+}
+
+const config: ResqeueConfig = (
   globalThis as typeof globalThis & {
-    resqueueConfig: {
-      prefix: string
-    }
+    resqueueConfig?: ResqeueConfig
   }
-).resqueueConfig
+).resqueueConfig ?? {
+  prefix: ''
+}
+
+export default config

@@ -25,20 +25,6 @@ public static class ResQueueExtensions
     public static IApplicationBuilder UseResQueue(this WebApplication app, string prefix = "resqueue",
         Action<RouteGroupBuilder>? configureApi = null)
     {
-        // string[] frontendRoutes =
-        // [
-        //     "^resqueue-ui"
-        // ];
-        //
-        // app.UseRewriter(frontendRoutes.Aggregate(
-        //     new RewriteOptions(),
-        //     (options, route) => options.AddRewrite(route, "/_content/ResQueue.MassTransit/index.html", true))
-        // );
-        //
-        // var apiGroup = app.MapGroup("resqueue-api");
-        // apiGroup.MapQueueEndpoints();
-        // apiGroup.MapMessageEndpoints();
-
         app.MapGet("resqueue-4e8efb80-6aae-496f-b8bf-611b63e725bc/config.js", () => Results.Content(
             $$"""
               globalThis.resqueueConfig = {
