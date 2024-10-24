@@ -14,6 +14,7 @@
         <PackageReference Include="MassTransit.SqlTransport.SqlServer" Version="8.3.1-develop.2089"/>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1"/>
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1"/>
+        <PackageReference Include="ResQueue.MassTransit" Version="1.0.0-beta.11" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0"/>
     </ItemGroup>
 </Project>
