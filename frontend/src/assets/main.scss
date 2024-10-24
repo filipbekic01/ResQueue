@@ -13,6 +13,17 @@
   @apply z-20 bg-transparent dark:bg-transparent;
 }
 
+.p-datatable.p-datatable-striped .p-datatable-tbody > tr.p-row-odd {
+  @apply bg-surface-50 dark:bg-surface-950;
+}
+
+.p-datatable-hoverable .p-datatable-tbody > tr:not(.p-datatable-row-selected):hover {
+  @apply cursor-pointer bg-surface-100 text-surface-800 transition-none dark:bg-surface-800 dark:text-surface-0;
+}
+.p-datatable-tbody > tr {
+  @apply transition-none;
+}
+
 html {
   // font-size: 0.875rem;
   font-size: 14px;

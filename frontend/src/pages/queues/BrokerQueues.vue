@@ -31,18 +31,11 @@ const selectQueue = (data: any) => {
       :value="queuesView"
       removable-sort
       class="grow overflow-auto"
+      selection-mode="single"
       striped-rows
+      @row-select="(e) => selectQueue(e.data)"
     >
-      <Column sortable field="queue_name" header="Name" class="overflow-hidden overflow-ellipsis">
-        <template #body="{ data }">
-          <div
-            @click="selectQueue(data)"
-            class="w-0 overflow-ellipsis whitespace-nowrap hover:cursor-pointer hover:border-blue-500 hover:text-blue-500"
-          >
-            {{ data['queueName'] }}
-          </div>
-        </template>
-      </Column>
+      <Column sortable field="queueName" header="Name" class="overflow-hidden overflow-ellipsis"> </Column>
 
       <Column sortable field="queueAutoDelete" header="AutoDelete" class="w-[0]">
         <template #body="{ data }">

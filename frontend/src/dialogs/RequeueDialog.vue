@@ -4,22 +4,21 @@ import { useRequeueSpecificMessagesMutation } from '@/api/messages/requeueSpecif
 import { useQueue } from '@/composables/queueComposable'
 import { errorToToast } from '@/utils/errorUtils'
 import Button from 'primevue/button'
-import type { DynamicDialogOptions } from 'primevue/dynamicdialogoptions'
 import InputNumber from 'primevue/inputnumber'
 import InputText from 'primevue/inputtext'
 import Select from 'primevue/select'
 import { useToast } from 'primevue/usetoast'
-import { computed, inject, ref, watchEffect, type Ref } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 
-export interface RequeueDialogData {
+const props = defineProps<{
   selectedQueueId: number
   deliveryMessageIds: number[]
   batch: boolean
-}
+}>()
 
-const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
-const dialogData = computed((): RequeueDialogData => dialogRef?.value.data)
+// const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
+// const dialogData = computed((): RequeueDialogData => dialogRef?.value.data)
 
 const toast = useToast()
 const route = useRoute()
@@ -31,16 +30,14 @@ const {
   queueOptions
 } = useQueue(computed(() => route.params.queueName.toString()))
 
-const selectedQueue = computed(() => queues.value?.find((x) => x.id === dialogData.value.selectedQueueId))
+const selectedQueue = computed(() => queues.value?.find((x) => x.id === props.selectedQueueId))
 
 const requeueMessageCount = ref(0)
 const requeueRedeliveryCount = ref(10)
 const requeueDelay = ref('0 seconds')
 const requeueTargetQueueId = ref<number>()
 const requeueTargetQueue = computed(() => queues.value?.find((x) => x.id === requeueTargetQueueId.value))
-const requeueTargetQueueOptions = computed(() =>
-  queueOptions.value.filter((x) => x.queue.id !== dialogData.value.selectedQueueId)
-)
+const requeueTargetQueueOptions = computed(() => queueOptions.value.filter((x) => x.queue.id !== props.selectedQueueId))
 
 watchEffect(() => {
   requeueTargetQueueId.value = requeueTargetQueueOptions.value.find((x) => x)?.queue.id
@@ -51,7 +48,7 @@ const requeueMessages = () => {
     return
   }
 
-  if (dialogData.value.batch) {
+  if (props.batch) {
     requeueMessagesAsync({
       queueName: selectedQueue.value.name,
       sourceQueueType: selectedQueue.value.type,
@@ -71,7 +68,7 @@ const requeueMessages = () => {
       .catch((e) => toast.add(errorToToast(e)))
   } else {
     requeueSpecificMessagesAsync({
-      messageDeliveryIds: dialogData.value.deliveryMessageIds,
+      messageDeliveryIds: props.deliveryMessageIds,
       targetQueueType: requeueTargetQueue.value?.type,
       redeliveryCount: requeueRedeliveryCount.value,
       delay: requeueDelay.value
@@ -91,7 +88,7 @@ const requeueMessages = () => {
 
 <template>
   <div class="flex flex-col gap-3">
-    <div v-if="dialogData.batch" class="flex flex-col gap-1">
+    <div v-if="batch" class="flex flex-col gap-1">
       <label class="flex">Message count</label>
       <InputNumber name="requeueMessageCount" v-model="requeueMessageCount"></InputNumber>
     </div>

@@ -7,7 +7,7 @@ export type HighlightColorOptions = {
   nullColor?: string
 }
 
-export function highlightJson(json: any, colorOptions: HighlightColorOptions = {}): string {
+export function highlightJson(json: any, colorOptions: HighlightColorOptions = {}, doColor: boolean = true): string {
   const entityMap: { [key: string]: string } = {
     '&': '&amp;',
     '<': '&lt;',
@@ -69,7 +69,7 @@ export function highlightJson(json: any, colorOptions: HighlightColorOptions = {
               : color
       }
 
-      return `<span style="${style}color:${color}">${match}</span>`
+      return `<span style="${style}${doColor ? `color:${color}` : ''}">${match}</span>`
     }
   )
 }

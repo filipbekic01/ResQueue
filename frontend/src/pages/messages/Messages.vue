@@ -8,6 +8,7 @@ import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import type { MenuItem } from 'primevue/menuitem'
 import SelectButton from 'primevue/selectbutton'
+import Tag from 'primevue/tag'
 import { useDialog } from 'primevue/usedialog'
 import { computed, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
@@ -66,6 +67,8 @@ const selectedMessageIds = computed(() =>
   selectedMessages.value?.length ? selectedMessages.value.map((x) => x.message_delivery_id) : []
 )
 
+const requeuePopover = ref()
+const requeueSpecificPopover = ref()
 const items = computed((): MenuItem[] => {
   return [
     {
@@ -88,56 +91,12 @@ const items = computed((): MenuItem[] => {
     {
       label: `Requeue ${selectedMessageIds.value.length ? `(${selectedMessageIds.value.length})` : ''}`,
       icon: 'pi pi-replay',
-      command: () => {
-        if (!selectedQueueId.value) {
-          return
-        }
-
-        const data: RequeueDialogData = {
-          selectedQueueId: selectedQueueId.value,
-          batch: false,
-          deliveryMessageIds: selectedMessageIds.value
-        }
-
-        dialog.open(RequeueDialog, {
-          data,
-          props: {
-            header: 'Requeue',
-            style: {
-              width: '25rem'
-            },
-            modal: true,
-            draggable: false
-          }
-        })
-      }
+      command: (e) => requeueSpecificPopover.value.toggle(e.originalEvent)
     },
     {
       label: `Batch Requeue`,
       icon: 'pi pi-replay',
-      command: () => {
-        if (!selectedQueueId.value) {
-          return
-        }
-
-        const data: RequeueDialogData = {
-          selectedQueueId: selectedQueueId.value,
-          batch: true,
-          deliveryMessageIds: []
-        }
-
-        dialog.open(RequeueDialog, {
-          data,
-          props: {
-            header: 'Batch Requeue',
-            style: {
-              width: '25rem'
-            },
-            modal: true,
-            draggable: false
-          }
-        })
-      }
+      command: (e) => requeuePopover.value.toggle(e.originalEvent)
     },
     {
       label: 'Delete',
@@ -154,6 +113,22 @@ const items = computed((): MenuItem[] => {
 
 <template>
   <AppLayout>
+    <Popover ref="requeueSpecificPopover">
+      <RequeueDialog
+        v-if="selectedQueueId"
+        :selected-queue-id="selectedQueueId"
+        :batch="false"
+        :delivery-message-ids="selectedMessageIds"
+      />
+    </Popover>
+    <Popover ref="requeuePopover">
+      <RequeueDialog
+        v-if="selectedQueueId"
+        :selected-queue-id="selectedQueueId"
+        :batch="true"
+        :delivery-message-ids="[]"
+      />
+    </Popover>
     <div class="flex items-center border-b dark:border-b-surface-700">
       <Menubar :model="items" class="border-0" />
       <div class="ms-auto flex items-center gap-3">
