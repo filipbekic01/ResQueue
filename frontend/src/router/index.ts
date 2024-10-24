@@ -10,32 +10,32 @@ const router = createRouter({
   history: createWebHistory('/' + resqueueConfig.prefix),
   routes: [
     {
-      path: '/resqueue-ui',
+      path: '',
       redirect: {
         name: 'overview'
       },
       component: Broker,
       children: [
         {
-          path: '/resqueue-ui/overview',
+          path: '/overview',
           name: 'overview',
           props: true,
           component: BrokerOverview
         },
         {
-          path: '/resqueue-ui/topics',
+          path: '/topics',
           name: 'topics',
           props: true,
           component: BrokerTopics
         },
         {
-          path: '/resqueue-ui/queues',
+          path: '/queues',
           name: 'queues',
           props: true,
           component: BrokerQueues
         },
         {
-          path: '/resqueue-ui/jobs',
+          path: '/jobs',
           name: 'jobs',
           props: true,
           component: BrokerQueues
@@ -43,7 +43,7 @@ const router = createRouter({
       ]
     },
     {
-      path: '/resqueue-ui/queues/:queueName',
+      path: '/queues/:queueName',
       name: 'messages',
       props: true,
       component: Messages

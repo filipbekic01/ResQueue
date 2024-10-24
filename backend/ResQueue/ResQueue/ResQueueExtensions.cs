@@ -37,7 +37,6 @@ public static class ResQueueExtensions
         string[] frontendRoutes =
         [
             "",
-            "/resqueue-ui",
         ];
 
         app.UseRewriter(frontendRoutes.Aggregate(
@@ -61,15 +60,3 @@ public static class ResQueueExtensions
         return app;
     }
 }
-
-// app.UseStaticFiles(new StaticFileOptions()
-// {
-//     FileProvider = embeddedProvider,
-//     OnPrepareResponse = (context) =>
-//     {
-//         context.Context.Response.Headers.CacheControl =
-//             context.Context.Request.Path.StartsWithSegments("/assets")
-//                 ? "public, max-age=31536000, immutable"
-//                 : "no-cache, no-store";
-//     }
-// });

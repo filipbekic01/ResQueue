@@ -23,14 +23,13 @@ public class Program
                 policy.AllowCredentials();
             });
         });
-        
+
         builder.AddResQueue(opt =>
         {
             opt.PostgreSQLConnectionString =
                 "Host=localhost;Database=sandbox100;Username=postgres;Password=postgres;";
         });
 
-        // Add services to the container.
         builder.Services.AddOptions<SqlTransportOptions>().Configure(options =>
         {
             options.Host = "localhost";
@@ -43,9 +42,7 @@ public class Program
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-
         builder.Services.AddPostgresMigrationHostedService();
-
         builder.Services.AddMarten(x =>
         {
             x.Connection("Host=localhost;Database=sandbox100;Username=postgres;Password=postgres;");
@@ -54,17 +51,12 @@ public class Program
         builder.Services.AddMassTransit(mt =>
         {
             mt.AddSqlMessageScheduler();
-
             mt.SetMartenSagaRepositoryProvider();
-
             mt.AddConsumer<YourConsumer>()
                 .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
-
             mt.AddConsumer<AwesomeConsumer>()
                 .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
-
             mt.AddJobSagaStateMachines();
-
             mt.UsingPostgres((context, config) =>
             {
                 config.UseSqlMessageScheduler();
@@ -76,11 +68,7 @@ public class Program
         app.UseCors("AllowAll");
         app.UseSwagger();
         app.UseSwaggerUI();
-
-        app.MapGet("/", () => "Hello World!");
-
-        app.UseResQueue();
-
+        app.UseResQueue("custom-prefix");
         app.Run();
     }
 }
