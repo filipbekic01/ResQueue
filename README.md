@@ -23,7 +23,7 @@ To set up **ResQueue**, follow these simple steps:
     // Add ResQueue with the necessary database configuration
     builder.Services.AddResQueue(options =>
     {
-        // Configure database
+        // Credentials for MassTransit SQL database
     });
 
     var app = builder.Build();
