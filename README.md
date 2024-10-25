@@ -7,6 +7,28 @@ This project is still under active development. A beta version is currently avai
 
 Join our community on [Discord](https://discord.gg/322AAB4xKx) for updates, support, and discussions.
 
+### Work in Progress
+
+All checked features are available in latest [NuGet](https://www.nuget.org/packages/ResQueue.MassTransit) version.
+
+- Metrics
+    - [ ] Implement preview of basic metrics
+- Queues
+    - [x] Implemented preview of all queues
+    - [x] Completed requeue of specific messages
+    - [x] Completed batch requeue functionality
+- Topics
+    - [ ] Implement preview of all topics
+- Recurring Jobs
+    - [ ] Implement preview of all recurring jobs
+
+Currently supported brokers:
+
+- Brokers
+    - MassTransit
+        - [x] MassTransit.SqlTransport.PostgreSQL
+        - [ ] MassTransit.SqlTransport.SqlServer
+
 ## Configuration
 
 To set up **ResQueue**, follow these simple steps:
