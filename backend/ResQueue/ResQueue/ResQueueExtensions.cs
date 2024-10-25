@@ -43,7 +43,7 @@ public static class ResQueueExtensions
             "/overview",
             "/topics",
             "/queues",
-            "/jobs",
+            "/recurring-jobs",
             "/queues/[^/]+",
         ];
 

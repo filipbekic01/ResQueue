@@ -10,10 +10,10 @@ const route = useRoute()
   <AppLayout>
     <Tabs :value="route.name?.toString() ?? ''" @update:value="(a: any) => router.push({ name: a })">
       <TabList>
-        <Tab value="overview">Overview</Tab>
-        <Tab value="topics">Topics</Tab>
+        <Tab disabled value="overview">Overview</Tab>
+        <Tab disabled value="topics">Topics</Tab>
         <Tab value="queues">Queues</Tab>
-        <Tab value="jobs">Recurring Jobs</Tab>
+        <Tab disabled value="jobs">Recurring Jobs</Tab>
       </TabList>
     </Tabs>
 

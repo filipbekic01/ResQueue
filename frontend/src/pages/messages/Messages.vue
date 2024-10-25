@@ -96,7 +96,8 @@ const items = computed((): MenuItem[] => {
     {
       label: `Requeue ${selectedMessageIds.value.length ? `(${selectedMessageIds.value.length})` : ''}`,
       icon: 'pi pi-replay',
-      command: (e) => requeueSpecificPopover.value.toggle(e.originalEvent)
+      command: (e) => requeueSpecificPopover.value.toggle(e.originalEvent),
+      disabled: !selectedMessageIds.value.length
     },
     {
       label: `Batch Requeue`,

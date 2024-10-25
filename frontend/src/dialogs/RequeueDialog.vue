@@ -89,8 +89,14 @@ const requeueMessages = () => {
 <template>
   <div class="flex flex-col gap-3">
     <div v-if="batch" class="flex flex-col gap-1">
-      <label class="flex">Message count</label>
-      <InputNumber name="requeueMessageCount" v-model="requeueMessageCount"></InputNumber>
+      <label for="requeue-message-count" class="flex">Message count</label>
+      <InputNumber
+        :invalid="requeueMessageCount <= 0"
+        id="requeue-message-count"
+        v-model="requeueMessageCount"
+        aria-describedby="requeue-message-count-help"
+      ></InputNumber>
+      <small id="requeue-message-count-help">Takes first N messages from the top.</small>
     </div>
     <div class="flex flex-col gap-1">
       <label>Destination</label>
@@ -107,8 +113,9 @@ const requeueMessages = () => {
       <InputText v-model="requeueDelay"></InputText>
     </div>
     <div class="flex flex-col gap-1">
-      <label>Redelivery count (default 10)</label>
+      <label>Redelivery count</label>
       <InputNumber v-model="requeueRedeliveryCount"></InputNumber>
+      <small>Set to 10 by default</small>
     </div>
 
     <Button @click="requeueMessages" icon="pi pi-arrow-right" icon-pos="right" label="Requeue"></Button>

@@ -1,0 +1,1 @@
+<template>recurring-jobs</template>
