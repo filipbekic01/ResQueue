@@ -28,7 +28,7 @@
 
         <!-- NuGet package properties -->
         <PackageId>ResQueue.MassTransit</PackageId>
-        <Version>1.0.0-beta.14</Version>
+        <Version>1.0.0-beta.15</Version>
         <Authors>Filip Bekić</Authors>
         <Company>ResQueue</Company>
         <Description>MassTransit SQL Transport Web UI</Description>
@@ -49,7 +49,5 @@
     <ItemGroup>
         <PackageReference Include="Dapper" Version="2.1.35"/>
         <PackageReference Include="Npgsql" Version="8.0.5"/>
-        <PackageReference Include="Marten" Version="7.30.1"/>
-        <PackageReference Include="NewId" Version="4.0.1"/>
     </ItemGroup>
 </Project>
