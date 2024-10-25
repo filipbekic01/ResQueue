@@ -42,6 +42,14 @@ export function highlightJson(json: any, colorOptions: HighlightColorOptions = {
     },
     ...colorOptions
   }
+  if (!doColor) {
+    colors.keyColor = 'var(--p-primary-600)'
+    colors.numberColor = 'var(--p-primary-400)'
+    colors.stringColor = 'var(--p-primary-400)'
+    colors.trueColor = 'var(--p-primary-400)'
+    colors.falseColor = 'var(--p-primary-400)'
+    colors.nullColor = 'var(--p-primary-400)'
+  }
 
   jsonString = jsonString.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>')
 
@@ -69,7 +77,7 @@ export function highlightJson(json: any, colorOptions: HighlightColorOptions = {
               : color
       }
 
-      return `<span style="${style}${doColor ? `color:${color}` : ''}">${match}</span>`
+      return `<span style="${style}color:${color}">${match}</span>`
     }
   )
 }

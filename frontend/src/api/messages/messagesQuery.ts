@@ -30,6 +30,12 @@ export const useMessagesQuery = (queueId: MaybeRef<number | undefined>, pageInde
         } catch {
           x.message.host = {}
         }
+
+        try {
+          x.message.headers = JSON.parse(x.message.headers ?? '{}')
+        } catch {
+          x.message.headers = {}
+        }
       })
 
       return response.data

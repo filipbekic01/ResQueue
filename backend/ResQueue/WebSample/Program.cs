@@ -27,13 +27,13 @@ public class Program
         builder.AddResQueue(opt =>
         {
             opt.PostgreSQLConnectionString =
-                "Host=localhost;Database=sandbox100;Username=postgres;Password=postgres;";
+                "Host=localhost;Database=sandbox201;Username=postgres;Password=postgres;";
         });
 
         builder.Services.AddOptions<SqlTransportOptions>().Configure(options =>
         {
             options.Host = "localhost";
-            options.Database = "sandbox100";
+            options.Database = "sandbox201";
             options.Schema = "transport";
             options.Role = "transport";
             options.Username = "postgres";
@@ -45,7 +45,7 @@ public class Program
         builder.Services.AddPostgresMigrationHostedService();
         builder.Services.AddMarten(x =>
         {
-            x.Connection("Host=localhost;Database=sandbox100;Username=postgres;Password=postgres;");
+            x.Connection("Host=localhost;Database=sandbox201;Username=postgres;Password=postgres;");
         });
 
         builder.Services.AddMassTransit(mt =>

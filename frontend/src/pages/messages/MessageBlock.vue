@@ -8,7 +8,7 @@ defineProps<{
 <template>
   <div class="flex">
     <div class="w-72 shrink-0 text-primary-500">{{ name }}</div>
-    <div class="overflow-auto text-nowrap text-primary-600">
+    <div class="overflow-hidden break-words text-primary-600">
       <slot>{{ value ?? '-' }}</slot>
     </div>
   </div>

@@ -15,6 +15,6 @@ export interface MessageDto {
   response_address: string
   fault_address: string
   sent_time: string
-  headers: string
+  headers: any
   host: any
 }

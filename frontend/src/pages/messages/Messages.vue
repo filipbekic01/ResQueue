@@ -4,6 +4,7 @@ import { useQueue } from '@/composables/queueComposable'
 import RequeueDialog from '@/dialogs/RequeueDialog.vue'
 import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
 import AppLayout from '@/layouts/AppLayout.vue'
+import { format, formatDistance } from 'date-fns'
 import Column from 'primevue/column'
 import DataTable, { type DataTablePageEvent } from 'primevue/datatable'
 import type { MenuItem } from 'primevue/menuitem'
@@ -184,8 +185,9 @@ const onPage = (event: DataTablePageEvent) => {
           </Column>
           <Column field="message.transport_headers" header="" class="whitespace-nowrap">
             <template #body="{ data }">
-              <div v-if="data.transport_headers['MT-Fault-Message']" class="flex gap-3 text-red-950">
-                <i class="pi pi-exclamation-circle text-red-700"></i>{{ data.transport_headers['MT-Fault-Message'] }}
+              <div v-if="data.transport_headers['MT-Fault-Message']" class="flex gap-3">
+                <i class="pi pi-circle-fill text-red-400" style="font-size: 0.825rem"></i
+                >{{ data.transport_headers['MT-Fault-ExceptionType'] }}
               </div>
             </template>
           </Column>
@@ -195,9 +197,13 @@ const onPage = (event: DataTablePageEvent) => {
             </template>
           </Column>
           <Column field="priority" header="Priority" class="w-0 whitespace-nowrap"></Column>
-          <Column field="enqueue_time" header="Enqueue Time" class="w-0 whitespace-nowrap">
+          <Column field="enqueue_time" header="Enqueue Time" header-class="" class="w-0 whitespace-nowrap">
             <template #body="{ data }">
-              <div class="flex gap-2" v-if="data.enqueue_time">{{ data.enqueue_time }}</div>
+              <div class="flex gap-2" v-if="data.enqueue_time">
+                {{ format(data.enqueue_time, 'MMM dd HH:mm:ss') }} (
+                {{ formatDistance(data.enqueue_time, new Date()) }}
+                ago)
+              </div>
             </template></Column
           >
         </DataTable>
