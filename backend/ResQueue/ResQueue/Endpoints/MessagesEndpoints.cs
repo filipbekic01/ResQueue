@@ -17,7 +17,7 @@ public static class MessagesEndpoints
     {
         RouteGroupBuilder group = routes.MapGroup("messages");
 
-        group.MapGet("paginated",
+        group.MapGet("",
             async (IOptions<Settings> settings, [FromQuery] long queueId, [FromQuery] int pageIndex = 0,
                 int pageSize = 4) =>
             {

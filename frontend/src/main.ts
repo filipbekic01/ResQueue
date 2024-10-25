@@ -7,10 +7,10 @@ import DialogService from 'primevue/dialogservice'
 import ToastService from 'primevue/toastservice'
 import Tooltip from 'primevue/tooltip'
 import { createApp } from 'vue'
-import Rc from './Rc.vue'
+import RootCompoment from './RootCompoment.vue'
 import router from './router'
 
-const app = createApp(Rc)
+const app = createApp(RootCompoment)
 
 app.use(router)
 app.use(ConfirmationService)

@@ -1,8 +1,8 @@
 import resqueueConfig from '@/config/resqueue'
 import Broker from '@/pages/broker/Broker.vue'
-import BrokerOverview from '@/pages/overview/BrokerOverview.vue'
-import BrokerQueues from '@/pages/queues/BrokerQueues.vue'
-import BrokerTopics from '@/pages/topics/BrokerTopics.vue'
+import BrokerOverview from '@/pages/broker/overview/BrokerOverview.vue'
+import BrokerQueues from '@/pages/broker/queues/BrokerQueues.vue'
+import BrokerTopics from '@/pages/broker/topics/BrokerTopics.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import Messages from '../pages/messages/Messages.vue'
 

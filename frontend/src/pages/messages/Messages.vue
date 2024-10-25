@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { usePaginatedMessagesQuery } from '@/api/messages/paginatedMessagesQuery'
+import { useMessagesQuery } from '@/api/messages/messagesQuery'
 import { useQueue } from '@/composables/queueComposable'
 import RequeueDialog from '@/dialogs/RequeueDialog.vue'
 import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
@@ -35,10 +35,10 @@ watchEffect(() => {
 
 // Messages
 const {
-  data: paginatedMessages,
-  refetch: refetchPaginatedMessages,
+  data: messages,
+  refetch: refetchMessages,
   isPending
-} = usePaginatedMessagesQuery(
+} = useMessagesQuery(
   computed(() => selectedQueueId.value),
   pageIndex
 )
@@ -56,7 +56,7 @@ const toggleMessage = (msg?: MessageDeliveryDto) => {
 // Selected messages
 const selectedMessageId = ref<number>(24)
 const selectedMessage = computed(() =>
-  paginatedMessages.value?.items.find((x) => x.message_delivery_id === selectedMessageId.value)
+  messages.value?.items.find((x) => x.message_delivery_id === selectedMessageId.value)
 )
 
 const selectedMessages = ref<MessageDeliveryDto[]>([])
@@ -82,7 +82,7 @@ const items = computed((): MenuItem[] => {
       icon: `pi pi-refresh`,
       disabled: isPending.value,
       command: () => {
-        refetchPaginatedMessages()
+        refetchMessages()
       }
     },
     {
@@ -144,10 +144,10 @@ const items = computed((): MenuItem[] => {
       @page="changePage"
       :rows="50"
       :always-show="false"
-      :total-records="paginatedMessages?.totalCount"
+      :total-records="messages?.totalCount"
     ></Paginator>
  -->
-    <template v-if="paginatedMessages?.items.length">
+    <template v-if="messages?.items.length">
       <div class="flex grow flex-col overflow-auto">
         <div
           class="flex grow flex-col overflow-auto"
@@ -159,7 +159,7 @@ const items = computed((): MenuItem[] => {
         >
           <DataTable
             v-model:selection="selectedMessages"
-            :value="paginatedMessages?.items"
+            :value="messages?.items"
             data-key="message_delivery_id"
             scrollable
             class="max-w-full grow overflow-hidden"

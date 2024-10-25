@@ -1,22 +1,38 @@
 import { API_URL } from '@/constants/api'
-import type { MessageDto } from '@/dtos/message/messageDto'
+import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
+import type { PaginatedResult } from '@/dtos/paginatedResultDto'
 import { useQuery } from '@tanstack/vue-query'
 import axios from 'axios'
 import { computed, toValue, type MaybeRef } from 'vue'
 
-export const useMessagesQuery = (queueId: MaybeRef<string | undefined>, ids: MaybeRef<string[] | undefined>) =>
+export const useMessagesQuery = (queueId: MaybeRef<number | undefined>, pageIndex: MaybeRef<number>) =>
   useQuery({
-    queryKey: ['messages', ids],
+    queryKey: ['messages', queueId, pageIndex],
     queryFn: async () => {
-      const response = await axios.get<MessageDto[]>(`${API_URL}/messages`, {
+      const response = await axios.get<PaginatedResult<MessageDeliveryDto>>(`${API_URL}/messages`, {
         params: {
           queueId: toValue(queueId),
-          ids: toValue(ids)
+          pageSize: 50,
+          pageIndex: toValue(pageIndex)
         },
         withCredentials: true
       })
 
+      response.data.items.forEach((x) => {
+        try {
+          x.transport_headers = JSON.parse(x.transport_headers ?? '{}')
+        } catch {
+          x.transport_headers = {}
+        }
+
+        try {
+          x.message.host = JSON.parse(x.message.host ?? '{}')
+        } catch {
+          x.message.host = {}
+        }
+      })
+
       return response.data
     },
-    enabled: computed(() => !!toValue(queueId) && !!toValue(ids)?.length)
+    enabled: computed(() => !!toValue(queueId))
   })
