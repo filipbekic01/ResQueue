@@ -1,6 +1,5 @@
 import './assets/main.scss'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
-import { createHead } from '@unhead/vue'
 import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
 import DialogService from 'primevue/dialogservice'
@@ -16,7 +15,6 @@ app.use(router)
 app.use(ConfirmationService)
 app.use(DialogService)
 app.use(ToastService)
-app.use(createHead())
 
 app.use(VueQueryPlugin, {
   queryClient: new QueryClient({
