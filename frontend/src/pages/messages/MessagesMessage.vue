@@ -30,7 +30,10 @@ onBeforeUnmount(() => {
 })
 </script>
 <template>
-  <div class="click absolute start-0 top-0 z-40 h-full w-full backdrop-brightness-50" @click="emit('close')"></div>
+  <div
+    class="click absolute start-0 top-0 z-40 h-full w-full animate-fadein backdrop-brightness-50 animate-duration-75"
+    @click="emit('close')"
+  ></div>
   <div
     class="absolute bottom-0 end-0 z-50 mx-auto flex h-[100%] w-[90%] flex-col overflow-auto rounded-s-xl bg-surface-0 shadow-2xl dark:bg-surface-900"
   >

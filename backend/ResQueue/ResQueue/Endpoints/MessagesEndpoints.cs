@@ -18,10 +18,9 @@ public static class MessagesEndpoints
         RouteGroupBuilder group = routes.MapGroup("messages");
 
         group.MapGet("",
-            async (IOptions<Settings> settings, [FromQuery] long queueId, [FromQuery] int pageIndex = 0,
-                int pageSize = 4) =>
+            async (IOptions<Settings> settings, [FromQuery] long queueId, [FromQuery] int pageIndex = 0) =>
             {
-                pageSize = 50;
+                int pageSize = 50;
                 pageIndex = pageIndex >= 0 ? pageIndex : 0;
 
                 await using var db = new NpgsqlConnection(settings.Value.PostgreSQLConnectionString);

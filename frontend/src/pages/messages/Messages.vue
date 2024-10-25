@@ -5,7 +5,7 @@ import RequeueDialog from '@/dialogs/RequeueDialog.vue'
 import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
+import DataTable, { type DataTablePageEvent } from 'primevue/datatable'
 import type { MenuItem } from 'primevue/menuitem'
 import SelectButton from 'primevue/selectbutton'
 import { computed, ref, watchEffect } from 'vue'
@@ -18,19 +18,27 @@ const props = defineProps<{
 
 const router = useRouter()
 
+const first = ref(0)
 const pageIndex = ref(0)
 
 // Queues
-const { queueOptions } = useQueue(computed(() => props.queueName))
+const {
+  queueOptions,
+  queryView: { data: queueView }
+} = useQueue(computed(() => props.queueName))
 
 const selectedQueueId = ref<number>()
 
 watchEffect(() => {
-  if (!queueOptions.value.length) {
+  if (!queueOptions.value.length || !queueView.value) {
     return
   }
 
-  selectedQueueId.value = queueOptions.value.find((x) => x)?.queue.id ?? undefined
+  if (queueView.value.errored > 0) {
+    selectedQueueId.value = queueOptions.value.find((x) => x.queue.type == 2)?.queue.id ?? undefined
+  } else {
+    selectedQueueId.value = queueOptions.value.find((x) => x.queue.type == 1)?.queue.id ?? undefined
+  }
 })
 
 // Messages
@@ -106,10 +114,17 @@ const items = computed((): MenuItem[] => {
     }
   ]
 })
+
+const onPage = (event: DataTablePageEvent) => {
+  pageIndex.value = event.page
+  first.value = event.first
+}
 </script>
 
 <template>
   <AppLayout>
+    <MessagesMessage v-if="selectedMessage" :selected-message="selectedMessage" @close="toggleMessage(undefined)" />
+
     <Popover ref="requeueSpecificPopover">
       <RequeueDialog
         v-if="selectedQueueId"
@@ -139,71 +154,52 @@ const items = computed((): MenuItem[] => {
         ></SelectButton>
       </div>
     </div>
-    <!-- <Paginator
-      class="ms-auto"
-      @page="changePage"
-      :rows="50"
-      :always-show="false"
-      :total-records="messages?.totalCount"
-    ></Paginator>
- -->
+
     <template v-if="messages?.items.length">
       <div class="flex grow flex-col overflow-auto">
-        <div
-          class="flex grow flex-col overflow-auto"
-          :class="[
-            {
-              'basis-[20%]': selectedMessageId
-            }
-          ]"
+        <DataTable
+          v-model:selection="selectedMessages"
+          :value="messages.items"
+          :rows="messages.pageSize"
+          :total-records="messages.totalCount"
+          :loading="isPending"
+          :first="first"
+          :paginator="messages.totalPages > 1"
+          lazy
+          data-key="message_delivery_id"
+          scrollable
+          striped-rows
+          scroll-height="flex"
+          row-hover
+          @page="onPage"
+          @row-click="(e) => toggleMessage(e.data)"
         >
-          <DataTable
-            v-model:selection="selectedMessages"
-            :value="messages?.items"
-            data-key="message_delivery_id"
-            scrollable
-            class="max-w-full grow overflow-hidden"
-            striped-rows
-            scroll-height="flex"
-            :lazy="true"
-            row-hover
-            @row-click="(e) => toggleMessage(e.data)"
+          <Column selectionMode="multiple" class="w-0" style="vertical-align: top; text-align: center"></Column>
+          <Column field="message_delivery_id" header="ID" class="w-0 whitespace-nowrap"> </Column>
+          <Column field="message.message_type" header="URN" class="w-0 whitespace-nowrap">
+            <template #body="{ data }">
+              {{ data.message.message_type.replace('urn:message:', '') }}
+            </template>
+          </Column>
+          <Column field="message.transport_headers" header="" class="whitespace-nowrap">
+            <template #body="{ data }">
+              <div v-if="data.transport_headers['MT-Fault-Message']" class="flex gap-3 text-red-950">
+                <i class="pi pi-exclamation-circle text-red-700"></i>{{ data.transport_headers['MT-Fault-Message'] }}
+              </div>
+            </template>
+          </Column>
+          <Column field="message.lock_id" header="" class="w-0 whitespace-nowrap">
+            <template #body="{ data }">
+              <i :class="`pi pi-${data.lock_id ? 'lock' : ''}`"></i>
+            </template>
+          </Column>
+          <Column field="priority" header="Priority" class="w-0 whitespace-nowrap"></Column>
+          <Column field="enqueue_time" header="Enqueue Time" class="w-0 whitespace-nowrap">
+            <template #body="{ data }">
+              <div class="flex gap-2" v-if="data.enqueue_time">{{ data.enqueue_time }}</div>
+            </template></Column
           >
-            <Column selectionMode="multiple" class="w-0" style="vertical-align: top; text-align: center"></Column>
-            <Column field="message_delivery_id" header="ID" class="w-0 whitespace-nowrap"> </Column>
-            <!-- <Column field="message.message_type" header="" class="w-0 whitespace-nowrap">
-              <template #body="{ data }">
-                <span class="cursor-pointer text-blue-500 hover:text-blue-300" @click="toggleMessage(data)"
-                  ><i class="pi pi-eye"></i
-                ></span>
-              </template>
-            </Column> -->
-            <Column field="message.message_type" header="URN" class="w-0 whitespace-nowrap">
-              <template #body="{ data }">
-                {{ data.message.message_type.replace('urn:message:', '') }}
-              </template>
-            </Column>
-            <Column field="message.transport_headers" header="" class="whitespace-nowrap">
-              <template #body="{ data }">
-                <div v-if="data.transport_headers['MT-Fault-Message']" class="flex gap-3 text-red-950">
-                  <i class="pi pi-exclamation-circle text-red-700"></i>{{ data.transport_headers['MT-Fault-Message'] }}
-                </div>
-              </template>
-            </Column>
-            <Column field="message.lock_id" header="" class="w-0 whitespace-nowrap">
-              <template #body="{ data }">
-                <i :class="`pi pi-${data.lock_id ? 'lock' : ''}`"></i>
-              </template>
-            </Column>
-            <Column field="priority" header="Priority" class="w-0 whitespace-nowrap"></Column>
-            <Column field="enqueue_time" header="Enqueue Time" class="w-0 whitespace-nowrap">
-              <template #body="{ data }">
-                <div class="flex gap-2" v-if="data.enqueue_time">{{ data.enqueue_time }}</div>
-              </template></Column
-            >
-          </DataTable>
-        </div>
-        <MessagesMessage v-if="selectedMessage" :selected-message="selectedMessage" @close="toggleMessage(undefined)" />
+        </DataTable>
       </div>
     </template>
   </AppLayout>
