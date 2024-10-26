@@ -3,4 +3,5 @@ export interface RequeueSpecificMessagesDto {
   targetQueueType: number
   redeliveryCount: number
   delay: string
+  transactional: boolean
 }

@@ -1,23 +1,32 @@
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
 using ResQueue.Endpoints;
+using ResQueue.Enums;
+using ResQueue.Factories;
+using ResQueue.Features.Messages.DeleteMessages;
+using ResQueue.Features.Messages.GetMessages;
+using ResQueue.Features.Messages.PurgeQueue;
 using ResQueue.Features.Messages.RequeueMessages;
 using ResQueue.Features.Messages.RequeueSpecificMessages;
+using ResQueue.Migrations;
 
 namespace ResQueue;
 
 public static class ResQueueExtensions
 {
     public static WebApplicationBuilder AddResQueue(this WebApplicationBuilder builder,
-        Action<Settings> configureOptions)
+        Action<ResQueueOptions> configureOptions)
     {
         builder.Services.Configure(configureOptions);
 
-        // todo: Remove if not used anymore.
-        builder.Services.AddHttpClient();
+        builder.Services.AddSingleton<IDatabaseConnectionFactory, DatabaseConnectionFactory>();
 
         builder.Services.AddTransient<IRequeueMessagesFeature, RequeueMessagesFeature>();
         builder.Services.AddTransient<IRequeueSpecificMessagesFeature, RequeueSpecificMessagesFeature>();
+        builder.Services.AddTransient<IDeleteMessagesFeature, DeleteMessagesFeature>();
+        builder.Services.AddTransient<IGetMessagesFeature, GetMessagesFeature>();
+        builder.Services.AddTransient<IPurgeQueueFeature, PurgeQueueFeature>();
 
         return builder;
     }

@@ -4,6 +4,7 @@ import { useRequeueSpecificMessagesMutation } from '@/api/messages/requeueSpecif
 import { useQueue } from '@/composables/queueComposable'
 import { errorToToast } from '@/utils/errorUtils'
 import Button from 'primevue/button'
+import Checkbox from 'primevue/checkbox'
 import InputNumber from 'primevue/inputnumber'
 import InputText from 'primevue/inputtext'
 import Select from 'primevue/select'
@@ -38,6 +39,7 @@ const requeueDelay = ref('0 seconds')
 const requeueTargetQueueId = ref<number>()
 const requeueTargetQueue = computed(() => queues.value?.find((x) => x.id === requeueTargetQueueId.value))
 const requeueTargetQueueOptions = computed(() => queueOptions.value.filter((x) => x.queue.id !== props.selectedQueueId))
+const requeueTransactional = ref(false)
 
 watchEffect(() => {
   requeueTargetQueueId.value = requeueTargetQueueOptions.value.find((x) => x)?.queue.id
@@ -71,7 +73,8 @@ const requeueMessages = () => {
       messageDeliveryIds: props.deliveryMessageIds,
       targetQueueType: requeueTargetQueue.value?.type,
       redeliveryCount: requeueRedeliveryCount.value,
-      delay: requeueDelay.value
+      delay: requeueDelay.value,
+      transactional: requeueTransactional.value
     })
       .then(() => {
         toast.add({
@@ -116,6 +119,11 @@ const requeueMessages = () => {
       <label>Redelivery count</label>
       <InputNumber v-model="requeueRedeliveryCount"></InputNumber>
       <small>Set to 10 by default</small>
+    </div>
+
+    <div v-if="!batch" class="flex items-center gap-2">
+      <Checkbox id="transactional" v-model="requeueTransactional" binary></Checkbox>
+      <label for="transactional">Within single transaction</label>
     </div>
 
     <Button @click="requeueMessages" icon="pi pi-arrow-right" icon-pos="right" label="Requeue"></Button>

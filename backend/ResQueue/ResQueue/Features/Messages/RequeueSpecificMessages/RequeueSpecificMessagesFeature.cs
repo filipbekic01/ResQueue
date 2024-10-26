@@ -1,7 +1,11 @@
+using System.Data;
+using System.Data.Common;
 using Dapper;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using ResQueue.Dtos.Messages;
+using ResQueue.Enums;
+using ResQueue.Factories;
 
 namespace ResQueue.Features.Messages.RequeueSpecificMessages;
 
@@ -14,13 +18,14 @@ public record RequeueSpecificMessagesResponse(
 );
 
 public class RequeueSpecificMessagesFeature(
-    IOptions<Settings> settings
+    IDatabaseConnectionFactory connectionFactory,
+    IOptions<ResQueueOptions> options
 ) : IRequeueSpecificMessagesFeature
 {
     public async Task<OperationResult<RequeueSpecificMessagesResponse>> ExecuteAsync(
         RequeueSpecificMessagesRequest request)
     {
-        await using var connection = new NpgsqlConnection(settings.Value.PostgreSQLConnectionString);
+        await using var connection = connectionFactory.CreateConnection();
 
         await connection.OpenAsync();
 
@@ -30,7 +35,7 @@ public class RequeueSpecificMessagesFeature(
 
             foreach (var messageDeliveryId in request.Dto.MessageDeliveryIds)
             {
-                await CallRoutine(request, messageDeliveryId, connection);
+                await CallRoutineAsync(request, messageDeliveryId, connection);
             }
 
             await transaction.CommitAsync();
@@ -42,7 +47,7 @@ public class RequeueSpecificMessagesFeature(
         var succeededCount = 0;
         foreach (var messageDeliveryIds in request.Dto.MessageDeliveryIds)
         {
-            if (await CallRoutine(request, messageDeliveryIds, connection) > 0)
+            if (await CallRoutineAsync(request, messageDeliveryIds, connection) > 0)
             {
                 succeededCount++;
             }
@@ -52,17 +57,37 @@ public class RequeueSpecificMessagesFeature(
             new RequeueSpecificMessagesResponse(succeededCount));
     }
 
-    private static async Task<int?> CallRoutine(RequeueSpecificMessagesRequest request, long deliveryMessageId,
-        NpgsqlConnection connection)
+
+    private async Task<int?> CallRoutineAsync(RequeueSpecificMessagesRequest request, long deliveryMessageId,
+        DbConnection connection)
     {
         var parameters = new DynamicParameters();
-        parameters.Add("message_delivery_id", deliveryMessageId);
-        parameters.Add("target_queue_type", request.Dto.TargetQueueType);
-        parameters.Add("delay", request.Dto.Delay);
-        parameters.Add("redelivery_count", request.Dto.RedeliveryCount);
+        string commandText;
 
-        return await connection.QuerySingleAsync<int?>(
-            $"SELECT transport.requeue_message(@message_delivery_id, @target_queue_type, @delay::interval, @redelivery_count)",
-            parameters);
+        switch (options.Value.SqlEngine)
+        {
+            case ResQueueSqlEngine.PostgreSql:
+                commandText =
+                    "SELECT transport.requeue_message(@message_delivery_id, @target_queue_type, @delay::interval, @redelivery_count)";
+                parameters.Add("message_delivery_id", deliveryMessageId);
+                parameters.Add("target_queue_type", request.Dto.TargetQueueType);
+                parameters.Add("delay", request.Dto.Delay);
+                parameters.Add("redelivery_count", request.Dto.RedeliveryCount);
+                break;
+
+            case ResQueueSqlEngine.SqlServer:
+                commandText =
+                    "EXEC transport.requeue_message @message_delivery_id, @target_queue_type, @delay, @redelivery_count";
+                parameters.Add("message_delivery_id", deliveryMessageId);
+                parameters.Add("target_queue_type", request.Dto.TargetQueueType);
+                parameters.Add("delay", request.Dto.Delay);
+                parameters.Add("redelivery_count", request.Dto.RedeliveryCount);
+                break;
+
+            default:
+                throw new NotSupportedException();
+        }
+
+        return await connection.QuerySingleAsync<int?>(commandText, parameters);
     }
 }

@@ -15,6 +15,18 @@ const getQueueName = (type: number, queueView?: QueueViewDto) => {
   }
 }
 
+const getQueueTypeLabel = (type?: number) => {
+  if (type === 1) {
+    return `ready`
+  } else if (type === 2) {
+    return `error`
+  } else if (type === 3) {
+    return `dead-letter`
+  } else {
+    return 'Unknown'
+  }
+}
+
 export function useQueue(queueName: Ref<string>) {
   const query = useQueuesQuery(queueName)
   const queryView = useQueueViewQuery(queueName)
@@ -35,6 +47,7 @@ export function useQueue(queueName: Ref<string>) {
   return {
     query,
     queryView,
-    queueOptions
+    queueOptions,
+    getQueueTypeLabel
   }
 }

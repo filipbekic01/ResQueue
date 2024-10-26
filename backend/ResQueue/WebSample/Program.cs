@@ -4,6 +4,7 @@ using MassTransit;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.FileProviders;
 using ResQueue;
+using ResQueue.Enums;
 
 namespace WebSample;
 
@@ -26,8 +27,13 @@ public class Program
 
         builder.AddResQueue(opt =>
         {
-            opt.PostgreSQLConnectionString =
-                "Host=localhost;Database=sandbox201;Username=postgres;Password=postgres;";
+            opt.Host = "localhost";
+            opt.Database = "sandbox201";
+            opt.Schema = "transport";
+            opt.Username = "postgres";
+            opt.Password = "postgres";
+
+            opt.SqlEngine = ResQueueSqlEngine.PostgreSql;
         });
 
         builder.Services.AddOptions<SqlTransportOptions>().Configure(options =>
@@ -42,7 +48,11 @@ public class Program
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+        // Order is important
         builder.Services.AddPostgresMigrationHostedService();
+        builder.Services.AddResQueueMigrationsHostedService();
+
         builder.Services.AddMarten(x =>
         {
             x.Connection("Host=localhost;Database=sandbox201;Username=postgres;Password=postgres;");
@@ -52,10 +62,10 @@ public class Program
         {
             mt.AddSqlMessageScheduler();
             mt.SetMartenSagaRepositoryProvider();
-            mt.AddConsumer<YourConsumer>()
-                .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
-            mt.AddConsumer<AwesomeConsumer>()
-                .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
+            // mt.AddConsumer<YourConsumer>()
+            //     .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
+            // mt.AddConsumer<AwesomeConsumer>()
+            //     .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
             mt.AddJobSagaStateMachines();
             mt.UsingPostgres((context, config) =>
             {
@@ -69,6 +79,10 @@ public class Program
         app.UseSwagger();
         app.UseSwaggerUI();
         app.UseResQueue("custom-prefix");
+
+        app.MapGet("/publish",
+            async (IPublishEndpoint endpoint) => { await endpoint.Publish(new YourMessage(Guid.NewGuid())); });
+
         app.Run();
     }
 }

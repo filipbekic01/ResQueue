@@ -1,14 +1,19 @@
 <script lang="ts" setup>
+import { useDeleteMessagesMutation } from '@/api/messages/deleteMessagesMutation.ts'
 import { useMessagesQuery } from '@/api/messages/messagesQuery'
+import { usePurgeQueueMutation } from '@/api/queues/purgeQueueMutation'
 import { useQueue } from '@/composables/queueComposable'
 import RequeueDialog from '@/dialogs/RequeueDialog.vue'
 import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
 import AppLayout from '@/layouts/AppLayout.vue'
+import { errorToToast } from '@/utils/errorUtils'
 import { format, formatDistance } from 'date-fns'
 import Column from 'primevue/column'
 import DataTable, { type DataTablePageEvent } from 'primevue/datatable'
 import type { MenuItem } from 'primevue/menuitem'
 import SelectButton from 'primevue/selectbutton'
+import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'primevue/usetoast'
 import { computed, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import MessagesMessage from './MessagesMessage.vue'
@@ -19,16 +24,22 @@ const props = defineProps<{
 
 const router = useRouter()
 
+const confirm = useConfirm()
+const toast = useToast()
+
 const first = ref(0)
 const pageIndex = ref(0)
 
 // Queues
 const {
   queueOptions,
-  queryView: { data: queueView }
+  queryView: { data: queueView },
+  query: { data: queues },
+  getQueueTypeLabel
 } = useQueue(computed(() => props.queueName))
 
 const selectedQueueId = ref<number>()
+const selectedQueue = computed(() => queues.value?.find((x) => x.id === selectedQueueId.value))
 
 watchEffect(() => {
   if (!queueOptions.value.length || !queueView.value) {
@@ -41,6 +52,9 @@ watchEffect(() => {
     selectedQueueId.value = queueOptions.value.find((x) => x.queue.type == 1)?.queue.id ?? undefined
   }
 })
+
+// Purge queue
+const { mutateAsync: purgeQueueAsync, isPending: isPurgeQueuePending } = usePurgeQueueMutation()
 
 // Messages
 const {
@@ -61,6 +75,9 @@ const toggleMessage = (msg?: MessageDeliveryDto) => {
     selectedMessageId.value = msg.message_delivery_id
   }
 }
+
+// Delete messages
+const { mutateAsync: deleteMessagesAsync, isPending: isDeleteMessagesPending } = useDeleteMessagesMutation()
 
 // Selected messages
 const selectedMessageId = ref<number>(24)
@@ -108,9 +125,70 @@ const items = computed((): MenuItem[] => {
     {
       label: 'Delete',
       icon: 'pi pi-trash',
+      disabled: isDeleteMessagesPending.value,
       command: () => {
-        router.push({
-          name: 'queues'
+        confirm.require({
+          header: 'Delete Messages',
+          message: `Do you want to delete ${selectedMessageIds.value.length} messages?`,
+          icon: 'pi pi-info-circle',
+          rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+          },
+          acceptProps: {
+            label: 'Delete',
+            severity: 'danger'
+          },
+          accept: () => {
+            deleteMessagesAsync({
+              messages: selectedMessages.value.map((msg) => ({
+                messageDeliveryId: msg.message_delivery_id,
+                lockId: msg.lock_id
+              }))
+            }).catch((e) => toast.add(errorToToast(e)))
+          },
+          reject: () => {}
+        })
+      }
+    },
+    {
+      label: 'Purge',
+      icon: 'pi pi-eraser',
+      disabled: isPurgeQueuePending.value,
+      command: () => {
+        confirm.require({
+          header: `Purge Queue`,
+          message: `Do you want to purge ${getQueueTypeLabel(selectedQueue.value)} queue?`,
+          icon: 'pi pi-info-circle',
+          rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+          },
+          acceptProps: {
+            label: 'Purge',
+            severity: 'danger'
+          },
+          accept: () => {
+            if (!selectedQueueId.value) {
+              return
+            }
+
+            purgeQueueAsync({
+              queueId: selectedQueueId.value
+            })
+              .then(() => {
+                toast.add({
+                  severity: 'success',
+                  summary: 'Purge Completed',
+                  detail: `Queue has been purged successfully.`,
+                  life: 3000
+                })
+              })
+              .catch((e) => toast.add(errorToToast(e)))
+          },
+          reject: () => {}
         })
       }
     }
@@ -156,7 +234,6 @@ const onPage = (event: DataTablePageEvent) => {
         ></SelectButton>
       </div>
     </div>
-
     <template v-if="messages?.items.length">
       <div class="flex grow flex-col overflow-auto">
         <DataTable
