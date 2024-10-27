@@ -18,10 +18,10 @@ All checked features are available in latest [NuGet](https://www.nuget.org/packa
     - [x] Purge queue
 - Messages
     - [x] Tabluar messages view
+        - [x] Requeue selected messages (transactional and non-transactional)
+        - [x] Requeue first N messages from the top of the queue
+        - [x] Delete selected messages (transactional and non-transactional)
     - [x] Single message view
-    - [x] Requeue selected messages (transactional and non-transactional)
-    - [x] Requeue first N messages from the top of the queue
-    - [x] Delete selected messages (transactional and non-transactional)
 - Topics
     - [ ] Tabuar topics view
 - Recurring Jobs
