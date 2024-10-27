@@ -83,7 +83,6 @@ app.Run();
 Here's a quick preview of the ResQueue user interface, providing you with a glimpse of what to expect.
 
 <img width="1840" alt="image" src="https://github.com/user-attachments/assets/b60acf98-68d3-40be-a400-cf21889bc458">
-<img width="1840" alt="image" src="https://github.com/user-attachments/assets/41256c63-40c1-4017-bdf2-41947333718e">
-<img width="1840" alt="image" src="https://github.com/user-attachments/assets/91a1fe90-83a0-468d-af7b-cf60b69f8feb">
-<img width="1840" alt="image" src="https://github.com/user-attachments/assets/861070ed-f08f-49b4-bcc6-20f5b60efd30">
+<img width="1617" alt="image" src="https://github.com/user-attachments/assets/167b0ff2-0dea-4cec-94cf-8dab24ac9d40">
+<img width="1617" alt="image" src="https://github.com/user-attachments/assets/d7f894a2-7021-485f-9147-52694fa00524">
 
