@@ -61,13 +61,45 @@ onBeforeUnmount(() => {
           <span class="text-primary-500">URN</span>
           <span class="text-primary-700">{{ selectedMessage.message.messageType.replace('urn:message:', '') }}</span>
         </div>
-        <div class="mt-4 flex gap-3" v-if="transportHeadersTrimmed['MT-Fault-ExceptionType']">
-          <Tag severity="danger" class="capitalize" v-if="transportHeadersTrimmed['MT-Reason']">
+        <div class="mt-4 flex gap-8" v-if="transportHeadersTrimmed['MT-Fault-ExceptionType']">
+          <div>
+            <div class="text-primary-600">Machine</div>
+            <div class="text-primary-400">{{ selectedMessage.message.host['machineName'] }}</div>
+          </div>
+          <div>
+            <div class="text-primary-600">Process Name</div>
+            <div class="text-primary-400">
+              {{ selectedMessage.message.host['processName'] }}
+            </div>
+          </div>
+          <div>
+            <div class="text-primary-600">PID</div>
+            <div class="text-primary-400">{{ selectedMessage.message.host['processId'] }}</div>
+          </div>
+          <div>
+            <div class="text-primary-600">Assembly</div>
+            <div class="text-primary-400">
+              {{ selectedMessage.message.host['assembly'] }} ({{ selectedMessage.message.host['assemblyVersion'] }})
+            </div>
+          </div>
+          <div>
+            <div class="text-primary-600">Framework</div>
+            <div class="text-primary-400">{{ selectedMessage.message.host['frameworkVersion'] }}</div>
+          </div>
+          <div>
+            <div class="text-primary-600">MassTransit</div>
+            <div class="text-primary-400">{{ selectedMessage.message.host['massTransitVersion'] }}</div>
+          </div>
+          <div>
+            <div class="text-primary-600">OS</div>
+            <div class="text-primary-400">{{ selectedMessage.message.host['operatingSystemVersion'] }}</div>
+          </div>
+          <!-- <Tag severity="danger" class="capitalize" v-if="transportHeadersTrimmed['MT-Reason']">
             {{ transportHeadersTrimmed['MT-Reason'] }}
           </Tag>
           <Tag>
             {{ selectedMessage.message.host['processName'] }}
-          </Tag>
+          </Tag> -->
         </div>
       </div>
 
