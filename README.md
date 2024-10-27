@@ -11,6 +11,11 @@ Join our community on [Discord](https://discord.gg/322AAB4xKx) for updates, supp
 
 All checked features are available in latest [NuGet](https://www.nuget.org/packages/ResQueue.MassTransit) version.
 
+#### Brokers Support
+- [x] MassTransit
+    - [x] MassTransit.SqlTransport.PostgreSQL
+    - [x] MassTransit.SqlTransport.SqlServer
+
 #### Overview
 - [x] Tabular broker information view
 
@@ -30,13 +35,6 @@ All checked features are available in latest [NuGet](https://www.nuget.org/packa
 
 #### Recurring Jobs
 - [ ] Tabular recurring jobs view
-
-Currently supported brokers:
-
-- Brokers
-    - MassTransit
-        - [x] MassTransit.SqlTransport.PostgreSQL
-        - [x] MassTransit.SqlTransport.SqlServer
 
 ## Configuration
 
