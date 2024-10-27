@@ -62,10 +62,12 @@ onBeforeUnmount(() => {
           <span class="text-primary-700">{{ selectedMessage.message.messageType.replace('urn:message:', '') }}</span>
         </div>
         <div class="mt-4 flex gap-3" v-if="transportHeadersTrimmed['MT-Fault-ExceptionType']">
-          <Tag severity="danger" class="capitalize" v-if="transportHeadersTrimmed['MT-Reason']">{{
-            transportHeadersTrimmed['MT-Reason']
-          }}</Tag>
-          <Tag>{{ selectedMessage.message.host['processName'] }}</Tag>
+          <Tag severity="danger" class="capitalize" v-if="transportHeadersTrimmed['MT-Reason']">
+            {{ transportHeadersTrimmed['MT-Reason'] }}
+          </Tag>
+          <Tag>
+            {{ selectedMessage.message.host['processName'] }}
+          </Tag>
         </div>
       </div>
 
