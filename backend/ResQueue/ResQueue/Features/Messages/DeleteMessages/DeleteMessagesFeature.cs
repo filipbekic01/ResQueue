@@ -11,9 +11,7 @@ public record DeleteMessagesRequest(
     DeleteMessagesDto Dto
 );
 
-public record DeleteMessagesResponse(
-    int SucceededCount
-);
+public record DeleteMessagesResponse();
 
 public class DeleteMessagesFeature(
     IDatabaseConnectionFactory connectionFactory,
@@ -36,24 +34,19 @@ public class DeleteMessagesFeature(
             }
 
             await transaction.CommitAsync();
-
-            return OperationResult<DeleteMessagesResponse>.Success(
-                new DeleteMessagesResponse(request.Dto.Messages.Length));
         }
-
-        var succeededCount = 0;
-        foreach (var message in request.Dto.Messages)
+        else
         {
-            if (await CallRoutineAsync(message, connection) > 0)
+            foreach (var message in request.Dto.Messages)
             {
-                succeededCount++;
+                await CallRoutineAsync(message, connection);
             }
         }
 
-        return OperationResult<DeleteMessagesResponse>.Success(new DeleteMessagesResponse(succeededCount));
+        return OperationResult<DeleteMessagesResponse>.Success(new DeleteMessagesResponse());
     }
 
-    private async Task<int?> CallRoutineAsync(DeleteMessagesDto.Message message, DbConnection connection)
+    private async Task CallRoutineAsync(DeleteMessagesDto.Message message, DbConnection connection)
     {
         var parameters = new DynamicParameters();
         string commandText;
@@ -76,6 +69,6 @@ public class DeleteMessagesFeature(
                 throw new NotSupportedException();
         }
 
-        return await connection.QuerySingleAsync<int?>(commandText, parameters);
+        await connection.ExecuteScalarAsync(commandText, parameters);
     }
 }

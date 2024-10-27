@@ -29,7 +29,7 @@ public class PurgeQueueFeature(
         return OperationResult<PurgeQueueResponse>.Success(new PurgeQueueResponse());
     }
 
-    private async Task<int?> CallRoutineAsync(PurgeQueueRequest request, DbConnection connection)
+    private async Task CallRoutineAsync(PurgeQueueRequest request, DbConnection connection)
     {
         var parameters = new DynamicParameters();
         string commandText;
@@ -50,6 +50,6 @@ public class PurgeQueueFeature(
                 throw new NotSupportedException();
         }
 
-        return await connection.QuerySingleAsync<int?>(commandText, parameters);
+        await connection.ExecuteScalarAsync(commandText, parameters);
     }
 }

@@ -35,7 +35,7 @@ const items = computed((): MenuItem[] => {
 
 <template>
   <div v-if="!isPending && isSuccess" class="flex h-screen flex-col">
-    <!-- <div class="flex items-center px-4 pb-4 pt-4 shadow">
+    <div class="flex items-center px-4 pb-4 pt-4 shadow">
       <div class="flex">
         <div class="flex h-14 w-14 items-center justify-center rounded-xl text-2xl">
           <img :src="mtLogoUrl" class="w-full dark:hidden" />
@@ -49,7 +49,7 @@ const items = computed((): MenuItem[] => {
           </div>
         </div>
       </div>
-    </div> -->
+    </div>
 
     <div class="flex grow flex-col overflow-auto">
       <slot></slot>

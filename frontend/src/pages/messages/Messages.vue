@@ -42,7 +42,7 @@ const selectedQueueId = ref<number>()
 const selectedQueue = computed(() => queues.value?.find((x) => x.id === selectedQueueId.value))
 
 watchEffect(() => {
-  if (!queueOptions.value.length || !queueView.value) {
+  if (selectedQueueId.value || !queueOptions.value.length || !queueView.value) {
     return
   }
 
@@ -237,6 +237,7 @@ const onPage = (event: DataTablePageEvent) => {
     <template v-if="messages?.items.length">
       <div class="flex grow flex-col overflow-auto">
         <DataTable
+          :show-headers="true"
           v-model:selection="selectedMessages"
           :value="messages.items"
           :rows="messages.pageSize"

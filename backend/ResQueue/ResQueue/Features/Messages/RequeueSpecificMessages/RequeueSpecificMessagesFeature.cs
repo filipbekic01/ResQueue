@@ -13,9 +13,7 @@ public record RequeueSpecificMessagesRequest(
     RequeueSpecificMessagesDto Dto
 );
 
-public record RequeueSpecificMessagesResponse(
-    int SucceededCount
-);
+public record RequeueSpecificMessagesResponse();
 
 public class RequeueSpecificMessagesFeature(
     IDatabaseConnectionFactory connectionFactory,
@@ -39,26 +37,21 @@ public class RequeueSpecificMessagesFeature(
             }
 
             await transaction.CommitAsync();
-
-            return OperationResult<RequeueSpecificMessagesResponse>.Success(
-                new RequeueSpecificMessagesResponse(request.Dto.MessageDeliveryIds.Length));
         }
-
-        var succeededCount = 0;
-        foreach (var messageDeliveryIds in request.Dto.MessageDeliveryIds)
+        else
         {
-            if (await CallRoutineAsync(request, messageDeliveryIds, connection) > 0)
+            foreach (var messageDeliveryIds in request.Dto.MessageDeliveryIds)
             {
-                succeededCount++;
+                await CallRoutineAsync(request, messageDeliveryIds, connection);
             }
         }
 
         return OperationResult<RequeueSpecificMessagesResponse>.Success(
-            new RequeueSpecificMessagesResponse(succeededCount));
+            new RequeueSpecificMessagesResponse());
     }
 
 
-    private async Task<int?> CallRoutineAsync(RequeueSpecificMessagesRequest request, long deliveryMessageId,
+    private async Task CallRoutineAsync(RequeueSpecificMessagesRequest request, long deliveryMessageId,
         DbConnection connection)
     {
         var parameters = new DynamicParameters();
@@ -88,6 +81,6 @@ public class RequeueSpecificMessagesFeature(
                 throw new NotSupportedException();
         }
 
-        return await connection.QuerySingleAsync<int?>(commandText, parameters);
+        await connection.ExecuteScalarAsync(commandText, parameters);
     }
 }

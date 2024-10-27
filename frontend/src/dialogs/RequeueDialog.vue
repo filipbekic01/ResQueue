@@ -17,9 +17,6 @@ const props = defineProps<{
   batch: boolean
 }>()
 
-// const dialogRef = inject<Ref<DynamicDialogOptions>>('dialogRef')
-// const dialogData = computed((): RequeueDialogData => dialogRef?.value.data)
-
 const toast = useToast()
 const route = useRoute()
 

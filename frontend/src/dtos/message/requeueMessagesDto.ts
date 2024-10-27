@@ -4,5 +4,5 @@ export interface RequeueMessagesDto {
   targetQueueType: number
   messageCount: number
   redeliveryCount: number
-  delay: string
+  delay: number
 }

@@ -5,6 +5,6 @@ public record RequeueMessagesDto(
     int SourceQueueType,
     int TargetQueueType,
     int MessageCount,
-    string Delay,
+    int Delay,
     int RedeliveryCount
 );

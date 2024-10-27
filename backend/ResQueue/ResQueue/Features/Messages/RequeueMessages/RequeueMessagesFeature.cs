@@ -31,7 +31,7 @@ public class RequeueMessagesFeature(
         return OperationResult<RequeueMessagesResponse>.Success(new RequeueMessagesResponse());
     }
 
-    private async Task<int?> CallRoutineAsync(RequeueMessagesRequest request, DbConnection connection)
+    private async Task CallRoutineAsync(RequeueMessagesRequest request, DbConnection connection)
     {
         var parameters = new DynamicParameters();
         string commandText;
@@ -40,7 +40,7 @@ public class RequeueMessagesFeature(
         {
             case ResQueueSqlEngine.Postgres:
                 commandText =
-                    $"SELECT {options.Value.Schema}.requeue_messages(@queue_name, @source_queue_type, @target_queue_type, @message_count, @delay::interval, @redelivery_count)";
+                    $"SELECT {options.Value.Schema}.requeue_messages(@queue_name, @source_queue_type, @target_queue_type, @message_count, '@delay seconds'::interval, @redelivery_count)";
                 parameters.Add("queue_name", request.Dto.QueueName);
                 parameters.Add("source_queue_type", request.Dto.SourceQueueType);
                 parameters.Add("target_queue_type", request.Dto.TargetQueueType);
@@ -64,6 +64,6 @@ public class RequeueMessagesFeature(
                 throw new NotSupportedException();
         }
 
-        return await connection.QuerySingleAsync<int?>(commandText, parameters);
+        await connection.ExecuteScalarAsync(commandText, parameters);
     }
 }
