@@ -6,7 +6,6 @@ import { errorToToast } from '@/utils/errorUtils'
 import Button from 'primevue/button'
 import Checkbox from 'primevue/checkbox'
 import InputNumber from 'primevue/inputnumber'
-import InputText from 'primevue/inputtext'
 import Select from 'primevue/select'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref, watchEffect } from 'vue'
@@ -35,7 +34,7 @@ const selectedQueue = computed(() => queues.value?.find((x) => x.id === props.se
 
 const requeueMessageCount = ref(0)
 const requeueRedeliveryCount = ref(10)
-const requeueDelay = ref('0 seconds')
+const requeueDelay = ref(0)
 const requeueTargetQueueId = ref<number>()
 const requeueTargetQueue = computed(() => queues.value?.find((x) => x.id === requeueTargetQueueId.value))
 const requeueTargetQueueOptions = computed(() => queueOptions.value.filter((x) => x.queue.id !== props.selectedQueueId))
@@ -113,7 +112,7 @@ const requeueMessages = () => {
 
     <div class="flex flex-col gap-1">
       <label>Delay</label>
-      <InputText v-model="requeueDelay"></InputText>
+      <InputNumber :step="1" v-model="requeueDelay"></InputNumber>
     </div>
     <div class="flex flex-col gap-1">
       <label>Redelivery count</label>

@@ -94,12 +94,6 @@ onBeforeUnmount(() => {
             <div class="text-primary-600">OS</div>
             <div class="text-primary-400">{{ selectedMessage.message.host['operatingSystemVersion'] }}</div>
           </div>
-          <!-- <Tag severity="danger" class="capitalize" v-if="transportHeadersTrimmed['MT-Reason']">
-            {{ transportHeadersTrimmed['MT-Reason'] }}
-          </Tag>
-          <Tag>
-            {{ selectedMessage.message.host['processName'] }}
-          </Tag> -->
         </div>
       </div>
 

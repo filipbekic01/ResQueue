@@ -81,7 +81,7 @@ public class RequeueSpecificMessagesFeature(
                 parameters.Add("messageDeliveryId", deliveryMessageId);
                 parameters.Add("targetQueueType", request.Dto.TargetQueueType);
                 parameters.Add("delay", request.Dto.Delay);
-                parameters.Add("redelivery_count", request.Dto.RedeliveryCount);
+                parameters.Add("redeliveryCount", request.Dto.RedeliveryCount);
                 break;
 
             default:

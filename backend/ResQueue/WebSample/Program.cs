@@ -33,6 +33,7 @@ public class Program
             // opt.Schema = "transport";
             // opt.Username = "postgres";
             // opt.Password = "postgres";
+            // opt.Port = 5432;
 
             // sqlserver
             opt.Host = "localhost";
@@ -40,6 +41,7 @@ public class Program
             opt.Schema = "transport";
             opt.Username = "sa";
             opt.Password = "YourStrong!Passw0rd";
+            opt.Port = 1433;
             opt.SqlEngine = ResQueueSqlEngine.SqlServer;
         });
 
@@ -108,7 +110,14 @@ public class Program
         app.UseResQueue("custom-prefix");
 
         app.MapGet("/publish",
-            async (IPublishEndpoint endpoint) => { await endpoint.Publish(new YourMessage(Guid.NewGuid())); });
+            async (IPublishEndpoint endpoint) =>
+            {
+                await endpoint.Publish(new YourMessage(Guid.NewGuid()));
+                await endpoint.Publish(new YourMessage(Guid.NewGuid()));
+                await endpoint.Publish(new YourMessage(Guid.NewGuid()));
+                await endpoint.Publish(new YourMessage(Guid.NewGuid()));
+                await endpoint.Publish(new YourMessage(Guid.NewGuid()));
+            });
 
         app.Run();
     }

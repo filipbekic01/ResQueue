@@ -11,6 +11,8 @@ public class YourConsumer : IConsumer<YourMessage>
     {
         Console.WriteLine(
             $"Consumed! Process ID: {Process.GetCurrentProcess().Id} and Guid: {context.Message.CorrelationId} and PKey: {context.PartitionKey()}");
+
+        await Task.Delay(TimeSpan.FromSeconds(3));
         throw new Exception();
     }
 }
