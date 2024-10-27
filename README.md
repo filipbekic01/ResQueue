@@ -46,32 +46,31 @@ To set up **ResQueue**, follow these simple steps:
     ```
 
 2. In your .NET application, configure **ResQueue** in the `WebApplication` builder by calling `builder.Services.AddResQueue()` with your database connection details. This can be done as follows:
+
+> [!WARNING]
+ResQueue configuration must follow the MassTransit setup, as MassTransit is a prerequisite for ResQueue to function correctly.
+
     ```csharp
     var builder = WebApplication.CreateBuilder(args);
 
-    // Add ResQueue with the necessary database configuration
+    // MassTransit configuration...
+
     builder.Services.AddResQueue(options =>
     {
-        // Credentials for MassTransit SQL database
+        // Choose SQL engine and fill credentials
     });
+
+    // Make sure you add this line after MassTransit SQL migrations hosted service
+    builder.Services.AddResQueueMigrationsHostedService();
 
     var app = builder.Build();
 
-    // Basic setup will open the ResQueue UI at the default path, /resqueue, in
-    // the browser. By default, no authorization is applied, just clean endpoints, 
-    // usually good enough for development.
-
-    // app.UseResQueue();
-
-    // Production code should use a custom URL prefix for the ResQueue UI. In this
-    // case, the UI will be accessible at /custom-prefix. You can also apply
-    // additional configuration, such as adding authorization or other middleware.
-    app.UseResQueue("custom-prefix", options =>
+    app.UseResQueue("resqueue", options =>
     {
+        // Recommended for production environments, add roles too
         options.RequireAuthorization();
     });
-
-    // Run the app
+    
     app.Run();
     ```
 
