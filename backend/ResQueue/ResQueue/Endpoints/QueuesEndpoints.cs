@@ -6,7 +6,6 @@ using ResQueue.Dtos.Queue;
 using ResQueue.Enums;
 using ResQueue.Factories;
 using ResQueue.Features.Messages.PurgeQueue;
-using ResQueue.Models.Postgres;
 
 namespace ResQueue.Endpoints;
 
@@ -20,29 +19,46 @@ public static class QueuesEndpoints
         {
             var sql = options.Value.SqlEngine switch
             {
-                ResQueueSqlEngine.PostgreSql => "SELECT * FROM transport.queues;",
-                ResQueueSqlEngine.SqlServer => "SELECT * FROM transport.queues",
+                ResQueueSqlEngine.Postgres => $"""
+                                               SELECT 
+                                                   queue_name AS QueueName,
+                                                   queue_auto_delete AS QueueAutoDelete,
+                                                   ready AS Ready,
+                                                   scheduled AS Scheduled,
+                                                   errored AS Errored,
+                                                   dead_lettered AS DeadLettered,
+                                                   locked AS Locked,
+                                                   consume_count AS ConsumeCount,
+                                                   error_count AS ErrorCount,
+                                                   dead_letter_count AS DeadLetterCount,
+                                                   count_start_time AS CountStartTime,
+                                                   count_duration AS CountDuration
+                                               FROM {options.Value.Schema}.queues;
+                                               """,
+                ResQueueSqlEngine.SqlServer => $"""
+                                                SELECT 
+                                                    QueueName,
+                                                    QueueAutoDelete,
+                                                    Ready,
+                                                    Scheduled,
+                                                    Errored,
+                                                    DeadLettered,
+                                                    Locked,
+                                                    ConsumeCount,
+                                                    ErrorCount,
+                                                    DeadLetterCount,
+                                                    CountStartTime,
+                                                    CountDuration
+                                                FROM {options.Value.Schema}.Queues;
+                                                """,
                 _ => throw new NotSupportedException("Unsupported SQL engine")
             };
 
             await using var connection = connectionFactory.CreateConnection();
 
-            var queuesFromView = await connection.QueryAsync<QueueView>(sql);
+            var queuesFromView = await connection.QueryAsync<QueueViewDto>(sql);
 
-            return Results.Ok(queuesFromView.Select(x => new QueueViewDto()
-            {
-                QueueName = x.queue_name,
-                QueueAutoDelete = x.queue_auto_delete,
-                Ready = x.ready,
-                Scheduled = x.scheduled,
-                Errored = x.errored,
-                DeadLettered = x.dead_lettered,
-                Locked = x.locked,
-                ConsumeCount = x.consume_count,
-                ErrorCount = x.error_count,
-                DeadLetterCount = x.dead_letter_count,
-                CountDuration = x.count_duration
-            }).ToList());
+            return Results.Ok(queuesFromView);
         });
 
         group.MapGet("view/{queueName}", async (IDatabaseConnectionFactory connectionFactory,
@@ -50,30 +66,48 @@ public static class QueuesEndpoints
         {
             var sql = options.Value.SqlEngine switch
             {
-                ResQueueSqlEngine.PostgreSql => "SELECT * FROM transport.queues WHERE queue_name = @QueueName;",
-                ResQueueSqlEngine.SqlServer =>
-                    "SELECT * FROM transport.queues WHERE queue_name = @QueueName",
+                ResQueueSqlEngine.Postgres => $"""
+                                               SELECT 
+                                                   queue_name AS QueueName,
+                                                   queue_auto_delete AS QueueAutoDelete,
+                                                   ready AS Ready,
+                                                   scheduled AS Scheduled,
+                                                   errored AS Errored,
+                                                   dead_lettered AS DeadLettered,
+                                                   locked AS Locked,
+                                                   consume_count AS ConsumeCount,
+                                                   error_count AS ErrorCount,
+                                                   dead_letter_count AS DeadLetterCount,
+                                                   count_start_time AS CountStartTime,
+                                                   count_duration AS CountDuration
+                                               FROM {options.Value.Schema}.queues
+                                               WHERE queue_name = @QueueName;
+                                               """,
+                ResQueueSqlEngine.SqlServer => $"""
+                                                SELECT 
+                                                    QueueName,
+                                                    QueueAutoDelete,
+                                                    Ready,
+                                                    Scheduled,
+                                                    Errored,
+                                                    DeadLettered,
+                                                    Locked,
+                                                    ConsumeCount,
+                                                    ErrorCount,
+                                                    DeadLetterCount,
+                                                    CountStartTime,
+                                                    CountDuration
+                                                FROM {options.Value.Schema}.Queues
+                                                WHERE QueueName = @QueueName;
+                                                """,
                 _ => throw new NotSupportedException("Unsupported SQL engine")
             };
 
             await using var connection = connectionFactory.CreateConnection();
 
-            var queueView = await connection.QuerySingleAsync<QueueView>(sql, new { QueueName = queueName });
+            var queueView = await connection.QuerySingleAsync<QueueViewDto>(sql, new { QueueName = queueName });
 
-            return Results.Ok(new QueueViewDto()
-            {
-                QueueName = queueView.queue_name,
-                QueueAutoDelete = queueView.queue_auto_delete,
-                Ready = queueView.ready,
-                Scheduled = queueView.scheduled,
-                Errored = queueView.errored,
-                DeadLettered = queueView.dead_lettered,
-                Locked = queueView.locked,
-                ConsumeCount = queueView.consume_count,
-                ErrorCount = queueView.error_count,
-                DeadLetterCount = queueView.dead_letter_count,
-                CountDuration = queueView.count_duration
-            });
+            return Results.Ok(queueView);
         });
 
         group.MapGet("",
@@ -82,22 +116,34 @@ public static class QueuesEndpoints
             {
                 var sql = options.Value.SqlEngine switch
                 {
-                    ResQueueSqlEngine.PostgreSql => "SELECT * FROM transport.queue WHERE name = @QueueName;",
-                    ResQueueSqlEngine.SqlServer => "SELECT * FROM transport.queue WHERE name = @QueueName;",
+                    ResQueueSqlEngine.Postgres => $"""
+                                                   SELECT 
+                                                       id AS Id,
+                                                       updated AS Updated,
+                                                       name AS Name,
+                                                       type AS Type,
+                                                       auto_delete AS AutoDelete
+                                                   FROM {options.Value.Schema}.queue
+                                                   WHERE name = @QueueName;
+                                                   """,
+                    ResQueueSqlEngine.SqlServer => $"""
+                                                    SELECT 
+                                                        Id,
+                                                        Updated,
+                                                        Name,
+                                                        Type,
+                                                        AutoDelete
+                                                    FROM {options.Value.Schema}.Queue
+                                                    WHERE Name = @QueueName;
+                                                    """,
                     _ => throw new NotSupportedException("Unsupported SQL engine")
                 };
 
                 await using var connection = connectionFactory.CreateConnection();
 
-                var queues = await connection.QueryAsync<Queue>(sql, new { QueueName = queueName });
+                var queues = await connection.QueryAsync<QueueDto>(sql, new { QueueName = queueName });
 
-                return Results.Ok(queues.Select(x => new QueueDto(
-                    Id: x.id,
-                    Name: x.name,
-                    Updated: x.updated,
-                    Type: x.type,
-                    AutoDelete: x.auto_delete
-                )).ToList());
+                return Results.Ok(queues);
             });
 
         group.MapPost("purge",

@@ -14,7 +14,7 @@ public class DatabaseConnectionFactory(
 
     public DbConnection CreateConnection() => _options.SqlEngine switch
     {
-        ResQueueSqlEngine.PostgreSql => new NpgsqlConnection(_options.ConnectionString),
+        ResQueueSqlEngine.Postgres => new NpgsqlConnection(_options.ConnectionString),
         ResQueueSqlEngine.SqlServer => new SqlConnection(_options.ConnectionString),
         _ => throw new NotSupportedException($"The SQL engine '{_options.SqlEngine}' is not supported.")
     };

@@ -1,20 +1,20 @@
 export interface MessageDto {
-  transport_message_id: string
-  content_type: string
-  message_type: string
+  transportMessageId: string
+  contentType: string
+  messageType: string
   body: string
-  binary_body: Uint8Array
-  message_id: string
-  correlation_id: string
-  conversation_id: string
-  request_id: string
-  initiator_id: string
-  scheduling_token_id: string
-  source_address: string
-  destination_address: string
-  response_address: string
-  fault_address: string
-  sent_time: string
+  binaryBody: Uint8Array
+  messageId: string
+  correlationId: string
+  conversationId: string
+  requestId: string
+  initiatorId: string
+  schedulingTokenId: string
+  sourceAddress: string
+  destinationAddress: string
+  responseAddress: string
+  faultAddress: string
+  sentTime: string
   headers: any
   host: any
 }

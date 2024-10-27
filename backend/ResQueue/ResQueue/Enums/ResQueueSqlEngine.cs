@@ -2,6 +2,6 @@ namespace ResQueue.Enums;
 
 public enum ResQueueSqlEngine
 {
-    PostgreSql,
+    Postgres,
     SqlServer
 }

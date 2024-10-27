@@ -66,7 +66,7 @@ public class RequeueSpecificMessagesFeature(
 
         switch (options.Value.SqlEngine)
         {
-            case ResQueueSqlEngine.PostgreSql:
+            case ResQueueSqlEngine.Postgres:
                 commandText =
                     "SELECT transport.requeue_message(@message_delivery_id, @target_queue_type, @delay::interval, @redelivery_count)";
                 parameters.Add("message_delivery_id", deliveryMessageId);

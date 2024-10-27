@@ -69,10 +69,10 @@ const {
 const toggleMessage = (msg?: MessageDeliveryDto) => {
   if (!msg) {
     selectedMessageId.value = 0
-  } else if (selectedMessageId.value === msg.message_delivery_id) {
+  } else if (selectedMessageId.value === msg.messageDeliveryId) {
     selectedMessageId.value = 0
   } else {
-    selectedMessageId.value = msg.message_delivery_id
+    selectedMessageId.value = msg.messageDeliveryId
   }
 }
 
@@ -82,12 +82,12 @@ const { mutateAsync: deleteMessagesAsync, isPending: isDeleteMessagesPending } =
 // Selected messages
 const selectedMessageId = ref<number>(24)
 const selectedMessage = computed(() =>
-  messages.value?.items.find((x) => x.message_delivery_id === selectedMessageId.value)
+  messages.value?.items.find((x) => x.messageDeliveryId === selectedMessageId.value)
 )
 
 const selectedMessages = ref<MessageDeliveryDto[]>([])
 const selectedMessageIds = computed(() =>
-  selectedMessages.value?.length ? selectedMessages.value.map((x) => x.message_delivery_id) : []
+  selectedMessages.value?.length ? selectedMessages.value.map((x) => x.messageDeliveryId) : []
 )
 
 const requeuePopover = ref()
@@ -143,8 +143,8 @@ const items = computed((): MenuItem[] => {
           accept: () => {
             deleteMessagesAsync({
               messages: selectedMessages.value.map((msg) => ({
-                messageDeliveryId: msg.message_delivery_id,
-                lockId: msg.lock_id
+                messageDeliveryId: msg.messageDeliveryId,
+                lockId: msg.lockId
               }))
             }).catch((e) => toast.add(errorToToast(e)))
           },
@@ -159,7 +159,7 @@ const items = computed((): MenuItem[] => {
       command: () => {
         confirm.require({
           header: `Purge Queue`,
-          message: `Do you want to purge ${getQueueTypeLabel(selectedQueue.value)} queue?`,
+          message: `Do you want to purge ${getQueueTypeLabel(selectedQueue.value?.type)} queue?`,
           icon: 'pi pi-info-circle',
           rejectProps: {
             label: 'Cancel',
@@ -245,7 +245,7 @@ const onPage = (event: DataTablePageEvent) => {
           :first="first"
           :paginator="messages.totalPages > 1"
           lazy
-          data-key="message_delivery_id"
+          data-key="messageDeliveryId"
           scrollable
           striped-rows
           scroll-height="flex"
@@ -254,31 +254,31 @@ const onPage = (event: DataTablePageEvent) => {
           @row-click="(e) => toggleMessage(e.data)"
         >
           <Column selectionMode="multiple" class="w-0" style="vertical-align: top; text-align: center"></Column>
-          <Column field="message_delivery_id" header="ID" class="w-0 whitespace-nowrap"> </Column>
-          <Column field="message.message_type" header="URN" class="w-0 whitespace-nowrap">
+          <Column field="messageDeliveryId" header="ID" class="w-0 whitespace-nowrap"> </Column>
+          <Column field="message.messageType" header="URN" class="w-0 whitespace-nowrap">
             <template #body="{ data }">
-              {{ data.message.message_type.replace('urn:message:', '') }}
+              {{ data.message.messageType.replace('urn:message:', '') }}
             </template>
           </Column>
-          <Column field="message.transport_headers" header="" class="whitespace-nowrap">
+          <Column field="message.transportHeaders" header="" class="whitespace-nowrap">
             <template #body="{ data }">
-              <div v-if="data.transport_headers['MT-Fault-Message']" class="flex gap-3">
+              <div v-if="data.transportHeaders['MT-Fault-Message']" class="flex gap-3">
                 <i class="pi pi-circle-fill text-red-400" style="font-size: 0.825rem"></i
-                >{{ data.transport_headers['MT-Fault-ExceptionType'] }}
+                >{{ data.transportHeaders['MT-Fault-ExceptionType'] }}
               </div>
             </template>
           </Column>
-          <Column field="message.lock_id" header="" class="w-0 whitespace-nowrap">
+          <Column field="message.lockId" header="" class="w-0 whitespace-nowrap">
             <template #body="{ data }">
-              <i :class="`pi pi-${data.lock_id ? 'lock' : ''}`"></i>
+              <i :class="`pi pi-${data.lockId ? 'lock' : ''}`"></i>
             </template>
           </Column>
           <Column field="priority" header="Priority" class="w-0 whitespace-nowrap"></Column>
-          <Column field="enqueue_time" header="Enqueue Time" header-class="" class="w-0 whitespace-nowrap">
+          <Column field="enqueueTime" header="Enqueue Time" header-class="" class="w-0 whitespace-nowrap">
             <template #body="{ data }">
-              <div class="flex gap-2" v-if="data.enqueue_time">
-                {{ format(data.enqueue_time, 'MMM dd HH:mm:ss') }} (
-                {{ formatDistance(data.enqueue_time, new Date()) }}
+              <div class="flex gap-2" v-if="data.enqueueTime">
+                {{ format(data.enqueueTime, 'MMM dd HH:mm:ss') }} (
+                {{ formatDistance(data.enqueueTime, new Date()) }}
                 ago)
               </div>
             </template></Column

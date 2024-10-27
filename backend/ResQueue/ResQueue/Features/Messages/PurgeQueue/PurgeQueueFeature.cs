@@ -36,7 +36,7 @@ public class PurgeQueueFeature(
 
         switch (settings.Value.SqlEngine)
         {
-            case ResQueueSqlEngine.PostgreSql:
+            case ResQueueSqlEngine.Postgres:
                 commandText = "SELECT transport._resqueue_purge_queue_by_id(@queue_id)";
                 parameters.Add("queue_id", request.Dto.QueueId);
                 break;

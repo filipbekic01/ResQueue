@@ -27,30 +27,49 @@ public class Program
 
         builder.AddResQueue(opt =>
         {
+            // postgres
+            // opt.Host = "localhost";
+            // opt.Database = "sandbox201";
+            // opt.Schema = "transport";
+            // opt.Username = "postgres";
+            // opt.Password = "postgres";
+
+            // sqlserver
             opt.Host = "localhost";
             opt.Database = "sandbox201";
             opt.Schema = "transport";
-            opt.Username = "postgres";
-            opt.Password = "postgres";
+            opt.Username = "sa";
+            opt.Password = "YourStrong!Passw0rd";
 
-            opt.SqlEngine = ResQueueSqlEngine.PostgreSql;
+            opt.SqlEngine = ResQueueSqlEngine.SqlServer;
         });
 
         builder.Services.AddOptions<SqlTransportOptions>().Configure(options =>
         {
+            // postgres
+            // options.Host = "localhost";
+            // options.Database = "sandbox201";
+            // options.Schema = "transport";
+            // options.Role = "transport";
+            // options.Username = "postgres";
+            // options.Password = "postgres";
+
+            // sqlserver
             options.Host = "localhost";
             options.Database = "sandbox201";
             options.Schema = "transport";
             options.Role = "transport";
-            options.Username = "postgres";
-            options.Password = "postgres";
+            options.Username = "sa";
+            options.Password = "YourStrong!Passw0rd";
         });
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        // Order is important
-        builder.Services.AddPostgresMigrationHostedService();
+        // Order is important because MassTransit will create database on boot, if missing.
+        // builder.Services.AddPostgresMigrationHostedService();
+        builder.Services.AddSqlServerMigrationHostedService();
+
         builder.Services.AddResQueueMigrationsHostedService();
 
         builder.Services.AddMarten(x =>
@@ -61,13 +80,23 @@ public class Program
         builder.Services.AddMassTransit(mt =>
         {
             mt.AddSqlMessageScheduler();
+
             mt.SetMartenSagaRepositoryProvider();
-            // mt.AddConsumer<YourConsumer>()
-            //     .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
-            // mt.AddConsumer<AwesomeConsumer>()
-            //     .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
+
+            mt.AddConsumer<YourConsumer>()
+                .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
+            mt.AddConsumer<AwesomeConsumer>()
+                .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
+
             mt.AddJobSagaStateMachines();
-            mt.UsingPostgres((context, config) =>
+
+            // mt.UsingPostgres((context, config) =>
+            // {
+            //     config.UseSqlMessageScheduler();
+            //     config.ConfigureEndpoints(context);
+            // });
+
+            mt.UsingSqlServer((context, config) =>
             {
                 config.UseSqlMessageScheduler();
                 config.ConfigureEndpoints(context);

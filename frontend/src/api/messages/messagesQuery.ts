@@ -20,9 +20,9 @@ export const useMessagesQuery = (queueId: MaybeRef<number | undefined>, pageInde
 
       response.data.items.forEach((x) => {
         try {
-          x.transport_headers = JSON.parse(x.transport_headers ?? '{}')
+          x.transportHeaders = JSON.parse(x.transportHeaders ?? '{}')
         } catch {
-          x.transport_headers = {}
+          x.transportHeaders = {}
         }
 
         try {

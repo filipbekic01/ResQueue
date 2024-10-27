@@ -60,7 +60,7 @@ public class DeleteMessagesFeature(
 
         switch (options.Value.SqlEngine)
         {
-            case ResQueueSqlEngine.PostgreSql:
+            case ResQueueSqlEngine.Postgres:
                 commandText = "SELECT transport.delete_message(@message_delivery_id, @lock_id)";
                 parameters.Add("message_delivery_id", message.MessageDeliveryId);
                 parameters.Add("lock_id", message.LockId);
