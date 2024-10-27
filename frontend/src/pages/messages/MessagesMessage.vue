@@ -3,17 +3,27 @@ import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
 import { highlightJson } from '@/utils/jsonUtils'
 import { format, formatDistance } from 'date-fns'
 import Button from 'primevue/button'
-import { onBeforeUnmount, onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted } from 'vue'
 import MessageBlock from './MessageBlock.vue'
 import MessageHeader from './MessageHeader.vue'
 
-defineProps<{
+const props = defineProps<{
   selectedMessage: MessageDeliveryDto
 }>()
 
 const emit = defineEmits<{
   (e: 'close'): void
 }>()
+
+const transportHeadersTrimmed = computed(() => {
+  const th = { ...props.selectedMessage.transportHeaders }
+
+  if (th['MT-Fault-StackTrace'].length > 30) {
+    th['MT-Fault-StackTrace'] = `${th['MT-Fault-StackTrace'].slice(0, 30)}...`
+  }
+
+  return th
+})
 
 const handleEscKey = (event: KeyboardEvent) => {
   if (event.key === 'Escape') {
@@ -51,9 +61,12 @@ onBeforeUnmount(() => {
           <span class="text-primary-500">URN</span>
           <span class="text-primary-700">{{ selectedMessage.message.messageType.replace('urn:message:', '') }}</span>
         </div>
-        <!-- <div class="mt-4" v-if="selectedMessage.transport_headers['MT-Fault-ExceptionType']">
-          <Tag severity="danger">{{ selectedMessage.transport_headers['MT-Fault-ExceptionType'] }}</Tag>
-        </div> -->
+        <div class="mt-4 flex gap-3" v-if="transportHeadersTrimmed['MT-Fault-ExceptionType']">
+          <Tag severity="danger" class="capitalize" v-if="transportHeadersTrimmed['MT-Reason']">{{
+            transportHeadersTrimmed['MT-Reason']
+          }}</Tag>
+          <Tag>{{ selectedMessage.message.host['processName'] }}</Tag>
+        </div>
       </div>
 
       <div class="flex grow flex-col overflow-auto">
@@ -74,8 +87,8 @@ onBeforeUnmount(() => {
               <MessageBlock name="Delivery Count" :value="selectedMessage.deliveryCount" />
               <MessageBlock name="Max. Delivery Count" :value="selectedMessage.maxDeliveryCount" />
               <MessageBlock name="Last Delivered" :value="selectedMessage.lastDelivered" />
-              <MessageBlock name="Transport Headers" :value="selectedMessage.transportHeaders">
-                <div v-html="highlightJson(selectedMessage.transportHeaders, {}, false)"></div>
+              <MessageBlock class="flex-col gap-2" name="Transport Headers">
+                <div class="whitespace-pre" v-html="highlightJson(transportHeadersTrimmed, {}, false)"></div>
               </MessageBlock>
             </div>
             <div class="flex flex-col gap-4 border-t p-8">
@@ -94,11 +107,11 @@ onBeforeUnmount(() => {
               <MessageBlock name="Response Address" :value="selectedMessage.message.responseAddress" />
               <MessageBlock name="Fault Address" :value="selectedMessage.message.faultAddress" />
               <MessageBlock name="Sent Time" :value="selectedMessage.message.sentTime" />
-              <MessageBlock name="Headers">
-                <div v-html="highlightJson(selectedMessage.message.headers, {}, false)"></div>
+              <MessageBlock class="flex-col gap-2" name="Headers">
+                <div class="whitespace-pre" v-html="highlightJson(selectedMessage.message.headers, {}, false)"></div>
               </MessageBlock>
-              <MessageBlock name="Host">
-                <div v-html="highlightJson(selectedMessage.message.host, {}, false)"></div>
+              <MessageBlock class="flex-col gap-2" name="Host">
+                <div class="whitespace-pre" v-html="highlightJson(selectedMessage.message.host, {}, false)"></div>
               </MessageBlock>
             </div>
           </div>
@@ -117,10 +130,9 @@ onBeforeUnmount(() => {
           class="flex basis-1/3 flex-col gap-2 overflow-auto border-s-4 border-t border-s-red-400 p-6"
         >
           <div class="flex items-center gap-2">
-            <!-- <Tag severity="danger">{{ selectedMessage.transportHeaders['MT-Fault-ExceptionType'] }}</Tag> -->
             <div class="items-cener flex gap-3">
-              <i class="pi pi-circle-fill text-red-400"></i
-              >{{ selectedMessage.transportHeaders['MT-Fault-ExceptionType'] }}
+              <i class="pi pi-circle-fill text-red-400"></i>
+              {{ selectedMessage.transportHeaders['MT-Fault-ExceptionType'] }}
             </div>
             <span>•</span>
             <div class="text-primary-500">
@@ -139,24 +151,7 @@ onBeforeUnmount(() => {
               selectedMessage.transportHeaders['MT-Fault-StackTrace']
                 ? selectedMessage.transportHeaders['MT-Fault-StackTrace']
                 : 'Stack trace missing.'
-            }}<br />
-            feqw<br />
-            feqw<br />
-            feqw<br />
-            feqw<br />
-            feqw<br />
-            feqw<br />
-            feqw<br />
-            feqw<br />
-            feqw11111<br />
-            feqw<br />
-            feqw<br />
-            feqw<br />
-            feqw<br />
-            feqw<br />
-            feqw<br />
-            feqw<br />
-            vfewqfewq
+            }}
           </div>
         </div>
       </div>

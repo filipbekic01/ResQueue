@@ -263,7 +263,7 @@ const onPage = (event: DataTablePageEvent) => {
           <Column field="message.transportHeaders" header="" class="whitespace-nowrap">
             <template #body="{ data }">
               <div v-if="data.transportHeaders['MT-Fault-Message']" class="flex gap-3">
-                <i class="pi pi-circle-fill text-red-400" style="font-size: 0.825rem"></i
+                <i class="pi pi-circle-fill text-red-400" style="font-size: 0.625rem"></i
                 >{{ data.transportHeaders['MT-Fault-ExceptionType'] }}
               </div>
             </template>
