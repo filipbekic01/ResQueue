@@ -41,38 +41,38 @@ All checked features are available in latest [NuGet](https://www.nuget.org/packa
 To set up **ResQueue**, follow these simple steps:
 
 1. Install the latest version of `ResQueue.MassTransit` from NuGet to ensure compatibility with the official MassTransit updates:
-    ```bash
-    dotnet add package ResQueue.MassTransit
-    ```
+```bash
+dotnet add package ResQueue.MassTransit
+```
 
 2. In your .NET application, configure **ResQueue** in the `WebApplication` builder by calling `builder.Services.AddResQueue()` with your database connection details. This can be done as follows:
 
 > [!WARNING]
 ResQueue configuration must follow the MassTransit setup, as MassTransit is a prerequisite for ResQueue to function correctly.
 
-    ```csharp
-    var builder = WebApplication.CreateBuilder(args);
+```csharp
+var builder = WebApplication.CreateBuilder(args);
 
-    // MassTransit configuration...
+// MassTransit configuration...
 
-    builder.Services.AddResQueue(options =>
-    {
-        // Choose SQL engine and fill credentials
-    });
+builder.Services.AddResQueue(options =>
+{
+    // Choose SQL engine and fill credentials
+});
 
-    // Make sure you add this line after MassTransit SQL migrations hosted service
-    builder.Services.AddResQueueMigrationsHostedService();
+// Make sure you add this line after MassTransit SQL migrations hosted service
+builder.Services.AddResQueueMigrationsHostedService();
 
-    var app = builder.Build();
+var app = builder.Build();
 
-    app.UseResQueue("resqueue", options =>
-    {
-        // Recommended for production environments, add roles too
-        options.RequireAuthorization();
-    });
-    
-    app.Run();
-    ```
+app.UseResQueue("resqueue", options =>
+{
+    // Recommended for production environments, add roles too
+    options.RequireAuthorization();
+});
+
+app.Run();
+```
 
 3. Once this is set up, your application should work right out of the box.
 
