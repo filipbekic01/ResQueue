@@ -40,7 +40,7 @@ public class RequeueMessagesFeature(
         {
             case ResQueueSqlEngine.Postgres:
                 commandText =
-                    "SELECT transport.requeue_messages(@queue_name, @source_queue_type, @target_queue_type, @message_count, @delay::interval, @redelivery_count)";
+                    $"SELECT {options.Value.Schema}.requeue_messages(@queue_name, @source_queue_type, @target_queue_type, @message_count, @delay::interval, @redelivery_count)";
                 parameters.Add("queue_name", request.Dto.QueueName);
                 parameters.Add("source_queue_type", request.Dto.SourceQueueType);
                 parameters.Add("target_queue_type", request.Dto.TargetQueueType);
@@ -51,13 +51,13 @@ public class RequeueMessagesFeature(
 
             case ResQueueSqlEngine.SqlServer:
                 commandText =
-                    "EXEC transport.requeue_messages @queue_name, @source_queue_type, @target_queue_type, @message_count, @delay, @redelivery_count";
-                parameters.Add("queue_name", request.Dto.QueueName);
-                parameters.Add("source_queue_type", request.Dto.SourceQueueType);
-                parameters.Add("target_queue_type", request.Dto.TargetQueueType);
-                parameters.Add("message_count", request.Dto.MessageCount);
+                    $"EXEC {options.Value.Schema}.RequeueMessages @queueName, @sourceQueueType, @targetQueueType, @messageCount, @delay, @redeliveryCount";
+                parameters.Add("queueName", request.Dto.QueueName);
+                parameters.Add("sourceQueueType", request.Dto.SourceQueueType);
+                parameters.Add("targetQueueType", request.Dto.TargetQueueType);
+                parameters.Add("messageCount", request.Dto.MessageCount);
                 parameters.Add("delay", request.Dto.Delay);
-                parameters.Add("redelivery_count", request.Dto.RedeliveryCount);
+                parameters.Add("redeliveryCount", request.Dto.RedeliveryCount);
                 break;
 
             default:

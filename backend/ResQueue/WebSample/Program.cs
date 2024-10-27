@@ -40,7 +40,6 @@ public class Program
             opt.Schema = "transport";
             opt.Username = "sa";
             opt.Password = "YourStrong!Passw0rd";
-
             opt.SqlEngine = ResQueueSqlEngine.SqlServer;
         });
 
@@ -69,7 +68,6 @@ public class Program
         // Order is important because MassTransit will create database on boot, if missing.
         // builder.Services.AddPostgresMigrationHostedService();
         builder.Services.AddSqlServerMigrationHostedService();
-
         builder.Services.AddResQueueMigrationsHostedService();
 
         builder.Services.AddMarten(x =>

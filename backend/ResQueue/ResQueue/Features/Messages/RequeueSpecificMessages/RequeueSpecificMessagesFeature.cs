@@ -68,7 +68,7 @@ public class RequeueSpecificMessagesFeature(
         {
             case ResQueueSqlEngine.Postgres:
                 commandText =
-                    "SELECT transport.requeue_message(@message_delivery_id, @target_queue_type, @delay::interval, @redelivery_count)";
+                    $"SELECT {options.Value.Schema}.requeue_message(@message_delivery_id, @target_queue_type, @delay::interval, @redelivery_count)";
                 parameters.Add("message_delivery_id", deliveryMessageId);
                 parameters.Add("target_queue_type", request.Dto.TargetQueueType);
                 parameters.Add("delay", request.Dto.Delay);
@@ -77,9 +77,9 @@ public class RequeueSpecificMessagesFeature(
 
             case ResQueueSqlEngine.SqlServer:
                 commandText =
-                    "EXEC transport.requeue_message @message_delivery_id, @target_queue_type, @delay, @redelivery_count";
-                parameters.Add("message_delivery_id", deliveryMessageId);
-                parameters.Add("target_queue_type", request.Dto.TargetQueueType);
+                    $"EXEC {options.Value.Schema}.RequeueMessage @messageDeliveryId, @targetQueueType, @delay, @redeliveryCount";
+                parameters.Add("messageDeliveryId", deliveryMessageId);
+                parameters.Add("targetQueueType", request.Dto.TargetQueueType);
                 parameters.Add("delay", request.Dto.Delay);
                 parameters.Add("redelivery_count", request.Dto.RedeliveryCount);
                 break;

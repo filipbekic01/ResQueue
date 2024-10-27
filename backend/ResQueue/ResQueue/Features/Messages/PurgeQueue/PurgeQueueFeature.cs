@@ -15,7 +15,7 @@ public record PurgeQueueResponse();
 
 public class PurgeQueueFeature(
     IDatabaseConnectionFactory connectionFactory,
-    IOptions<ResQueueOptions> settings
+    IOptions<ResQueueOptions> options
 ) : IPurgeQueueFeature
 {
     public async Task<OperationResult<PurgeQueueResponse>> ExecuteAsync(PurgeQueueRequest request)
@@ -34,16 +34,16 @@ public class PurgeQueueFeature(
         var parameters = new DynamicParameters();
         string commandText;
 
-        switch (settings.Value.SqlEngine)
+        switch (options.Value.SqlEngine)
         {
             case ResQueueSqlEngine.Postgres:
-                commandText = "SELECT transport._resqueue_purge_queue_by_id(@queue_id)";
+                commandText = $"SELECT {options.Value.Schema}._resqueue_purge_queue_by_id(@queue_id)";
                 parameters.Add("queue_id", request.Dto.QueueId);
                 break;
 
             case ResQueueSqlEngine.SqlServer:
-                commandText = "EXEC transport._resqueue_purge_queue_by_id @queue_id";
-                parameters.Add("queue_id", request.Dto.QueueId);
+                commandText = $"EXEC {options.Value.Schema}._ResQueue_PurgeQueueById @queueId";
+                parameters.Add("queueId", request.Dto.QueueId);
                 break;
 
             default:
