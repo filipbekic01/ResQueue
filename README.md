@@ -11,21 +11,25 @@ Join our community on [Discord](https://discord.gg/322AAB4xKx) for updates, supp
 
 All checked features are available in latest [NuGet](https://www.nuget.org/packages/ResQueue.MassTransit) version.
 
-- Overview
-    - [x] Tabular broker information view
-- Queues
-    - [x] Tabular queues view
-    - [x] Purge queue
-- Messages
-    - [x] Tabluar messages view
-        - [x] Requeue selected messages (transactional and non-transactional)
-        - [x] Requeue first N messages from the top of the queue
-        - [x] Delete selected messages (transactional and non-transactional)
-    - [x] Single message view
-- Topics
-    - [ ] Tabuar topics view
-- Recurring Jobs
-    - [ ] Tabular recurring jobs view
+#### Overview
+- [x] Tabular broker information view
+
+#### Queues
+- [x] Tabular queues view
+- [x] Purge queue
+
+#### Messages
+- [x] Tabluar messages view
+    - [x] Requeue selected messages (transactional and non-transactional)
+    - [x] Requeue first N messages from the top of the queue
+    - [x] Delete selected messages (transactional and non-transactional)
+- [x] Single message view
+
+#### Topics
+- [ ] Tabuar topics view
+
+#### Recurring Jobs
+- [ ] Tabular recurring jobs view
 
 Currently supported brokers:
 
