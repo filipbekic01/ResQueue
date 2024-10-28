@@ -2,6 +2,7 @@ import { useQueuesQuery } from '@/api/queues/queuesQuery'
 import { useQueueViewQuery } from '@/api/queues/queueViewQuery'
 import type { QueueViewDto } from '@/dtos/queue/queueViewDto'
 import { computed, toValue, type Ref } from 'vue'
+import { useUserSettings } from './userSettingsComposable'
 
 const getQueueName = (type: number, queueView?: QueueViewDto) => {
   if (type === 1) {
@@ -28,8 +29,10 @@ const getQueueTypeLabel = (type?: number) => {
 }
 
 export function useQueue(queueName: Ref<string>) {
-  const query = useQueuesQuery(queueName)
-  const queryView = useQueueViewQuery(queueName)
+  const { settings } = useUserSettings()
+
+  const query = useQueuesQuery(queueName, settings.refetchInterval)
+  const queryView = useQueueViewQuery(queueName, settings.refetchInterval)
 
   const queueOptions = computed(() => {
     if (!query.data.value) {

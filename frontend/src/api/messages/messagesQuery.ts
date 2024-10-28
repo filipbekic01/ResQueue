@@ -5,7 +5,11 @@ import { useQuery } from '@tanstack/vue-query'
 import axios from 'axios'
 import { computed, toValue, type MaybeRef } from 'vue'
 
-export const useMessagesQuery = (queueId: MaybeRef<number | undefined>, pageIndex: MaybeRef<number>) =>
+export const useMessagesQuery = (
+  queueId: MaybeRef<number | undefined>,
+  pageIndex: MaybeRef<number>,
+  refetchInterval: MaybeRef<number> = 5000
+) =>
   useQuery({
     queryKey: ['messages', queueId, pageIndex],
     queryFn: async () => {
@@ -42,5 +46,6 @@ export const useMessagesQuery = (queueId: MaybeRef<number | undefined>, pageInde
 
       return response.data
     },
-    enabled: computed(() => !!toValue(queueId))
+    enabled: computed(() => !!toValue(queueId)),
+    refetchInterval: refetchInterval
   })

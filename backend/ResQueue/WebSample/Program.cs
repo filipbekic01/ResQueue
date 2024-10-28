@@ -27,7 +27,7 @@ public class Program
 
         builder.AddResQueue(opt =>
         {
-            // postgres
+            // // postgres
             // opt.Host = "localhost";
             // opt.Database = "sandbox201";
             // opt.Schema = "transport";
@@ -47,7 +47,7 @@ public class Program
 
         builder.Services.AddOptions<SqlTransportOptions>().Configure(options =>
         {
-            // postgres
+            // // postgres
             // options.Host = "localhost";
             // options.Database = "sandbox201";
             // options.Schema = "transport";
@@ -70,6 +70,7 @@ public class Program
         // Order is important because MassTransit will create database on boot, if missing.
         // builder.Services.AddPostgresMigrationHostedService();
         builder.Services.AddSqlServerMigrationHostedService();
+
         builder.Services.AddResQueueMigrationsHostedService();
 
         builder.Services.AddMarten(x =>

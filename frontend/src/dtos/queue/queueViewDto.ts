@@ -9,5 +9,6 @@ export interface QueueViewDto {
   consumeCount: number
   errorCount: number
   deadLetterCount: number
+  countStartTime: string
   countDuration: number
 }

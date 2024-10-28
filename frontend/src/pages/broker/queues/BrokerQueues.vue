@@ -1,14 +1,17 @@
 <script lang="ts" setup>
 import { useQueuesViewQuery } from '@/api/queues/queuesViewQuery'
+import { useUserSettings } from '@/composables/userSettingsComposable'
 import { FilterMatchMode } from '@primevue/core/api'
 import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
+import DataTable, { type DataTableSortEvent } from 'primevue/datatable'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const { data } = useQueuesViewQuery()
+const { settings, updateSettings } = useUserSettings()
+
+const { data } = useQueuesViewQuery(computed(() => settings.refetchInterval))
 const queuesView = computed(() => data.value ?? [])
 
 const selectQueue = (data: any) => {
@@ -23,6 +26,14 @@ const selectQueue = (data: any) => {
 const filters = ref({
   queueName: { value: null, matchMode: FilterMatchMode.CONTAINS }
 })
+
+const onSort = (e: DataTableSortEvent) => {
+  updateSettings({
+    ...settings,
+    sortOrder: e.sortOrder === null || e.sortOrder === undefined ? undefined : e.sortOrder,
+    sortField: e.sortField ? e.sortField.toString() : undefined
+  })
+}
 </script>
 
 <template>
@@ -38,7 +49,10 @@ const filters = ref({
       striped-rows
       v-model:filters="filters"
       filter-display="menu"
+      :sort-field="settings.sortField"
+      :sort-order="settings.sortOrder"
       @row-select="(e) => selectQueue(e.data)"
+      @sort="onSort"
     >
       <Column sortable field="queueName" header="Name" class="overflow-hidden overflow-ellipsis">
         <template #body="{ data }">

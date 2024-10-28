@@ -1,12 +1,6 @@
 namespace ResQueue.Dtos.Messages;
 
 public record DeleteMessagesDto(
-    DeleteMessagesDto.Message[] Messages,
+    long[] MessageDeliveryIds,
     bool Transactional
-)
-{
-    public record Message(
-        long MessageDeliveryId,
-        string LockId
-    );
-};
+);

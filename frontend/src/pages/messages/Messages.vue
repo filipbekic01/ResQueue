@@ -3,8 +3,10 @@ import { useDeleteMessagesMutation } from '@/api/messages/deleteMessagesMutation
 import { useMessagesQuery } from '@/api/messages/messagesQuery'
 import { usePurgeQueueMutation } from '@/api/queues/purgeQueueMutation'
 import { useQueue } from '@/composables/queueComposable'
+import { useUserSettings } from '@/composables/userSettingsComposable'
 import RequeueDialog from '@/dialogs/RequeueDialog.vue'
 import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
+import type { QueueDto } from '@/dtos/queue/queueDto'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { errorToToast } from '@/utils/errorUtils'
 import { format, formatDistance } from 'date-fns'
@@ -30,6 +32,8 @@ const toast = useToast()
 const first = ref(0)
 const pageIndex = ref(0)
 
+const { settings, updateSettings } = useUserSettings()
+
 // Queues
 const {
   queueOptions,
@@ -41,16 +45,17 @@ const {
 const selectedQueueId = ref<number>()
 const selectedQueue = computed(() => queues.value?.find((x) => x.id === selectedQueueId.value))
 
+const updateSelectedQueue = (queue: QueueDto) => {
+  selectedQueueId.value = queue.id
+  updateSettings({ ...settings, queueType: queue.type })
+}
+
 watchEffect(() => {
   if (selectedQueueId.value || !queueOptions.value.length || !queueView.value) {
     return
   }
 
-  if (queueView.value.errored > 0) {
-    selectedQueueId.value = queueOptions.value.find((x) => x.queue.type == 2)?.queue.id ?? undefined
-  } else {
-    selectedQueueId.value = queueOptions.value.find((x) => x.queue.type == 1)?.queue.id ?? undefined
-  }
+  selectedQueueId.value = queueOptions.value.find((x) => x.queue.type == settings.queueType)?.queue.id ?? undefined
 })
 
 // Purge queue
@@ -63,7 +68,8 @@ const {
   isPending
 } = useMessagesQuery(
   computed(() => selectedQueueId.value),
-  pageIndex
+  pageIndex,
+  settings.refetchInterval
 )
 
 const toggleMessage = (msg?: MessageDeliveryDto) => {
@@ -78,6 +84,24 @@ const toggleMessage = (msg?: MessageDeliveryDto) => {
 
 // Delete messages
 const { mutateAsync: deleteMessagesAsync, isPending: isDeleteMessagesPending } = useDeleteMessagesMutation()
+const deleteMessagesTransactional = ref(false)
+
+const deleteMessages = () => {
+  deleteMessagesAsync({
+    messageDeliveryIds: selectedMessages.value.map((m) => m.messageDeliveryId),
+    transactional: deleteMessagesTransactional.value
+  })
+    .then(() => {
+      onActionComplete()
+      toast.add({
+        severity: 'success',
+        summary: 'Messages Deleted',
+        detail: `Messages delete procedure ran successfully.`,
+        life: 3000
+      })
+    })
+    .catch((e) => toast.add(errorToToast(e)))
+}
 
 // Selected messages
 const selectedMessageId = ref<number>(24)
@@ -92,6 +116,8 @@ const selectedMessageIds = computed(() =>
 
 const requeuePopover = ref()
 const requeueSpecificPopover = ref()
+const deleteMessagesPopover = ref()
+
 const items = computed((): MenuItem[] => {
   return [
     {
@@ -108,11 +134,18 @@ const items = computed((): MenuItem[] => {
       icon: `pi pi-refresh`,
       disabled: isPending.value,
       command: () => {
-        refetchMessages()
+        refetchMessages().then(() => {
+          toast.add({
+            severity: 'success',
+            summary: 'Queue Refreshed',
+            detail: 'The queue has been successfully updated.',
+            life: 1000
+          })
+        })
       }
     },
     {
-      label: `Requeue ${selectedMessageIds.value.length ? `(${selectedMessageIds.value.length})` : ''}`,
+      label: `Requeue`,
       icon: 'pi pi-replay',
       command: (e) => requeueSpecificPopover.value.toggle(e.originalEvent),
       disabled: !selectedMessageIds.value.length
@@ -125,31 +158,9 @@ const items = computed((): MenuItem[] => {
     {
       label: 'Delete',
       icon: 'pi pi-trash',
-      disabled: isDeleteMessagesPending.value,
-      command: () => {
-        confirm.require({
-          header: 'Delete Messages',
-          message: `Do you want to delete ${selectedMessageIds.value.length} messages?`,
-          icon: 'pi pi-info-circle',
-          rejectProps: {
-            label: 'Cancel',
-            severity: 'secondary',
-            outlined: true
-          },
-          acceptProps: {
-            label: 'Delete',
-            severity: 'danger'
-          },
-          accept: () => {
-            deleteMessagesAsync({
-              messages: selectedMessages.value.map((msg) => ({
-                messageDeliveryId: msg.messageDeliveryId,
-                lockId: msg.lockId
-              }))
-            }).catch((e) => toast.add(errorToToast(e)))
-          },
-          reject: () => {}
-        })
+      disabled: isDeleteMessagesPending.value || !selectedMessageIds.value.length,
+      command: (e) => {
+        deleteMessagesPopover.value.toggle(e.originalEvent)
       }
     },
     {
@@ -179,6 +190,8 @@ const items = computed((): MenuItem[] => {
               queueId: selectedQueueId.value
             })
               .then(() => {
+                onActionComplete()
+
                 toast.add({
                   severity: 'success',
                   summary: 'Purge Completed',
@@ -195,6 +208,17 @@ const items = computed((): MenuItem[] => {
   ]
 })
 
+const onRequeueComplete = () => {
+  requeueSpecificPopover.value.hide()
+  requeuePopover.value.hide()
+
+  onActionComplete()
+}
+
+const onActionComplete = () => {
+  selectedMessages.value = []
+}
+
 const onPage = (event: DataTablePageEvent) => {
   pageIndex.value = event.page
   first.value = event.first
@@ -205,12 +229,28 @@ const onPage = (event: DataTablePageEvent) => {
   <AppLayout>
     <MessagesMessage v-if="selectedMessage" :selected-message="selectedMessage" @close="toggleMessage(undefined)" />
 
+    <Popover ref="deleteMessagesPopover">
+      <div class="flex flex-col gap-3">
+        <div class="flex items-center gap-2">
+          <Checkbox id="transactional" v-model="deleteMessagesTransactional" binary></Checkbox>
+          <label for="transactional">Within single transaction</label>
+        </div>
+        <Button
+          icon="pi pi-arrow-right"
+          severity="danger"
+          icon-pos="right"
+          :label="`Delete`"
+          @click="deleteMessages"
+        ></Button>
+      </div>
+    </Popover>
     <Popover ref="requeueSpecificPopover">
       <RequeueDialog
         v-if="selectedQueueId"
         :selected-queue-id="selectedQueueId"
         :batch="false"
         :delivery-message-ids="selectedMessageIds"
+        @requeue:complete="onRequeueComplete"
       />
     </Popover>
     <Popover ref="requeuePopover">
@@ -219,6 +259,7 @@ const onPage = (event: DataTablePageEvent) => {
         :selected-queue-id="selectedQueueId"
         :batch="true"
         :delivery-message-ids="[]"
+        @requeue:complete="onRequeueComplete"
       />
     </Popover>
     <div class="flex items-center border-b dark:border-b-surface-700">
@@ -227,9 +268,10 @@ const onPage = (event: DataTablePageEvent) => {
         <SelectButton
           class="me-3"
           option-label="queueNameByType"
-          option-value="queue.id"
+          option-value="queue"
           :allow-empty="false"
-          v-model="selectedQueueId"
+          :model-value="selectedQueue"
+          @update:model-value="updateSelectedQueue"
           :options="queueOptions"
         ></SelectButton>
       </div>

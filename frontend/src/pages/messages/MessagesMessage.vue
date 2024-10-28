@@ -18,7 +18,7 @@ const emit = defineEmits<{
 const transportHeadersTrimmed = computed(() => {
   const th = { ...props.selectedMessage.transportHeaders }
 
-  if (th['MT-Fault-StackTrace'].length > 30) {
+  if (th['MT-Fault-StackTrace']?.length > 30) {
     th['MT-Fault-StackTrace'] = `${th['MT-Fault-StackTrace'].slice(0, 30)}...`
   }
 
@@ -61,38 +61,38 @@ onBeforeUnmount(() => {
           <span class="text-primary-500">URN</span>
           <span class="text-primary-700">{{ selectedMessage.message.messageType.replace('urn:message:', '') }}</span>
         </div>
-        <div class="mt-4 flex gap-8" v-if="transportHeadersTrimmed['MT-Fault-ExceptionType']">
+        <div class="mt-4 flex gap-8">
           <div>
             <div class="text-primary-600">Machine</div>
-            <div class="text-primary-400">{{ selectedMessage.message.host['machineName'] }}</div>
+            <div class="text-primary-400">{{ selectedMessage.message.host?.machineName }}</div>
           </div>
           <div>
             <div class="text-primary-600">Process Name</div>
             <div class="text-primary-400">
-              {{ selectedMessage.message.host['processName'] }}
+              {{ selectedMessage.message.host?.processName }}
             </div>
           </div>
           <div>
             <div class="text-primary-600">PID</div>
-            <div class="text-primary-400">{{ selectedMessage.message.host['processId'] }}</div>
+            <div class="text-primary-400">{{ selectedMessage.message.host?.processId }}</div>
           </div>
           <div>
             <div class="text-primary-600">Assembly</div>
             <div class="text-primary-400">
-              {{ selectedMessage.message.host['assembly'] }} ({{ selectedMessage.message.host['assemblyVersion'] }})
+              {{ selectedMessage.message.host?.assembly }} ({{ selectedMessage.message.host?.assemblyVersion }})
             </div>
           </div>
           <div>
             <div class="text-primary-600">Framework</div>
-            <div class="text-primary-400">{{ selectedMessage.message.host['frameworkVersion'] }}</div>
+            <div class="text-primary-400">{{ selectedMessage.message.host?.frameworkVersion }}</div>
           </div>
           <div>
             <div class="text-primary-600">MassTransit</div>
-            <div class="text-primary-400">{{ selectedMessage.message.host['massTransitVersion'] }}</div>
+            <div class="text-primary-400">{{ selectedMessage.message.host?.massTransitVersion }}</div>
           </div>
           <div>
             <div class="text-primary-600">OS</div>
-            <div class="text-primary-400">{{ selectedMessage.message.host['operatingSystemVersion'] }}</div>
+            <div class="text-primary-400">{{ selectedMessage.message.host?.operatingSystemVersion }}</div>
           </div>
         </div>
       </div>

@@ -61,7 +61,7 @@ public class RequeueSpecificMessagesFeature(
         {
             case ResQueueSqlEngine.Postgres:
                 commandText =
-                    $"SELECT {options.Value.Schema}.requeue_message(@message_delivery_id, @target_queue_type, @delay::interval, @redelivery_count)";
+                    $"SELECT {options.Value.Schema}.requeue_message(@message_delivery_id, @target_queue_type, @delay::text::interval, @redelivery_count)";
                 parameters.Add("message_delivery_id", deliveryMessageId);
                 parameters.Add("target_queue_type", request.Dto.TargetQueueType);
                 parameters.Add("delay", request.Dto.Delay);

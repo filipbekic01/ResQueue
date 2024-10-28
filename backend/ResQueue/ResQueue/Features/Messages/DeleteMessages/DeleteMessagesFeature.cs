@@ -28,25 +28,25 @@ public class DeleteMessagesFeature(
         {
             await using var transaction = await connection.BeginTransactionAsync();
 
-            foreach (var message in request.Dto.Messages)
+            foreach (var messageDeliveryId in request.Dto.MessageDeliveryIds)
             {
-                await CallRoutineAsync(message, connection);
+                await CallRoutineAsync(messageDeliveryId, connection);
             }
 
             await transaction.CommitAsync();
         }
         else
         {
-            foreach (var message in request.Dto.Messages)
+            foreach (var messageDeliveryId in request.Dto.MessageDeliveryIds)
             {
-                await CallRoutineAsync(message, connection);
+                await CallRoutineAsync(messageDeliveryId, connection);
             }
         }
 
         return OperationResult<DeleteMessagesResponse>.Success(new DeleteMessagesResponse());
     }
 
-    private async Task CallRoutineAsync(DeleteMessagesDto.Message message, DbConnection connection)
+    private async Task CallRoutineAsync(long messageDeliveryId, DbConnection connection)
     {
         var parameters = new DynamicParameters();
         string commandText;
@@ -54,15 +54,13 @@ public class DeleteMessagesFeature(
         switch (options.Value.SqlEngine)
         {
             case ResQueueSqlEngine.Postgres:
-                commandText = $"SELECT {options.Value.Schema}.delete_message(@message_delivery_id, @lock_id)";
-                parameters.Add("message_delivery_id", message.MessageDeliveryId);
-                parameters.Add("lock_id", message.LockId);
+                commandText = $"SELECT {options.Value.Schema}._resqueue_delete_message(@message_delivery_id)";
+                parameters.Add("message_delivery_id", messageDeliveryId);
                 break;
 
             case ResQueueSqlEngine.SqlServer:
-                commandText = $"EXEC {options.Value.Schema}.DeleteMessage @messageDeliveryId, @lockId";
-                parameters.Add("messageDeliveryId", message.MessageDeliveryId);
-                parameters.Add("lockId", message.LockId);
+                commandText = $"EXEC {options.Value.Schema}._ResQueue_DeleteMessage @messageDeliveryId";
+                parameters.Add("messageDeliveryId", messageDeliveryId);
                 break;
 
             default:

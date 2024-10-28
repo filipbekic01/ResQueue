@@ -17,6 +17,10 @@ const props = defineProps<{
   batch: boolean
 }>()
 
+const emit = defineEmits<{
+  (e: 'requeue:complete'): void
+}>()
+
 const toast = useToast()
 const route = useRoute()
 
@@ -56,6 +60,8 @@ const requeueMessages = () => {
       delay: requeueDelay.value
     })
       .then(() => {
+        emit('requeue:complete')
+
         toast.add({
           severity: 'success',
           summary: 'Batch Requeue Completed',
@@ -73,6 +79,8 @@ const requeueMessages = () => {
       transactional: requeueTransactional.value
     })
       .then(() => {
+        emit('requeue:complete')
+
         toast.add({
           severity: 'success',
           summary: 'Requeue Completed',
@@ -108,13 +116,12 @@ const requeueMessages = () => {
     </div>
 
     <div class="flex flex-col gap-1">
-      <label>Delay</label>
+      <label>Delay in seconds</label>
       <InputNumber :step="1" v-model="requeueDelay"></InputNumber>
     </div>
     <div class="flex flex-col gap-1">
       <label>Redelivery count</label>
-      <InputNumber v-model="requeueRedeliveryCount"></InputNumber>
-      <small>Set to 10 by default</small>
+      <InputNumber :step="1" v-model="requeueRedeliveryCount"></InputNumber>
     </div>
 
     <div v-if="!batch" class="flex items-center gap-2">

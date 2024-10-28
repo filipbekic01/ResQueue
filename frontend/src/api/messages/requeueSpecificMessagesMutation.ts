@@ -12,8 +12,9 @@ export function useRequeueSpecificMessagesMutation() {
         withCredentials: true
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['messages/paginated'] })
       queryClient.invalidateQueries({ queryKey: ['messages'] })
+      queryClient.invalidateQueries({ queryKey: ['queues-view'] })
+      queryClient.invalidateQueries({ queryKey: ['queue-view'] })
     }
   })
 }

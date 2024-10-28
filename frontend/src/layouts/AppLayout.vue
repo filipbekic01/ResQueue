@@ -2,6 +2,7 @@
 import { useAuthQuery } from '@/api/auth/authQuery'
 import mtLogoUrlDark from '@/assets/images/masstransit-dark.svg'
 import mtLogoUrl from '@/assets/images/masstransit.svg'
+import { useUserSettings } from '@/composables/userSettingsComposable'
 import type { MenuItem } from 'primevue/menuitem'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
@@ -11,6 +12,49 @@ const route = useRoute()
 const { isSuccess, isPending, error } = useAuthQuery()
 
 const capitalize = (value: string = '') => value.replace(/\b\w/g, (char) => char.toUpperCase())
+
+const { settings, updateSettings } = useUserSettings()
+
+const autoRefreshPopover = ref()
+const refetchIntervalOptions = [
+  {
+    label: 'Never',
+    value: 0
+  },
+  {
+    label: '1 second',
+    value: 1000
+  },
+  {
+    label: '5 seconds',
+    value: 1000 * 5
+  },
+  {
+    label: '30 seconds',
+    value: 1000 * 30
+  },
+  {
+    label: '1 minute',
+    value: 1000 * 60
+  },
+  {
+    label: '5 minutes',
+    value: 1000 * 60 * 5
+  },
+  {
+    label: '30 minutes',
+    value: 1000 * 60 * 30
+  },
+  {
+    label: '1 hour',
+    value: 1000 * 60 * 60
+  }
+]
+
+const onRefreshIntervalChange = (interval: number) => {
+  updateSettings({ ...settings, refetchInterval: interval })
+  autoRefreshPopover.value.hide()
+}
 
 const items = computed((): MenuItem[] => {
   var items: MenuItem[] = []
@@ -48,6 +92,24 @@ const items = computed((): MenuItem[] => {
             <Breadcrumb style="padding: 0" :model="items" />
           </div>
         </div>
+      </div>
+      <div class="my-auto me-3 ms-auto items-center">
+        <Button @click="(e) => autoRefreshPopover.toggle(e)" label="Auto-Refresh" icon="pi pi-clock" text></Button>
+        <Popover ref="autoRefreshPopover">
+          <div class="flex w-72 flex-col gap-2">
+            <div>
+              Select an interval to automatically refresh the queues and messages view. We plan to integrate a
+              real-time, socket-based system for instant updates in a future release.
+            </div>
+            <Select
+              :options="refetchIntervalOptions"
+              :model-value="settings.refetchInterval"
+              @update:model-value="onRefreshIntervalChange"
+              option-value="value"
+              option-label="label"
+            ></Select>
+          </div>
+        </Popover>
       </div>
     </div>
 

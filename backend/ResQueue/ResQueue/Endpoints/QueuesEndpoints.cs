@@ -31,7 +31,7 @@ public static class QueuesEndpoints
                                                    consume_count AS ConsumeCount,
                                                    error_count AS ErrorCount,
                                                    dead_letter_count AS DeadLetterCount,
-                                                   count_start_time AS CountStartTime,
+                                                   '' AS CountStartTime,
                                                    count_duration AS CountDuration
                                                FROM {options.Value.Schema}.queues;
                                                """,
@@ -78,7 +78,7 @@ public static class QueuesEndpoints
                                                    consume_count AS ConsumeCount,
                                                    error_count AS ErrorCount,
                                                    dead_letter_count AS DeadLetterCount,
-                                                   count_start_time AS CountStartTime,
+                                                   '' AS CountStartTime,
                                                    count_duration AS CountDuration
                                                FROM {options.Value.Schema}.queues
                                                WHERE queue_name = @QueueName;
@@ -131,7 +131,7 @@ public static class QueuesEndpoints
                                                         Id,
                                                         Updated,
                                                         Name,
-                                                        Type,
+                                                        CAST(type AS INT) AS Type,
                                                         AutoDelete
                                                     FROM {options.Value.Schema}.Queue
                                                     WHERE Name = @QueueName;

@@ -40,7 +40,7 @@ public class RequeueMessagesFeature(
         {
             case ResQueueSqlEngine.Postgres:
                 commandText =
-                    $"SELECT {options.Value.Schema}.requeue_messages(@queue_name, @source_queue_type, @target_queue_type, @message_count, '@delay seconds'::interval, @redelivery_count)";
+                    $"SELECT {options.Value.Schema}.requeue_messages(@queue_name, @source_queue_type, @target_queue_type, @message_count, @delay::text::interval, @redelivery_count)";
                 parameters.Add("queue_name", request.Dto.QueueName);
                 parameters.Add("source_queue_type", request.Dto.SourceQueueType);
                 parameters.Add("target_queue_type", request.Dto.TargetQueueType);

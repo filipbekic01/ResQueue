@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/vue-query'
 import axios from 'axios'
 import { computed, toValue, type MaybeRef } from 'vue'
 
-export const useQueuesViewQuery = (enabled: MaybeRef<boolean> = true) =>
+export const useQueuesViewQuery = (refetchInterval: MaybeRef<number> = 5000, enabled: MaybeRef<boolean> = true) =>
   useQuery({
     queryKey: ['queues-view'],
     queryFn: async () => {
@@ -15,5 +15,5 @@ export const useQueuesViewQuery = (enabled: MaybeRef<boolean> = true) =>
       return response.data
     },
     enabled: computed(() => !!toValue(enabled)),
-    refetchInterval: 3000
+    refetchInterval: refetchInterval
   })
