@@ -1,8 +1,5 @@
 # ResQueue
 
-> [!NOTE]
-> This project is still under active development. A beta version is currently available, but we cannot guarantee that it will function as expected. The official release is anticipated in November, 2024.
-
 **ResQueue** (pronounced /ˈrɛskjuː/) is a web-based UI management tool designed for SQL-based message transports. Currently, it offers seamless integration with MassTransit, and we're open to adding support for additional frameworks based on user feedback and demand.
 
 Join our community on [Discord](https://discord.gg/322AAB4xKx) for updates, support, and discussions.

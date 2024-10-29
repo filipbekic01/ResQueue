@@ -28,13 +28,13 @@
 
         <!-- NuGet package properties -->
         <PackageId>ResQueue.MassTransit</PackageId>
-        <Version>1.0.0-beta.18</Version>
-        <Authors>Filip Bekić</Authors>
+        <Version>1.0.1</Version>
+        <Authors>Filip Bekić, Miroljub Tomić</Authors>
         <Company>ResQueue</Company>
         <Description>MassTransit SQL Transport Web UI</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/filipbekic01/resqueue</RepositoryUrl>
-        <PackageProjectUrl>https://resqueue.io</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/filipbekic01/resqueue</PackageProjectUrl>
         <RepositoryType>git</RepositoryType>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <TargetFramework>net8.0</TargetFramework>
