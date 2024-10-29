@@ -108,7 +108,7 @@ public class Program
         app.UseCors("AllowAll");
         app.UseSwagger();
         app.UseSwaggerUI();
-        app.UseResQueue("custom-prefix");
+        app.UseResQueue();
 
         app.MapGet("/publish",
             async (IPublishEndpoint endpoint) =>
