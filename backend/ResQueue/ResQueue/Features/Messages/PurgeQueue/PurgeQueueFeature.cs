@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using ResQueue.Dtos.Messages;
 using ResQueue.Enums;
 using ResQueue.Factories;
+using ResQueue.Providers.DbConnectionProvider;
 
 namespace ResQueue.Features.Messages.PurgeQueue;
 
@@ -15,7 +16,7 @@ public record PurgeQueueResponse();
 
 public class PurgeQueueFeature(
     IDatabaseConnectionFactory connectionFactory,
-    IOptions<ResQueueOptions> options
+    IDbConnectionProvider conn
 ) : IPurgeQueueFeature
 {
     public async Task<OperationResult<PurgeQueueResponse>> ExecuteAsync(PurgeQueueRequest request)
@@ -34,15 +35,15 @@ public class PurgeQueueFeature(
         var parameters = new DynamicParameters();
         string commandText;
 
-        switch (options.Value.SqlEngine)
+        switch (conn.SqlEngine)
         {
             case ResQueueSqlEngine.Postgres:
-                commandText = $"SELECT {options.Value.Schema}._resqueue_purge_queue_by_id(@queue_id)";
+                commandText = $"SELECT {conn.Schema}._resqueue_purge_queue_by_id(@queue_id)";
                 parameters.Add("queue_id", request.Dto.QueueId);
                 break;
 
             case ResQueueSqlEngine.SqlServer:
-                commandText = $"EXEC {options.Value.Schema}._ResQueue_PurgeQueueById @queueId";
+                commandText = $"EXEC {conn.Schema}._ResQueue_PurgeQueueById @queueId";
                 parameters.Add("queueId", request.Dto.QueueId);
                 break;
 

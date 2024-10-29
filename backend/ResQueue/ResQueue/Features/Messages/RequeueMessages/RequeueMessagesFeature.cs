@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using ResQueue.Dtos.Messages;
 using ResQueue.Enums;
 using ResQueue.Factories;
+using ResQueue.Providers.DbConnectionProvider;
 
 namespace ResQueue.Features.Messages.RequeueMessages;
 
@@ -17,7 +18,7 @@ public record RequeueMessagesResponse();
 
 public class RequeueMessagesFeature(
     IDatabaseConnectionFactory connectionFactory,
-    IOptions<ResQueueOptions> options
+    IDbConnectionProvider conn
 ) : IRequeueMessagesFeature
 {
     public async Task<OperationResult<RequeueMessagesResponse>> ExecuteAsync(RequeueMessagesRequest request)
@@ -36,11 +37,11 @@ public class RequeueMessagesFeature(
         var parameters = new DynamicParameters();
         string commandText;
 
-        switch (options.Value.SqlEngine)
+        switch (conn.SqlEngine)
         {
             case ResQueueSqlEngine.Postgres:
                 commandText =
-                    $"SELECT {options.Value.Schema}.requeue_messages(@queue_name, @source_queue_type, @target_queue_type, @message_count, @delay::text::interval, @redelivery_count)";
+                    $"SELECT {conn.Schema}.requeue_messages(@queue_name, @source_queue_type, @target_queue_type, @message_count, @delay::text::interval, @redelivery_count)";
                 parameters.Add("queue_name", request.Dto.QueueName);
                 parameters.Add("source_queue_type", request.Dto.SourceQueueType);
                 parameters.Add("target_queue_type", request.Dto.TargetQueueType);
@@ -51,7 +52,7 @@ public class RequeueMessagesFeature(
 
             case ResQueueSqlEngine.SqlServer:
                 commandText =
-                    $"EXEC {options.Value.Schema}.RequeueMessages @queueName, @sourceQueueType, @targetQueueType, @messageCount, @delay, @redeliveryCount";
+                    $"EXEC {conn.Schema}.RequeueMessages @queueName, @sourceQueueType, @targetQueueType, @messageCount, @delay, @redeliveryCount";
                 parameters.Add("queueName", request.Dto.QueueName);
                 parameters.Add("sourceQueueType", request.Dto.SourceQueueType);
                 parameters.Add("targetQueueType", request.Dto.TargetQueueType);

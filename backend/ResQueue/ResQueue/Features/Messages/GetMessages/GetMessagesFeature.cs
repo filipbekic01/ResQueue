@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using ResQueue.Dtos.Messages;
 using ResQueue.Enums;
 using ResQueue.Factories;
+using ResQueue.Providers.DbConnectionProvider;
 
 namespace ResQueue.Features.Messages.GetMessages;
 
@@ -17,7 +18,7 @@ public record GetMessagesResponse(
 
 public class GetMessagesFeature(
     IDatabaseConnectionFactory connectionFactory,
-    IOptions<ResQueueOptions> options
+    IDbConnectionProvider conn
 ) : IGetMessagesFeature
 {
     public async Task<OperationResult<GetMessagesResponse>> ExecuteAsync(GetMessagesRequest request)
@@ -60,19 +61,19 @@ public class GetMessagesFeature(
 
     private string GetSqlQueryCountText()
     {
-        return options.Value.SqlEngine switch
+        return conn.SqlEngine switch
         {
             ResQueueSqlEngine.Postgres =>
-                $"SELECT COUNT(*) FROM {options.Value.Schema}.message_delivery WHERE queue_id = @QueueId",
+                $"SELECT COUNT(*) FROM {conn.Schema}.message_delivery WHERE queue_id = @QueueId",
             ResQueueSqlEngine.SqlServer =>
-                $"SELECT COUNT(*) FROM {options.Value.Schema}.MessageDelivery WHERE QueueId = @QueueId",
+                $"SELECT COUNT(*) FROM {conn.Schema}.MessageDelivery WHERE QueueId = @QueueId",
             _ => throw new NotSupportedException("Unsupported SQL Engine")
         };
     }
 
     private string GetSqlQueryText()
     {
-        return options.Value.SqlEngine switch
+        return conn.SqlEngine switch
         {
             ResQueueSqlEngine.Postgres => $"""
                                            SELECT 
@@ -108,8 +109,8 @@ public class GetMessagesFeature(
                                                md.max_delivery_count AS MaxDeliveryCount,
                                                md.last_delivered AS LastDelivered,
                                                md.transport_headers AS TransportHeaders
-                                           FROM {options.Value.Schema}.message_delivery md
-                                           LEFT JOIN {options.Value.Schema}.message m ON m.transport_message_id = md.transport_message_id
+                                           FROM {conn.Schema}.message_delivery md
+                                           LEFT JOIN {conn.Schema}.message m ON m.transport_message_id = md.transport_message_id
                                            WHERE md.queue_id = @QueueId
                                            ORDER BY md.message_delivery_id 
                                            LIMIT @PageSize OFFSET @Offset
@@ -148,8 +149,8 @@ public class GetMessagesFeature(
                                                 md.MaxDeliveryCount,
                                                 md.LastDelivered,
                                                 md.TransportHeaders
-                                            FROM {options.Value.Schema}.MessageDelivery md
-                                            LEFT JOIN {options.Value.Schema}.Message m ON m.TransportMessageId = md.TransportMessageId
+                                            FROM {conn.Schema}.MessageDelivery md
+                                            LEFT JOIN {conn.Schema}.Message m ON m.TransportMessageId = md.TransportMessageId
                                             WHERE md.QueueId = @QueueId
                                             ORDER BY md.MessageDeliveryId 
                                             OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;

@@ -6,6 +6,7 @@ using Npgsql;
 using ResQueue.Dtos.Messages;
 using ResQueue.Enums;
 using ResQueue.Factories;
+using ResQueue.Providers.DbConnectionProvider;
 
 namespace ResQueue.Features.Messages.RequeueSpecificMessages;
 
@@ -17,7 +18,7 @@ public record RequeueSpecificMessagesResponse();
 
 public class RequeueSpecificMessagesFeature(
     IDatabaseConnectionFactory connectionFactory,
-    IOptions<ResQueueOptions> options
+    IDbConnectionProvider conn
 ) : IRequeueSpecificMessagesFeature
 {
     public async Task<OperationResult<RequeueSpecificMessagesResponse>> ExecuteAsync(
@@ -57,11 +58,11 @@ public class RequeueSpecificMessagesFeature(
         var parameters = new DynamicParameters();
         string commandText;
 
-        switch (options.Value.SqlEngine)
+        switch (conn.SqlEngine)
         {
             case ResQueueSqlEngine.Postgres:
                 commandText =
-                    $"SELECT {options.Value.Schema}.requeue_message(@message_delivery_id, @target_queue_type, @delay::text::interval, @redelivery_count)";
+                    $"SELECT {conn.Schema}.requeue_message(@message_delivery_id, @target_queue_type, @delay::text::interval, @redelivery_count)";
                 parameters.Add("message_delivery_id", deliveryMessageId);
                 parameters.Add("target_queue_type", request.Dto.TargetQueueType);
                 parameters.Add("delay", request.Dto.Delay);
@@ -70,7 +71,7 @@ public class RequeueSpecificMessagesFeature(
 
             case ResQueueSqlEngine.SqlServer:
                 commandText =
-                    $"EXEC {options.Value.Schema}.RequeueMessage @messageDeliveryId, @targetQueueType, @delay, @redeliveryCount";
+                    $"EXEC {conn.Schema}.RequeueMessage @messageDeliveryId, @targetQueueType, @delay, @redeliveryCount";
                 parameters.Add("messageDeliveryId", deliveryMessageId);
                 parameters.Add("targetQueueType", request.Dto.TargetQueueType);
                 parameters.Add("delay", request.Dto.Delay);

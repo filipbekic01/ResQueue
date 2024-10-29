@@ -1,12 +1,12 @@
-using Microsoft.Extensions.Options;
 using ResQueue.Enums;
 using ResQueue.Factories;
+using ResQueue.Providers.DbConnectionProvider;
 
 namespace ResQueue.Migrations;
 
 public class SqlMigrations(
     IDatabaseConnectionFactory connectionFactory,
-    IOptions<ResQueueOptions> options
+    IDbConnectionProvider conn
 ) : IHostedService
 {
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -27,7 +27,7 @@ public class SqlMigrations(
     }
 
     private string GetPurgeQueueByIdCommand() =>
-        options.Value.SqlEngine switch
+        conn.SqlEngine switch
         {
             ResQueueSqlEngine.Postgres =>
                 string.Format("""
@@ -54,7 +54,7 @@ public class SqlMigrations(
                                                    WHERE md.transport_message_id = m.transport_message_id);
                               END;
                               $$;
-                              """, options.Value.Schema),
+                              """, conn.Schema),
             ResQueueSqlEngine.SqlServer =>
                 string.Format("""
                               CREATE OR ALTER PROCEDURE {0}._ResQueue_PurgeQueueById
@@ -77,12 +77,12 @@ public class SqlMigrations(
                                       WHERE md.TransportMessageId = {0}.message.TransportMessageId
                                   );
                               END;
-                              """, options.Value.Schema),
+                              """, conn.Schema),
             _ => throw new ArgumentOutOfRangeException()
         };
 
     private string GetDeleteMessageCommand() =>
-        options.Value.SqlEngine switch
+        conn.SqlEngine switch
         {
             ResQueueSqlEngine.Postgres =>
                 string.Format("""
@@ -107,7 +107,7 @@ public class SqlMigrations(
                                   END IF;
                               END;
                               $$;
-                              """, options.Value.Schema),
+                              """, conn.Schema),
             ResQueueSqlEngine.SqlServer =>
                 string.Format("""
                               CREATE OR ALTER PROCEDURE {0}._ResQueue_DeleteMessage
@@ -142,7 +142,7 @@ public class SqlMigrations(
                                       AND NOT EXISTS (SELECT 1 FROM {0}.MessageDelivery md WHERE md.TransportMessageId = @outTransportMessageId);
                                   END;
                               END;
-                              """, options.Value.Schema),
+                              """, conn.Schema),
             _ => throw new ArgumentOutOfRangeException()
         };
 }

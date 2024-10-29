@@ -10,6 +10,7 @@ using ResQueue.Features.Messages.PurgeQueue;
 using ResQueue.Features.Messages.RequeueMessages;
 using ResQueue.Features.Messages.RequeueSpecificMessages;
 using ResQueue.Migrations;
+using ResQueue.Providers.DbConnectionProvider;
 
 namespace ResQueue;
 
@@ -21,6 +22,7 @@ public static class ResQueueExtensions
         builder.Services.Configure(configureOptions);
 
         builder.Services.AddSingleton<IDatabaseConnectionFactory, DatabaseConnectionFactory>();
+        builder.Services.AddSingleton<IDbConnectionProvider, DbConnectionProvider>();
 
         builder.Services.AddTransient<IRequeueMessagesFeature, RequeueMessagesFeature>();
         builder.Services.AddTransient<IRequeueSpecificMessagesFeature, RequeueSpecificMessagesFeature>();

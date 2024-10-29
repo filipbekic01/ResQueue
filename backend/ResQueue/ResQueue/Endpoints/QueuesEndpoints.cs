@@ -6,6 +6,7 @@ using ResQueue.Dtos.Queue;
 using ResQueue.Enums;
 using ResQueue.Factories;
 using ResQueue.Features.Messages.PurgeQueue;
+using ResQueue.Providers.DbConnectionProvider;
 
 namespace ResQueue.Endpoints;
 
@@ -15,9 +16,9 @@ public static class QueuesEndpoints
     {
         RouteGroupBuilder group = routes.MapGroup("queues");
 
-        group.MapGet("view", async (IDatabaseConnectionFactory connectionFactory, IOptions<ResQueueOptions> options) =>
+        group.MapGet("view", async (IDatabaseConnectionFactory connectionFactory, IDbConnectionProvider conn) =>
         {
-            var sql = options.Value.SqlEngine switch
+            var sql = conn.SqlEngine switch
             {
                 ResQueueSqlEngine.Postgres => $"""
                                                SELECT 
@@ -33,7 +34,7 @@ public static class QueuesEndpoints
                                                    dead_letter_count AS DeadLetterCount,
                                                    '' AS CountStartTime,
                                                    count_duration AS CountDuration
-                                               FROM {options.Value.Schema}.queues;
+                                               FROM {conn.Schema}.queues;
                                                """,
                 ResQueueSqlEngine.SqlServer => $"""
                                                 SELECT 
@@ -49,7 +50,7 @@ public static class QueuesEndpoints
                                                     DeadLetterCount,
                                                     CountStartTime,
                                                     CountDuration
-                                                FROM {options.Value.Schema}.Queues;
+                                                FROM {conn.Schema}.Queues;
                                                 """,
                 _ => throw new NotSupportedException("Unsupported SQL engine")
             };
@@ -62,9 +63,9 @@ public static class QueuesEndpoints
         });
 
         group.MapGet("view/{queueName}", async (IDatabaseConnectionFactory connectionFactory,
-            IOptions<ResQueueOptions> options, string queueName) =>
+            IDbConnectionProvider conn, string queueName) =>
         {
-            var sql = options.Value.SqlEngine switch
+            var sql = conn.SqlEngine switch
             {
                 ResQueueSqlEngine.Postgres => $"""
                                                SELECT 
@@ -80,7 +81,7 @@ public static class QueuesEndpoints
                                                    dead_letter_count AS DeadLetterCount,
                                                    '' AS CountStartTime,
                                                    count_duration AS CountDuration
-                                               FROM {options.Value.Schema}.queues
+                                               FROM {conn.Schema}.queues
                                                WHERE queue_name = @QueueName;
                                                """,
                 ResQueueSqlEngine.SqlServer => $"""
@@ -97,7 +98,7 @@ public static class QueuesEndpoints
                                                     DeadLetterCount,
                                                     CountStartTime,
                                                     CountDuration
-                                                FROM {options.Value.Schema}.Queues
+                                                FROM {conn.Schema}.Queues
                                                 WHERE QueueName = @QueueName;
                                                 """,
                 _ => throw new NotSupportedException("Unsupported SQL engine")
@@ -112,9 +113,9 @@ public static class QueuesEndpoints
 
         group.MapGet("",
             async ([FromQuery] string queueName, IDatabaseConnectionFactory connectionFactory,
-                IOptions<ResQueueOptions> options) =>
+                IDbConnectionProvider conn) =>
             {
-                var sql = options.Value.SqlEngine switch
+                var sql = conn.SqlEngine switch
                 {
                     ResQueueSqlEngine.Postgres => $"""
                                                    SELECT 
@@ -123,7 +124,7 @@ public static class QueuesEndpoints
                                                        name AS Name,
                                                        type AS Type,
                                                        auto_delete AS AutoDelete
-                                                   FROM {options.Value.Schema}.queue
+                                                   FROM {conn.Schema}.queue
                                                    WHERE name = @QueueName;
                                                    """,
                     ResQueueSqlEngine.SqlServer => $"""
@@ -133,7 +134,7 @@ public static class QueuesEndpoints
                                                         Name,
                                                         CAST(type AS INT) AS Type,
                                                         AutoDelete
-                                                    FROM {options.Value.Schema}.Queue
+                                                    FROM {conn.Schema}.Queue
                                                     WHERE Name = @QueueName;
                                                     """,
                     _ => throw new NotSupportedException("Unsupported SQL engine")
@@ -147,7 +148,7 @@ public static class QueuesEndpoints
             });
 
         group.MapPost("purge",
-            async (IPurgeQueueFeature feature, IOptions<ResQueueOptions> options, [FromBody] PurgeQueueDto dto) =>
+            async (IPurgeQueueFeature feature, IDbConnectionProvider conn, [FromBody] PurgeQueueDto dto) =>
             {
                 var result = await feature.ExecuteAsync(new PurgeQueueRequest(dto));
 

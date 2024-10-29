@@ -1,22 +1,20 @@
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Options;
 using Npgsql;
 using ResQueue.Enums;
+using ResQueue.Providers.DbConnectionProvider;
 
 namespace ResQueue.Factories;
 
 public class DatabaseConnectionFactory(
-    IOptions<ResQueueOptions> options
+    IDbConnectionProvider conn
 ) : IDatabaseConnectionFactory
 {
-    private readonly ResQueueOptions _options = options.Value;
-
-    public DbConnection CreateConnection() => _options.SqlEngine switch
+    public DbConnection CreateConnection() => conn.SqlEngine switch
     {
-        ResQueueSqlEngine.Postgres => new NpgsqlConnection(_options.ConnectionString),
-        ResQueueSqlEngine.SqlServer => new SqlConnection(_options.ConnectionString),
-        _ => throw new NotSupportedException($"The SQL engine '{_options.SqlEngine}' is not supported.")
+        ResQueueSqlEngine.Postgres => new NpgsqlConnection(conn.ConnectionString),
+        ResQueueSqlEngine.SqlServer => new SqlConnection(conn.ConnectionString),
+        _ => throw new NotSupportedException()
     };
 
     public DbCommand CreateCommand(string commandText, DbConnection connection)

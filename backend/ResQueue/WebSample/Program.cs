@@ -1,8 +1,5 @@
-using System.Reflection;
 using Marten;
 using MassTransit;
-using Microsoft.AspNetCore.Rewrite;
-using Microsoft.Extensions.FileProviders;
 using ResQueue;
 using ResQueue.Enums;
 
@@ -25,52 +22,27 @@ public class Program
             });
         });
 
+        // Server=localhost,1433;Database=sandbox201;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True
+        // Host=localhost;Database=sandbox201;Username=postgres;Password=postgres;
         builder.AddResQueue(opt =>
         {
-            // // postgres
-            // opt.Host = "localhost";
-            // opt.Database = "sandbox201";
-            // opt.Schema = "transport";
-            // opt.Username = "postgres";
-            // opt.Password = "postgres";
-            // opt.Port = 5432;
-
-            // sqlserver
-            opt.Host = "localhost";
-            opt.Database = "sandbox201";
-            opt.Schema = "transport";
-            opt.Username = "sa";
-            opt.Password = "YourStrong!Passw0rd";
-            opt.Port = 1433;
-            opt.SqlEngine = ResQueueSqlEngine.SqlServer;
+            opt.SqlEngine = ResQueueSqlEngine.Postgres;
+            opt.ConnectionString =
+                "Host=localhost;Database=sandbox201;Username=postgres;Password=postgres;";
         });
-
         builder.Services.AddOptions<SqlTransportOptions>().Configure(options =>
         {
-            // // postgres
-            // options.Host = "localhost";
-            // options.Database = "sandbox201";
-            // options.Schema = "transport";
-            // options.Role = "transport";
-            // options.Username = "postgres";
-            // options.Password = "postgres";
-
-            // sqlserver
-            options.Host = "localhost";
-            options.Database = "sandbox201";
-            options.Schema = "transport";
-            options.Role = "transport";
-            options.Username = "sa";
-            options.Password = "YourStrong!Passw0rd";
+            options.ConnectionString =
+                "Host=localhost;Database=sandbox201;Username=postgres;Password=postgres;";
         });
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        // Order is important because MassTransit will create database on boot, if missing.
-        // builder.Services.AddPostgresMigrationHostedService();
-        builder.Services.AddSqlServerMigrationHostedService();
+        builder.Services.AddPostgresMigrationHostedService();
+        // builder.Services.AddSqlServerMigrationHostedService();
 
+        // Must go after MassTransit migrations
         builder.Services.AddResQueueMigrationsHostedService();
 
         builder.Services.AddMarten(x =>
@@ -91,17 +63,17 @@ public class Program
 
             mt.AddJobSagaStateMachines();
 
-            // mt.UsingPostgres((context, config) =>
-            // {
-            //     config.UseSqlMessageScheduler();
-            //     config.ConfigureEndpoints(context);
-            // });
-
-            mt.UsingSqlServer((context, config) =>
+            mt.UsingPostgres((context, config) =>
             {
                 config.UseSqlMessageScheduler();
                 config.ConfigureEndpoints(context);
             });
+
+            // mt.UsingSqlServer((context, config) =>
+            // {
+            //     config.UseSqlMessageScheduler();
+            //     config.ConfigureEndpoints(context);
+            // });
         });
 
         var app = builder.Build();

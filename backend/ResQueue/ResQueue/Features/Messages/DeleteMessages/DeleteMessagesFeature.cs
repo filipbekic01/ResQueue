@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using ResQueue.Dtos.Messages;
 using ResQueue.Enums;
 using ResQueue.Factories;
+using ResQueue.Providers.DbConnectionProvider;
 
 namespace ResQueue.Features.Messages.DeleteMessages;
 
@@ -15,7 +16,7 @@ public record DeleteMessagesResponse();
 
 public class DeleteMessagesFeature(
     IDatabaseConnectionFactory connectionFactory,
-    IOptions<ResQueueOptions> options
+    IDbConnectionProvider conn
 ) : IDeleteMessagesFeature
 {
     public async Task<OperationResult<DeleteMessagesResponse>> ExecuteAsync(DeleteMessagesRequest request)
@@ -51,15 +52,15 @@ public class DeleteMessagesFeature(
         var parameters = new DynamicParameters();
         string commandText;
 
-        switch (options.Value.SqlEngine)
+        switch (conn.SqlEngine)
         {
             case ResQueueSqlEngine.Postgres:
-                commandText = $"SELECT {options.Value.Schema}._resqueue_delete_message(@message_delivery_id)";
+                commandText = $"SELECT {conn.Schema}._resqueue_delete_message(@message_delivery_id)";
                 parameters.Add("message_delivery_id", messageDeliveryId);
                 break;
 
             case ResQueueSqlEngine.SqlServer:
-                commandText = $"EXEC {options.Value.Schema}._ResQueue_DeleteMessage @messageDeliveryId";
+                commandText = $"EXEC {conn.Schema}._ResQueue_DeleteMessage @messageDeliveryId";
                 parameters.Add("messageDeliveryId", messageDeliveryId);
                 break;
 
