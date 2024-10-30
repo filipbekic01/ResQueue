@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MassTransit" Version="8.3.1-develop.2093"/>
         <PackageReference Include="MassTransit.Azure.ServiceBus.Core" Version="8.3.1-develop.2093"/>
         <PackageReference Include="MassTransit.Marten" Version="8.3.1-develop.2093"/>
         <PackageReference Include="MassTransit.SqlTransport.PostgreSQL" Version="8.3.1-develop.2093" />

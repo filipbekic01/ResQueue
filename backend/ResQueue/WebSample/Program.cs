@@ -1,5 +1,7 @@
 using Marten;
 using MassTransit;
+using MassTransit.Contracts.JobService;
+using Microsoft.AspNetCore.Http.HttpResults;
 using ResQueue;
 using ResQueue.Enums;
 
@@ -22,18 +24,18 @@ public class Program
             });
         });
 
-        // Server=localhost,1433;Database=sandbox201;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True
-        // Host=localhost;Database=sandbox201;Username=postgres;Password=postgres;
+        // Server=localhost,1433;Database=sandbox203;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True
+        // Host=localhost;Database=sandbox203;Username=postgres;Password=postgres;
         builder.AddResQueue(opt =>
         {
             opt.SqlEngine = ResQueueSqlEngine.Postgres;
             opt.ConnectionString =
-                "Host=localhost;Database=sandbox201;Username=postgres;Password=postgres;";
+                "Host=localhost;Database=sandbox203;Username=postgres;Password=postgres;";
         });
         builder.Services.AddOptions<SqlTransportOptions>().Configure(options =>
         {
             options.ConnectionString =
-                "Host=localhost;Database=sandbox201;Username=postgres;Password=postgres;";
+                "Host=localhost;Database=sandbox203;Username=postgres;Password=postgres;";
         });
 
         builder.Services.AddEndpointsApiExplorer();
@@ -47,7 +49,7 @@ public class Program
 
         builder.Services.AddMarten(x =>
         {
-            x.Connection("Host=localhost;Database=sandbox201;Username=postgres;Password=postgres;");
+            x.Connection("Host=localhost;Database=sandbox203;Username=postgres;Password=postgres;");
         });
 
         builder.Services.AddMassTransit(mt =>
@@ -58,6 +60,10 @@ public class Program
 
             mt.AddConsumer<YourConsumer>()
                 .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
+
+            mt.AddConsumer<YourConsumer1>()
+                .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
+
             mt.AddConsumer<AwesomeConsumer>()
                 .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
 
@@ -83,13 +89,31 @@ public class Program
         app.UseResQueue();
 
         app.MapGet("/publish",
+            async (IPublishEndpoint endpoint) => { await endpoint.Publish(new YourMessage(Guid.NewGuid())); });
+
+        app.MapGet("/schedule",
             async (IPublishEndpoint endpoint) =>
             {
-                await endpoint.Publish(new YourMessage(Guid.NewGuid()));
-                await endpoint.Publish(new YourMessage(Guid.NewGuid()));
-                await endpoint.Publish(new YourMessage(Guid.NewGuid()));
-                await endpoint.Publish(new YourMessage(Guid.NewGuid()));
-                await endpoint.Publish(new YourMessage(Guid.NewGuid()));
+                var jobId = await endpoint.AddOrUpdateRecurringJob(nameof(AwesomeConsumer), new AwesomeRequest(),
+                    x => x.Every(minutes: 1));
+
+                return Results.Ok(jobId);
+            });
+
+        app.MapGet("/cancel/{jobId:guid}",
+            async (IPublishEndpoint endpoint, Guid jobId) =>
+            {
+                await endpoint.CancelJob(jobId, "hoobastank");
+
+                return Results.Ok();
+            });
+
+        app.MapGet("/state/{jobId:guid}",
+            async (IRequestClient<GetJobState> client, Guid jobId) =>
+            {
+                var state = await client.GetJobState(jobId);
+
+                return Results.Ok(state);
             });
 
         app.Run();

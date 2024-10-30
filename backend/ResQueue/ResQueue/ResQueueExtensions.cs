@@ -78,6 +78,7 @@ public static class ResQueueExtensions
         api.MapAuthEndpoints();
         api.MapQueueEndpoints();
         api.MapMessageEndpoints();
+        api.MapJobsEndpoints();
 
         return app;
     }

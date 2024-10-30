@@ -6,7 +6,7 @@ import { useUserSettings } from './userSettingsComposable'
 
 const getQueueName = (type: number, queueView?: QueueViewDto) => {
   if (type === 1) {
-    return `Ready (${queueView?.ready})`
+    return `Ready (${(queueView?.ready ?? 0) + (queueView?.scheduled ?? 0)})`
   } else if (type === 2) {
     return `Error (${queueView?.errored})`
   } else if (type === 3) {

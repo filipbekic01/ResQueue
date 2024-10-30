@@ -8,8 +8,8 @@ import RequeueDialog from '@/dialogs/RequeueDialog.vue'
 import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
 import type { QueueDto } from '@/dtos/queue/queueDto'
 import AppLayout from '@/layouts/AppLayout.vue'
+import { humanDateTime } from '@/utils/dateTimeUtil'
 import { errorToToast } from '@/utils/errorUtils'
-import { format, formatDistance } from 'date-fns'
 import Column from 'primevue/column'
 import DataTable, { type DataTablePageEvent } from 'primevue/datatable'
 import type { MenuItem } from 'primevue/menuitem'
@@ -18,7 +18,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
-import MessagesMessage from './MessagesMessage.vue'
+import MessageDialog from './MessageDialog.vue'
 
 const props = defineProps<{
   queueName: string
@@ -227,7 +227,7 @@ const onPage = (event: DataTablePageEvent) => {
 
 <template>
   <AppLayout>
-    <MessagesMessage v-if="selectedMessage" :selected-message="selectedMessage" @close="toggleMessage(undefined)" />
+    <MessageDialog v-if="selectedMessage" :selected-message="selectedMessage" @close="toggleMessage(undefined)" />
 
     <Popover ref="deleteMessagesPopover">
       <div class="flex flex-col gap-3">
@@ -311,18 +311,24 @@ const onPage = (event: DataTablePageEvent) => {
               </div>
             </template>
           </Column>
-          <Column field="message.lockId" header="" class="w-0 whitespace-nowrap">
+
+          <Column field="message.schedulingTokenId" header="" class="w-0 whitespace-nowrap">
             <template #body="{ data }">
-              <i :class="`pi pi-${data.lockId ? 'lock' : ''}`"></i>
+              <div class="flex items-center gap-2" v-if="data.message.schedulingTokenId">
+                <i :class="`pi pi-${data.message.schedulingTokenId ? 'clock' : ''}`"></i> Scheduled
+              </div>
+            </template>
+          </Column>
+          <Column field="message.lockId" class="w-0 whitespace-nowrap">
+            <template #body="{ data }">
+              <div class="flex items-center gap-2" v-if="data.lockId"><i :class="`pi pi-lock`"></i> Locked</div>
             </template>
           </Column>
           <Column field="priority" header="Priority" class="w-0 whitespace-nowrap"></Column>
           <Column field="enqueueTime" header="Enqueue Time" header-class="" class="w-0 whitespace-nowrap">
             <template #body="{ data }">
-              <div class="flex gap-2" v-if="data.enqueueTime">
-                {{ format(data.enqueueTime, 'MMM dd HH:mm:ss') }} (
-                {{ formatDistance(data.enqueueTime, new Date()) }}
-                ago)
+              <div class="flex gap-2">
+                {{ humanDateTime(data.enqueueTime) }}
               </div>
             </template></Column
           >

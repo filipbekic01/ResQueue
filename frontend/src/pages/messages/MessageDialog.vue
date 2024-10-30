@@ -1,10 +1,13 @@
 <script lang="ts" setup>
+import { useJobStateQuery } from '@/api/jobs/jobStateQuery'
 import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
+import { humanDateTime } from '@/utils/dateTimeUtil'
 import { highlightJson } from '@/utils/jsonUtils'
-import { format, formatDistance } from 'date-fns'
 import Button from 'primevue/button'
-import { computed, onBeforeUnmount, onMounted } from 'vue'
+import Tag from 'primevue/tag'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import MessageBlock from './MessageBlock.vue'
+import MessageDialogError from './MessageDialogError.vue'
 import MessageHeader from './MessageHeader.vue'
 
 const props = defineProps<{
@@ -14,6 +17,17 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'close'): void
 }>()
+
+const body = computed(() => {
+  try {
+    const content = JSON.parse(props.selectedMessage.message.body)
+    return content
+  } catch (e) {
+    console.error(e)
+    return undefined
+  }
+})
+const { data: job } = useJobStateQuery(body.value['jobId'])
 
 const transportHeadersTrimmed = computed(() => {
   const th = { ...props.selectedMessage.transportHeaders }
@@ -38,12 +52,15 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleEscKey)
 })
+
+const jobStatePopover = ref()
 </script>
 <template>
   <div
     class="click absolute start-0 top-0 z-40 h-full w-full animate-fadein backdrop-brightness-50 animate-duration-75"
     @click="emit('close')"
   ></div>
+
   <div
     class="absolute bottom-0 end-0 z-50 mx-auto flex h-[100%] w-[90%] flex-col overflow-auto rounded-s-xl bg-surface-0 shadow-2xl dark:bg-surface-900"
   >
@@ -52,13 +69,8 @@ onBeforeUnmount(() => {
         <Button icon="pi pi-times" severity="secondary" @click="emit('close')"></Button>
       </div>
       <div class="border-b px-8 pb-6 pt-8">
-        <div class="mb-2 text-primary-500">
-          {{ format(selectedMessage.enqueueTime, 'MMM dd HH:mm:ss') }} (enqueued
-          {{ formatDistance(selectedMessage.enqueueTime, new Date()) }}
-          ago)
-        </div>
-        <div class="flex items-center gap-3 text-2xl">
-          <span class="text-primary-500">URN</span>
+        <div class="mb-2 text-primary-500">{{ humanDateTime(selectedMessage.message.sentTime) }}</div>
+        <div class="flex items-center gap-2.5 text-2xl">
           <span class="text-primary-700">{{ selectedMessage.message.messageType.replace('urn:message:', '') }}</span>
         </div>
         <div class="mt-4 flex gap-8">
@@ -100,13 +112,29 @@ onBeforeUnmount(() => {
       <div class="flex grow flex-col overflow-auto">
         <div class="flex shrink-0 grow basis-2/3 overflow-auto">
           <div class="flex w-[45%] flex-col overflow-auto border-e">
+            <div
+              class="sticky top-0 flex flex-col gap-2 bg-surface-0 px-8 py-6 shadow"
+              v-if="selectedMessage.message.schedulingTokenId || job"
+            >
+              <div v-if="selectedMessage.message.schedulingTokenId" class="flex items-center gap-2">
+                <i class="pi pi-clock"></i>Scheduled Message
+              </div>
+              <div v-if="job" class="">
+                The message belongs to the {{ job.isRecurring ? 'recurring' : '' }} job —
+                <span @click="(e) => jobStatePopover.toggle(e)" class="cursor-pointer text-blue-500 hover:text-blue-400"
+                  >click for details.</span
+                >
+              </div>
+            </div>
             <div class="flex flex-col gap-4 p-8">
               <MessageHeader name="Delivery" />
               <MessageBlock name="Message Delivery ID" :value="selectedMessage.messageDeliveryId" />
               <MessageBlock name="Transport Message ID" :value="selectedMessage.transportMessageId" />
               <MessageBlock name="Queue ID" :value="selectedMessage.queueId" />
               <MessageBlock name="Priority" :value="selectedMessage.priority" />
-              <MessageBlock name="Enqueue Time" :value="selectedMessage.enqueueTime" />
+              <MessageBlock name="Enqueue Time">
+                {{ humanDateTime(selectedMessage.enqueueTime) }}
+              </MessageBlock>
               <MessageBlock name="Expiration Time" :value="selectedMessage.expirationTime" />
               <MessageBlock name="Partition Key" :value="selectedMessage.partitionKey" />
               <MessageBlock name="Routing Key" :value="selectedMessage.routingKey" />
@@ -145,6 +173,35 @@ onBeforeUnmount(() => {
           </div>
           <div class="flex w-[55%] flex-col gap-4 overflow-auto">
             <div class="relative p-8">
+              <Popover ref="jobStatePopover">
+                <div v-if="job" class="flex flex-col gap-4 p-5">
+                  <MessageHeader name="Job State" />
+                  <MessageBlock name="Job ID" :value="job.jobId" />
+                  <MessageBlock name="Submitted">
+                    {{ humanDateTime(job.submitted) }}
+                  </MessageBlock>
+                  <MessageBlock name="Started" :value="job.started">
+                    {{ humanDateTime(job.started) }}
+                  </MessageBlock>
+                  <MessageBlock name="Completed" :value="job.completed">
+                    {{ humanDateTime(job.completed) }}
+                  </MessageBlock>
+                  <MessageBlock name="Duration" :value="job.duration" />
+                  <MessageBlock name="Faulted" :value="job.faulted" />
+                  <MessageBlock name="Reason" :value="job.reason" />
+                  <MessageBlock name="Last Retry Attempt" :value="job.lastRetryAttempt" />
+                  <MessageBlock name="Current State" :value="job.currentState" />
+                  <MessageBlock name="Progress Value" :value="job.progressValue" />
+                  <MessageBlock name="Progress Limit" :value="job.progressLimit" />
+                  <MessageBlock name="Job State" :value="job.jobState" />
+                  <MessageBlock name="Next Start Date" :value="job.nextStartDate">
+                    {{ humanDateTime(job.nextStartDate) }}
+                  </MessageBlock>
+                  <MessageBlock name="Recurring" :value="job.isRecurring" />
+                  <MessageBlock name="Start Date" :value="job.startDate" />
+                  <MessageBlock name="End Date" :value="job.endDate" />
+                </div>
+              </Popover>
               <div class="absolute end-8 flex justify-between">
                 <span class="text-primary-500">{{ selectedMessage.message.contentType }}</span>
               </div>
@@ -153,35 +210,10 @@ onBeforeUnmount(() => {
             </div>
           </div>
         </div>
-        <div
+        <MessageDialogError
           v-if="selectedMessage.transportHeaders['MT-Reason'] == 'fault'"
-          class="flex basis-1/3 flex-col gap-2 overflow-auto border-s-4 border-t border-s-red-400 p-6"
-        >
-          <div class="flex items-center gap-2">
-            <div class="items-cener flex gap-3">
-              <i class="pi pi-circle-fill text-red-400"></i>
-              {{ selectedMessage.transportHeaders['MT-Fault-ExceptionType'] }}
-            </div>
-            <span>•</span>
-            <div class="text-primary-500">
-              {{ format(selectedMessage.transportHeaders['MT-Fault-Timestamp'], 'MMM dd HH:mm:ss') }} (failed
-              {{ formatDistance(selectedMessage.transportHeaders['MT-Fault-Timestamp'], new Date()) }}
-              ago)
-            </div>
-          </div>
-
-          <div class="font-mono text-red-700">
-            {{ selectedMessage.transportHeaders['MT-Fault-Message'] }}
-          </div>
-
-          <div class="whitespace-pre px-4 font-mono text-red-900">
-            {{
-              selectedMessage.transportHeaders['MT-Fault-StackTrace']
-                ? selectedMessage.transportHeaders['MT-Fault-StackTrace']
-                : 'Stack trace missing.'
-            }}
-          </div>
-        </div>
+          :selected-message="selectedMessage"
+        />
       </div>
     </div>
   </div>
