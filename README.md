@@ -48,13 +48,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // MassTransit configuration...
 
-builder.Services.AddResQueue(options =>
+builder.AddResQueue(options =>
 {
     // Choose SQL engine and fill credentials
 });
 
 // Make sure you add this line after MassTransit SQL migrations hosted service
-builder.AddResQueueMigrationsHostedService();
+builder.Services.AddResQueueMigrationsHostedService();
 
 var app = builder.Build();
 
