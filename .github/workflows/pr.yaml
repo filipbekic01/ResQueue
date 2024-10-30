@@ -17,6 +17,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Check secret access
+        run: |
+            if [ -z "${{ secrets.NUGET_API_KEY }}" ]; then
+              echo "false"
+            else
+              echo "true"
+            fi
+
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
