@@ -77,3 +77,5 @@ Here's a quick preview of the ResQueue user interface, providing you with a glim
 <img width="1840" alt="image" src="https://github.com/user-attachments/assets/b60acf98-68d3-40be-a400-cf21889bc458">
 <img width="1617" alt="image" src="https://github.com/user-attachments/assets/167b0ff2-0dea-4cec-94cf-8dab24ac9d40">
 <img width="1617" alt="image" src="https://github.com/user-attachments/assets/d7f894a2-7021-485f-9147-52694fa00524">
+<img width="1840" alt="image" src="https://github.com/user-attachments/assets/0ed693cb-49d6-40d1-85db-94daed81dad6">
+
