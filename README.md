@@ -24,6 +24,7 @@ All checked features are available in latest [NuGet](https://www.nuget.org/packa
   - [x] Delete selected messages (transactional and non-transactional)
   - [x] Purge all messages
   - [x] Single message view
+    - [x] Job state preview if present
 - [ ] Tabuar topics view
 - [ ] Tabular recurring jobs view
 
@@ -53,7 +54,7 @@ builder.Services.AddResQueue(options =>
 });
 
 // Make sure you add this line after MassTransit SQL migrations hosted service
-builder.Services.AddResQueueMigrationsHostedService();
+builder.AddResQueueMigrationsHostedService();
 
 var app = builder.Build();
 
