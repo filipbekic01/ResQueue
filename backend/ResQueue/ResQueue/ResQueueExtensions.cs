@@ -73,7 +73,9 @@ public static class ResQueueExtensions
             RequestPath = "/resqueue-4e8efb80-6aae-496f-b8bf-611b63e725bc"
         });
 
-        var api = app.MapGroup("resqueue-4e8efb80-6aae-496f-b8bf-611b63e725bc/api");
+        var api = app.MapGroup("resqueue-4e8efb80-6aae-496f-b8bf-611b63e725bc/api")
+            .ExcludeFromDescription();
+
         configureApi?.Invoke(api);
         api.MapAuthEndpoints();
         api.MapQueueEndpoints();

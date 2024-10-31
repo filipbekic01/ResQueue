@@ -1,4 +1,5 @@
 using System.Data.Common;
+using MassTransit;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using Npgsql;
@@ -17,9 +18,9 @@ namespace ResQueue.Providers.DbConnectionProvider
         public string? ConnectionString { get; private set; }
         public ResQueueSqlEngine SqlEngine { get; private set; }
 
-        public DbConnectionProvider(IOptions<ResQueueOptions> options)
+        public DbConnectionProvider(IOptions<SqlTransportOptions> options, IOptions<ResQueueOptions> resQueueOptions)
         {
-            SqlEngine = options.Value.SqlEngine;
+            SqlEngine = resQueueOptions.Value.SqlEngine;
             Host = options.Value.Host;
             Port = options.Value.Port;
             Database = options.Value.Database;
