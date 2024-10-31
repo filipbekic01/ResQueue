@@ -16,21 +16,21 @@ namespace ResQueue;
 
 public static class ResQueueExtensions
 {
-    public static WebApplicationBuilder AddResQueue(this WebApplicationBuilder builder,
+    public static IServiceCollection AddResQueue(this IServiceCollection services,
         Action<ResQueueOptions> configureOptions)
     {
-        builder.Services.Configure(configureOptions);
+        services.Configure(configureOptions);
 
-        builder.Services.AddSingleton<IDatabaseConnectionFactory, DatabaseConnectionFactory>();
-        builder.Services.AddSingleton<IDbConnectionProvider, DbConnectionProvider>();
+        services.AddSingleton<IDatabaseConnectionFactory, DatabaseConnectionFactory>();
+        services.AddSingleton<IDbConnectionProvider, DbConnectionProvider>();
 
-        builder.Services.AddTransient<IRequeueMessagesFeature, RequeueMessagesFeature>();
-        builder.Services.AddTransient<IRequeueSpecificMessagesFeature, RequeueSpecificMessagesFeature>();
-        builder.Services.AddTransient<IDeleteMessagesFeature, DeleteMessagesFeature>();
-        builder.Services.AddTransient<IGetMessagesFeature, GetMessagesFeature>();
-        builder.Services.AddTransient<IPurgeQueueFeature, PurgeQueueFeature>();
+        services.AddTransient<IRequeueMessagesFeature, RequeueMessagesFeature>();
+        services.AddTransient<IRequeueSpecificMessagesFeature, RequeueSpecificMessagesFeature>();
+        services.AddTransient<IDeleteMessagesFeature, DeleteMessagesFeature>();
+        services.AddTransient<IGetMessagesFeature, GetMessagesFeature>();
+        services.AddTransient<IPurgeQueueFeature, PurgeQueueFeature>();
 
-        return builder;
+        return services;
     }
 
     public static IApplicationBuilder UseResQueue(this WebApplication app, string prefix = "resqueue",

@@ -26,7 +26,7 @@ public class Program
 
         // Server=localhost,1433;Database=sandbox203;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True
         // Host=localhost;Database=sandbox203;Username=postgres;Password=postgres;
-        builder.AddResQueue(opt =>
+        builder.Services.AddResQueue(opt =>
         {
             opt.SqlEngine = ResQueueSqlEngine.Postgres;
             opt.ConnectionString =
