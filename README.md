@@ -48,10 +48,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // MassTransit configuration...
 
-builder.Services.AddResQueue(options =>
-{
-    // Choose SQL engine and fill credentials
-});
+// ResQueue relays on MassTransit.SqlTransportOptions credentials
+builder.Services.AddResQueue(o => o.SqlEngine = ResQueueSqlEngine.Postgres);
 
 // Make sure you add this line after MassTransit SQL migrations hosted service
 builder.Services.AddResQueueMigrationsHostedService();
