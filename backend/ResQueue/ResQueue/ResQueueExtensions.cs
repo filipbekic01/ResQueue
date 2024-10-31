@@ -43,7 +43,7 @@ public static class ResQueueExtensions
               }
               """
             , "text/javascript"
-        ));
+        )).ExcludeFromDescription();
 
         var rewriteOptions = new RewriteOptions()
             .AddRewrite("^(.*)/$", "$1", false); // Remove trailing slash
