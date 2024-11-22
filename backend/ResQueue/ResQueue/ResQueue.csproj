@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <LangVersion>12.0</LangVersion>
+        <TargetFramework>net9.0</TargetFramework>
+        <LangVersion>13.0</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -28,7 +28,7 @@
 
         <!-- NuGet package properties -->
         <PackageId>ResQueue.MassTransit</PackageId>
-        <Version>1.0.7</Version>
+        <Version>1.0.8</Version>
         <Authors>Filip Bekić, Miroljub Tomić</Authors>
         <Company>ResQueue</Company>
         <Description>MassTransit SQL Transport Web UI</Description>
@@ -37,7 +37,6 @@
         <PackageProjectUrl>https://github.com/filipbekic01/resqueue</PackageProjectUrl>
         <RepositoryType>git</RepositoryType>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-        <TargetFramework>net8.0</TargetFramework>
 
         <!-- Output path for the NuGet package -->
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -48,8 +47,8 @@
 
     <ItemGroup>
         <PackageReference Include="Dapper" Version="2.1.35"/>
-        <PackageReference Include="MassTransit" Version="8.3.1" />
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
-        <PackageReference Include="Npgsql" Version="8.0.5"/>
+        <PackageReference Include="MassTransit" Version="8.3.2"/>
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2"/>
+        <PackageReference Include="Npgsql" Version="9.0.1"/>
     </ItemGroup>
 </Project>
