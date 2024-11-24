@@ -41,7 +41,7 @@ dotnet add package ResQueue.MassTransit
 2. In your .NET application, configure **ResQueue** in the `WebApplication` builder by calling `builder.Services.AddResQueue()` with your database connection details. This can be done as follows:
 
 > [!WARNING]
-> ResQueue configuration must follow the MassTransit setup, as MassTransit is a prerequisite for ResQueue to function correctly. Required MassTransit version is at least 8.3.1-develop.2100.
+> ResQueue configuration must follow the MassTransit setup, as MassTransit is a prerequisite for ResQueue to function correctly. Required MassTransit version is at least 8.3.2.
 
 ```csharp
 var builder = WebApplication.CreateBuilder(args);
