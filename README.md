@@ -4,17 +4,17 @@
 
 Join our community on [Discord](https://discord.gg/322AAB4xKx) for updates, support, and discussions.
 
-### Work in Progress
+## Work in Progress
 
 All checked features are available in latest [NuGet](https://www.nuget.org/packages/ResQueue.MassTransit) version.
 
-#### Brokers
+### Brokers
 
 - [x] MassTransit
   - [x] MassTransit.SqlTransport.PostgreSQL
   - [x] MassTransit.SqlTransport.SqlServer
 
-#### Features
+### Features
 
 - [x] Tabular broker information view
 - [x] Tabular queues view
@@ -68,6 +68,12 @@ app.Run();
 3. Once this is set up, your application should work right out of the box.
 
 **ResQueue** will handle all the configuration and integration with MassTransit for you, making it simple to manage your SQL transports.
+
+### Docker (optional)
+Simplify your setup by running ResQueue in standalone mode with Docker. Get up and running effortlessly without additional configurations—just pull the container and you're ready to go.
+```sh
+docker run -it --rm -p 8080:8080 -e ResQueue:SqlEngine=Postgres -e SqlTransport:ConnectionString="Host=host.docker.internal;Database=DATABASE;Username=USERNAME;Password=PASSWORD;" ghcr.io/filipbekic01/resqueue
+```
 
 ## UI Preview
 
