@@ -67,3 +67,55 @@ jobs:
 
           docker manifest push "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}"
           docker manifest push "${DockerRegistry}/${DockerRepository}:latest"
+
+  Deploy Image:
+    runs-on: ubuntu-latest
+    env:
+      ResQueueImageVersion: "1.0.9"
+      DockerRegistry: ghcr.io
+      DockerRepository: filipbekic01/resqueue
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - name: Install Node dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build Vue frontend
+        working-directory: frontend
+        run: npm run build:prod
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish x64 image
+        working-directory: backend/ResQueue/ResQueue.Standalone
+        run: dotnet publish --os linux --arch x64 /t:PublishContainer -p:PublishToGithubRegistry=true -p:ContainerImageTag=${ResQueueImageVersion} -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry} -pContainerImageTag=${ResQueueImageVersion}-x64
+
+      - name: Publish arm64 image
+        working-directory: backend/ResQueue/ResQueue.Standalone
+        run: dotnet publish --os linux --arch arm64 /t:PublishContainer -p:PublishToGithubRegistry=true -p:ContainerImageTag=${ResQueueImageVersion} -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry} -pContainerImageTag=${ResQueueImageVersion}-arm64
+
+      - name: Publish image manifest
+        run: |
+          set -e
+          docker manifest create "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}" "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}-x64" "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}-arm64"
+          docker manifest tag "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}" "${DockerRegistry}/${DockerRepository}:latest"
+
+          docker manifest push "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}"
+          docker manifest push "${DockerRegistry}/${DockerRepository}:latest"
