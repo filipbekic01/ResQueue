@@ -7,9 +7,6 @@
 
         <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
         <ContainerFamily>alpine</ContainerFamily>
-
-        <ContainerImageTag Condition="'$(PublishToGithubRegistry)' != 'true'">1.0.9</ContainerImageTag>
-        <Arch Condition="'$(RuntimeIdentifier)' != ''">$(RuntimeIdentifier.Split('-')[1])</Arch>
     </PropertyGroup>
 
     <ItemGroup>

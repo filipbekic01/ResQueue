@@ -28,6 +28,8 @@ else
     builder.Services.AddSqlServerMigrationHostedService();
 }
 
+builder.Services.AddResQueueMigrationsHostedService();
+
 builder.Services.AddMassTransit(mt =>
 {
     if (sqlEngine == ResQueueSqlEngine.Postgres)
