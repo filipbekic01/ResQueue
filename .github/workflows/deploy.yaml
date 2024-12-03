@@ -4,7 +4,7 @@ on:
     branches:
       - prod
 jobs:
-  Deploy:
+  DeployNuget:
     runs-on: ubuntu-latest
     env:
       ResQueueImageVersion: "1.0.9"
@@ -105,11 +105,11 @@ jobs:
 
       - name: Publish x64 image
         working-directory: backend/ResQueue/ResQueue.Standalone
-        run: dotnet publish --os linux --arch x64 /t:PublishContainer -p:PublishToGithubRegistry=true -p:ContainerImageTag=${ResQueueImageVersion} -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry} -pContainerImageTag=${ResQueueImageVersion}-x64
+        run: dotnet publish --os linux --arch x64 /t:PublishContainer -p:PublishToGithubRegistry=true -p:ContainerImageTag=${ResQueueImageVersion} -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry} -p:ContainerImageTag=${ResQueueImageVersion}-x64
 
       - name: Publish arm64 image
         working-directory: backend/ResQueue/ResQueue.Standalone
-        run: dotnet publish --os linux --arch arm64 /t:PublishContainer -p:PublishToGithubRegistry=true -p:ContainerImageTag=${ResQueueImageVersion} -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry} -pContainerImageTag=${ResQueueImageVersion}-arm64
+        run: dotnet publish --os linux --arch arm64 /t:PublishContainer -p:PublishToGithubRegistry=true -p:ContainerImageTag=${ResQueueImageVersion} -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry} -p:ContainerImageTag=${ResQueueImageVersion}-arm64
 
       - name: Publish image manifest
         run: |
