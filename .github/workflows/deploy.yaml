@@ -115,7 +115,7 @@ jobs:
         run: |
           set -e
           docker manifest create "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}" "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}-x64" "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}-arm64"
-          docker manifest tag "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}" "${DockerRegistry}/${DockerRepository}:latest"
-
           docker manifest push "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}"
+
+          docker manifest create "${DockerRegistry}/${DockerRepository}:latest" "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}-x64" "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}-arm64"
           docker manifest push "${DockerRegistry}/${DockerRepository}:latest"
