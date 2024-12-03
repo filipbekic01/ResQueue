@@ -7,8 +7,9 @@ jobs:
   Deploy:
     runs-on: ubuntu-latest
     env:
-      NuGetApiKey: ${{ secrets.NUGET_API_KEY }}
-      IsCI: "true"
+      ResQueueImageVersion: "1.0.9"
+      DockerRegistry: ghcr.io
+      DockerRepository: filipbekic01/resqueue
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
@@ -42,3 +43,27 @@ jobs:
       - name: Push the NuGet package
         working-directory: backend/ResQueue/ResQueue
         run: dotnet nuget push bin/Release/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://nuget.org
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish x64 image
+        working-directory: backend/ResQueue/ResQueue.Standalone
+        run: dotnet publish --os linux --arch x64 /t:PublishContainer -p:PublishToGithubRegistry=true -p:ContainerImageTag=${ResQueueImageVersion} -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry} -pContainerImageTag=${ResQueueImageVersion}-x64
+
+      - name: Publish arm64 image
+        working-directory: backend/ResQueue/ResQueue.Standalone
+        run: dotnet publish --os linux --arch arm64 /t:PublishContainer -p:PublishToGithubRegistry=true -p:ContainerImageTag=${ResQueueImageVersion} -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry} -pContainerImageTag=${ResQueueImageVersion}-arm64
+
+      - name: Publish image manifest
+        run: |
+          set -e
+          docker manifest create "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}" "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}-x64" "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}-arm64"
+          docker manifest tag "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}" "${DockerRegistry}/${DockerRepository}:latest"
+
+          docker manifest push "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}"
+          docker manifest push "${DockerRegistry}/${DockerRepository}:latest"

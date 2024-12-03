@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResQueue", "ResQueue\ResQue
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSample", "WebSample\WebSample.csproj", "{DBAAEB7E-3616-4BCD-B2C0-736EEEABF85C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResQueue.Standalone", "ResQueue.Standalone\ResQueue.Standalone.csproj", "{2619AD4E-B31F-4CB4-AE3B-E0B988E1F6CE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{DBAAEB7E-3616-4BCD-B2C0-736EEEABF85C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DBAAEB7E-3616-4BCD-B2C0-736EEEABF85C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DBAAEB7E-3616-4BCD-B2C0-736EEEABF85C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2619AD4E-B31F-4CB4-AE3B-E0B988E1F6CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2619AD4E-B31F-4CB4-AE3B-E0B988E1F6CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2619AD4E-B31F-4CB4-AE3B-E0B988E1F6CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2619AD4E-B31F-4CB4-AE3B-E0B988E1F6CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
