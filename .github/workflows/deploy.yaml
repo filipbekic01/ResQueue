@@ -68,7 +68,7 @@ jobs:
           docker manifest push "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}"
           docker manifest push "${DockerRegistry}/${DockerRepository}:latest"
 
-  Deploy Image:
+  DeployImage:
     runs-on: ubuntu-latest
     env:
       ResQueueImageVersion: "1.0.9"
