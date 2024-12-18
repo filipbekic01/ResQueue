@@ -36,14 +36,6 @@ jobs:
         working-directory: backend/ResQueue/ResQueue
         run: dotnet build --configuration Release
 
-      - name: Pack the NuGet package
-        working-directory: backend/ResQueue/ResQueue
-        run: dotnet pack --configuration Release
-
-      - name: Push the NuGet package
-        working-directory: backend/ResQueue/ResQueue
-        run: dotnet nuget push bin/Release/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://nuget.org
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -67,6 +59,14 @@ jobs:
 
           docker manifest push "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}"
           docker manifest push "${DockerRegistry}/${DockerRepository}:latest"
+
+      - name: Pack the NuGet package
+        working-directory: backend/ResQueue/ResQueue
+        run: dotnet pack --configuration Release
+
+      - name: Push the NuGet package
+        working-directory: backend/ResQueue/ResQueue
+        run: dotnet nuget push bin/Release/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://nuget.org
 
   DeployImage:
     runs-on: ubuntu-latest

@@ -2,6 +2,12 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v1.0.11] - 2024-12-18
+
+### Fixed
+
+- GitHub pipeline, version change required
+
 ## [v1.0.10] - 2024-12-18
 
 ### Changed
