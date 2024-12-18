@@ -36,30 +36,6 @@ jobs:
         working-directory: backend/ResQueue/ResQueue
         run: dotnet build --configuration Release
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish x64 image
-        working-directory: backend/ResQueue/ResQueue.Standalone
-        run: dotnet publish --os linux --arch x64 /t:PublishContainer -p:PublishToGithubRegistry=true -p:ContainerImageTag=${ResQueueImageVersion}-x64 -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry}
-
-      - name: Publish arm64 image
-        working-directory: backend/ResQueue/ResQueue.Standalone
-        run: dotnet publish --os linux --arch arm64 /t:PublishContainer -p:PublishToGithubRegistry=true -p:ContainerImageTag=${ResQueueImageVersion}-arm64 -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry}
-
-      - name: Publish image manifest
-        run: |
-          set -e
-          docker manifest create "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}" "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}-x64" "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}-arm64"
-          docker manifest tag "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}" "${DockerRegistry}/${DockerRepository}:latest"
-
-          docker manifest push "${DockerRegistry}/${DockerRepository}:${ResQueueImageVersion}"
-          docker manifest push "${DockerRegistry}/${DockerRepository}:latest"
-
       - name: Pack the NuGet package
         working-directory: backend/ResQueue/ResQueue
         run: dotnet pack --configuration Release
