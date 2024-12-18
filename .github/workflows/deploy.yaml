@@ -6,10 +6,6 @@ on:
 jobs:
   DeployNuget:
     runs-on: ubuntu-latest
-    env:
-      ResQueueImageVersion: "1.0.11"
-      DockerRegistry: ghcr.io
-      DockerRepository: filipbekic01/resqueue
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
