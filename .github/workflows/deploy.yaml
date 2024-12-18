@@ -7,7 +7,7 @@ jobs:
   DeployNuget:
     runs-on: ubuntu-latest
     env:
-      ResQueueImageVersion: "1.0.9"
+      ResQueueImageVersion: "1.0.11"
       DockerRegistry: ghcr.io
       DockerRepository: filipbekic01/resqueue
     steps:
@@ -71,7 +71,7 @@ jobs:
   DeployImage:
     runs-on: ubuntu-latest
     env:
-      ResQueueImageVersion: "1.0.9"
+      ResQueueImageVersion: "1.0.11"
       DockerRegistry: ghcr.io
       DockerRepository: filipbekic01/resqueue
     steps:
