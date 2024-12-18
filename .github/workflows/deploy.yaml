@@ -53,11 +53,11 @@ jobs:
 
       - name: Publish x64 image
         working-directory: backend/ResQueue/ResQueue.Standalone
-        run: dotnet publish --os linux --arch x64 /t:PublishContainer -p:PublishToGithubRegistry=true -p:ContainerImageTag=${ResQueueImageVersion} -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry} -pContainerImageTag=${ResQueueImageVersion}-x64
+        run: dotnet publish --os linux --arch x64 /t:PublishContainer -p:PublishToGithubRegistry=true -p:ContainerImageTag=${ResQueueImageVersion}-x64 -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry}
 
       - name: Publish arm64 image
         working-directory: backend/ResQueue/ResQueue.Standalone
-        run: dotnet publish --os linux --arch arm64 /t:PublishContainer -p:PublishToGithubRegistry=true -p:ContainerImageTag=${ResQueueImageVersion} -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry} -pContainerImageTag=${ResQueueImageVersion}-arm64
+        run: dotnet publish --os linux --arch arm64 /t:PublishContainer -p:PublishToGithubRegistry=true -p:ContainerImageTag=${ResQueueImageVersion}-arm64 -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry}
 
       - name: Publish image manifest
         run: |
@@ -105,11 +105,11 @@ jobs:
 
       - name: Publish x64 image
         working-directory: backend/ResQueue/ResQueue.Standalone
-        run: dotnet publish --os linux --arch x64 /t:PublishContainer -p:ContainerImageTag=${ResQueueImageVersion} -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry} -p:ContainerImageTag=${ResQueueImageVersion}-x64
+        run: dotnet publish --os linux --arch x64 /t:PublishContainer -p:ContainerImageTag=${ResQueueImageVersion}-x64 -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry}
 
       - name: Publish arm64 image
         working-directory: backend/ResQueue/ResQueue.Standalone
-        run: dotnet publish --os linux --arch arm64 /t:PublishContainer -p:ContainerImageTag=${ResQueueImageVersion} -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry} -p:ContainerImageTag=${ResQueueImageVersion}-arm64
+        run: dotnet publish --os linux --arch arm64 /t:PublishContainer -p:ContainerImageTag=${ResQueueImageVersion}-arm64 -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry}
 
       - name: Publish image manifest
         run: |
