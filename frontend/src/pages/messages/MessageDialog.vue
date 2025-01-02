@@ -126,6 +126,16 @@ const jobStatePopover = ref()
                 >
               </div>
             </div>
+            <template v-if="selectedMessage.additionalData">
+              <div class="flex flex-col gap-4 border-b p-8">
+                <MessageHeader name="Additional Data" />
+                <template v-for="(value, key) in selectedMessage.additionalData" :key="key">
+                  <MessageBlock :name="key">
+                    <span v-html="value"></span>
+                  </MessageBlock>
+                </template>
+              </div>
+            </template>
             <div class="flex flex-col gap-4 p-8">
               <MessageHeader name="Delivery" />
               <MessageBlock name="Message Delivery ID" :value="selectedMessage.messageDeliveryId" />
