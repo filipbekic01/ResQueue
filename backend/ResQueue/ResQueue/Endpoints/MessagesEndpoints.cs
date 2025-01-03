@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using ResQueue.Dtos.Messages;
 using ResQueue.Features.Messages.DeleteMessages;
 using ResQueue.Features.Messages.GetMessages;
+using ResQueue.Features.Messages.GetSingleMessage;
 using ResQueue.Features.Messages.RequeueMessages;
 using ResQueue.Features.Messages.RequeueSpecificMessages;
-using ResQueue.Features.Messages.TransformMessage;
 
 namespace ResQueue.Endpoints;
 
@@ -26,11 +26,11 @@ public static class MessagesEndpoints
                     : Results.Problem(result.Problem!);
             });
 
-        group.MapPost("transform",
-            async (ITransformMessageFeature feature, [FromBody] MessageDeliveryDto message) =>
+        group.MapGet("{transportMessageId}",
+            async (IGetSingleMessageFeature feature, string transportMessageId) =>
             {
-                var result = await feature.ExecuteAsync(new TransformMessageRequest(
-                    message
+                var result = await feature.ExecuteAsync(new GetSingleMessageRequest(
+                    transportMessageId
                 ));
 
                 return result.IsSuccess

@@ -1,6 +1,6 @@
 using ResQueue.Dtos.Messages;
 using ResQueue.Enums;
-using ResQueue.Features.Messages.TransformMessage.Models;
+using ResQueue.Features.Messages.GetSingleMessage.Models;
 
 namespace ResQueue
 {

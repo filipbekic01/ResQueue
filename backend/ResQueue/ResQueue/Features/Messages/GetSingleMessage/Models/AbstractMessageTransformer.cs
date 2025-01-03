@@ -1,6 +1,6 @@
 ﻿using ResQueue.Dtos.Messages;
 
-namespace ResQueue.Features.Messages.TransformMessage.Models
+namespace ResQueue.Features.Messages.GetSingleMessage.Models
 {
     public abstract class AbstractMessageTransformer
     {
