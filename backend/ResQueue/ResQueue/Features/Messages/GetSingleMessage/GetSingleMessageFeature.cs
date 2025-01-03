@@ -40,7 +40,7 @@ public class GetSingleMessageFeature(
             new { request.TransportMessageId },
             splitOn: "MessageDeliveryId"
         ).FirstOrDefault();
-        
+
         if (message is null)
         {
             return OperationResult<GetSingleMessageResponse>.Failure(new ProblemDetails
@@ -49,7 +49,7 @@ public class GetSingleMessageFeature(
                 Title = "Not Found"
             });
         }
-        
+
         // invoke each transformer
         var transformerTypes = resQueueOptions.Value.TransformerTypes;
         foreach (var transformerType in transformerTypes)
@@ -62,7 +62,8 @@ public class GetSingleMessageFeature(
         if (resQueueOptions.Value.AppendAdditionalData is not null)
         {
             var additionalData = resQueueOptions.Value.AppendAdditionalData(message);
-            message.AdditionalData = additionalData;
+            message.AdditionalData ??= new();
+            additionalData.ToList().ForEach(x => message.AdditionalData[x.Key] = x.Value);
         }
 
         return OperationResult<GetSingleMessageResponse>.Success(new GetSingleMessageResponse(message));
