@@ -30,8 +30,10 @@ const body = computed(() => {
 const { data: job } = useJobStateQuery(body.value['jobId'])
 const { data: fetchedMessage } = useSingleMessageQuery(props.selectedMessage.transportMessageId)
 
+const displayedMessage = computed<MessageDeliveryDto>(() => fetchedMessage.value ?? props.selectedMessage)
+
 const transportHeadersTrimmed = computed(() => {
-  const th = { ...props.selectedMessage.transportHeaders }
+  const th = { ...displayedMessage.value.transportHeaders }
 
   if (th['MT-Fault-StackTrace']?.length > 30) {
     th['MT-Fault-StackTrace'] = `${th['MT-Fault-StackTrace'].slice(0, 30)}...`
@@ -70,42 +72,42 @@ const jobStatePopover = ref()
         <Button icon="pi pi-times" severity="secondary" @click="emit('close')"></Button>
       </div>
       <div class="border-b px-8 pb-6 pt-8">
-        <div class="mb-2 text-primary-500">{{ humanDateTime(selectedMessage.message.sentTime) }}</div>
+        <div class="mb-2 text-primary-500">{{ humanDateTime(displayedMessage.message.sentTime) }}</div>
         <div class="flex items-center gap-2.5 text-2xl">
-          <span class="text-primary-700">{{ selectedMessage.message.messageType.replace('urn:message:', '') }}</span>
+          <span class="text-primary-700">{{ displayedMessage.message.messageType.replace('urn:message:', '') }}</span>
         </div>
         <div class="mt-4 flex gap-8">
           <div>
             <div class="text-primary-600">Machine</div>
-            <div class="text-primary-400">{{ selectedMessage.message.host?.machineName }}</div>
+            <div class="text-primary-400">{{ displayedMessage.message.host?.machineName }}</div>
           </div>
           <div>
             <div class="text-primary-600">Process Name</div>
             <div class="text-primary-400">
-              {{ selectedMessage.message.host?.processName }}
+              {{ displayedMessage.message.host?.processName }}
             </div>
           </div>
           <div>
             <div class="text-primary-600">PID</div>
-            <div class="text-primary-400">{{ selectedMessage.message.host?.processId }}</div>
+            <div class="text-primary-400">{{ displayedMessage.message.host?.processId }}</div>
           </div>
           <div>
             <div class="text-primary-600">Assembly</div>
             <div class="text-primary-400">
-              {{ selectedMessage.message.host?.assembly }} ({{ selectedMessage.message.host?.assemblyVersion }})
+              {{ displayedMessage.message.host?.assembly }} ({{ displayedMessage.message.host?.assemblyVersion }})
             </div>
           </div>
           <div>
             <div class="text-primary-600">Framework</div>
-            <div class="text-primary-400">{{ selectedMessage.message.host?.frameworkVersion }}</div>
+            <div class="text-primary-400">{{ displayedMessage.message.host?.frameworkVersion }}</div>
           </div>
           <div>
             <div class="text-primary-600">MassTransit</div>
-            <div class="text-primary-400">{{ selectedMessage.message.host?.massTransitVersion }}</div>
+            <div class="text-primary-400">{{ displayedMessage.message.host?.massTransitVersion }}</div>
           </div>
           <div>
             <div class="text-primary-600">OS</div>
-            <div class="text-primary-400">{{ selectedMessage.message.host?.operatingSystemVersion }}</div>
+            <div class="text-primary-400">{{ displayedMessage.message.host?.operatingSystemVersion }}</div>
           </div>
         </div>
       </div>
@@ -115,9 +117,9 @@ const jobStatePopover = ref()
           <div class="flex w-[45%] flex-col overflow-auto border-e">
             <div
               class="sticky top-0 flex flex-col gap-2 bg-surface-0 px-8 py-6 shadow"
-              v-if="selectedMessage.message.schedulingTokenId || job"
+              v-if="displayedMessage.message.schedulingTokenId || job"
             >
-              <div v-if="selectedMessage.message.schedulingTokenId" class="flex items-center gap-2">
+              <div v-if="displayedMessage.message.schedulingTokenId" class="flex items-center gap-2">
                 <i class="pi pi-clock"></i>Scheduled Message
               </div>
               <div v-if="job" class="">
@@ -127,10 +129,10 @@ const jobStatePopover = ref()
                 >
               </div>
             </div>
-            <template v-if="selectedMessage.additionalData">
+            <template v-if="displayedMessage.additionalData">
               <div class="flex flex-col gap-4 border-b p-8">
                 <MessageHeader name="Additional Data" />
-                <template v-for="(value, key) in selectedMessage.additionalData" :key="key">
+                <template v-for="(value, key) in displayedMessage.additionalData" :key="key">
                   <MessageBlock :name="key">
                     <span v-html="value"></span>
                   </MessageBlock>
@@ -139,46 +141,46 @@ const jobStatePopover = ref()
             </template>
             <div class="flex flex-col gap-4 p-8">
               <MessageHeader name="Delivery" />
-              <MessageBlock name="Message Delivery ID" :value="selectedMessage.messageDeliveryId" />
-              <MessageBlock name="Transport Message ID" :value="selectedMessage.transportMessageId" />
-              <MessageBlock name="Queue ID" :value="selectedMessage.queueId" />
-              <MessageBlock name="Priority" :value="selectedMessage.priority" />
+              <MessageBlock name="Message Delivery ID" :value="displayedMessage.messageDeliveryId" />
+              <MessageBlock name="Transport Message ID" :value="displayedMessage.transportMessageId" />
+              <MessageBlock name="Queue ID" :value="displayedMessage.queueId" />
+              <MessageBlock name="Priority" :value="displayedMessage.priority" />
               <MessageBlock name="Enqueue Time">
-                {{ humanDateTime(selectedMessage.enqueueTime) }}
+                {{ humanDateTime(displayedMessage.enqueueTime) }}
               </MessageBlock>
-              <MessageBlock name="Expiration Time" :value="selectedMessage.expirationTime" />
-              <MessageBlock name="Partition Key" :value="selectedMessage.partitionKey" />
-              <MessageBlock name="Routing Key" :value="selectedMessage.routingKey" />
-              <MessageBlock name="Consumer ID" :value="selectedMessage.consumerId" />
-              <MessageBlock name="Lock ID" :value="selectedMessage.lockId" />
-              <MessageBlock name="Delivery Count" :value="selectedMessage.deliveryCount" />
-              <MessageBlock name="Max. Delivery Count" :value="selectedMessage.maxDeliveryCount" />
-              <MessageBlock name="Last Delivered" :value="selectedMessage.lastDelivered" />
+              <MessageBlock name="Expiration Time" :value="displayedMessage.expirationTime" />
+              <MessageBlock name="Partition Key" :value="displayedMessage.partitionKey" />
+              <MessageBlock name="Routing Key" :value="displayedMessage.routingKey" />
+              <MessageBlock name="Consumer ID" :value="displayedMessage.consumerId" />
+              <MessageBlock name="Lock ID" :value="displayedMessage.lockId" />
+              <MessageBlock name="Delivery Count" :value="displayedMessage.deliveryCount" />
+              <MessageBlock name="Max. Delivery Count" :value="displayedMessage.maxDeliveryCount" />
+              <MessageBlock name="Last Delivered" :value="displayedMessage.lastDelivered" />
               <MessageBlock class="flex-col gap-2" name="Transport Headers">
                 <div class="whitespace-pre" v-html="highlightJson(transportHeadersTrimmed, {}, false)"></div>
               </MessageBlock>
             </div>
             <div class="flex flex-col gap-4 border-t p-8">
               <MessageHeader name="Message" />
-              <MessageBlock name="Transport Message ID" :value="selectedMessage.message.transportMessageId" />
-              <MessageBlock name="Content Type" :value="selectedMessage.message.contentType" />
-              <MessageBlock name="Message Type" :value="selectedMessage.message.messageType" />
-              <MessageBlock name="Message ID" :value="selectedMessage.message.messageId" />
-              <MessageBlock name="Correlation ID" :value="selectedMessage.message.correlationId" />
-              <MessageBlock name="Conversation ID" :value="selectedMessage.message.conversationId" />
-              <MessageBlock name="Request ID" :value="selectedMessage.message.requestId" />
-              <MessageBlock name="Initiator ID" :value="selectedMessage.message.initiatorId" />
-              <MessageBlock name="Scheduling Token ID" :value="selectedMessage.message.schedulingTokenId" />
-              <MessageBlock name="Source Address" :value="selectedMessage.message.sourceAddress" />
-              <MessageBlock name="Destination Address" :value="selectedMessage.message.destinationAddress" />
-              <MessageBlock name="Response Address" :value="selectedMessage.message.responseAddress" />
-              <MessageBlock name="Fault Address" :value="selectedMessage.message.faultAddress" />
-              <MessageBlock name="Sent Time" :value="selectedMessage.message.sentTime" />
+              <MessageBlock name="Transport Message ID" :value="displayedMessage.message.transportMessageId" />
+              <MessageBlock name="Content Type" :value="displayedMessage.message.contentType" />
+              <MessageBlock name="Message Type" :value="displayedMessage.message.messageType" />
+              <MessageBlock name="Message ID" :value="displayedMessage.message.messageId" />
+              <MessageBlock name="Correlation ID" :value="displayedMessage.message.correlationId" />
+              <MessageBlock name="Conversation ID" :value="displayedMessage.message.conversationId" />
+              <MessageBlock name="Request ID" :value="displayedMessage.message.requestId" />
+              <MessageBlock name="Initiator ID" :value="displayedMessage.message.initiatorId" />
+              <MessageBlock name="Scheduling Token ID" :value="displayedMessage.message.schedulingTokenId" />
+              <MessageBlock name="Source Address" :value="displayedMessage.message.sourceAddress" />
+              <MessageBlock name="Destination Address" :value="displayedMessage.message.destinationAddress" />
+              <MessageBlock name="Response Address" :value="displayedMessage.message.responseAddress" />
+              <MessageBlock name="Fault Address" :value="displayedMessage.message.faultAddress" />
+              <MessageBlock name="Sent Time" :value="displayedMessage.message.sentTime" />
               <MessageBlock class="flex-col gap-2" name="Headers">
-                <div class="whitespace-pre" v-html="highlightJson(selectedMessage.message.headers, {}, false)"></div>
+                <div class="whitespace-pre" v-html="highlightJson(displayedMessage.message.headers, {}, false)"></div>
               </MessageBlock>
               <MessageBlock class="flex-col gap-2" name="Host">
-                <div class="whitespace-pre" v-html="highlightJson(selectedMessage.message.host, {}, false)"></div>
+                <div class="whitespace-pre" v-html="highlightJson(displayedMessage.message.host, {}, false)"></div>
               </MessageBlock>
             </div>
           </div>
@@ -214,16 +216,16 @@ const jobStatePopover = ref()
                 </div>
               </Popover>
               <div class="absolute end-8 flex justify-between">
-                <span class="text-primary-500">{{ selectedMessage.message.contentType }}</span>
+                <span class="text-primary-500">{{ displayedMessage.message.contentType }}</span>
               </div>
 
-              <div class="grow whitespace-pre" v-html="highlightJson(JSON.parse(selectedMessage.message.body))"></div>
+              <div class="grow whitespace-pre" v-html="highlightJson(JSON.parse(displayedMessage.message.body))"></div>
             </div>
           </div>
         </div>
         <MessageDialogError
-          v-if="selectedMessage.transportHeaders['MT-Reason'] == 'fault'"
-          :selected-message="selectedMessage"
+          v-if="displayedMessage.transportHeaders['MT-Reason'] == 'fault'"
+          :selected-message="displayedMessage"
         />
       </div>
     </div>
