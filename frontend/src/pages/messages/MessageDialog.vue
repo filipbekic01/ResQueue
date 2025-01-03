@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { useJobStateQuery } from '@/api/jobs/jobStateQuery'
+import { useSingleMessageQuery } from '@/api/messages/singleMessageQuery';
 import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
 import { humanDateTime } from '@/utils/dateTimeUtil'
 import { highlightJson } from '@/utils/jsonUtils'
 import Button from 'primevue/button'
-import Tag from 'primevue/tag'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import MessageBlock from './MessageBlock.vue'
 import MessageDialogError from './MessageDialogError.vue'
@@ -28,6 +28,7 @@ const body = computed(() => {
   }
 })
 const { data: job } = useJobStateQuery(body.value['jobId'])
+const { data: fetchedMessage } = useSingleMessageQuery(props.selectedMessage.transportMessageId)
 
 const transportHeadersTrimmed = computed(() => {
   const th = { ...props.selectedMessage.transportHeaders }
