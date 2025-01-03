@@ -18,8 +18,7 @@ public record GetMessagesResponse(
 
 public class GetMessagesFeature(
     IDatabaseConnectionFactory connectionFactory,
-    IDbConnectionProvider conn,
-    IOptions<ResQueueOptions> resQueueOptions
+    IDbConnectionProvider conn
 ) : IGetMessagesFeature
 {
     public async Task<OperationResult<GetMessagesResponse>> ExecuteAsync(GetMessagesRequest request)
@@ -48,15 +47,6 @@ public class GetMessagesFeature(
             new { PageSize = pageSize, Offset = offset, request.QueueId },
             splitOn: "MessageDeliveryId"
         ).ToList();
-
-        if (resQueueOptions.Value.AppendAdditionalData is not null)
-        {
-            foreach (var message in messages)
-            {
-                var additionalData = resQueueOptions.Value.AppendAdditionalData(message);
-                message.AdditionalData = additionalData;
-            }
-        }
 
         return OperationResult<GetMessagesResponse>.Success(new GetMessagesResponse(
             new PaginatedResult<MessageDeliveryDto>()
