@@ -20,13 +20,12 @@ public static class ResQueueExtensions
         services.Configure(configureOptions);
 
         // register the transformer types declared in the options
-        services.PostConfigure<ResQueueOptions>(options =>
+        var options = new ResQueueOptions();
+        configureOptions(options);
+        foreach (var transformerType in options.TransformerTypes)
         {
-            foreach (var transformerType in options.TransformerTypes)
-            {
-                services.AddScoped(transformerType);
-            }
-        });
+            services.AddScoped(transformerType);
+        }
 
         services.AddSingleton<IDatabaseConnectionFactory, DatabaseConnectionFactory>();
         services.AddSingleton<IDbConnectionProvider, DbConnectionProvider>();
