@@ -1,15 +1,13 @@
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Options;
 using ResQueue.Endpoints;
-using ResQueue.Enums;
 using ResQueue.Factories;
 using ResQueue.Features.Messages.DeleteMessages;
 using ResQueue.Features.Messages.GetMessages;
 using ResQueue.Features.Messages.PurgeQueue;
 using ResQueue.Features.Messages.RequeueMessages;
 using ResQueue.Features.Messages.RequeueSpecificMessages;
-using ResQueue.Migrations;
+using ResQueue.Features.Messages.TransformMessage;
 using ResQueue.Providers.DbConnectionProvider;
 
 namespace ResQueue;
@@ -37,6 +35,7 @@ public static class ResQueueExtensions
         services.AddTransient<IRequeueSpecificMessagesFeature, RequeueSpecificMessagesFeature>();
         services.AddTransient<IDeleteMessagesFeature, DeleteMessagesFeature>();
         services.AddTransient<IGetMessagesFeature, GetMessagesFeature>();
+        services.AddTransient<ITransformMessageFeature, TransformMessageFeature>();
         services.AddTransient<IPurgeQueueFeature, PurgeQueueFeature>();
 
         return services;
