@@ -4,6 +4,7 @@ using ResQueue.Features.Messages.DeleteMessages;
 using ResQueue.Features.Messages.GetMessages;
 using ResQueue.Features.Messages.RequeueMessages;
 using ResQueue.Features.Messages.RequeueSpecificMessages;
+using ResQueue.Features.Messages.TransformMessage;
 
 namespace ResQueue.Endpoints;
 
@@ -22,6 +23,18 @@ public static class MessagesEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value!.Messages)
+                    : Results.Problem(result.Problem!);
+            });
+
+        group.MapPost("transform",
+            async (ITransformMessageFeature feature, [FromBody] MessageDeliveryDto message) =>
+            {
+                var result = await feature.ExecuteAsync(new TransformMessageRequest(
+                    message
+                ));
+
+                return result.IsSuccess
+                    ? Results.Ok(result.Value!.Message)
                     : Results.Problem(result.Problem!);
             });
 
