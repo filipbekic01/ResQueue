@@ -18,4 +18,5 @@ public class MessageDeliveryDto
     public string? TransportHeaders { get; set; }
 
     public MessageDto? Message { get; set; }
+    public Dictionary<string, string> AdditionalData { get; set; } = new();
 }

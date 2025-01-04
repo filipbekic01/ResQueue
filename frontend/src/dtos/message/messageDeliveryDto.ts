@@ -16,4 +16,5 @@ export interface MessageDeliveryDto {
   lastDelivered?: string
   transportHeaders: any
   message: MessageDto
+  additionalData: Record<string, string>
 }
