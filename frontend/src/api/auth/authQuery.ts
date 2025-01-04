@@ -8,10 +8,10 @@ export const useAuthQuery = () =>
     queryKey: ['auth'],
     queryFn: async () => {
       const response = await axios.get<AuthDto>(`${API_URL}/auth`, {
-        withCredentials: true
+        withCredentials: true,
       })
 
       return response.data
     },
-    retry: 0
+    retry: 0,
   })

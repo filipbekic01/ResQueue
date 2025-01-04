@@ -10,14 +10,14 @@ export function useDeleteMessagesMutation() {
     mutationFn: (dto: DeleteMessagesDto) =>
       axios.delete(`${API_URL}/messages`, {
         data: {
-          ...dto
+          ...dto,
         },
-        withCredentials: true
+        withCredentials: true,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['messages'] })
       queryClient.invalidateQueries({ queryKey: ['queues-view'] })
       queryClient.invalidateQueries({ queryKey: ['queue-view'] })
-    }
+    },
   })
 }

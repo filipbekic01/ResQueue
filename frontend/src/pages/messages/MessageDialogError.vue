@@ -16,7 +16,8 @@ defineProps<{
       </div>
       <span>•</span>
       <div class="text-primary-500">
-        {{ format(selectedMessage.transportHeaders['MT-Fault-Timestamp'], 'MMM dd HH:mm:ss') }} (failed
+        {{ format(selectedMessage.transportHeaders['MT-Fault-Timestamp'], 'MMM dd HH:mm:ss') }}
+        (failed
         {{ formatDistance(selectedMessage.transportHeaders['MT-Fault-Timestamp'], new Date()) }}
         ago)
       </div>

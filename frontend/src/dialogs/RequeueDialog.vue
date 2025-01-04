@@ -28,7 +28,7 @@ const { mutateAsync: requeueMessagesAsync } = useRequeueMessagesMutation()
 const { mutateAsync: requeueSpecificMessagesAsync } = useRequeueSpecificMessagesMutation()
 const {
   query: { data: queues },
-  queueOptions
+  queueOptions,
 } = useQueue(computed(() => route.params.queueName.toString()))
 
 const selectedQueue = computed(() => queues.value?.find((x) => x.id === props.selectedQueueId))
@@ -37,8 +37,12 @@ const requeueMessageCount = ref(0)
 const requeueRedeliveryCount = ref(10)
 const requeueDelay = ref(0)
 const requeueTargetQueueId = ref<number>()
-const requeueTargetQueue = computed(() => queues.value?.find((x) => x.id === requeueTargetQueueId.value))
-const requeueTargetQueueOptions = computed(() => queueOptions.value.filter((x) => x.queue.id !== props.selectedQueueId))
+const requeueTargetQueue = computed(() =>
+  queues.value?.find((x) => x.id === requeueTargetQueueId.value),
+)
+const requeueTargetQueueOptions = computed(() =>
+  queueOptions.value.filter((x) => x.queue.id !== props.selectedQueueId),
+)
 const requeueTransactional = ref(false)
 
 watchEffect(() => {
@@ -57,7 +61,7 @@ const requeueMessages = () => {
       targetQueueType: requeueTargetQueue.value?.type,
       messageCount: requeueMessageCount.value,
       redeliveryCount: requeueRedeliveryCount.value,
-      delay: requeueDelay.value
+      delay: requeueDelay.value,
     })
       .then(() => {
         emit('requeue:complete')
@@ -66,7 +70,7 @@ const requeueMessages = () => {
           severity: 'success',
           summary: 'Batch Requeue Completed',
           detail: `Messages requeued to destination.`,
-          life: 3000
+          life: 3000,
         })
       })
       .catch((e) => toast.add(errorToToast(e)))
@@ -76,7 +80,7 @@ const requeueMessages = () => {
       targetQueueType: requeueTargetQueue.value?.type,
       redeliveryCount: requeueRedeliveryCount.value,
       delay: requeueDelay.value,
-      transactional: requeueTransactional.value
+      transactional: requeueTransactional.value,
     })
       .then(() => {
         emit('requeue:complete')
@@ -85,7 +89,7 @@ const requeueMessages = () => {
           severity: 'success',
           summary: 'Requeue Completed',
           detail: `Messages requeued to destination.`,
-          life: 3000
+          life: 3000,
         })
       })
       .catch((e) => toast.add(errorToToast(e)))
@@ -129,6 +133,11 @@ const requeueMessages = () => {
       <label for="transactional">Within single transaction</label>
     </div>
 
-    <Button @click="requeueMessages" icon="pi pi-arrow-right" icon-pos="right" label="Requeue"></Button>
+    <Button
+      @click="requeueMessages"
+      icon="pi pi-arrow-right"
+      icon-pos="right"
+      label="Requeue"
+    ></Button>
   </div>
 </template>

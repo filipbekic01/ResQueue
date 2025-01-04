@@ -1,102 +1,95 @@
 .p-steplist {
-    @apply relative flex justify-between items-center m-0 p-0 list-none overflow-x-auto
+  @apply relative m-0 flex list-none items-center justify-between overflow-x-auto p-0;
 }
 
 .p-step {
-    @apply relative flex flex-auto items-center gap-4 p-2 last-of-type:flex-initial
+  @apply relative flex flex-auto items-center gap-4 p-2 last-of-type:flex-initial;
 }
 
 .p-step-header {
-    @apply border-none inline-flex items-center no-underline cursor-pointer
-        transition-colors duration-200 rounded-md bg-transparent p-0 gap-2
-        focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary
+  @apply inline-flex cursor-pointer items-center gap-2 rounded-md border-none bg-transparent p-0 no-underline transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary;
 }
 
 .p-step.p-disabled .p-step-header {
-    @apply cursor-default
+  @apply cursor-default;
 }
 
-
 .p-stepper.p-stepper-readonly .p-step {
-    @apply cursor-auto
+  @apply cursor-auto;
 }
 
 .p-step-title {
-    @apply block whitespace-nowrap overflow-hidden text-ellipsis max-w-full
-        text-surface-500 dark:text-surface-400 font-medium transition-colors duration-200
+  @apply block max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-medium text-surface-500 transition-colors duration-200 dark:text-surface-400;
 }
 
 .p-step-number {
-    @apply flex items-center justify-center text-surface-500 dark:text-surface-400
-        bg-surface-0 dark:bg-surface-900 border-2 border-surface-200 dark:border-surface-700
-        min-w-8 h-8 leading-8 text-lg font-medium rounded-full z-10 relative
-        after:absolute after:w-full after:h-full after:rounded-full after:shadow-[0px_0.5px_0px_0px_rgba(0,0,0,0.06),0px_1px_1px_0px_rgba(0,0,0,0.12)]
+  @apply relative z-10 flex h-8 min-w-8 items-center justify-center rounded-full border-2 border-surface-200 bg-surface-0 text-lg font-medium leading-8 text-surface-500 after:absolute after:h-full after:w-full after:rounded-full after:shadow-[0px_0.5px_0px_0px_rgba(0,0,0,0.06),0px_1px_1px_0px_rgba(0,0,0,0.12)] dark:border-surface-700 dark:bg-surface-900 dark:text-surface-400;
 }
 
 .p-step-active .p-step-header {
-    @apply cursor-default
+  @apply cursor-default;
 }
 
 .p-step-active .p-step-number {
-    @apply bg-surface-0 dark:bg-surface-900 text-primary border-surface-200 dark:border-surface-700
+  @apply border-surface-200 bg-surface-0 text-primary dark:border-surface-700 dark:bg-surface-900;
 }
 
 .p-step-active .p-step-title {
-    @apply text-primary
+  @apply text-primary;
 }
 
 .p-step:not(.p-disabled):focus-visible {
-    @apply outline outline-1 outline-offset-2 outline-primary
+  @apply outline outline-1 outline-offset-2 outline-primary;
 }
 
 .p-step:has(~ .p-step-active) .p-stepper-separator {
-    @apply bg-primary
+  @apply bg-primary;
 }
 
 .p-stepper-separator {
-    @apply flex-1 bg-surface-200 dark:bg-surface-700 w-full h-[2px] transition-colors duration-200
+  @apply h-[2px] w-full flex-1 bg-surface-200 transition-colors duration-200 dark:bg-surface-700;
 }
 
 .p-steppanels {
-    @apply pt-[0.875rem] pb-[1.125rem] px-2
+  @apply px-2 pb-[1.125rem] pt-[0.875rem];
 }
 
 .p-steppanel {
-    @apply bg-surface-0 dark:bg-surface-900 text-surface-700 dark:text-surface-0
+  @apply bg-surface-0 text-surface-700 dark:bg-surface-900 dark:text-surface-0;
 }
 
 .p-stepper:has(.p-stepitem) {
-    @apply flex flex-col
+  @apply flex flex-col;
 }
 
 .p-stepitem {
-    @apply flex flex-col flex-initial
+  @apply flex flex-initial flex-col;
 }
 
 .p-stepitem.p-stepitem-active {
-    @apply flex-auto
+  @apply flex-auto;
 }
 
 .p-stepitem .p-step {
-    @apply flex-initial
+  @apply flex-initial;
 }
 
 .p-stepitem .p-steppanel-content {
-    @apply w-full ps-4
+  @apply w-full ps-4;
 }
 
 .p-stepitem .p-steppanel {
-    @apply flex flex-auto
+  @apply flex flex-auto;
 }
 
 .p-stepitem .p-stepper-separator {
-    @apply flex-grow-0 flex-shrink-0 basis-auto w-[2px] h-auto ms-[1.625rem] relative start-[-2.5px]
+  @apply relative start-[-2.5px] ms-[1.625rem] h-auto w-[2px] flex-shrink-0 flex-grow-0 basis-auto;
 }
 
 .p-stepitem:has(~ .p-stepitem-active) .p-stepper-separator {
-    @apply bg-primary
+  @apply bg-primary;
 }
 
 .p-stepitem:last-of-type .p-steppanel {
-    @apply ps-8
+  @apply ps-8;
 }

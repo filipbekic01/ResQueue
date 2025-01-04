@@ -2,9 +2,9 @@
 @import './button';
 
 .p-confirmdialog .p-dialog-content {
-    @apply flex items-center gap-4
+  @apply flex items-center gap-4;
 }
 
 .p-confirmdialog-icon {
-    @apply text-surface-700 dark:text-surface-0 text-[2rem] h-8 w-8
+  @apply h-8 w-8 text-[2rem] text-surface-700 dark:text-surface-0;
 }

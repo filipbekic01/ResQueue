@@ -8,7 +8,7 @@ import { computed, toValue, type MaybeRef } from 'vue'
 export const useMessagesQuery = (
   queueId: MaybeRef<number | undefined>,
   pageIndex: MaybeRef<number>,
-  refetchInterval: MaybeRef<number> = 5000
+  refetchInterval: MaybeRef<number> = 5000,
 ) =>
   useQuery({
     queryKey: ['messages', queueId, pageIndex],
@@ -17,9 +17,9 @@ export const useMessagesQuery = (
         params: {
           queueId: toValue(queueId),
           pageSize: 50,
-          pageIndex: toValue(pageIndex)
+          pageIndex: toValue(pageIndex),
         },
-        withCredentials: true
+        withCredentials: true,
       })
 
       response.data.items.forEach((x) => {
@@ -47,5 +47,5 @@ export const useMessagesQuery = (
       return response.data
     },
     enabled: computed(() => !!toValue(queueId)),
-    refetchInterval: refetchInterval
+    refetchInterval: refetchInterval,
   })

@@ -9,7 +9,7 @@ const data = computed(() => {
     { key: 'Database', value: auth.value?.database },
     { key: 'Schema', value: auth.value?.schema },
     { key: 'Username', value: auth.value?.username },
-    { key: 'Port', value: auth.value?.port }
+    { key: 'Port', value: auth.value?.port },
   ]
 })
 </script>

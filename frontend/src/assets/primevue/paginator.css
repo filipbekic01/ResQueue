@@ -1,18 +1,17 @@
 .p-paginator {
-    @apply flex items-center justify-center flex-wrap py-2 px-4 rounded-md gap-1
-        bg-surface-0 dark:bg-surface-900 text-surface-700 dark:text-surface-0
+  @apply flex flex-wrap items-center justify-center gap-1 rounded-md bg-surface-0 px-4 py-2 text-surface-700 dark:bg-surface-900 dark:text-surface-0;
 }
 
 .p-paginator-content {
-    @apply flex items-center justify-center flex-wrap gap-1
+  @apply flex flex-wrap items-center justify-center gap-1;
 }
 
 .p-paginator-content-start {
-    @apply ms-auto
+  @apply ms-auto;
 }
 
 .p-paginator-content-end {
-    @apply me-auto
+  @apply me-auto;
 }
 
 .p-paginator-page,
@@ -20,10 +19,7 @@
 .p-paginator-last,
 .p-paginator-first,
 .p-paginator-prev {
-    @apply cursor-pointer inline-flex items-center justify-center leading-none overflow-hidden relative
-        bg-transparent border-none min-w-10 h-10 transition-colors duration-200 rounded-full p-0 m-0
-        text-surface-500 dark:text-surface-400
-        focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary
+  @apply relative m-0 inline-flex h-10 min-w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full border-none bg-transparent p-0 leading-none text-surface-500 transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary dark:text-surface-400;
 }
 
 .p-paginator-page:not(.p-disabled):not(.p-paginator-page-selected):hover,
@@ -31,28 +27,28 @@
 .p-paginator-prev:not(.p-disabled):hover,
 .p-paginator-next:not(.p-disabled):hover,
 .p-paginator-last:not(.p-disabled):hover {
-    @apply bg-surface-100 text-surface-600 dark:bg-surface-800 dark:text-surface-300
+  @apply bg-surface-100 text-surface-600 dark:bg-surface-800 dark:text-surface-300;
 }
 
 .p-paginator-page.p-paginator-page-selected {
-    @apply bg-highlight
+  @apply bg-highlight;
 }
 
 .p-paginator-current {
-    @apply text-surface-500 dark:text-surface-400
+  @apply text-surface-500 dark:text-surface-400;
 }
 
 .p-paginator-pages {
-    @apply flex items-center gap-1
+  @apply flex items-center gap-1;
 }
 
 .p-paginator-jtp-input .p-inputtext {
-    @apply max-w-10
+  @apply max-w-10;
 }
 
 .p-paginator-first:dir(rtl),
 .p-paginator-prev:dir(rtl),
 .p-paginator-next:dir(rtl),
 .p-paginator-last:dir(rtl) {
-    @apply rotate-180
+  @apply rotate-180;
 }

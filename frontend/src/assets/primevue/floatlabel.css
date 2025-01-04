@@ -1,22 +1,21 @@
 .p-floatlabel {
-    @apply block relative
+  @apply relative block;
 }
 
 .p-floatlabel label {
-    @apply absolute pointer-events-none top-1/2 -translate-y-1/2 transition-all duration-200 ease-out leading-none font-medium
-        start-3 text-surface-500 dark:text-surface-400
+  @apply pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 font-medium leading-none text-surface-500 transition-all duration-200 ease-out dark:text-surface-400;
 }
 
 .p-floatlabel:has(.p-textarea) label {
-    @apply top-2 translate-y-0
+  @apply top-2 translate-y-0;
 }
 
 .p-floatlabel:has(.p-inputicon:first-child) label {
-    @apply start-10
+  @apply start-10;
 }
 
 .p-floatlabel:has(.p-invalid) label {
-    @apply text-red-400 dark:text-red-300
+  @apply text-red-400 dark:text-red-300;
 }
 
 .p-floatlabel:has(input:focus) label,
@@ -26,20 +25,20 @@
 .p-floatlabel:has(textarea.p-filled) label,
 .p-floatlabel:has(.p-inputwrapper-focus) label,
 .p-floatlabel:has(.p-inputwrapper-filled) label {
-    @apply -top-5 translate-y-0 text-xs font-normal
+  @apply -top-5 translate-y-0 text-xs font-normal;
 }
 
 .p-floatlabel:has(input.p-filled) label,
 .p-floatlabel:has(textarea.p-filled) label,
 .p-floatlabel:has(.p-inputwrapper-filled) label {
-    @apply text-surface-500 dark:text-surface-400
+  @apply text-surface-500 dark:text-surface-400;
 }
 
 .p-floatlabel:has(input:focus) label,
 .p-floatlabel:has(input:-webkit-autofill) label,
-.p-floatlabel:has(textarea:focus) label ,
-.p-floatlabel:has(.p-inputwrapper-focus) label  {
-    @apply text-primary
+.p-floatlabel:has(textarea:focus) label,
+.p-floatlabel:has(.p-inputwrapper-focus) label {
+  @apply text-primary;
 }
 
 .p-floatlabel-in .p-inputtext,
@@ -49,7 +48,7 @@
 .p-floatlabel-in .p-autocomplete-input-multiple,
 .p-floatlabel-in .p-cascadeselect-label,
 .p-floatlabel-in .p-treeselect-label {
-    @apply pt-6 pb-2
+  @apply pb-2 pt-6;
 }
 
 .p-floatlabel-in:has(input:focus) label,
@@ -59,7 +58,7 @@
 .p-floatlabel-in:has(textarea.p-filled) label,
 .p-floatlabel-in:has(.p-inputwrapper-focus) label,
 .p-floatlabel-in:has(.p-inputwrapper-filled) label {
-    @apply top-2
+  @apply top-2;
 }
 
 .p-floatlabel-on:has(input:focus) label,
@@ -69,5 +68,5 @@
 .p-floatlabel-on:has(textarea.p-filled) label,
 .p-floatlabel-on:has(.p-inputwrapper-focus) label,
 .p-floatlabel-on:has(.p-inputwrapper-filled) label {
-    @apply top-0 -translate-y-1/2 rounded-sm bg-surface-0 dark:bg-surface-950 py-0 px-[0.125rem]
+  @apply top-0 -translate-y-1/2 rounded-sm bg-surface-0 px-[0.125rem] py-0 dark:bg-surface-950;
 }

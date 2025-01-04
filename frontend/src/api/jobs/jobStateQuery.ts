@@ -10,12 +10,12 @@ export const useJobStateQuery = (jobId: MaybeRef<string | undefined>) =>
     queryFn: async () => {
       const response = await axios.get<JobStateDto>(`${API_URL}/jobs/${toValue(jobId)}/state`, {
         params: {
-          jobId: toValue(jobId)
+          jobId: toValue(jobId),
         },
-        withCredentials: true
+        withCredentials: true,
       })
 
       return response.data
     },
-    enabled: computed(() => !!toValue(jobId))
+    enabled: computed(() => !!toValue(jobId)),
   })

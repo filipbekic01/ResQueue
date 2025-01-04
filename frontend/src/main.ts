@@ -22,15 +22,15 @@ app.use(VueQueryPlugin, {
       queries: {
         refetchOnWindowFocus: false,
         staleTime: Infinity,
-        gcTime: 5 * 60 * 1000
-      }
-    }
-  })
+        gcTime: 5 * 60 * 1000,
+      },
+    },
+  }),
 })
 
 app.use(PrimeVue, {
   ripple: true,
-  theme: 'none'
+  theme: 'none',
 })
 
 app.directive('tooltip', Tooltip)

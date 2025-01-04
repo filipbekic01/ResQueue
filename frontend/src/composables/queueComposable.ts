@@ -43,7 +43,7 @@ export function useQueue(queueName: Ref<string>) {
       .sort((a, b) => a.type - b.type)
       .map((queue) => ({
         queueNameByType: getQueueName(queue.type, toValue(queryView.data)),
-        queue: queue
+        queue: queue,
       }))
   })
 
@@ -51,6 +51,6 @@ export function useQueue(queueName: Ref<string>) {
     query,
     queryView,
     queueOptions,
-    getQueueTypeLabel
+    getQueueTypeLabel,
   }
 }

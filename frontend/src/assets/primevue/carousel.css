@@ -1,64 +1,62 @@
 @import './button';
 
 .p-carousel {
-    @apply flex flex-col
+  @apply flex flex-col;
 }
 
 .p-carousel-content-container {
-    @apply flex flex-col overflow-auto
+  @apply flex flex-col overflow-auto;
 }
 
 .p-carousel-content {
-    @apply flex flex-row gap-1
+  @apply flex flex-row gap-1;
 }
 
 .p-carousel-content:dir(rtl) {
-    @apply flex-row-reverse
+  @apply flex-row-reverse;
 }
 
 .p-carousel-viewport {
-    @apply overflow-hidden w-full
+  @apply w-full overflow-hidden;
 }
 
 .p-carousel-item-list {
-    @apply flex flex-row
+  @apply flex flex-row;
 }
 
 .p-carousel-prev-button,
 .p-carousel-next-button {
-    @apply self-center flex-shrink-0
+  @apply flex-shrink-0 self-center;
 }
 
 .p-carousel-indicator-list {
-    @apply flex flex-row justify-center flex-wrap p-4 gap-2 m-0 list-none
+  @apply m-0 flex list-none flex-row flex-wrap justify-center gap-2 p-4;
 }
 
 .p-carousel-indicator-list:dir(rtl) {
-    @apply rtl:flex-row-reverse
+  @apply rtl:flex-row-reverse;
 }
 
 .p-carousel-indicator-button {
-    @apply flex items-center justify-center w-8 h-2 border-none rounded-md p-0 m-0 select-none cursor-pointer transition-colors duration-200
-        bg-surface-200 hover:bg-surface-300 dark:bg-surface-700 dark:hover:bg-surface-600
-        focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary
+  @apply m-0 flex h-2 w-8 cursor-pointer select-none items-center justify-center rounded-md border-none bg-surface-200 p-0 transition-colors duration-200 hover:bg-surface-300 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary dark:bg-surface-700 dark:hover:bg-surface-600;
 }
 
 .p-carousel-indicator-active .p-carousel-indicator-button {
-    @apply bg-primary
+  @apply bg-primary;
 }
 
 .p-carousel-vertical .p-carousel-content {
-    @apply flex-col
+  @apply flex-col;
 }
 
 .p-carousel-vertical .p-carousel-item-list {
-    @apply flex-col h-full
+  @apply h-full flex-col;
 }
 
 .p-items-hidden .p-carousel-item {
-    @apply invisible
+  @apply invisible;
 }
 
 .p-items-hidden .p-carousel-item.p-carousel-item-active {
-    @apply visible
+  @apply visible;
 }

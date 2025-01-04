@@ -1,11 +1,11 @@
 .p-skeleton {
-    @apply overflow-hidden bg-surface-200 dark:bg-surface-700 animate-pulse rounded-md
+  @apply animate-pulse overflow-hidden rounded-md bg-surface-200 dark:bg-surface-700;
 }
 
 .p-skeleton-circle {
-    @apply rounded-full
+  @apply rounded-full;
 }
 
 .p-skeleton-animation-none::after {
-    @apply animate-none
+  @apply animate-none;
 }
