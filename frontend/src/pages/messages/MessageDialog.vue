@@ -31,6 +31,7 @@ const { data: job } = useJobStateQuery(body.value['jobId'])
 const { data: fetchedMessage } = useSingleMessageQuery(props.selectedMessage.transportMessageId)
 
 const displayedMessage = computed<MessageDeliveryDto>(() => fetchedMessage.value ?? props.selectedMessage)
+const hasAdditionalData = computed(() => Object.keys(displayedMessage.value.additionalData).length > 0)
 
 const transportHeadersTrimmed = computed(() => {
   const th = { ...displayedMessage.value.transportHeaders }
@@ -129,7 +130,7 @@ const jobStatePopover = ref()
                 >
               </div>
             </div>
-            <template v-if="displayedMessage.additionalData">
+            <template v-if="hasAdditionalData">
               <div class="flex flex-col gap-4 border-b p-8">
                 <MessageHeader name="Additional Data" />
                 <template v-for="(value, key) in displayedMessage.additionalData" :key="key">
