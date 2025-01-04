@@ -77,11 +77,11 @@ jobs:
 
       - name: Publish x64 image
         working-directory: backend/ResQueue/ResQueue.Standalone
-        run: dotnet publish --os linux --arch x64 /t:PublishContainer -p:ContainerImageTag=${ResQueueImageVersion}-x64 -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry}
+        run: dotnet publish --os linux -p:TargetFramework=net9.0 --arch x64 /t:PublishContainer -p:ContainerImageTag=${ResQueueImageVersion}-x64 -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry}
 
       - name: Publish arm64 image
         working-directory: backend/ResQueue/ResQueue.Standalone
-        run: dotnet publish --os linux --arch arm64 /t:PublishContainer -p:ContainerImageTag=${ResQueueImageVersion}-arm64 -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry}
+        run: dotnet publish --os linux -p:TargetFramework=net9.0 --arch arm64 /t:PublishContainer -p:ContainerImageTag=${ResQueueImageVersion}-arm64 -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry}
 
       - name: Publish image manifest
         run: |
