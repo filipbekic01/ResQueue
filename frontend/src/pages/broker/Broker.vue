@@ -8,7 +8,10 @@ const route = useRoute()
 
 <template>
   <AppLayout>
-    <Tabs :value="route.name?.toString() ?? ''" @update:value="(a: any) => router.push({ name: a })">
+    <Tabs
+      :value="route.name?.toString() ?? ''"
+      @update:value="(a: any) => router.push({ name: a })"
+    >
       <TabList>
         <Tab value="overview">Overview</Tab>
         <Tab disabled value="topics">Topics</Tab>

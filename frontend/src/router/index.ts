@@ -13,7 +13,7 @@ const router = createRouter({
     {
       path: '',
       redirect: {
-        name: 'queues'
+        name: 'queues',
       },
       component: Broker,
       children: [
@@ -21,35 +21,35 @@ const router = createRouter({
           path: '/overview',
           name: 'overview',
           props: true,
-          component: BrokerOverview
+          component: BrokerOverview,
         },
         {
           path: '/topics',
           name: 'topics',
           props: true,
-          component: BrokerTopics
+          component: BrokerTopics,
         },
         {
           path: '/queues',
           name: 'queues',
           props: true,
-          component: BrokerQueues
+          component: BrokerQueues,
         },
         {
           path: '/recurring-jobs',
           name: 'recurring-jobs',
           props: true,
-          component: BrokerRecurringJobs
-        }
-      ]
+          component: BrokerRecurringJobs,
+        },
+      ],
     },
     {
       path: '/queues/:queueName',
       name: 'messages',
       props: true,
-      component: Messages
-    }
-  ]
+      component: Messages,
+    },
+  ],
 })
 
 export default router

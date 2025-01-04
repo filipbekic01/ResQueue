@@ -18,20 +18,20 @@ const selectQueue = (data: any) => {
   router.push({
     name: 'messages',
     params: {
-      queueName: data.queueName
-    }
+      queueName: data.queueName,
+    },
   })
 }
 
 const filters = ref({
-  queueName: { value: null, matchMode: FilterMatchMode.CONTAINS }
+  queueName: { value: null, matchMode: FilterMatchMode.CONTAINS },
 })
 
 const onSort = (e: DataTableSortEvent) => {
   updateSettings({
     ...settings,
     sortOrder: e.sortOrder === null || e.sortOrder === undefined ? undefined : e.sortOrder,
-    sortField: e.sortField ? e.sortField.toString() : undefined
+    sortField: e.sortField ? e.sortField.toString() : undefined,
   })
 }
 </script>
@@ -69,12 +69,19 @@ const onSort = (e: DataTableSortEvent) => {
       </Column>
       <Column sortable field="ready" header="Ready" class="w-[0]"> </Column>
       <Column sortable field="errored" header="Errored" class="w-[0]"></Column>
-      <Column sortable field="deadLettered" header="Dead Lettered" class="w-[0] whitespace-nowrap"></Column>
+      <Column
+        sortable
+        field="deadLettered"
+        header="Dead Lettered"
+        class="w-[0] whitespace-nowrap"
+      ></Column>
       <Column sortable field="scheduled" header="Scheduled" class="w-[0]"></Column>
       <Column sortable field="locked" header="Locked" class="w-[0]"></Column>
       <Column sortable field="queueAutoDelete" header="Auto Delete" class="w-[0] whitespace-nowrap">
         <template #body="{ data }">
-          <div v-show="data['queueAutoDelete']" class="text-nowrap">{{ data['queueAutoDelete'] / 60 }}m</div>
+          <div v-show="data['queueAutoDelete']" class="text-nowrap">
+            {{ data['queueAutoDelete'] / 60 }}m
+          </div>
           <div v-show="!data['queueAutoDelete']">-</div>
         </template>
       </Column>

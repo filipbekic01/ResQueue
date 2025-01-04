@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useDeleteMessagesMutation } from '@/api/messages/deleteMessagesMutation.ts'
+import { useDeleteMessagesMutation } from '@/api/messages/deleteMessagesMutation'
 import { useMessagesQuery } from '@/api/messages/messagesQuery'
 import { usePurgeQueueMutation } from '@/api/queues/purgeQueueMutation'
 import { useQueue } from '@/composables/queueComposable'
@@ -39,7 +39,7 @@ const {
   queueOptions,
   queryView: { data: queueView },
   query: { data: queues },
-  getQueueTypeLabel
+  getQueueTypeLabel,
 } = useQueue(computed(() => props.queueName))
 
 const selectedQueueId = ref<number>()
@@ -55,7 +55,8 @@ watchEffect(() => {
     return
   }
 
-  selectedQueueId.value = queueOptions.value.find((x) => x.queue.type == settings.queueType)?.queue.id ?? undefined
+  selectedQueueId.value =
+    queueOptions.value.find((x) => x.queue.type == settings.queueType)?.queue.id ?? undefined
 })
 
 // Purge queue
@@ -65,11 +66,11 @@ const { mutateAsync: purgeQueueAsync, isPending: isPurgeQueuePending } = usePurg
 const {
   data: messages,
   refetch: refetchMessages,
-  isPending
+  isPending,
 } = useMessagesQuery(
   computed(() => selectedQueueId.value),
   pageIndex,
-  settings.refetchInterval
+  settings.refetchInterval,
 )
 
 const toggleMessage = (msg?: MessageDeliveryDto) => {
@@ -83,13 +84,14 @@ const toggleMessage = (msg?: MessageDeliveryDto) => {
 }
 
 // Delete messages
-const { mutateAsync: deleteMessagesAsync, isPending: isDeleteMessagesPending } = useDeleteMessagesMutation()
+const { mutateAsync: deleteMessagesAsync, isPending: isDeleteMessagesPending } =
+  useDeleteMessagesMutation()
 const deleteMessagesTransactional = ref(false)
 
 const deleteMessages = () => {
   deleteMessagesAsync({
     messageDeliveryIds: selectedMessages.value.map((m) => m.messageDeliveryId),
-    transactional: deleteMessagesTransactional.value
+    transactional: deleteMessagesTransactional.value,
   })
     .then(() => {
       onActionComplete()
@@ -97,7 +99,7 @@ const deleteMessages = () => {
         severity: 'success',
         summary: 'Messages Deleted',
         detail: `Messages delete procedure ran successfully.`,
-        life: 3000
+        life: 3000,
       })
     })
     .catch((e) => toast.add(errorToToast(e)))
@@ -106,12 +108,12 @@ const deleteMessages = () => {
 // Selected messages
 const selectedMessageId = ref<number>(24)
 const selectedMessage = computed(() =>
-  messages.value?.items.find((x) => x.messageDeliveryId === selectedMessageId.value)
+  messages.value?.items.find((x) => x.messageDeliveryId === selectedMessageId.value),
 )
 
 const selectedMessages = ref<MessageDeliveryDto[]>([])
 const selectedMessageIds = computed(() =>
-  selectedMessages.value?.length ? selectedMessages.value.map((x) => x.messageDeliveryId) : []
+  selectedMessages.value?.length ? selectedMessages.value.map((x) => x.messageDeliveryId) : [],
 )
 
 const requeuePopover = ref()
@@ -125,9 +127,9 @@ const items = computed((): MenuItem[] => {
       icon: 'pi pi-arrow-left',
       command: () => {
         router.push({
-          name: 'queues'
+          name: 'queues',
         })
-      }
+      },
     },
     {
       label: `Refresh`,
@@ -139,21 +141,21 @@ const items = computed((): MenuItem[] => {
             severity: 'success',
             summary: 'Queue Refreshed',
             detail: 'The queue has been successfully updated.',
-            life: 1000
+            life: 1000,
           })
         })
-      }
+      },
     },
     {
       label: `Requeue`,
       icon: 'pi pi-replay',
       command: (e) => requeueSpecificPopover.value.toggle(e.originalEvent),
-      disabled: !selectedMessageIds.value.length
+      disabled: !selectedMessageIds.value.length,
     },
     {
       label: `Batch Requeue`,
       icon: 'pi pi-replay',
-      command: (e) => requeuePopover.value.toggle(e.originalEvent)
+      command: (e) => requeuePopover.value.toggle(e.originalEvent),
     },
     {
       label: 'Delete',
@@ -161,7 +163,7 @@ const items = computed((): MenuItem[] => {
       disabled: isDeleteMessagesPending.value || !selectedMessageIds.value.length,
       command: (e) => {
         deleteMessagesPopover.value.toggle(e.originalEvent)
-      }
+      },
     },
     {
       label: 'Purge',
@@ -175,11 +177,11 @@ const items = computed((): MenuItem[] => {
           rejectProps: {
             label: 'Cancel',
             severity: 'secondary',
-            outlined: true
+            outlined: true,
           },
           acceptProps: {
             label: 'Purge',
-            severity: 'danger'
+            severity: 'danger',
           },
           accept: () => {
             if (!selectedQueueId.value) {
@@ -187,7 +189,7 @@ const items = computed((): MenuItem[] => {
             }
 
             purgeQueueAsync({
-              queueId: selectedQueueId.value
+              queueId: selectedQueueId.value,
             })
               .then(() => {
                 onActionComplete()
@@ -196,15 +198,15 @@ const items = computed((): MenuItem[] => {
                   severity: 'success',
                   summary: 'Purge Completed',
                   detail: `Queue has been purged successfully.`,
-                  life: 3000
+                  life: 3000,
                 })
               })
               .catch((e) => toast.add(errorToToast(e)))
           },
-          reject: () => {}
+          reject: () => {},
         })
-      }
-    }
+      },
+    },
   ]
 })
 
@@ -227,7 +229,11 @@ const onPage = (event: DataTablePageEvent) => {
 
 <template>
   <AppLayout>
-    <MessageDialog v-if="selectedMessage" :selected-message="selectedMessage" @close="toggleMessage(undefined)" />
+    <MessageDialog
+      v-if="selectedMessage"
+      :selected-message="selectedMessage"
+      @close="toggleMessage(undefined)"
+    />
 
     <Popover ref="deleteMessagesPopover">
       <div class="flex flex-col gap-3">
@@ -296,7 +302,11 @@ const onPage = (event: DataTablePageEvent) => {
           @page="onPage"
           @row-click="(e) => toggleMessage(e.data)"
         >
-          <Column selectionMode="multiple" class="w-0" style="vertical-align: top; text-align: center"></Column>
+          <Column
+            selectionMode="multiple"
+            class="w-0"
+            style="vertical-align: top; text-align: center"
+          ></Column>
           <Column field="messageDeliveryId" header="ID" class="w-0 whitespace-nowrap"> </Column>
           <Column field="message.messageType" header="URN" class="w-0 whitespace-nowrap">
             <template #body="{ data }">
@@ -321,11 +331,18 @@ const onPage = (event: DataTablePageEvent) => {
           </Column>
           <Column field="message.lockId" class="w-0 whitespace-nowrap">
             <template #body="{ data }">
-              <div class="flex items-center gap-2" v-if="data.lockId"><i :class="`pi pi-lock`"></i> Locked</div>
+              <div class="flex items-center gap-2" v-if="data.lockId">
+                <i :class="`pi pi-lock`"></i> Locked
+              </div>
             </template>
           </Column>
           <Column field="priority" header="Priority" class="w-0 whitespace-nowrap"></Column>
-          <Column field="enqueueTime" header="Enqueue Time" header-class="" class="w-0 whitespace-nowrap">
+          <Column
+            field="enqueueTime"
+            header="Enqueue Time"
+            header-class=""
+            class="w-0 whitespace-nowrap"
+          >
             <template #body="{ data }">
               <div class="flex gap-2">
                 {{ humanDateTime(data.enqueueTime) }}

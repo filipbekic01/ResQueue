@@ -1,27 +1,23 @@
 .p-chip {
-    @apply inline-flex items-center rounded-2xl gap-2 px-3 py-2
-        bg-surface-100 dark:bg-surface-800
-        text-surface-800 dark:text-surface-0
+  @apply inline-flex items-center gap-2 rounded-2xl bg-surface-100 px-3 py-2 text-surface-800 dark:bg-surface-800 dark:text-surface-0;
 }
 
 .p-chip-icon {
-    @apply text-surface-800 dark:bg-surface-0 text-base w-4 h-4
+  @apply h-4 w-4 text-base text-surface-800 dark:bg-surface-0;
 }
 
 .p-chip-image {
-    @apply rounded-full w-8 h-8 -ms-2
+  @apply -ms-2 h-8 w-8 rounded-full;
 }
 
 .p-chip:has(.p-chip-remove-icon) {
-    @apply pe-2
+  @apply pe-2;
 }
 
 .p-chip:has(.p-chip-image) {
-    @apply pt-1 pb-1
+  @apply pb-1 pt-1;
 }
 
 .p-chip-remove-icon {
-    @apply cursor-pointer text-base w-4 h-4 rounded-full
-        text-surface-800 dark:text-surface-0
-        focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary
+  @apply h-4 w-4 cursor-pointer rounded-full text-base text-surface-800 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary dark:text-surface-0;
 }

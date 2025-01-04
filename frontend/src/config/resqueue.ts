@@ -7,7 +7,7 @@ const config: ResqeueConfig = (
     resqueueConfig?: ResqeueConfig
   }
 ).resqueueConfig ?? {
-  prefix: ''
+  prefix: '',
 }
 
 export default config

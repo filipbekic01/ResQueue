@@ -2,19 +2,20 @@ import { API_URL } from '@/constants/api'
 import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
 import { useQuery } from '@tanstack/vue-query'
 import axios from 'axios'
-import { type MaybeRef } from 'vue';
+import { type MaybeRef } from 'vue'
 
-export const useSingleMessageQuery = (
-  transportMessageId: MaybeRef<string>
-) =>
+export const useSingleMessageQuery = (transportMessageId: MaybeRef<string>) =>
   useQuery({
     queryKey: ['singleMessage', transportMessageId],
     queryFn: async () => {
-      const response = await axios.get<MessageDeliveryDto>(`${API_URL}/messages/${transportMessageId}`, {
-        withCredentials: true
-      })
+      const response = await axios.get<MessageDeliveryDto>(
+        `${API_URL}/messages/${transportMessageId}`,
+        {
+          withCredentials: true,
+        },
+      )
 
-      const data = response.data;
+      const data = response.data
 
       if (data) {
         try {
@@ -39,5 +40,5 @@ export const useSingleMessageQuery = (
       }
 
       return data
-    }
+    },
   })

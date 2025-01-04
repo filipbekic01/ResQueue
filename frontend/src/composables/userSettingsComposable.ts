@@ -13,7 +13,7 @@ const settings = reactive<UserSettings>({
   queueType: 1,
   sortField: undefined,
   sortOrder: undefined,
-  refetchInterval: 5000
+  refetchInterval: 5000,
 })
 
 const loadSettings = () => {
@@ -44,6 +44,6 @@ export function useUserSettings() {
     settings,
     saveSettings,
     clearSettings,
-    updateSettings
+    updateSettings,
   }
 }

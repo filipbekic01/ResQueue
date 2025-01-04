@@ -2,6 +2,6 @@
 export default {
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   darkMode: 'class',
-  // eslint-disable-next-line no-undef
-  plugins: [require('tailwindcss-primeui')]
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  plugins: [require('tailwindcss-primeui')],
 }

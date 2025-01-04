@@ -7,7 +7,7 @@ export const errorToProblemDetails = (error: any): ProblemDetails => {
   // Create a default ProblemDetails structure
   const defaultProblemDetails: ProblemDetails = {
     title: 'Error',
-    detail: 'An unexpected error occurred.'
+    detail: 'An unexpected error occurred.',
   }
 
   // Check if the error response exists and has data
@@ -37,7 +37,7 @@ export const errorToProblemDetails = (error: any): ProblemDetails => {
             acc.general.push(message)
             return acc
           },
-          {} as { [key: string]: string[] }
+          {} as { [key: string]: string[] },
         )
       }
     }
@@ -54,7 +54,7 @@ export const errorToProblemDetails = (error: any): ProblemDetails => {
   } else if (error.message) {
     return {
       ...defaultProblemDetails,
-      detail: error.message
+      detail: error.message,
     }
   }
 
@@ -69,6 +69,6 @@ export const errorToToast = (error: any): ToastMessageOptions => {
     severity: 'error',
     summary: problemDetails.title || 'Error',
     detail: problemDetails.detail || 'An unexpected error occurred.',
-    life: 3000
+    life: 3000,
   }
 }

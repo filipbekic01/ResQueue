@@ -1,42 +1,35 @@
 .p-slider {
-    @apply relative bg-surface-200 dark:bg-surface-700 rounded-sm
+  @apply relative rounded-sm bg-surface-200 dark:bg-surface-700;
 }
 
 .p-slider-handle {
-    @apply cursor-grab touch-none flex items-center justify-center h-[20px] w-[20px]
-        bg-surface-200 dark:bg-surface-700 rounded-full
-        transition-colors duration-200
-        focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary
-        before:w-[16px] before:h-[16px] before:block before:rounded-full
-        before:bg-surface-0 dark:before:bg-surface-950
-        before:shadow-[0px_0.5px_0px_0px_rgba(0,0,0,0.08),0px_1px_1px_0px_rgba(0,0,0,0.14)]
-        before:transition-colors before:duration-200
+  @apply flex h-[20px] w-[20px] cursor-grab touch-none items-center justify-center rounded-full bg-surface-200 transition-colors duration-200 before:block before:h-[16px] before:w-[16px] before:rounded-full before:bg-surface-0 before:shadow-[0px_0.5px_0px_0px_rgba(0,0,0,0.08),0px_1px_1px_0px_rgba(0,0,0,0.14)] before:transition-colors before:duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary dark:bg-surface-700 dark:before:bg-surface-950;
 }
 
 .p-slider-range {
-    @apply block bg-primary rounded-sm
+  @apply block rounded-sm bg-primary;
 }
 
 .p-slider.p-slider-horizontal {
-    @apply h-[3px]
+  @apply h-[3px];
 }
 
 .p-slider-horizontal .p-slider-range {
-    @apply top-0 start-0 h-full
+  @apply start-0 top-0 h-full;
 }
 
 .p-slider-horizontal .p-slider-handle {
-    @apply top-1/2 -mt-[10px] -ms-[10px]
+  @apply top-1/2 -ms-[10px] -mt-[10px];
 }
 
 .p-slider-vertical {
-    @apply min-h-[100px] w-[3px]
+  @apply min-h-[100px] w-[3px];
 }
 
 .p-slider-vertical .p-slider-handle {
-    @apply start-1/2 -mb-[10px] -ms-[10px]
+  @apply start-1/2 -mb-[10px] -ms-[10px];
 }
 
 .p-slider-vertical .p-slider-range {
-    @apply bottom-0 start-0 w-full
+  @apply bottom-0 start-0 w-full;
 }

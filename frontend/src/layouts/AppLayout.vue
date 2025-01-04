@@ -19,36 +19,36 @@ const autoRefreshPopover = ref()
 const refetchIntervalOptions = [
   {
     label: 'Never',
-    value: 0
+    value: 0,
   },
   {
     label: '1 second',
-    value: 1000
+    value: 1000,
   },
   {
     label: '5 seconds',
-    value: 1000 * 5
+    value: 1000 * 5,
   },
   {
     label: '30 seconds',
-    value: 1000 * 30
+    value: 1000 * 30,
   },
   {
     label: '1 minute',
-    value: 1000 * 60
+    value: 1000 * 60,
   },
   {
     label: '5 minutes',
-    value: 1000 * 60 * 5
+    value: 1000 * 60 * 5,
   },
   {
     label: '30 minutes',
-    value: 1000 * 60 * 30
+    value: 1000 * 60 * 30,
   },
   {
     label: '1 hour',
-    value: 1000 * 60 * 60
-  }
+    value: 1000 * 60 * 60,
+  },
 ]
 
 const onRefreshIntervalChange = (interval: number) => {
@@ -57,19 +57,19 @@ const onRefreshIntervalChange = (interval: number) => {
 }
 
 const items = computed((): MenuItem[] => {
-  var items: MenuItem[] = []
+  const items: MenuItem[] = []
 
   if (route.name === 'messages') {
     items.push({
-      label: 'Queues'
+      label: 'Queues',
     })
 
     items.push({
-      label: capitalize(route.params['queueName']?.toString())
+      label: capitalize(route.params['queueName']?.toString()),
     })
   } else {
     items.push({
-      label: capitalize(route.name?.toString())
+      label: capitalize(route.name?.toString()),
     })
   }
 
@@ -94,12 +94,17 @@ const items = computed((): MenuItem[] => {
         </div>
       </div>
       <div class="my-auto me-3 ms-auto items-center">
-        <Button @click="(e) => autoRefreshPopover.toggle(e)" label="Auto-Refresh" icon="pi pi-clock" text></Button>
+        <Button
+          @click="(e) => autoRefreshPopover.toggle(e)"
+          label="Auto-Refresh"
+          icon="pi pi-clock"
+          text
+        ></Button>
         <Popover ref="autoRefreshPopover">
           <div class="flex w-72 flex-col gap-2">
             <div>
-              Select an interval to automatically refresh the queues and messages view. We plan to integrate a
-              real-time, socket-based system for instant updates in a future release.
+              Select an interval to automatically refresh the queues and messages view. We plan to
+              integrate a real-time, socket-based system for instant updates in a future release.
             </div>
             <Select
               :options="refetchIntervalOptions"

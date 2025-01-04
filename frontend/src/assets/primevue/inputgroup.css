@@ -1,27 +1,25 @@
 .p-inputgroup,
 .p-inputgroup .p-floatlabel,
 .p-inputgroup .p-iftalabel {
-    @apply flex items-stretch w-full
+  @apply flex w-full items-stretch;
 }
 
 .p-inputgroup .p-inputtext,
 .p-inputgroup .p-inputwrapper {
-    @apply flex-auto w-[1%]
+  @apply w-[1%] flex-auto;
 }
 
 .p-inputgroupaddon {
-    @apply flex items-center justify-center p-2 min-w-10
-        border-y border-surface-300 dark:border-surface-700
-        bg-surface-0 dark:bg-surface-950 text-surface-400
+  @apply flex min-w-10 items-center justify-center border-y border-surface-300 bg-surface-0 p-2 text-surface-400 dark:border-surface-700 dark:bg-surface-950;
 }
 
 .p-inputgroupaddon:first-child,
 .p-inputgroupaddon + .p-inputgroupaddon {
-    @apply border-s
+  @apply border-s;
 }
 
 .p-inputgroupaddon:last-child {
-    @apply border-e
+  @apply border-e;
 }
 
 .p-inputgroup > .p-component,
@@ -30,7 +28,7 @@
 .p-inputgroup > .p-floatlabel > .p-inputwrapper > .p-component,
 .p-inputgroup > .p-iftalabel > .p-component,
 .p-inputgroup > .p-iftalabel > .p-inputwrapper > .p-component {
-    @apply rounded-none m-0
+  @apply m-0 rounded-none;
 }
 
 .p-inputgroupaddon:first-child,
@@ -40,7 +38,7 @@
 .p-inputgroup > .p-floatlabel:first-child > .p-inputwrapper > .p-component,
 .p-inputgroup > .p-iftalabel:first-child > .p-component,
 .p-inputgroup > .p-iftalabel:first-child > .p-inputwrapper > .p-component {
-    @apply rounded-s-md
+  @apply rounded-s-md;
 }
 
 .p-inputgroupaddon:last-child,
@@ -50,7 +48,7 @@
 .p-inputgroup > .p-floatlabel:last-child > .p-inputwrapper > .p-component,
 .p-inputgroup > .p-iftalabel:last-child > .p-component,
 .p-inputgroup > .p-iftalabel:last-child > .p-inputwrapper > .p-component {
-    @apply rounded-e-md
+  @apply rounded-e-md;
 }
 
 .p-inputgroup .p-component:focus,
@@ -59,9 +57,9 @@
 .p-inputgroup .p-component:focus ~ label,
 .p-inputgroup .p-component.p-focus ~ label,
 .p-inputgroup .p-inputwrapper-focus ~ label {
-    @apply z-10
+  @apply z-10;
 }
 
 .p-inputgroup > .p-button:not(.p-button-icon-only) {
-    @apply w-auto
+  @apply w-auto;
 }

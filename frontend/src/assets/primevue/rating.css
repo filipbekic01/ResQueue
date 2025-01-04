@@ -1,23 +1,23 @@
 .p-rating {
-    @apply relative flex items-center gap-1
+  @apply relative flex items-center gap-1;
 }
 
 .p-rating-option {
-    @apply inline-flex items-center cursor-pointer rounded-full
+  @apply inline-flex cursor-pointer items-center rounded-full;
 }
 
 .p-rating-option.p-focus-visible {
-    @apply outline outline-1 outline-offset-2 outline-primary
+  @apply outline outline-1 outline-offset-2 outline-primary;
 }
 
 .p-rating-icon {
-    @apply text-surface-500 dark:text-surface-400 text-base w-4 h-4 transition-colors duration-200
+  @apply h-4 w-4 text-base text-surface-500 transition-colors duration-200 dark:text-surface-400;
 }
 
 .p-rating:not(.p-disabled):not(.p-readonly) .p-rating-option:hover .p-rating-icon {
-    @apply text-primary
+  @apply text-primary;
 }
 
 .p-rating-option-active .p-rating-icon {
-    @apply text-primary
+  @apply text-primary;
 }

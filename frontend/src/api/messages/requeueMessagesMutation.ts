@@ -9,12 +9,12 @@ export function useRequeueMessagesMutation() {
   return useMutation({
     mutationFn: (dto: RequeueMessagesDto) =>
       axios.post(`${API_URL}/messages/requeue`, dto, {
-        withCredentials: true
+        withCredentials: true,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['messages'] })
       queryClient.invalidateQueries({ queryKey: ['queues-view'] })
       queryClient.invalidateQueries({ queryKey: ['queue-view'] })
-    }
+    },
   })
 }

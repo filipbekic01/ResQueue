@@ -7,7 +7,11 @@ export type HighlightColorOptions = {
   nullColor?: string
 }
 
-export function highlightJson(json: any, colorOptions: HighlightColorOptions = {}, doColor: boolean = true): string {
+export function highlightJson(
+  json: any,
+  colorOptions: HighlightColorOptions = {},
+  doColor: boolean = true,
+): string {
   const entityMap: { [key: string]: string } = {
     '&': '&amp;',
     '<': '&lt;',
@@ -15,7 +19,7 @@ export function highlightJson(json: any, colorOptions: HighlightColorOptions = {
     '"': '&quot;',
     "'": '&#39;',
     '`': '&#x60;',
-    '=': '&#x3D;'
+    '=': '&#x3D;',
   }
 
   function escapeHtml(html: string): string {
@@ -38,9 +42,9 @@ export function highlightJson(json: any, colorOptions: HighlightColorOptions = {
       stringColor: '#a31515', // Visual Studio Code Dark red for strings
       trueColor: '#098658', // Visual Studio Code Green for true
       falseColor: '#b31b1b', // Visual Studio Code Red for false
-      nullColor: '#3a3d41' // Visual Studio Code Greyish color for null
+      nullColor: '#3a3d41', // Visual Studio Code Greyish color for null
     },
-    ...colorOptions
+    ...colorOptions,
   }
   if (!doColor) {
     colors.keyColor = 'var(--p-primary-600)'
@@ -78,6 +82,6 @@ export function highlightJson(json: any, colorOptions: HighlightColorOptions = {
       }
 
       return `<span style="${style}color:${color}">${match}</span>`
-    }
+    },
   )
 }

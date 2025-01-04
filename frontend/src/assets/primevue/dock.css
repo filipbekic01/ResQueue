@@ -1,84 +1,83 @@
 .p-dock {
-    @apply absolute z-10 flex justify-center items-center pointer-events-none
+  @apply pointer-events-none absolute z-10 flex items-center justify-center;
 }
 
 .p-dock-list-container {
-    @apply flex pointer-events-auto bg-white/10 border border-white/10 p-2 rounded-xl
+  @apply pointer-events-auto flex rounded-xl border border-white/10 bg-white/10 p-2;
 }
 
 .p-dock-list {
-    @apply m-0 p-0 list-none flex items-center justify-center outline-none
+  @apply m-0 flex list-none items-center justify-center p-0 outline-none;
 }
 
 .p-dock-item {
-    @apply transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] will-change-transform p-2 rounded-md
-        focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary
+  @apply rounded-md p-2 transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] will-change-transform focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary;
 }
 
 .p-dock-item-link {
-    @apply flex flex-col items-center justify-center relative cursor-default w-12 h-12
+  @apply relative flex h-12 w-12 cursor-default flex-col items-center justify-center;
 }
 
 .p-dock-top {
-    @apply start-0 top-0 w-full
+  @apply start-0 top-0 w-full;
 }
 
 .p-dock-top .p-dock-item {
-    @apply origin-[center_top]
+  @apply origin-[center_top];
 }
 
 .p-dock-bottom {
-    @apply start-0 bottom-0 w-full
+  @apply bottom-0 start-0 w-full;
 }
 
 .p-dock-bottom .p-dock-item {
-    @apply origin-[center_bottom]
+  @apply origin-[center_bottom];
 }
 
 .p-dock-right {
-    @apply end-0 top-0 h-full
+  @apply end-0 top-0 h-full;
 }
 
 .p-dock-right .p-dock-item {
-    @apply origin-[center_right]
+  @apply origin-[center_right];
 }
 
 .p-dock-right .p-dock-list {
-    @apply flex-col
+  @apply flex-col;
 }
 
 .p-dock-left {
-    @apply start-0 top-0 h-full
+  @apply start-0 top-0 h-full;
 }
 
 .p-dock-left .p-dock-item {
-    @apply origin-[center_left]
+  @apply origin-[center_left];
 }
 
 .p-dock-left .p-dock-list {
-    @apply flex-col
+  @apply flex-col;
 }
 
 .p-dock-mobile.p-dock-top .p-dock-list-container,
 .p-dock-mobile.p-dock-bottom .p-dock-list-container {
-    @apply overflow-x-auto w-full
+  @apply w-full overflow-x-auto;
 }
 
 .p-dock-mobile.p-dock-top .p-dock-list-container .p-dock-list,
 .p-dock-mobile.p-dock-bottom .p-dock-list-container .p-dock-list {
-    @apply mt-0 mx-auto
+  @apply mx-auto mt-0;
 }
 
 .p-dock-mobile.p-dock-left .p-dock-list-container,
 .p-dock-mobile.p-dock-right .p-dock-list-container {
-    @apply overflow-y-auto h-full
+  @apply h-full overflow-y-auto;
 }
 
 .p-dock-mobile.p-dock-left .p-dock-list-container .p-dock-list,
 .p-dock-mobile.p-dock-right .p-dock-list-container .p-dock-list {
-    @apply mt-auto mx-0
+  @apply mx-0 mt-auto;
 }
 
 .p-dock-mobile .p-dock-list .p-dock-item {
-    @apply transform-none m-0
+  @apply m-0 transform-none;
 }

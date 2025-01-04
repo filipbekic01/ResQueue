@@ -1,41 +1,36 @@
 .p-scrollpanel-content-container {
-    @apply overflow-hidden w-full h-full relative z-10 float-left
+  @apply relative z-10 float-left h-full w-full overflow-hidden;
 }
 
 .p-scrollpanel-content {
-    @apply relative overflow-auto
-        h-[calc(100%+18px)] w-[calc(100%+18px)]
-        pt-0 ps-0 pr-[18px] pb-[18px] [scrollbar-width:none]
+  @apply relative h-[calc(100%+18px)] w-[calc(100%+18px)] overflow-auto pb-[18px] pr-[18px] ps-0 pt-0 [scrollbar-width:none];
 }
 
 .p-scrollpanel-content::-webkit-scrollbar {
-    @apply hidden
+  @apply hidden;
 }
 
 .p-scrollpanel-bar {
-    @apply relative rounded-sm z-20 cursor-pointer opacity-0
-        bg-surface-100 dark:bg-surface-800
-        transition-opacity duration-200 border-none
-        focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary
+  @apply relative z-20 cursor-pointer rounded-sm border-none bg-surface-100 opacity-0 transition-opacity duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary dark:bg-surface-800;
 }
 
 .p-scrollpanel-bar-y {
-    @apply w-[9px] top-0
+  @apply top-0 w-[9px];
 }
 
 .p-scrollpanel-bar-x {
-    @apply h-[9px] bottom-0
+  @apply bottom-0 h-[9px];
 }
 
 .p-scrollpanel-hidden {
-    @apply invisible
+  @apply invisible;
 }
 
 .p-scrollpanel:hover .p-scrollpanel-bar,
 .p-scrollpanel:active .p-scrollpanel-bar {
-    @apply opacity-100
+  @apply opacity-100;
 }
 
 .p-scrollpanel-grabbed {
-    @apply select-none
+  @apply select-none;
 }

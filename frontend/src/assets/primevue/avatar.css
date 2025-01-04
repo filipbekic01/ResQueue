@@ -1,50 +1,48 @@
 .p-avatar {
-    @apply inline-flex items-center justify-center
-        w-8 h-8 text-base rounded-md
-        bg-surface-200 dark:bg-surface-700
+  @apply inline-flex h-8 w-8 items-center justify-center rounded-md bg-surface-200 text-base dark:bg-surface-700;
 }
 
 .p-avatar-image {
-    @apply bg-transparent
+  @apply bg-transparent;
 }
 
 .p-avatar-circle,
 .p-avatar-circle img {
-    @apply rounded-full
+  @apply rounded-full;
 }
 
 .p-avatar-icon {
-    @apply text-base
+  @apply text-base;
 }
 
 .p-avatar img {
-    @apply w-full h-full
+  @apply h-full w-full;
 }
 
 .p-avatar-lg {
-    @apply w-12 h-12 text-2xl
+  @apply h-12 w-12 text-2xl;
 }
 
 .p-avatar-lg .p-avatar-icon {
-    @apply text-2xl
+  @apply text-2xl;
 }
 
 .p-avatar-xl {
-    @apply w-16 h-16 text-[2rem]
+  @apply h-16 w-16 text-[2rem];
 }
 
 .p-avatar-xl .p-avatar-icon {
-    @apply text-[2rem]
+  @apply text-[2rem];
 }
 
 .p-avatar-group {
-    @apply flex items-center
+  @apply flex items-center;
 }
 
 .p-avatar-group .p-avatar + .p-avatar {
-    @apply -ms-4
+  @apply -ms-4;
 }
 
 .p-avatar-group .p-avatar {
-    @apply border-2 border-surface-200 dark:border-surface-700
+  @apply border-2 border-surface-200 dark:border-surface-700;
 }
