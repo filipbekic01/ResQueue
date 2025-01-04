@@ -24,14 +24,11 @@ public class Program
             });
         });
 
-        // Server=localhost,1433;Database=sandbox100;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True
-        // Host=localhost;Database=sandbox100;Username=postgres;Password=postgres;
         builder.Services.AddResQueue(opt => opt.SqlEngine = ResQueueSqlEngine.Postgres);
 
         builder.Services.AddOptions<SqlTransportOptions>().Configure(options =>
         {
-            options.ConnectionString =
-                "Host=localhost;Database=sandbox100;Username=postgres;Password=postgres;";
+            options.ConnectionString = builder.Configuration["Postgres"] ?? throw new NullReferenceException();
         });
 
         builder.Services.AddEndpointsApiExplorer();
@@ -45,7 +42,7 @@ public class Program
 
         builder.Services.AddMarten(x =>
         {
-            x.Connection("Host=localhost;Database=sandbox100;Username=postgres;Password=postgres;");
+            x.Connection(builder.Configuration["Postgres"] ?? throw new NullReferenceException());
         });
 
         builder.Services.AddMassTransit(mt =>
