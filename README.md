@@ -86,6 +86,10 @@ public class CustomTransformer(
 }
 ```
 
+Additional data will appear in next format:
+
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/54e5c085-2d59-452c-8d06-d38208332a4f" />
+
 ### Docker support
 
 Simplify your setup by running ResQueue in standalone mode with Docker. Get up and running effortlessly without additional configurations—just pull the container and you're ready to go.
