@@ -26,8 +26,8 @@ public static class MessagesEndpoints
                     : Results.Problem(result.Problem!);
             });
 
-        group.MapGet("{transportMessageId}",
-            async (IGetSingleMessageFeature feature, string transportMessageId) =>
+        group.MapGet("{transportMessageId:guid}",
+            async (IGetSingleMessageFeature feature, Guid transportMessageId) =>
             {
                 var result = await feature.ExecuteAsync(new GetSingleMessageRequest(
                     transportMessageId

@@ -10,7 +10,7 @@ using ResQueue.Providers.DbConnectionProvider;
 namespace ResQueue.Features.Messages.GetSingleMessage;
 
 public record GetSingleMessageRequest(
-    string TransportMessageId
+    Guid TransportMessageId
 );
 
 public record GetSingleMessageResponse(
