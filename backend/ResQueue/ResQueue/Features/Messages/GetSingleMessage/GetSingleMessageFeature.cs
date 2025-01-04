@@ -50,7 +50,14 @@ public class GetSingleMessageFeature(
             });
         }
 
-        // invoke each transformer
+        message = await InvokeTransformers(message);
+        message = AppendAdditionalData(message);
+
+        return OperationResult<GetSingleMessageResponse>.Success(new GetSingleMessageResponse(message));
+    }
+
+    private async Task<MessageDeliveryDto> InvokeTransformers(MessageDeliveryDto message)
+    {
         var transformerTypes = resQueueOptions.Value.TransformerTypes;
         foreach (var transformerType in transformerTypes)
         {
@@ -58,14 +65,18 @@ public class GetSingleMessageFeature(
             message = await transformer.TransformAsync(message);
         }
 
-        // append additional data
+        return message;
+    }
+
+    private MessageDeliveryDto AppendAdditionalData(MessageDeliveryDto message)
+    {
         if (resQueueOptions.Value.AppendAdditionalData is not null)
         {
             var additionalData = resQueueOptions.Value.AppendAdditionalData(message);
             additionalData.ToList().ForEach(x => message.AdditionalData[x.Key] = x.Value);
         }
 
-        return OperationResult<GetSingleMessageResponse>.Success(new GetSingleMessageResponse(message));
+        return message;
     }
 
     private string GetSqlQueryText()
