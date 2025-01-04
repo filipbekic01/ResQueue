@@ -1,15 +1,13 @@
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Options;
 using ResQueue.Endpoints;
-using ResQueue.Enums;
 using ResQueue.Factories;
 using ResQueue.Features.Messages.DeleteMessages;
 using ResQueue.Features.Messages.GetMessages;
+using ResQueue.Features.Messages.GetSingleMessage;
 using ResQueue.Features.Messages.PurgeQueue;
 using ResQueue.Features.Messages.RequeueMessages;
 using ResQueue.Features.Messages.RequeueSpecificMessages;
-using ResQueue.Migrations;
 using ResQueue.Providers.DbConnectionProvider;
 
 namespace ResQueue;
@@ -21,6 +19,14 @@ public static class ResQueueExtensions
     {
         services.Configure(configureOptions);
 
+        // register the transformer types declared in the options
+        var options = new ResQueueOptions();
+        configureOptions(options);
+        foreach (var transformerType in options.TransformerTypes)
+        {
+            services.AddScoped(transformerType);
+        }
+
         services.AddSingleton<IDatabaseConnectionFactory, DatabaseConnectionFactory>();
         services.AddSingleton<IDbConnectionProvider, DbConnectionProvider>();
 
@@ -28,6 +34,7 @@ public static class ResQueueExtensions
         services.AddTransient<IRequeueSpecificMessagesFeature, RequeueSpecificMessagesFeature>();
         services.AddTransient<IDeleteMessagesFeature, DeleteMessagesFeature>();
         services.AddTransient<IGetMessagesFeature, GetMessagesFeature>();
+        services.AddTransient<IGetSingleMessageFeature, GetSingleMessageFeature>();
         services.AddTransient<IPurgeQueueFeature, PurgeQueueFeature>();
 
         return services;

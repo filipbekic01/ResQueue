@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ResQueue.Dtos.Messages;
 using ResQueue.Features.Messages.DeleteMessages;
 using ResQueue.Features.Messages.GetMessages;
+using ResQueue.Features.Messages.GetSingleMessage;
 using ResQueue.Features.Messages.RequeueMessages;
 using ResQueue.Features.Messages.RequeueSpecificMessages;
 
@@ -22,6 +23,18 @@ public static class MessagesEndpoints
 
                 return result.IsSuccess
                     ? Results.Ok(result.Value!.Messages)
+                    : Results.Problem(result.Problem!);
+            });
+
+        group.MapGet("{transportMessageId:guid}",
+            async (IGetSingleMessageFeature feature, Guid transportMessageId) =>
+            {
+                var result = await feature.ExecuteAsync(new GetSingleMessageRequest(
+                    transportMessageId
+                ));
+
+                return result.IsSuccess
+                    ? Results.Ok(result.Value!.Message)
                     : Results.Problem(result.Problem!);
             });
 
