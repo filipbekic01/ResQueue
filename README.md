@@ -44,8 +44,7 @@ app.Run();
 ```
 
 > [!TIP]
-> You can create a standalone web application with ResQueue and deploy it. Simply add the NuGet package and initialize ResQueue. It does not need to be tightly integrated with your existing application. There is also docker image below.
- 
+> You can create a standalone web application and deploy it. Simply add ResQueue nuget package and initialize it. It does not need to be tightly integrated with your existing application. There is also docker image below.
 
 ### Message Transformers
 
