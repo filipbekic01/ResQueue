@@ -13,7 +13,7 @@ const { isSuccess, isPending, error } = useAuthQuery()
 
 const capitalize = (value: string = '') => value.replace(/\b\w/g, (char) => char.toUpperCase())
 
-const { settings, updateSettings } = useUserSettings()
+const { settings, updateSettings, toggleDarkMode } = useUserSettings()
 
 const autoRefreshPopover = ref()
 const refetchIntervalOptions = [
@@ -83,7 +83,7 @@ const autoRefreshLabel = computed(() => {
 
 <template>
   <div v-if="!isPending && isSuccess" class="flex h-screen flex-col">
-    <div class="flex items-center px-4 pb-4 pt-4 shadow">
+    <div class="flex items-center border-b px-4 pb-4 pt-4 dark:border-b-surface-700">
       <div class="flex">
         <div class="flex h-14 w-14 items-center justify-center rounded-xl text-2xl">
           <img :src="mtLogoUrl" class="w-full dark:hidden" />
@@ -119,6 +119,8 @@ const autoRefreshLabel = computed(() => {
             ></Select>
           </div>
         </Popover>
+
+        <Button @click="toggleDarkMode" icon="pi pi-palette" text class="ms-1"></Button>
       </div>
     </div>
 

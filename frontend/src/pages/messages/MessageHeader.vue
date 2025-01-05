@@ -5,5 +5,5 @@ defineProps<{
 </script>
 
 <template>
-  <div>{{ name }}</div>
+  <div class="dark:text-surface-0">{{ name }}</div>
 </template>

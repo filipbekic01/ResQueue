@@ -5,6 +5,7 @@ interface UserSettings {
   sortField?: string
   sortOrder?: number
   refetchInterval: number
+  darkMode: boolean
 }
 
 const storageKey = 'userSettings'
@@ -14,36 +15,43 @@ const settings = reactive<UserSettings>({
   sortField: undefined,
   sortOrder: undefined,
   refetchInterval: 5000,
+  darkMode: false,
 })
 
-const loadSettings = () => {
+const init = () => {
   const storedSettings = localStorage.getItem(storageKey)
   if (storedSettings) {
     Object.assign(settings, JSON.parse(storedSettings))
   }
-}
 
-const saveSettings = () => {
-  localStorage.setItem(storageKey, JSON.stringify(settings))
-}
-
-const clearSettings = () => {
-  localStorage.removeItem(storageKey)
-  Object.assign(settings, { theme: 'light', fontSize: 16, language: 'en' })
+  loadDarkMode()
 }
 
 const updateSettings = (newSettings: UserSettings) => {
   Object.assign(settings, newSettings)
-  saveSettings()
+  localStorage.setItem(storageKey, JSON.stringify(settings))
 }
 
-loadSettings()
+const toggleDarkMode = () => {
+  updateSettings({ ...settings, darkMode: !settings.darkMode })
+  loadDarkMode()
+}
+
+const loadDarkMode = () => {
+  const htmlElement = document.documentElement
+
+  if (settings.darkMode === true) {
+    htmlElement.classList.add('dark')
+  } else {
+    htmlElement.classList.remove('dark')
+  }
+}
 
 export function useUserSettings() {
   return {
     settings,
-    saveSettings,
-    clearSettings,
+    init,
+    toggleDarkMode,
     updateSettings,
   }
 }
