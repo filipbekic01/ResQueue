@@ -70,7 +70,7 @@ const {
 } = useMessagesQuery(
   computed(() => selectedQueueId.value),
   pageIndex,
-  settings.refetchInterval,
+  computed(() => settings.refetchInterval),
 )
 
 const toggleMessage = (msg?: MessageDeliveryDto) => {

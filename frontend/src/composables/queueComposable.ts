@@ -31,8 +31,14 @@ const getQueueTypeLabel = (type?: number) => {
 export function useQueue(queueName: Ref<string>) {
   const { settings } = useUserSettings()
 
-  const query = useQueuesQuery(queueName, settings.refetchInterval)
-  const queryView = useQueueViewQuery(queueName, settings.refetchInterval)
+  const query = useQueuesQuery(
+    queueName,
+    computed(() => settings.refetchInterval),
+  )
+  const queryView = useQueueViewQuery(
+    queueName,
+    computed(() => settings.refetchInterval),
+  )
 
   const queueOptions = computed(() => {
     if (!query.data.value) {

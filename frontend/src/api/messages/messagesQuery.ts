@@ -47,5 +47,5 @@ export const useMessagesQuery = (
       return response.data
     },
     enabled: computed(() => !!toValue(queueId)),
-    refetchInterval: refetchInterval,
+    refetchInterval: computed(() => toValue(refetchInterval)),
   })
