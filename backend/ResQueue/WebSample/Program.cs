@@ -24,7 +24,16 @@ public class Program
             });
         });
 
-        builder.Services.AddResQueue(opt => opt.SqlEngine = ResQueueSqlEngine.Postgres);
+        builder.Services.AddResQueue(opt =>
+        {
+            opt.SqlEngine = ResQueueSqlEngine.Postgres;
+            opt.AppendAdditionalData = msg =>
+            {
+                msg.AdditionalData.Add("Example-Data", "Example header value");
+
+                return msg.AdditionalData;
+            };
+        });
 
         builder.Services.AddOptions<SqlTransportOptions>().Configure(options =>
         {
