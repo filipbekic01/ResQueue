@@ -88,13 +88,14 @@ const { mutateAsync: deleteMessagesAsync, isPending: isDeleteMessagesPending } =
   useDeleteMessagesMutation()
 const deleteMessagesTransactional = ref(false)
 
-const deleteMessages = () => {
+const deleteMessages = (e: any) => {
   deleteMessagesAsync({
     messageDeliveryIds: selectedMessages.value.map((m) => m.messageDeliveryId),
     transactional: deleteMessagesTransactional.value,
   })
     .then(() => {
       onActionComplete()
+      deleteMessagesPopover.value.hide(e.originalEvent)
       toast.add({
         severity: 'success',
         summary: 'Messages Deleted',
@@ -160,7 +161,7 @@ const items = computed((): MenuItem[] => {
     {
       label: 'Delete',
       icon: 'pi pi-trash',
-      disabled: isDeleteMessagesPending.value || !selectedMessageIds.value.length,
+      disabled: !selectedMessageIds.value.length,
       command: (e) => {
         deleteMessagesPopover.value.toggle(e.originalEvent)
       },
@@ -244,6 +245,7 @@ const onPage = (event: DataTablePageEvent) => {
         <Button
           icon="pi pi-arrow-right"
           severity="danger"
+          :loading="isDeleteMessagesPending"
           icon-pos="right"
           :label="`Delete`"
           @click="deleteMessages"
