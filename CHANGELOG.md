@@ -2,6 +2,17 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v1.2.0] - 2025-01-05
+
+### Added
+
+- Dark theme
+
+### Fixed
+
+- Auto-Refresh switch reactivity
+- Delete messages modal closes properly upon success
+
 ## [v1.1.0] - 2025-01-04
 
 ### Added
@@ -28,7 +39,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
-- Reverted .NET 8 support (.NET 9 is optional but suggested) 
+- Reverted .NET 8 support (.NET 9 is optional but suggested)
 
 ## [v1.0.8] - 2024-11-22
 
