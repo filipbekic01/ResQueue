@@ -75,6 +75,10 @@ const items = computed((): MenuItem[] => {
 
   return items
 })
+
+const autoRefreshLabel = computed(() => {
+  return `Auto-Refresh (${refetchIntervalOptions.find((x) => x.value === settings.refetchInterval)?.label})`
+})
 </script>
 
 <template>
@@ -96,8 +100,8 @@ const items = computed((): MenuItem[] => {
       <div class="my-auto me-3 ms-auto items-center">
         <Button
           @click="(e) => autoRefreshPopover.toggle(e)"
-          label="Auto-Refresh"
-          icon="pi pi-clock"
+          :label="autoRefreshLabel"
+          icon="pi pi-hourglass"
           text
         ></Button>
         <Popover ref="autoRefreshPopover">
