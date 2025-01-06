@@ -16,12 +16,12 @@ export function useJson() {
   const themeBasedColors = computed(() => {
     if (settings.darkMode) {
       return {
-        keyColor: '#82aaff', // Light blue for keys
-        numberColor: '#c3e88d', // Light green for numbers
-        stringColor: '#ff869a', // Pinkish red for strings
-        trueColor: '#89ddff', // Cyan for true
-        falseColor: '#f7768e', // Pinkish red for false
-        nullColor: '#c792ea', // Purple for null
+        keyColor: '#569CD6', // Blue for keys
+        numberColor: '#B5CEA8', // Light green for numbers
+        stringColor: '#CE9178', // Brownish-red for strings
+        trueColor: '#569CD6', // Blue for true
+        falseColor: '#D16969', // Reddish for false
+        nullColor: '#9CDCFE', // Cyan for null
       }
     } else {
       return {
