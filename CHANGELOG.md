@@ -2,6 +2,17 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v1.3.0] - 2025-01-__
+
+### Added
+
+- Topics view 
+
+### Fixed
+
+- JSON view uses mono font now
+- Dark theme message colors
+
 ## [v1.2.0] - 2025-01-05
 
 ### Added
