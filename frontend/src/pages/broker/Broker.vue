@@ -19,9 +19,6 @@ const route = useRoute()
           <Tab value="queues" class="flex gap-2"
             ><i class="pi pi-database rotate-90"></i> Queues</Tab
           >
-          <Tab disabled value="jobs" class="flex gap-2"
-            ><i class="pi pi-clock"></i> Recurring Jobs</Tab
-          >
         </TabList>
       </Tabs>
 
