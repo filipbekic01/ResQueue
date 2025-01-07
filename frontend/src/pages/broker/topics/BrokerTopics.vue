@@ -14,7 +14,7 @@ const filters = ref({
 </script>
 
 <template>
-  <div>
+  <div class="flex overflow-auto">
     <!-- 
         :sort-field="settings.sortField"
         :sort-order="settings.sortOrder" 
@@ -24,7 +24,6 @@ const filters = ref({
       -->
     <DataTable
       scrollable
-      data-key="topicName"
       scroll-height="flex"
       :value="subscriptions"
       removable-sort

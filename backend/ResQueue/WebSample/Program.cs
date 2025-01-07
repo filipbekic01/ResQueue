@@ -93,7 +93,7 @@ public class Program
         app.MapGet("/publish",
             async (IPublishEndpoint endpoint) => { await endpoint.Publish(new YourMessage(Guid.NewGuid())); });
 
-        app.MapGet("/schedule",
+        app.MapGet("/start-job",
             async (IPublishEndpoint endpoint) =>
             {
                 var jobId = await endpoint.AddOrUpdateRecurringJob(nameof(AwesomeConsumer), new AwesomeRequest(),

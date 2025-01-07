@@ -37,6 +37,18 @@ export const useSingleMessageQuery = (transportMessageId: MaybeRef<string>) =>
         } catch {
           data.message.headers = {}
         }
+
+        try {
+          const body = JSON.parse(data.message.body)
+          if (body['jobId']) {
+            data.isRecurring = true
+          } else {
+            data.isRecurring = false
+          }
+        } catch (e) {
+          console.error(e)
+          data.isRecurring = false
+        }
       }
 
       return data
