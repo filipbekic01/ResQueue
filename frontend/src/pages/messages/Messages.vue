@@ -10,6 +10,7 @@ import type { QueueDto } from '@/dtos/queue/queueDto'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { humanDateTime } from '@/utils/dateTimeUtil'
 import { errorToToast } from '@/utils/errorUtils'
+import { useQueryClient } from '@tanstack/vue-query'
 import Column from 'primevue/column'
 import DataTable, { type DataTablePageEvent } from 'primevue/datatable'
 import type { MenuItem } from 'primevue/menuitem'
@@ -25,6 +26,8 @@ const props = defineProps<{
 }>()
 
 const router = useRouter()
+
+const queryClient = useQueryClient()
 
 const confirm = useConfirm()
 const toast = useToast()
@@ -145,6 +148,8 @@ const items = computed((): MenuItem[] => {
             life: 1000,
           })
         })
+
+        queryClient.invalidateQueries({ queryKey: ['queue-view'] })
       },
     },
     {
