@@ -88,7 +88,8 @@ public class CustomTransformer(
 
 Additional data will appear in next format:
 
-<img width="500" alt="image" src="https://github.com/user-attachments/assets/54e5c085-2d59-452c-8d06-d38208332a4f" />
+<img width="692" alt="image" src="https://github.com/user-attachments/assets/a7e040f5-83ca-4e00-8685-bada38d2fbeb" />
+
 
 ### Docker support
 
@@ -102,7 +103,4 @@ docker run -it --rm -p 8080:8080 -e ResQueue:SqlEngine=Postgres -e SqlTransport:
 
 Here's a quick preview of the ResQueue user interface, providing you with a glimpse of what to expect.
 
-<img width="1840" alt="image" src="https://github.com/user-attachments/assets/b60acf98-68d3-40be-a400-cf21889bc458">
-<img width="1617" alt="image" src="https://github.com/user-attachments/assets/167b0ff2-0dea-4cec-94cf-8dab24ac9d40">
-<img width="1617" alt="image" src="https://github.com/user-attachments/assets/d7f894a2-7021-485f-9147-52694fa00524">
-<img width="1840" alt="image" src="https://github.com/user-attachments/assets/0ed693cb-49d6-40d1-85db-94daed81dad6">
+<img width="1514" alt="image" src="https://github.com/user-attachments/assets/766c0711-fed4-4c20-b3cd-481d4d71e90c" />
