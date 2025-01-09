@@ -28,7 +28,7 @@
 
         <!-- NuGet package properties -->
         <PackageId>ResQueue.MassTransit</PackageId>
-        <Version>1.2.0</Version>
+        <Version>1.3.0</Version>
         <Authors>Filip Bekić, Miroljub Tomić</Authors>
         <Company>ResQueue</Company>
         <Description>MassTransit SQL Transport Web UI</Description>

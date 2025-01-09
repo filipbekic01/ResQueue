@@ -132,6 +132,7 @@ const requeueMessages = () => {
       <Checkbox id="transactional" v-model="requeueTransactional" binary></Checkbox>
       <label for="transactional">Within single transaction</label>
     </div>
+    <div v-else>Batch requeue uses single transaction.</div>
 
     <Button
       @click="requeueMessages"

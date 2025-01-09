@@ -42,6 +42,18 @@ export const useMessagesQuery = (
         } catch {
           x.message.headers = {}
         }
+
+        try {
+          const body = JSON.parse(x.message.body)
+          if (body['jobId']) {
+            x.isRecurring = true
+          } else {
+            x.isRecurring = false
+          }
+        } catch (e) {
+          console.error(e)
+          x.isRecurring = false
+        }
       })
 
       return response.data

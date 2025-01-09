@@ -8,6 +8,7 @@ using ResQueue.Features.Messages.GetSingleMessage;
 using ResQueue.Features.Messages.PurgeQueue;
 using ResQueue.Features.Messages.RequeueMessages;
 using ResQueue.Features.Messages.RequeueSpecificMessages;
+using ResQueue.Features.Subscriptions.GetSubscriptions;
 using ResQueue.Providers.DbConnectionProvider;
 
 namespace ResQueue;
@@ -36,6 +37,7 @@ public static class ResQueueExtensions
         services.AddTransient<IGetMessagesFeature, GetMessagesFeature>();
         services.AddTransient<IGetSingleMessageFeature, GetSingleMessageFeature>();
         services.AddTransient<IPurgeQueueFeature, PurgeQueueFeature>();
+        services.AddTransient<IGetSubscriptionsFeature, GetSubscriptionsFeature>();
 
         return services;
     }
@@ -88,6 +90,7 @@ public static class ResQueueExtensions
         api.MapQueueEndpoints();
         api.MapMessageEndpoints();
         api.MapJobsEndpoints();
+        api.MapSubscriptionsEndpoints();
 
         return app;
     }

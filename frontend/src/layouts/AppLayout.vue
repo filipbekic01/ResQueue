@@ -3,6 +3,7 @@ import { useAuthQuery } from '@/api/auth/authQuery'
 import mtLogoUrlDark from '@/assets/images/masstransit-dark.svg'
 import mtLogoUrl from '@/assets/images/masstransit.svg'
 import { useUserSettings } from '@/composables/userSettingsComposable'
+import Listbox from 'primevue/listbox'
 import type { MenuItem } from 'primevue/menuitem'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
@@ -101,7 +102,6 @@ const autoRefreshLabel = computed(() => {
         <Button
           @click="(e) => autoRefreshPopover.toggle(e)"
           :label="autoRefreshLabel"
-          icon="pi pi-hourglass"
           text
         ></Button>
         <Popover ref="autoRefreshPopover">
@@ -110,13 +110,13 @@ const autoRefreshLabel = computed(() => {
               Select an interval to automatically refresh the queues and messages view. We plan to
               integrate a real-time, socket-based system for instant updates in a future release.
             </div>
-            <Select
+            <Listbox
               :options="refetchIntervalOptions"
               :model-value="settings.refetchInterval"
               @update:model-value="onRefreshIntervalChange"
               option-value="value"
               option-label="label"
-            ></Select>
+            ></Listbox>
           </div>
         </Popover>
 

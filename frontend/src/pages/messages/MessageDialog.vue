@@ -278,7 +278,7 @@ const jobStatePopover = ref()
               </div>
 
               <div
-                class="grow whitespace-pre dark:text-surface-400"
+                class="grow whitespace-pre font-mono dark:text-surface-400"
                 v-html="highlightJson(JSON.parse(displayedMessage.message.body))"
               ></div>
             </div>

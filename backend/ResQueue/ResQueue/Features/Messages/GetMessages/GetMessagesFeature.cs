@@ -1,5 +1,4 @@
 using Dapper;
-using Microsoft.Extensions.Options;
 using ResQueue.Dtos.Messages;
 using ResQueue.Enums;
 using ResQueue.Factories;

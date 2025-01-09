@@ -2,6 +2,24 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v1.3.0] - 2025-01-09
+
+### Added
+
+- Topics table view with filters
+- Recurring job indicator in table view
+
+### Changed
+
+- One click less for auto-refresh action
+- JSON view uses mono font now
+- Dark theme message colors
+- Sticky-top actions when scroll is present
+
+### Fixed
+
+- Queue messages count invalidation on refresh
+
 ## [v1.2.0] - 2025-01-05
 
 ### Added

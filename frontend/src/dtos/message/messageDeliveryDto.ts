@@ -17,4 +17,5 @@ export interface MessageDeliveryDto {
   transportHeaders: any
   message: MessageDto
   additionalData: Record<string, string>
+  isRecurring: boolean
 }

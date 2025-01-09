@@ -10,6 +10,7 @@ import type { QueueDto } from '@/dtos/queue/queueDto'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { humanDateTime } from '@/utils/dateTimeUtil'
 import { errorToToast } from '@/utils/errorUtils'
+import { useQueryClient } from '@tanstack/vue-query'
 import Column from 'primevue/column'
 import DataTable, { type DataTablePageEvent } from 'primevue/datatable'
 import type { MenuItem } from 'primevue/menuitem'
@@ -25,6 +26,8 @@ const props = defineProps<{
 }>()
 
 const router = useRouter()
+
+const queryClient = useQueryClient()
 
 const confirm = useConfirm()
 const toast = useToast()
@@ -145,6 +148,8 @@ const items = computed((): MenuItem[] => {
             life: 1000,
           })
         })
+
+        queryClient.invalidateQueries({ queryKey: ['queue-view'] })
       },
     },
     {
@@ -317,7 +322,10 @@ const onPage = (event: DataTablePageEvent) => {
           </Column>
           <Column field="message.transportHeaders" header="" class="whitespace-nowrap">
             <template #body="{ data }">
-              <div v-if="data.transportHeaders['MT-Fault-Message']" class="flex gap-3">
+              <div
+                v-if="data.transportHeaders['MT-Fault-Message']"
+                class="flex gap-3 dark:text-surface-400"
+              >
                 <i class="pi pi-circle-fill text-red-400" style="font-size: 0.625rem"></i
                 >{{ data.transportHeaders['MT-Fault-ExceptionType'] }}
               </div>
@@ -327,7 +335,9 @@ const onPage = (event: DataTablePageEvent) => {
           <Column field="message.schedulingTokenId" header="" class="w-0 whitespace-nowrap">
             <template #body="{ data }">
               <div class="flex items-center gap-2" v-if="data.message.schedulingTokenId">
-                <i :class="`pi pi-${data.message.schedulingTokenId ? 'clock' : ''}`"></i> Scheduled
+                <i :class="`pi pi-${data.message.schedulingTokenId ? 'clock' : ''}`"></i>
+                Scheduled
+                <template v-if="data.isRecurring">(recurring)</template>
               </div>
             </template>
           </Column>

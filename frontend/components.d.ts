@@ -13,6 +13,7 @@ declare module 'vue' {
     Column: typeof import('primevue/column')['default']
     DataTable: typeof import('primevue/datatable')['default']
     InputText: typeof import('primevue/inputtext')['default']
+    Listbox: typeof import('primevue/listbox')['default']
     Menubar: typeof import('primevue/menubar')['default']
     Popover: typeof import('primevue/popover')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

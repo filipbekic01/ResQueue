@@ -5,8 +5,16 @@
 @import './primevue/tailwind.css';
 @import 'tailwindcss/utilities';
 
+.font-mono {
+  font-size: 0.95rem;
+}
+
 .p-tablist-tab-list {
   @apply bg-transparent;
+}
+
+.p-tab {
+  @apply font-normal;
 }
 
 .p-menubar {
