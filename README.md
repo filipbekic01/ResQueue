@@ -23,8 +23,6 @@ builder.Services.AddOptions<SqlTransportOptions>().Configure(options =>
     options.ConnectionString = "your_connection_string";
 });
 
-// migrations
-
 // ResQueue uses SqlTransportOptions credentials internaly
 builder.Services.AddResQueue(o => o.SqlEngine = ResQueueSqlEngine.Postgres);
 
@@ -89,7 +87,6 @@ public class CustomTransformer(
 Additional data will appear in next format:
 
 <img width="692" alt="image" src="https://github.com/user-attachments/assets/a7e040f5-83ca-4e00-8685-bada38d2fbeb" />
-
 
 ### Docker support
 
