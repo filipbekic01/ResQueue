@@ -33,7 +33,8 @@ public static class QueuesEndpoints
                                                    error_count AS ErrorCount,
                                                    dead_letter_count AS DeadLetterCount,
                                                    '' AS CountStartTime,
-                                                   count_duration AS CountDuration
+                                                   count_duration AS CountDuration,
+                                                   queue_max_delivery_count AS QueueMaxDeliveryCount
                                                FROM {conn.Schema}.queues;
                                                """,
                 ResQueueSqlEngine.SqlServer => $"""
@@ -49,7 +50,8 @@ public static class QueuesEndpoints
                                                     ErrorCount,
                                                     DeadLetterCount,
                                                     CountStartTime,
-                                                    CountDuration
+                                                    CountDuration,
+                                                    QueueMaxDeliveryCount
                                                 FROM {conn.Schema}.Queues;
                                                 """,
                 _ => throw new NotSupportedException("Unsupported SQL engine")
@@ -80,7 +82,8 @@ public static class QueuesEndpoints
                                                    error_count AS ErrorCount,
                                                    dead_letter_count AS DeadLetterCount,
                                                    '' AS CountStartTime,
-                                                   count_duration AS CountDuration
+                                                   count_duration AS CountDuration,
+                                                   queue_max_delivery_count AS QueueMaxDeliveryCount
                                                FROM {conn.Schema}.queues
                                                WHERE queue_name = @QueueName;
                                                """,
@@ -97,7 +100,8 @@ public static class QueuesEndpoints
                                                     ErrorCount,
                                                     DeadLetterCount,
                                                     CountStartTime,
-                                                    CountDuration
+                                                    CountDuration,
+                                                    QueueMaxDeliveryCount
                                                 FROM {conn.Schema}.Queues
                                                 WHERE QueueName = @QueueName;
                                                 """,

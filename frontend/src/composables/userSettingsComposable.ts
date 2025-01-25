@@ -4,6 +4,8 @@ interface UserSettings {
   queueType: number
   sortField?: string
   sortOrder?: number
+  queueSearch: string
+  topicSearch: string
   refetchInterval: number
   darkMode: boolean
 }
@@ -14,6 +16,8 @@ const settings = reactive<UserSettings>({
   queueType: 1,
   sortField: undefined,
   sortOrder: undefined,
+  queueSearch: '',
+  topicSearch: '',
   refetchInterval: 5000,
   darkMode: false,
 })

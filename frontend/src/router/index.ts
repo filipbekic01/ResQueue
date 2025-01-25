@@ -18,7 +18,7 @@ const router = createRouter({
       component: Broker,
       children: [
         {
-          path: '/overview',
+          path: '',
           name: 'overview',
           props: true,
           component: BrokerOverview,
@@ -32,7 +32,7 @@ const router = createRouter({
         {
           path: '/queues',
           name: 'queues',
-          props: true,
+          props: (route) => ({ ...route.query }),
           component: BrokerQueues,
         },
         {
