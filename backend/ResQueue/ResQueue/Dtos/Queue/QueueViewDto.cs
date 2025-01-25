@@ -2,7 +2,7 @@ namespace ResQueue.Dtos.Queue;
 
 public class QueueViewDto
 {
-    public string? QueueName { get; set; }
+    public string QueueName { get; set; } = null!;
     public int? QueueAutoDelete { get; set; }
     public int Ready { get; set; }
     public int Scheduled { get; set; }
@@ -14,4 +14,5 @@ public class QueueViewDto
     public long DeadLetterCount { get; set; }
     public string? CountStartTime { get; set; }
     public int CountDuration { get; set; }
+    public int QueueMaxDeliveryCount { get; set; }
 }

@@ -6,16 +6,16 @@ export interface MessageDeliveryDto {
   queueId: number
   priority: number
   enqueueTime: string
-  expirationTime: string
-  partitionKey: string
-  routingKey: string
-  consumerId: string
-  lockId: string
+  expirationTime?: string
+  partitionKey?: string
+  routingKey?: string
+  consumerId?: string
+  lockId?: string
   deliveryCount: number
   maxDeliveryCount: number
   lastDelivered?: string
-  transportHeaders: any
-  message: MessageDto
+  transportHeaders?: any
+  message?: MessageDto
   additionalData: Record<string, string>
   isRecurring: boolean
 }
