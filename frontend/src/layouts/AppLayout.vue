@@ -6,9 +6,10 @@ import { useUserSettings } from '@/composables/userSettingsComposable'
 import Listbox from 'primevue/listbox'
 import type { MenuItem } from 'primevue/menuitem'
 import { computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
+const router = useRouter()
 
 const { isSuccess, isPending, error } = useAuthQuery()
 
@@ -63,6 +64,9 @@ const items = computed((): MenuItem[] => {
   if (route.name === 'messages') {
     items.push({
       label: 'Queues',
+      command: () => {
+        router.push({ name: 'queues' })
+      },
     })
 
     items.push({
