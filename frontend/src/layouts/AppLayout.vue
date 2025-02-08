@@ -4,9 +4,11 @@ import mtLogoUrlDark from '@/assets/images/masstransit-dark.svg'
 import mtLogoUrl from '@/assets/images/masstransit.svg'
 import { useUserSettings } from '@/composables/userSettingsComposable'
 import Listbox from 'primevue/listbox'
+import Menubar from 'primevue/menubar'
 import type { MenuItem } from 'primevue/menuitem'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import Graph from './Graph.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -84,10 +86,44 @@ const items = computed((): MenuItem[] => {
 const autoRefreshLabel = computed(() => {
   return `Auto-Refresh (${refetchIntervalOptions.find((x) => x.value === settings.refetchInterval)?.label})`
 })
+
+const menu = ref()
+
+const toggle = (event) => {
+  menu.value.toggle(event)
+}
+
+const menuItems = ref([
+  {
+    items: [
+      {
+        label: 'Toggle Graph',
+        icon: 'pi pi-refresh',
+      },
+      {
+        label: 'Toggle Dark Mode',
+        icon: 'pi pi-upload',
+        command: () => {
+          toggleDarkMode()
+        },
+      },
+      {
+        label: 'Auto-refresh',
+        icon: 'pi pi-upload',
+        items: [
+          {
+            label: 'Auto-123',
+            icon: 'pi pi-upload',
+          },
+        ],
+      },
+    ],
+  },
+])
 </script>
 
 <template>
-  <div v-if="!isPending && isSuccess" class="flex h-screen flex-col">
+  <div v-if="!isPending && isSuccess" class="flex h-screen w-full flex-col">
     <div class="flex items-center border-b px-4 pb-4 pt-4 dark:border-b-surface-700">
       <div class="flex">
         <div class="flex h-14 w-14 items-center justify-center rounded-xl text-2xl">
@@ -102,7 +138,8 @@ const autoRefreshLabel = computed(() => {
           </div>
         </div>
       </div>
-      <div class="my-auto me-3 ms-auto items-center">
+
+      <!-- <div class="my-auto me-3 ms-auto items-center">
         <Button
           @click="(e) => autoRefreshPopover.toggle(e)"
           :label="autoRefreshLabel"
@@ -125,6 +162,25 @@ const autoRefreshLabel = computed(() => {
         </Popover>
 
         <Button @click="toggleDarkMode" icon="pi pi-palette" text class="ms-1"></Button>
+      </div> -->
+      <div class="ms-auto flex items-center">
+        <Graph class="me-4" />
+        <Button text icon="pi pi-ellipsis-h" @click="toggle" />
+        <Menu ref="menu" :model="menuItems" :popup="true">
+          <!-- <template #end>
+            <div class="flex w-72 flex-col gap-2 px-4 pb-4">
+              <hr />
+              <div>Auto-refresh interval:</div>
+              <Listbox
+                :options="refetchIntervalOptions"
+                :model-value="settings.refetchInterval"
+                @update:model-value="onRefreshIntervalChange"
+                option-value="value"
+                option-label="label"
+              ></Listbox>
+            </div>
+          </template> -->
+        </Menu>
       </div>
     </div>
 

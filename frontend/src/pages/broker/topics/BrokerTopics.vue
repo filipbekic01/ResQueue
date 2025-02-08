@@ -25,11 +25,12 @@ const filters = ref({
 <template>
   <div class="flex overflow-auto">
     <DataTable
+      show-gridlines
       scrollable
       scroll-height="flex"
       :value="subscriptions"
       removable-sort
-      class="grow overflow-auto"
+      class="rq-grid grow overflow-auto"
       striped-rows
       v-model:filters="filters"
       filter-display="menu"

@@ -2,7 +2,7 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [v1.3.1] - 2025-01-__
+## [v1.3.1] - 2025-01-\_\_
 
 ### Added
 
@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Updated to MassTransit v8.3.5
 - Search filter better UX
-- Table row paddings for better preview
+- Table row paddings and gridlines for better UX
 
 ### Fixed
 

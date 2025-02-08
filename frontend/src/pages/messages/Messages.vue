@@ -14,7 +14,7 @@ import { useQueryClient } from '@tanstack/vue-query'
 import Column from 'primevue/column'
 import DataTable, { type DataTablePageEvent } from 'primevue/datatable'
 import type { MenuItem } from 'primevue/menuitem'
-import SelectButton from 'primevue/selectbutton'
+import Tabs from 'primevue/tabs'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { computed, ref, watchEffect } from 'vue'
@@ -231,6 +231,20 @@ const onPage = (event: DataTablePageEvent) => {
   pageIndex.value = event.page
   first.value = event.first
 }
+
+const getMessagesIcon = (queue: QueueDto) => {
+  if (queue.type == 1) {
+    return 'pi-check-circle'
+  } else if (queue.type == 2) {
+    return 'pi-exclamation-circle'
+  } else if (queue.type == 3) {
+    return 'pi-times-circle'
+  }
+}
+
+const hasMtFaultMessages = computed(() => {
+  return messages.value?.items.some((x) => x.transportHeaders['MT-Fault-Message'])
+})
 </script>
 
 <template>
@@ -275,23 +289,31 @@ const onPage = (event: DataTablePageEvent) => {
         @requeue:complete="onRequeueComplete"
       />
     </Popover>
-    <div class="flex items-center border-b dark:border-b-surface-700">
-      <Menubar :model="items" class="border-0" />
-      <div class="ms-auto flex items-center gap-3">
-        <SelectButton
-          class="me-3"
-          option-label="queueNameByType"
-          option-value="queue"
-          :allow-empty="false"
-          :model-value="selectedQueue"
-          @update:model-value="updateSelectedQueue"
-          :options="queueOptions"
-        ></SelectButton>
-      </div>
+    <div class="flex items-center">
+      <Menubar
+        :model="items"
+        class="w-full rounded-none border-0 border-b dark:border-b-surface-700"
+      />
+      <Tabs v-if="selectedQueueId" :value="selectedQueueId" class="ms-auto">
+        <TabList>
+          <Tab
+            v-for="item in queueOptions"
+            :key="item.queue.id"
+            :value="item.queue.id"
+            class="flex gap-2"
+            @click="updateSelectedQueue(item.queue)"
+          >
+            <i class="pi" :class="getMessagesIcon(item.queue)"></i>
+            {{ item.queueNameByType }}
+          </Tab>
+        </TabList>
+      </Tabs>
     </div>
     <template v-if="messages?.items.length">
       <div class="flex grow flex-col overflow-auto">
         <DataTable
+          show-gridlines
+          class="rq-grid"
           :show-headers="true"
           v-model:selection="selectedMessages"
           :value="messages.items"
@@ -309,18 +331,43 @@ const onPage = (event: DataTablePageEvent) => {
           @page="onPage"
           @row-click="(e) => toggleMessage(e.data)"
         >
+          <!-- Selection -->
+
           <Column
             selectionMode="multiple"
             class="w-0"
             style="vertical-align: top; text-align: center"
           ></Column>
+
+          <!-- ID -->
+
           <Column field="messageDeliveryId" header="ID" class="w-0 whitespace-nowrap"> </Column>
-          <Column field="message.messageType" header="URN" class="w-0 whitespace-nowrap">
+
+          <!-- URN -->
+
+          <Column
+            field="message.messageType"
+            header="URN"
+            class="whitespace-nowrap"
+            :class="[
+              {
+                'w-0': hasMtFaultMessages,
+              },
+            ]"
+          >
             <template #body="{ data }">
               {{ data.message.messageType.replace('urn:message:', '') }}
             </template>
           </Column>
-          <Column field="message.transportHeaders" header="" class="whitespace-nowrap">
+
+          <!-- Fault Message -->
+
+          <Column
+            v-if="hasMtFaultMessages"
+            field="message.transportHeaders"
+            class="whitespace-nowrap"
+            header="Fault Message"
+          >
             <template #body="{ data }">
               <div
                 v-if="data.transportHeaders['MT-Fault-Message']"
@@ -329,26 +376,71 @@ const onPage = (event: DataTablePageEvent) => {
                 <i class="pi pi-circle-fill text-red-400" style="font-size: 0.625rem"></i
                 >{{ data.transportHeaders['MT-Fault-ExceptionType'] }}
               </div>
+              <div v-else>-</div>
             </template>
           </Column>
 
-          <Column field="message.schedulingTokenId" header="" class="w-0 whitespace-nowrap">
+          <!-- Expires At -->
+
+          <Column field="message.expirationTime" header="Expires At" class="w-0 whitespace-nowrap">
             <template #body="{ data }">
-              <div class="flex items-center gap-2" v-if="data.message.schedulingTokenId">
-                <i :class="`pi pi-${data.message.schedulingTokenId ? 'clock' : ''}`"></i>
-                Scheduled
-                <template v-if="data.isRecurring">(recurring)</template>
+              {{ data.message.expirationTime }}
+            </template>
+          </Column>
+
+          <!-- Recurring -->
+
+          <Column field="message.isRecurring" header="Recurring" class="w-0 whitespace-nowrap">
+            <template #header></template>
+            <template #body="{ data }">
+              <div class="flex items-center justify-center">
+                <i v-if="data.isRecurring" class="pi pi-check" style="font-size: 0.825rem"></i>
               </div>
             </template>
           </Column>
-          <Column field="message.lockId" class="w-0 whitespace-nowrap">
+
+          <!-- Scheduled -->
+
+          <Column
+            field="message.schedulingTokenId"
+            header="Scheduled"
+            class="w-0 whitespace-nowrap"
+          >
+            <template #header></template>
             <template #body="{ data }">
-              <div class="flex items-center gap-2" v-if="data.lockId">
-                <i :class="`pi pi-lock`"></i> Locked
+              <div class="flex items-center justify-center">
+                <i
+                  v-if="data.message.schedulingTokenId"
+                  class="pi pi-check"
+                  style="font-size: 0.825rem"
+                ></i>
               </div>
             </template>
           </Column>
-          <Column field="priority" header="Priority" class="w-0 whitespace-nowrap"></Column>
+
+          <!-- Locked -->
+
+          <Column field="message.lockedId" header="Locked" class="w-0 whitespace-nowrap">
+            <template #header></template>
+            <template #body="{ data }">
+              <div class="flex items-center justify-center" v-if="!data.lockId">
+                <i class="pi pi-check" style="font-size: 0.825rem"></i>
+              </div>
+            </template>
+          </Column>
+
+          <!-- Priority -->
+
+          <Column field="priority" header="Priority" class="w-0 justify-center whitespace-nowrap">
+            <template #body="{ data }">
+              <div class="text-center">
+                {{ data.priority }}
+              </div>
+            </template>
+          </Column>
+
+          <!-- Enqueue Time -->
+
           <Column
             field="enqueueTime"
             header="Enqueue Time"
@@ -359,8 +451,8 @@ const onPage = (event: DataTablePageEvent) => {
               <div class="flex gap-2">
                 {{ humanDateTime(data.enqueueTime) }}
               </div>
-            </template></Column
-          >
+            </template>
+          </Column>
         </DataTable>
       </div>
     </template>

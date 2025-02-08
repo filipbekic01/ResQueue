@@ -49,14 +49,15 @@ const onSort = (e: DataTableSortEvent) => {
 </script>
 
 <template>
-  <div>
+  <div class="">
     <DataTable
+      show-gridlines
       scrollable
       data-key="queueName"
       scroll-height="flex"
       :value="queuesView"
       removable-sort
-      class="grow overflow-auto"
+      class="rq-grid grow overflow-auto"
       selection-mode="single"
       striped-rows
       v-model:filters="filters"
@@ -96,37 +97,16 @@ const onSort = (e: DataTableSortEvent) => {
         header="Max Delivery"
         class="w-0 whitespace-nowrap"
       ></Column>
-      <Column
-        sortable
-        field="ready"
-        header="Ready"
-        class="w-[0] bg-surface-200/25 dark:bg-surface-800/20"
-      >
-      </Column>
-      <Column
-        sortable
-        field="errored"
-        header="Errored"
-        class="w-[0] bg-surface-200/25 dark:bg-surface-800/20"
-      ></Column>
+      <Column sortable field="ready" header="Ready" class="w-[0]"> </Column>
+      <Column sortable field="errored" header="Errored" class="w-[0]"></Column>
       <Column
         sortable
         field="deadLettered"
         header="Dead Lettered"
-        class="w-[0] whitespace-nowrap bg-surface-200/25 dark:bg-surface-800/20"
+        class="w-[0] whitespace-nowrap"
       ></Column>
-      <Column
-        sortable
-        field="scheduled"
-        header="Scheduled"
-        class="w-[0] bg-surface-200/25 dark:bg-surface-800/20"
-      ></Column>
-      <Column
-        sortable
-        field="locked"
-        header="Locked"
-        class="w-[0] bg-surface-200/25 dark:bg-surface-800/20"
-      ></Column>
+      <Column sortable field="scheduled" header="Scheduled" class="w-[0]"></Column>
+      <Column sortable field="locked" header="Locked" class="w-[0]"></Column>
     </DataTable>
   </div>
 </template>
