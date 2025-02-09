@@ -164,7 +164,7 @@ const menuItems = ref([
         <Button @click="toggleDarkMode" icon="pi pi-palette" text class="ms-1"></Button>
       </div> -->
       <div class="ms-auto flex items-center">
-        <Graph class="me-4" />
+        <slot name="topright"></slot>
         <Button text icon="pi pi-ellipsis-h" @click="toggle" />
         <Menu ref="menu" :model="menuItems" :popup="true">
           <!-- <template #end>

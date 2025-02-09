@@ -1,5 +1,5 @@
 <template>
-  <div class="ms-5 h-full grow border-x px-3">
+  <div class="ms-5 h-full grow border-e px-3">
     <div class="graph-container">
       <canvas ref="canvas"></canvas>
     </div>
@@ -14,23 +14,42 @@ export interface DataPoint {
 </script>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { useQueueMetricsQuery } from '@/api/queues/queueMetricsQuery'
+import type { QueueDto } from '@/dtos/queue/queueDto'
+import { format } from 'date-fns'
+import { computed, onMounted, ref, watch, watchEffect } from 'vue'
 
-const graphData: DataPoint[] = [
-  { time: '11:05', messages: 50 },
-  { time: '11:10', messages: 75 },
-  { time: '11:15', messages: 100 },
-  { time: '11:20', messages: 125 },
-  { time: '11:25', messages: 60 },
-  { time: '11:30', messages: 0 },
-  { time: '11:35', messages: 5 },
-  { time: '11:40', messages: 59 },
-  { time: '11:45', messages: 9 },
-  { time: '11:30', messages: 0 },
-  { time: '11:35', messages: 5 },
-  { time: '11:40', messages: 59 },
-  { time: '11:45', messages: 9 },
-]
+const props = defineProps<{
+  queue: QueueDto
+}>()
+
+const { data: metrics } = useQueueMetricsQuery(computed(() => props.queue.id))
+
+watchEffect(() => {
+  console.log('metrics', metrics.value)
+})
+
+//   { time: '11:05', messages: 50 },
+const graphData = computed((): DataPoint[] => {
+  // if (!metrics.value || !metrics.value.length) {
+  //   return [] as DataPoint[]
+  // }
+
+  // return metrics.value.map((metric) => ({
+  //   time: metric.dateTime,
+  //   messages: metric.errorCount,
+  // }))
+
+  const data = []
+  const now = new Date()
+  for (let i = 0; i < 10; i++) {
+    const pastTime = new Date(now.getTime() - i * 60000)
+    const timeString = format(pastTime, 'hh:mm')
+    data.push({ time: timeString, messages: 0 })
+  }
+
+  return data
+})
 
 // Watch for changes in the data prop
 watch(
@@ -75,8 +94,8 @@ const drawGraph = () => {
   const graphHeight = height - 2 * padding
 
   // Data
-  const maxMessages = Math.max(...graphData.map((d) => d.messages))
-  const pointSpacing = graphWidth / (graphData.length - 1)
+  const maxMessages = Math.max(...graphData.value.map((d) => d.messages))
+  const pointSpacing = graphWidth / (graphData.value.length - 1)
 
   // Draw axis
   // ctx.strokeStyle = '#ccc'
@@ -87,10 +106,10 @@ const drawGraph = () => {
   // ctx.stroke()
 
   // Draw line
-  ctx.strokeStyle = 'gray'
+  ctx.strokeStyle = 'black'
   ctx.lineWidth = 1
   ctx.beginPath()
-  graphData.forEach((point, index) => {
+  graphData.value.forEach((point, index) => {
     const x = padding + index * pointSpacing
     const y = height - padding - (point.messages / maxMessages) * graphHeight
     if (index === 0) {
@@ -102,7 +121,7 @@ const drawGraph = () => {
   ctx.stroke()
 
   // Draw points and labels
-  graphData.forEach((point, index) => {
+  graphData.value.forEach((point, index) => {
     const x = padding + index * pointSpacing
     const y = height - padding - (point.messages / maxMessages) * graphHeight
 

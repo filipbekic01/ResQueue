@@ -46,8 +46,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dapper" Version="2.1.35"/>
-        <PackageReference Include="MassTransit" Version="8.3.5-develop.2187" />
+        <PackageReference Include="Dapper" Version="2.1.66" />
+        <PackageReference Include="MassTransit" Version="8.3.6" />
         <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
         <PackageReference Include="Npgsql" Version="9.0.2" />
     </ItemGroup>

@@ -115,6 +115,45 @@ public static class QueuesEndpoints
             return Results.Ok(queueView);
         });
 
+        group.MapGet("{queueId:long}/metrics",
+            async (IDatabaseConnectionFactory connectionFactory, IDbConnectionProvider conn, long queueId) =>
+            {
+                var sql = conn.SqlEngine switch
+                {
+                    ResQueueSqlEngine.Postgres => $"""
+                                                   SELECT 
+                                                       queue_metric_id AS QueueMetricId,
+                                                       start_time AS StartTime,
+                                                       duration AS Duration,
+                                                       queue_id AS QueueId,
+                                                       consume_count AS ConsumeCount,
+                                                       error_count AS ErrorCount,
+                                                       dead_letter_count AS DeadLetterCount
+                                                   FROM {conn.Schema}.queue_metric
+                                                   WHERE queue_id = @QueueId;
+                                                   """,
+                    ResQueueSqlEngine.SqlServer => $"""
+                                                    SELECT 
+                                                        QueueMetricId,
+                                                        StartTime,
+                                                        Duration,
+                                                        QueueId,
+                                                        ConsumeCount,
+                                                        ErrorCount,
+                                                        DeadLetterCount
+                                                    FROM {conn.Schema}.QueueMetric
+                                                    WHERE QueueId = @QueueId;
+                                                    """,
+                    _ => throw new NotSupportedException("Unsupported SQL engine")
+                };
+
+                await using var connection = connectionFactory.CreateConnection();
+
+                var queues = await connection.QueryAsync<QueueMetricDto>(sql, new { QueueId = queueId });
+
+                return Results.Ok(queues);
+            });
+
         group.MapGet("",
             async ([FromQuery] string queueName, IDatabaseConnectionFactory connectionFactory,
                 IDbConnectionProvider conn) =>

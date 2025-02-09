@@ -8,6 +8,7 @@ import RequeueDialog from '@/dialogs/RequeueDialog.vue'
 import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
 import type { QueueDto } from '@/dtos/queue/queueDto'
 import AppLayout from '@/layouts/AppLayout.vue'
+import Graph from '@/layouts/Graph.vue'
 import { humanDateTime } from '@/utils/dateTimeUtil'
 import { errorToToast } from '@/utils/errorUtils'
 import { useQueryClient } from '@tanstack/vue-query'
@@ -42,6 +43,7 @@ const {
   queueOptions,
   queryView: { data: queueView },
   query: { data: queues },
+  primaryQueue,
   getQueueTypeLabel,
 } = useQueue(computed(() => props.queueName))
 
@@ -249,6 +251,9 @@ const hasMtFaultMessages = computed(() => {
 
 <template>
   <AppLayout>
+    <template #topright>
+      <Graph v-if="primaryQueue" :queue="primaryQueue" class="me-4" />
+    </template>
     <MessageDialog
       v-if="selectedMessage"
       :selected-message="selectedMessage"

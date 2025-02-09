@@ -1,6 +1,7 @@
 import { useQueuesQuery } from '@/api/queues/queuesQuery'
 import { useQueueViewQuery } from '@/api/queues/queueViewQuery'
 import type { QueueViewDto } from '@/dtos/queue/queueViewDto'
+import { QueueTypeEnum } from '@/enums/queueTypeEnum'
 import { computed, toValue, type Ref } from 'vue'
 import { useUserSettings } from './userSettingsComposable'
 
@@ -53,10 +54,15 @@ export function useQueue(queueName: Ref<string>) {
       }))
   })
 
+  const primaryQueue = computed(() =>
+    query.data.value?.find((x) => x.type === QueueTypeEnum.PRIMARY),
+  )
+
   return {
     query,
     queryView,
     queueOptions,
+    primaryQueue,
     getQueueTypeLabel,
   }
 }
