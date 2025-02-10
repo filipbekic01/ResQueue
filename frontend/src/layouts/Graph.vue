@@ -123,7 +123,7 @@ const handleMouseEnter = (event: MouseEvent, point: DataPoint, index?: number) =
   if (typeof index === 'number') {
     hoveredIndex.value = index
   }
-  tooltipPosition.value = { x: event.clientX, y: event.clientY }
+  tooltipPosition.value = { x: event.clientX - 125, y: event.clientY }
 }
 
 const handleMouseLeave = () => {
@@ -161,7 +161,7 @@ const graphData = computed<DataPoint[]>(() => {
 
 // === Graph Configuration ===
 const width = 500
-const height = 100
+const height = 120
 const padding = 20
 const graphWidth = width - 2 * padding
 const graphHeight = height - 2 * padding

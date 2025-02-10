@@ -4,7 +4,6 @@ import mtLogoUrlDark from '@/assets/images/masstransit-dark.svg'
 import mtLogoUrl from '@/assets/images/masstransit.svg'
 import { useUserSettings } from '@/composables/userSettingsComposable'
 import Listbox from 'primevue/listbox'
-import Menubar from 'primevue/menubar'
 import type { MenuItem } from 'primevue/menuitem'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -17,7 +16,7 @@ const { isSuccess, isPending, error } = useAuthQuery()
 
 const capitalize = (value: string = '') => value.replace(/\b\w/g, (char) => char.toUpperCase())
 
-const { settings, updateSettings, toggleDarkMode } = useUserSettings()
+const { settings, updateSettings, toggleDarkMode, toggleGraph } = useUserSettings()
 
 const autoRefreshPopover = ref()
 const refetchIntervalOptions = [
@@ -26,31 +25,31 @@ const refetchIntervalOptions = [
     value: 0,
   },
   {
-    label: '1 second',
+    label: '1s',
     value: 1000,
   },
   {
-    label: '5 seconds',
+    label: '5s',
     value: 1000 * 5,
   },
   {
-    label: '30 seconds',
+    label: '30s',
     value: 1000 * 30,
   },
   {
-    label: '1 minute',
+    label: '1m',
     value: 1000 * 60,
   },
   {
-    label: '5 minutes',
+    label: '5m',
     value: 1000 * 60 * 5,
   },
   {
-    label: '30 minutes',
+    label: '30m',
     value: 1000 * 60 * 30,
   },
   {
-    label: '1 hour',
+    label: '1h',
     value: 1000 * 60 * 60,
   },
 ]
@@ -84,103 +83,65 @@ const items = computed((): MenuItem[] => {
 })
 
 const autoRefreshLabel = computed(() => {
-  return `Auto-Refresh (${refetchIntervalOptions.find((x) => x.value === settings.refetchInterval)?.label})`
+  return `${refetchIntervalOptions.find((x) => x.value === settings.refetchInterval)?.label}`
 })
-
-const menu = ref()
-
-const toggle = (event) => {
-  menu.value.toggle(event)
-}
-
-const menuItems = ref([
-  {
-    items: [
-      {
-        label: 'Toggle Graph',
-        icon: 'pi pi-refresh',
-      },
-      {
-        label: 'Toggle Dark Mode',
-        icon: 'pi pi-upload',
-        command: () => {
-          toggleDarkMode()
-        },
-      },
-      {
-        label: 'Auto-refresh',
-        icon: 'pi pi-upload',
-        items: [
-          {
-            label: 'Auto-123',
-            icon: 'pi pi-upload',
-          },
-        ],
-      },
-    ],
-  },
-])
 </script>
 
 <template>
   <div v-if="!isPending && isSuccess" class="flex h-screen w-full flex-col">
-    <div class="flex items-center border-b px-4 pb-4 pt-4 dark:border-b-surface-700">
-      <div class="flex">
-        <div class="flex h-14 w-14 items-center justify-center rounded-xl text-2xl">
-          <img :src="mtLogoUrl" class="w-full dark:hidden" />
-          <img :src="mtLogoUrlDark" class="hidden w-full dark:block" />
+    <Popover ref="autoRefreshPopover">
+      <div class="flex w-72 flex-col gap-2">
+        <div>
+          Select an interval to automatically refresh the queues and messages view. We plan to
+          integrate a real-time, socket-based system for instant updates in a future release.
         </div>
-
-        <div class="ms-4 flex flex-col justify-center">
-          <div class="text-2xl font-semibold text-primary">MassTransit</div>
-          <div class="flex items-center gap-2">
-            <Breadcrumb style="padding: 0" :model="items" />
-          </div>
-        </div>
+        <Listbox
+          :options="refetchIntervalOptions"
+          :model-value="settings.refetchInterval"
+          @update:model-value="onRefreshIntervalChange"
+          option-value="value"
+          option-label="label"
+        ></Listbox>
       </div>
+    </Popover>
 
-      <!-- <div class="my-auto me-3 ms-auto items-center">
-        <Button
-          @click="(e) => autoRefreshPopover.toggle(e)"
-          :label="autoRefreshLabel"
-          text
-        ></Button>
-        <Popover ref="autoRefreshPopover">
-          <div class="flex w-72 flex-col gap-2">
-            <div>
-              Select an interval to automatically refresh the queues and messages view. We plan to
-              integrate a real-time, socket-based system for instant updates in a future release.
+    <div class="flex">
+      <div class="flex grow flex-col">
+        <div class="flex items-center border-b px-4 pb-4 pt-4 dark:border-b-surface-700">
+          <div class="flex">
+            <div class="flex h-14 w-14 items-center justify-center rounded-xl text-2xl">
+              <img :src="mtLogoUrl" class="w-full dark:hidden" />
+              <img :src="mtLogoUrlDark" class="hidden w-full dark:block" />
             </div>
-            <Listbox
-              :options="refetchIntervalOptions"
-              :model-value="settings.refetchInterval"
-              @update:model-value="onRefreshIntervalChange"
-              option-value="value"
-              option-label="label"
-            ></Listbox>
+
+            <div class="ms-4 flex flex-col justify-center">
+              <div class="text-2xl font-semibold text-primary">MassTransit</div>
+              <div class="flex items-center gap-2">
+                <Breadcrumb style="padding: 0" :model="items" />
+              </div>
+            </div>
           </div>
-        </Popover>
 
-        <Button @click="toggleDarkMode" icon="pi pi-palette" text class="ms-1"></Button>
-      </div> -->
-      <div class="ms-auto flex items-center">
-        <slot name="topright"></slot>
-        <Button text icon="pi pi-ellipsis-h" @click="toggle" />
-        <Menu ref="menu" :model="menuItems" :popup="true">
-          <!-- <template #end>
-            <div class="flex w-72 flex-col gap-2 px-4 pb-4">
-              <hr />
-              <div>Auto-refresh interval:</div>
-              <Listbox
-                :options="refetchIntervalOptions"
-                :model-value="settings.refetchInterval"
-                @update:model-value="onRefreshIntervalChange"
-                option-value="value"
-                option-label="label"
-              ></Listbox>
-            </div>
-          </template> -->
-        </Menu>
+          <div class="my-auto me-3 ms-auto items-center">
+            <Button @click="toggleDarkMode" icon="pi pi-palette" text class="ms-1"></Button>
+            <Button
+              @click="(e) => autoRefreshPopover.toggle(e)"
+              :label="autoRefreshLabel"
+              icon="pi pi-hourglass "
+              text
+            ></Button>
+            <Button
+              @click="toggleGraph"
+              :icon="`pi pi-angle-${settings.showGraph ? 'right' : 'left'}`"
+              text
+              class="ms-1"
+            ></Button>
+          </div>
+        </div>
+        <slot name="menu"></slot>
+      </div>
+      <div class="flex">
+        <slot name="right"></slot>
       </div>
     </div>
 

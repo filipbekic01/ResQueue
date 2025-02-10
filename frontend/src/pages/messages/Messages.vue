@@ -250,76 +250,82 @@ const hasMtFaultMessages = computed(() => {
 </script>
 
 <template>
-  <AppLayout>
-    <template #topright> qwe </template>
-    <MessageDialog
-      v-if="selectedMessage"
-      :selected-message="selectedMessage"
-      @close="toggleMessage(undefined)"
-    />
+  <MessageDialog
+    v-if="selectedMessage"
+    :selected-message="selectedMessage"
+    @close="toggleMessage(undefined)"
+  />
 
-    <Popover ref="deleteMessagesPopover">
-      <div class="flex flex-col gap-3">
-        <div class="flex items-center gap-2">
-          <Checkbox id="transactional" v-model="deleteMessagesTransactional" binary></Checkbox>
-          <label for="transactional">Within single transaction</label>
-        </div>
-        <Button
-          icon="pi pi-arrow-right"
-          severity="danger"
-          :loading="isDeleteMessagesPending"
-          icon-pos="right"
-          :label="`Delete`"
-          @click="deleteMessages"
-        ></Button>
+  <Popover ref="deleteMessagesPopover">
+    <div class="flex flex-col gap-3">
+      <div class="flex items-center gap-2">
+        <Checkbox id="transactional" v-model="deleteMessagesTransactional" binary></Checkbox>
+        <label for="transactional">Within single transaction</label>
       </div>
-    </Popover>
-    <Popover ref="requeueSpecificPopover">
-      <RequeueDialog
-        v-if="selectedQueueId"
-        :selected-queue-id="selectedQueueId"
-        :batch="false"
-        :delivery-message-ids="selectedMessageIds"
-        @requeue:complete="onRequeueComplete"
-      />
-    </Popover>
-    <Popover ref="requeuePopover">
-      <RequeueDialog
-        v-if="selectedQueueId"
-        :selected-queue-id="selectedQueueId"
-        :batch="true"
-        :delivery-message-ids="[]"
-        @requeue:complete="onRequeueComplete"
-      />
-    </Popover>
-    <div class="flex items-center">
-      <Menubar
-        :model="items"
-        class="w-full rounded-none border-0 border-b dark:border-b-surface-700"
-      />
-      <Tabs v-if="selectedQueueId" :value="selectedQueueId" class="ms-auto">
-        <TabList>
-          <Tab
-            v-for="item in queueOptions"
-            :key="item.queue.id"
-            :value="item.queue.id"
-            class="flex gap-2"
-            @click="updateSelectedQueue(item.queue)"
-          >
-            <i class="pi" :class="getMessagesIcon(item.queue)"></i>
-            {{ item.queueNameByType }}
-          </Tab>
-        </TabList>
-      </Tabs>
+      <Button
+        icon="pi pi-arrow-right"
+        severity="danger"
+        :loading="isDeleteMessagesPending"
+        icon-pos="right"
+        :label="`Delete`"
+        @click="deleteMessages"
+      ></Button>
     </div>
-    <div class="flex border-b">
-      <Graph class="me-3 border-e pe-3" v-if="primaryQueue" :queue="primaryQueue" />
-      <div class="my-auto flex flex-col font-mono text-gray-500">
-        <div>Con. per second: 0/s</div>
-        <div>Err. per second: 0/s</div>
-        <div>Dea. per second: 0/s</div>
+  </Popover>
+
+  <Popover ref="requeueSpecificPopover">
+    <RequeueDialog
+      v-if="selectedQueueId"
+      :selected-queue-id="selectedQueueId"
+      :batch="false"
+      :delivery-message-ids="selectedMessageIds"
+      @requeue:complete="onRequeueComplete"
+    />
+  </Popover>
+
+  <Popover ref="requeuePopover">
+    <RequeueDialog
+      v-if="selectedQueueId"
+      :selected-queue-id="selectedQueueId"
+      :batch="true"
+      :delivery-message-ids="[]"
+      @requeue:complete="onRequeueComplete"
+    />
+  </Popover>
+
+  <AppLayout>
+    <template #menu>
+      <div class="flex items-center">
+        <Menubar
+          :model="items"
+          class="w-full rounded-none border-0 border-b dark:border-b-surface-700"
+        />
+        <Tabs v-if="selectedQueueId" :value="selectedQueueId" class="ms-auto">
+          <TabList>
+            <Tab
+              v-for="item in queueOptions"
+              :key="item.queue.id"
+              :value="item.queue.id"
+              class="flex gap-2"
+              @click="updateSelectedQueue(item.queue)"
+            >
+              <i class="pi" :class="getMessagesIcon(item.queue)"></i>
+              {{ item.queueNameByType }}
+            </Tab>
+          </TabList>
+        </Tabs>
       </div>
-    </div>
+    </template>
+
+    <template #right>
+      <div
+        v-if="settings.showGraph"
+        class="flex grow items-center justify-center border-b border-s ps-3 dark:border-b-surface-700 dark:border-s-surface-700"
+      >
+        <Graph v-if="primaryQueue" :queue="primaryQueue" />
+      </div>
+    </template>
+
     <template v-if="messages?.items.length">
       <div class="flex grow flex-col overflow-auto">
         <DataTable

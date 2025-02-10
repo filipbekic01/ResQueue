@@ -8,6 +8,7 @@ interface UserSettings {
   topicSearch: string
   refetchInterval: number
   darkMode: boolean
+  showGraph: boolean
 }
 
 const storageKey = 'userSettings'
@@ -20,6 +21,7 @@ const settings = reactive<UserSettings>({
   topicSearch: '',
   refetchInterval: 5000,
   darkMode: false,
+  showGraph: true,
 })
 
 const init = () => {
@@ -41,6 +43,10 @@ const toggleDarkMode = () => {
   loadDarkMode()
 }
 
+const toggleGraph = () => {
+  updateSettings({ ...settings, showGraph: !settings.showGraph })
+}
+
 const loadDarkMode = () => {
   const htmlElement = document.documentElement
 
@@ -56,6 +62,7 @@ export function useUserSettings() {
     settings,
     init,
     toggleDarkMode,
+    toggleGraph,
     updateSettings,
   }
 }
