@@ -1,9 +1,9 @@
 export interface QueueMetricDto {
   queueMetricId: number
-  dateTime: string
+  startTime: string
   timeSpan: string
   queueId: number
   consumeCount: number
   errorCount: number
-  deadLetterCoun: number
+  deadLetterCount: number
 }

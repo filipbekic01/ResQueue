@@ -251,9 +251,7 @@ const hasMtFaultMessages = computed(() => {
 
 <template>
   <AppLayout>
-    <template #topright>
-      <Graph v-if="primaryQueue" :queue="primaryQueue" class="me-4" />
-    </template>
+    <template #topright> qwe </template>
     <MessageDialog
       v-if="selectedMessage"
       :selected-message="selectedMessage"
@@ -313,6 +311,14 @@ const hasMtFaultMessages = computed(() => {
           </Tab>
         </TabList>
       </Tabs>
+    </div>
+    <div class="flex border-b">
+      <Graph class="me-3 border-e pe-3" v-if="primaryQueue" :queue="primaryQueue" />
+      <div class="my-auto flex flex-col font-mono text-gray-500">
+        <div>Con. per second: 0/s</div>
+        <div>Err. per second: 0/s</div>
+        <div>Dea. per second: 0/s</div>
+      </div>
     </div>
     <template v-if="messages?.items.length">
       <div class="flex grow flex-col overflow-auto">

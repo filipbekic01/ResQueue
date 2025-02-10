@@ -1,7 +1,99 @@
 <template>
-  <div class="ms-5 h-full grow border-e px-3">
-    <div class="graph-container">
-      <canvas ref="canvas"></canvas>
+  <div>
+    <!-- SVG element with fixed dimensions -->
+    <svg
+      :width="width"
+      :height="height"
+      :viewBox="`0 0 ${width} ${height}`"
+      class="cursor-default select-none"
+    >
+      <!-- Y-axis (vertical line) and tick marks -->
+      <line :x1="padding" :y1="padding" :x2="padding" :y2="height - padding" stroke="gray" />
+      <g v-for="(tick, idx) in tickValues" :key="'tick-' + idx">
+        <line
+          :x1="padding - 3"
+          :y1="getYForValue(tick)"
+          :x2="padding"
+          :y2="getYForValue(tick)"
+          stroke="black"
+        />
+        <text
+          :x="padding - 5"
+          :y="getYForValue(tick)"
+          text-anchor="end"
+          alignment-baseline="middle"
+          font-size="10"
+          fill="black"
+        >
+          {{ Math.round(tick) }}
+        </text>
+      </g>
+
+      <!-- Line graph paths -->
+      <path :d="linePathConsume" stroke="green" fill="none" stroke-width="1" />
+      <path :d="linePathError" stroke="red" fill="none" stroke-width="1" />
+      <path :d="linePathDeadLetter" stroke="black" fill="none" stroke-width="1" />
+
+      <!-- For each data point, render the hover rectangle, circles and label -->
+      <g v-for="(point, index) in graphData" :key="index">
+        <!-- Invisible hover area rectangle (with blue fill on hover) -->
+        <rect
+          :x="getRectBoundaries(index).x"
+          y="0"
+          :width="getRectBoundaries(index).width"
+          :height="height"
+          :fill="hoveredIndex === index ? 'rgba(0, 0, 0, 0.1)' : 'transparent'"
+          style="cursor: pointer"
+          @mouseenter="(event) => handleMouseEnter(event, point, index)"
+          @mouseleave="handleMouseLeave"
+        />
+        <!-- Data point circles -->
+        <circle
+          :cx="padding + index * pointSpacing"
+          :cy="getY(point, point.consumeCount)"
+          r="2"
+          fill="green"
+        />
+        <circle
+          :cx="padding + index * pointSpacing"
+          :cy="getY(point, point.errorCount)"
+          r="2"
+          fill="red"
+        />
+        <circle
+          :cx="padding + index * pointSpacing"
+          :cy="getY(point, point.deadLetterCount)"
+          r="2"
+          fill="black"
+        />
+        <!-- Time label (x-axis) -->
+        <text
+          :x="padding + index * pointSpacing"
+          :y="height - padding + 15"
+          fill="black"
+          class="pointer-events-none"
+          text-anchor="middle"
+          font-size="12"
+        >
+          {{ point.time }}
+        </text>
+      </g>
+    </svg>
+
+    <!-- Tooltip -->
+    <div
+      v-if="hoveredPoint"
+      class="tooltip"
+      :style="{
+        position: 'fixed',
+        left: `${tooltipPosition.x + 10}px`,
+        top: `${tooltipPosition.y + 10}px`,
+      }"
+    >
+      <p><strong>Time:</strong> {{ hoveredPoint.time }}</p>
+      <p><strong>Consume:</strong> {{ hoveredPoint.consumeCount }}</p>
+      <p><strong>Error:</strong> {{ hoveredPoint.errorCount }}</p>
+      <p><strong>Dead Letter:</strong> {{ hoveredPoint.deadLetterCount }}</p>
     </div>
   </div>
 </template>
@@ -9,7 +101,9 @@
 <script lang="ts">
 export interface DataPoint {
   time: string
-  messages: number
+  consumeCount: number
+  errorCount: number
+  deadLetterCount: number
 }
 </script>
 
@@ -17,131 +111,165 @@ export interface DataPoint {
 import { useQueueMetricsQuery } from '@/api/queues/queueMetricsQuery'
 import type { QueueDto } from '@/dtos/queue/queueDto'
 import { format } from 'date-fns'
-import { computed, onMounted, ref, watch, watchEffect } from 'vue'
+import { computed, ref } from 'vue'
 
+// === Tooltip & Hover Reactive Variables ===
+const hoveredPoint = ref<DataPoint | null>(null)
+const hoveredIndex = ref<number | null>(null)
+const tooltipPosition = ref({ x: 0, y: 0 })
+
+const handleMouseEnter = (event: MouseEvent, point: DataPoint, index?: number) => {
+  hoveredPoint.value = point
+  if (typeof index === 'number') {
+    hoveredIndex.value = index
+  }
+  tooltipPosition.value = { x: event.clientX, y: event.clientY }
+}
+
+const handleMouseLeave = () => {
+  hoveredPoint.value = null
+  hoveredIndex.value = null
+}
+
+// === Props & Metrics Data ===
 const props = defineProps<{
   queue: QueueDto
 }>()
 
 const { data: metrics } = useQueueMetricsQuery(computed(() => props.queue.id))
 
-watchEffect(() => {
-  console.log('metrics', metrics.value)
-})
-
-//   { time: '11:05', messages: 50 },
-const graphData = computed((): DataPoint[] => {
-  // if (!metrics.value || !metrics.value.length) {
-  //   return [] as DataPoint[]
-  // }
-
-  // return metrics.value.map((metric) => ({
-  //   time: metric.dateTime,
-  //   messages: metric.errorCount,
-  // }))
-
-  const data = []
-  const now = new Date()
+const graphData = computed<DataPoint[]>(() => {
+  const data: DataPoint[] = []
+  const now = new Date(2025, 1, 9, 19, 59, 0, 0)
   for (let i = 0; i < 10; i++) {
     const pastTime = new Date(now.getTime() - i * 60000)
     const timeString = format(pastTime, 'hh:mm')
-    data.push({ time: timeString, messages: 0 })
-  }
 
-  return data
+    const minuteMetric = metrics.value?.find(
+      (x) => format(x.startTime, 'yyyy-MM-dd|HH:mm') == format(pastTime, 'yyyy-MM-dd|HH:mm'),
+    )
+
+    data.push({
+      time: timeString,
+      consumeCount: minuteMetric?.consumeCount ?? 0,
+      errorCount: minuteMetric?.errorCount ?? 0,
+      deadLetterCount: minuteMetric?.deadLetterCount ?? 0,
+    })
+  }
+  return data.reverse()
 })
 
-// Watch for changes in the data prop
-watch(
-  () => graphData,
-  () => {
-    drawGraph()
-  },
-  { deep: true },
-)
+// === Graph Configuration ===
+const width = 500
+const height = 100
+const padding = 20
+const graphWidth = width - 2 * padding
+const graphHeight = height - 2 * padding
 
-// Canvas reference
-const canvas = ref<HTMLCanvasElement | null>(null)
+// Compute the maximum messages value; if all values are zero, default to 1.
+const maxMessages = computed(() => {
+  const maxVal = Math.max(
+    ...graphData.value.map((d) => Math.max(d.consumeCount, d.errorCount, d.deadLetterCount)),
+  )
+  return maxVal === 0 ? 1 : maxVal
+})
 
-// Function to draw the graph
-const drawGraph = () => {
-  const theCanvas = canvas.value
-  if (!theCanvas) {
-    return
-  }
+// Calculate horizontal spacing between points.
+const pointSpacing = computed(() => {
+  return graphData.value.length > 1 ? graphWidth / (graphData.value.length - 1) : graphWidth
+})
 
-  const ctx = theCanvas.getContext('2d')
-  if (!ctx) {
-    return
-  }
-
-  // Set canvas resolution based on devicePixelRatio
-  const dpr = window.devicePixelRatio || 1
-  const width = 500
-  const height = 49
-  theCanvas.width = width * dpr
-  theCanvas.height = height * dpr
-  theCanvas.style.width = `${width}px`
-  theCanvas.style.height = `${height}px`
-  ctx.scale(dpr, dpr)
-
-  // Clear canvas
-  ctx.clearRect(0, 0, theCanvas.width, theCanvas.height)
-
-  // Styling
-  const padding = 20
-  const graphWidth = width - 2 * padding
-  const graphHeight = height - 2 * padding
-
-  // Data
-  const maxMessages = Math.max(...graphData.value.map((d) => d.messages))
-  const pointSpacing = graphWidth / (graphData.value.length - 1)
-
-  // Draw axis
-  // ctx.strokeStyle = '#ccc'
-  // ctx.beginPath()
-  // ctx.moveTo(padding, height - padding)
-  // ctx.lineTo(padding, padding)
-  // ctx.lineTo(width - padding, height - padding)
-  // ctx.stroke()
-
-  // Draw line
-  ctx.strokeStyle = 'black'
-  ctx.lineWidth = 1
-  ctx.beginPath()
-  graphData.value.forEach((point, index) => {
-    const x = padding + index * pointSpacing
-    const y = height - padding - (point.messages / maxMessages) * graphHeight
-    if (index === 0) {
-      ctx.moveTo(x, y)
-    } else {
-      ctx.lineTo(x, y)
-    }
-  })
-  ctx.stroke()
-
-  // Draw points and labels
-  graphData.value.forEach((point, index) => {
-    const x = padding + index * pointSpacing
-    const y = height - padding - (point.messages / maxMessages) * graphHeight
-
-    // Draw point
-    ctx.fillStyle = 'black'
-    ctx.beginPath()
-    ctx.arc(x, y, 2, 0, Math.PI * 2)
-    ctx.fill()
-
-    // Labels
-    ctx.fillStyle = 'black'
-    ctx.textAlign = 'center'
-    ctx.font = '12px Arial'
-    ctx.fillText(point.time, x, height - padding + 15)
-    ctx.fillText(point.messages.toString(), x, y - 10)
-  })
+// Helper function: get y coordinate for a given data point count.
+const getY = (point: DataPoint, count: number): number => {
+  return height - padding - (count / maxMessages.value) * graphHeight
 }
 
-// Lifecycle hooks
-onMounted(() => {
-  drawGraph()
+// --- New Helper for Y-axis ticks ---
+// For a given value v, calculate its y position on the axis.
+const getYForValue = (value: number): number => {
+  return height - padding - (value / maxMessages.value) * graphHeight
+}
+
+// Computed tick values for the y-axis.
+// They are: max, ¾·max, ½·max, ¼·max, and 0.
+const tickValues = computed(() => {
+  const maxVal = maxMessages.value
+  return [maxVal, (3 / 4) * maxVal, (1 / 2) * maxVal, (1 / 4) * maxVal, 0]
 })
+
+// --- SVG Paths for the three lines ---
+const linePathConsume = computed(() => {
+  if (!graphData.value.length) return ''
+  return graphData.value
+    .map((point, index) => {
+      const x = padding + index * pointSpacing.value
+      const y = getY(point, point.consumeCount)
+      return index === 0 ? `M ${x} ${y}` : `L ${x} ${y}`
+    })
+    .join(' ')
+})
+
+const linePathError = computed(() => {
+  if (!graphData.value.length) return ''
+  return graphData.value
+    .map((point, index) => {
+      const x = padding + index * pointSpacing.value
+      const y = getY(point, point.errorCount)
+      return index === 0 ? `M ${x} ${y}` : `L ${x} ${y}`
+    })
+    .join(' ')
+})
+
+const linePathDeadLetter = computed(() => {
+  if (!graphData.value.length) return ''
+  return graphData.value
+    .map((point, index) => {
+      const x = padding + index * pointSpacing.value
+      const y = getY(point, point.deadLetterCount)
+      return index === 0 ? `M ${x} ${y}` : `L ${x} ${y}`
+    })
+    .join(' ')
+})
+
+// Helper Function to Compute the Hover-Rectangle Boundaries.
+const getRectBoundaries = (index: number): { x: number; width: number } => {
+  const n = graphData.value.length
+  const ps = pointSpacing.value
+  const center = padding + index * ps
+  let rectX = 0
+  let rectWidth = 0
+
+  if (index === 0) {
+    rectX = padding
+    if (n > 1) {
+      const nextCenter = padding + (index + 1) * ps
+      rectWidth = (center + nextCenter) / 2 - rectX
+    } else {
+      rectWidth = graphWidth
+    }
+  } else if (index === n - 1) {
+    const prevCenter = padding + (index - 1) * ps
+    rectX = (prevCenter + center) / 2
+    rectWidth = padding + (n - 1) * ps - rectX
+  } else {
+    const prevCenter = padding + (index - 1) * ps
+    const nextCenter = padding + (index + 1) * ps
+    rectX = (prevCenter + center) / 2
+    const rectRight = (center + nextCenter) / 2
+    rectWidth = rectRight - rectX
+  }
+  return { x: rectX, width: rectWidth }
+}
 </script>
+
+<style scoped>
+.tooltip {
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 6px 8px;
+  border-radius: 4px;
+  pointer-events: none;
+  font-size: 12px;
+  z-index: 1000;
+}
+</style>
