@@ -83,17 +83,17 @@
     <!-- Tooltip -->
     <div
       v-if="hoveredPoint"
-      class="tooltip"
+      class="z-50 rounded-lg bg-black/80 px-3 py-2 text-sm text-white dark:bg-black"
       :style="{
         position: 'fixed',
         left: `${tooltipPosition.x + 10}px`,
         top: `${tooltipPosition.y + 10}px`,
       }"
     >
-      <p><strong>Time:</strong> {{ hoveredPoint.time }}</p>
       <p><strong>Consume:</strong> {{ hoveredPoint.consumeCount }}</p>
       <p><strong>Error:</strong> {{ hoveredPoint.errorCount }}</p>
       <p><strong>Dead Letter:</strong> {{ hoveredPoint.deadLetterCount }}</p>
+      <p class="mt-2"><strong>Time:</strong> {{ hoveredPoint.time }}</p>
     </div>
   </div>
 </template>
@@ -261,15 +261,3 @@ const getRectBoundaries = (index: number): { x: number; width: number } => {
   return { x: rectX, width: rectWidth }
 }
 </script>
-
-<style scoped>
-.tooltip {
-  background-color: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  padding: 6px 8px;
-  border-radius: 4px;
-  pointer-events: none;
-  font-size: 12px;
-  z-index: 1000;
-}
-</style>
