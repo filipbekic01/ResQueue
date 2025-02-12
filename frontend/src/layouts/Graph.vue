@@ -140,7 +140,8 @@ const { data: metrics } = useQueueMetricsQuery(computed(() => props.queue.id))
 
 const graphData = computed<DataPoint[]>(() => {
   const data: DataPoint[] = []
-  const now = new Date(2025, 1, 9, 19, 59, 0, 0)
+  const now = new Date()
+
   for (let i = 0; i < 10; i++) {
     const pastTime = new Date(now.getTime() - i * 60000)
     const timeString = format(pastTime, 'hh:mm')
@@ -156,6 +157,7 @@ const graphData = computed<DataPoint[]>(() => {
       deadLetterCount: minuteMetric?.deadLetterCount ?? 0,
     })
   }
+
   return data.reverse()
 })
 

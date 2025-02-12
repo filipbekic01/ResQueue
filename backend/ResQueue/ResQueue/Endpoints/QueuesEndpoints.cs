@@ -130,7 +130,8 @@ public static class QueuesEndpoints
                                                        error_count AS ErrorCount,
                                                        dead_letter_count AS DeadLetterCount
                                                    FROM {conn.Schema}.queue_metric
-                                                   WHERE queue_id = @QueueId;
+                                                   WHERE queue_id = @QueueId
+                                                   AND start_time >= NOW() - INTERVAL '10 minutes';
                                                    """,
                     ResQueueSqlEngine.SqlServer => $"""
                                                     SELECT 
@@ -142,7 +143,8 @@ public static class QueuesEndpoints
                                                         ErrorCount,
                                                         DeadLetterCount
                                                     FROM {conn.Schema}.QueueMetric
-                                                    WHERE QueueId = @QueueId;
+                                                    WHERE QueueId = @QueueId
+                                                    AND StartTime >= DATEADD(MINUTE, -10, GETDATE());
                                                     """,
                     _ => throw new NotSupportedException("Unsupported SQL engine")
                 };
