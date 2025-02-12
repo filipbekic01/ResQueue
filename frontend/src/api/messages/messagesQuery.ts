@@ -29,30 +29,32 @@ export const useMessagesQuery = (
           x.transportHeaders = {}
         }
 
-        try {
-          x.message.host = JSON.parse(x.message.host ?? '{}')
-        } catch {
-          x.message.host = {}
-        }
-
-        try {
-          if (x.message.headers) {
-            x.message.headers = JSON.parse(x.message.headers ?? '{}')
+        if (x.message) {
+          try {
+            x.message.host = JSON.parse(x.message.host ?? '{}')
+          } catch {
+            x.message.host = {}
           }
-        } catch {
-          x.message.headers = {}
-        }
 
-        try {
-          const body = JSON.parse(x.message.body)
-          if (body['jobId']) {
-            x.isRecurring = true
-          } else {
+          try {
+            if (x.message.headers) {
+              x.message.headers = JSON.parse(x.message.headers ?? '{}')
+            }
+          } catch {
+            x.message.headers = {}
+          }
+
+          try {
+            const body = JSON.parse(x.message.body)
+            if (body['jobId']) {
+              x.isRecurring = true
+            } else {
+              x.isRecurring = false
+            }
+          } catch (e) {
+            console.error(e)
             x.isRecurring = false
           }
-        } catch (e) {
-          console.error(e)
-          x.isRecurring = false
         }
       })
 

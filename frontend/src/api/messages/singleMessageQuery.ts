@@ -24,30 +24,32 @@ export const useSingleMessageQuery = (transportMessageId: MaybeRef<string>) =>
           data.transportHeaders = {}
         }
 
-        try {
-          data.message.host = JSON.parse(data.message.host ?? '{}')
-        } catch {
-          data.message.host = {}
-        }
-
-        try {
-          if (data.message.headers) {
-            data.message.headers = JSON.parse(data.message.headers ?? '{}')
+        if (data.message) {
+          try {
+            data.message.host = JSON.parse(data.message.host ?? '{}')
+          } catch {
+            data.message.host = {}
           }
-        } catch {
-          data.message.headers = {}
-        }
 
-        try {
-          const body = JSON.parse(data.message.body)
-          if (body['jobId']) {
-            data.isRecurring = true
-          } else {
+          try {
+            if (data.message.headers) {
+              data.message.headers = JSON.parse(data.message.headers ?? '{}')
+            }
+          } catch {
+            data.message.headers = {}
+          }
+
+          try {
+            const body = JSON.parse(data.message.body)
+            if (body['jobId']) {
+              data.isRecurring = true
+            } else {
+              data.isRecurring = false
+            }
+          } catch (e) {
+            console.error(e)
             data.isRecurring = false
           }
-        } catch (e) {
-          console.error(e)
-          data.isRecurring = false
         }
       }
 
