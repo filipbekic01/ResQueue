@@ -15,7 +15,7 @@
           :y1="getYForValue(tick)"
           :x2="padding"
           :y2="getYForValue(tick)"
-          stroke="black"
+          :stroke="settings.darkMode ? 'gray' : 'black'"
         />
         <text
           :x="padding - 5"
@@ -23,7 +23,7 @@
           text-anchor="end"
           alignment-baseline="middle"
           font-size="10"
-          fill="black"
+          :fill="settings.darkMode ? 'gray' : 'black'"
         >
           {{ Math.round(tick) }}
         </text>
@@ -32,7 +32,12 @@
       <!-- Line graph paths -->
       <path :d="linePathConsume" stroke="green" fill="none" stroke-width="1" />
       <path :d="linePathError" stroke="red" fill="none" stroke-width="1" />
-      <path :d="linePathDeadLetter" stroke="black" fill="none" stroke-width="1" />
+      <path
+        :d="linePathDeadLetter"
+        :stroke="settings.darkMode ? 'gray' : 'black'"
+        fill="none"
+        stroke-width="1"
+      />
 
       <!-- For each data point, render the hover rectangle, circles and label -->
       <g v-for="(point, index) in graphData" :key="index">
@@ -64,13 +69,13 @@
           :cx="padding + index * pointSpacing"
           :cy="getY(point, point.deadLetterCount)"
           r="2"
-          fill="black"
+          :fill="settings.darkMode ? 'gray' : 'black'"
         />
         <!-- Time label (x-axis) -->
         <text
           :x="padding + index * pointSpacing"
           :y="height - padding + 15"
-          fill="black"
+          :fill="settings.darkMode ? 'gray' : 'black'"
           class="pointer-events-none"
           text-anchor="middle"
           font-size="12"
@@ -109,9 +114,12 @@ export interface DataPoint {
 
 <script setup lang="ts">
 import { useQueueMetricsQuery } from '@/api/queues/queueMetricsQuery'
+import { useUserSettings } from '@/composables/userSettingsComposable'
 import type { QueueDto } from '@/dtos/queue/queueDto'
 import { format } from 'date-fns'
 import { computed, ref } from 'vue'
+
+const { settings } = useUserSettings()
 
 // === Tooltip & Hover Reactive Variables ===
 const hoveredPoint = ref<DataPoint | null>(null)
