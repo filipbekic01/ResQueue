@@ -1,6 +1,6 @@
 export interface QueueViewDto {
   queueName: string
-  queueAutoDelete: number
+  queueAutoDelete?: number
   ready: number
   scheduled: number
   errored: number
@@ -9,6 +9,7 @@ export interface QueueViewDto {
   consumeCount: number
   errorCount: number
   deadLetterCount: number
-  countStartTime: string
+  countStartTime?: string
   countDuration: number
+  queueMaxDeliveryCount: number
 }

@@ -33,7 +33,8 @@ public static class QueuesEndpoints
                                                    error_count AS ErrorCount,
                                                    dead_letter_count AS DeadLetterCount,
                                                    '' AS CountStartTime,
-                                                   count_duration AS CountDuration
+                                                   count_duration AS CountDuration,
+                                                   queue_max_delivery_count AS QueueMaxDeliveryCount
                                                FROM {conn.Schema}.queues;
                                                """,
                 ResQueueSqlEngine.SqlServer => $"""
@@ -49,7 +50,8 @@ public static class QueuesEndpoints
                                                     ErrorCount,
                                                     DeadLetterCount,
                                                     CountStartTime,
-                                                    CountDuration
+                                                    CountDuration,
+                                                    QueueMaxDeliveryCount
                                                 FROM {conn.Schema}.Queues;
                                                 """,
                 _ => throw new NotSupportedException("Unsupported SQL engine")
@@ -80,7 +82,8 @@ public static class QueuesEndpoints
                                                    error_count AS ErrorCount,
                                                    dead_letter_count AS DeadLetterCount,
                                                    '' AS CountStartTime,
-                                                   count_duration AS CountDuration
+                                                   count_duration AS CountDuration,
+                                                   queue_max_delivery_count AS QueueMaxDeliveryCount
                                                FROM {conn.Schema}.queues
                                                WHERE queue_name = @QueueName;
                                                """,
@@ -97,7 +100,8 @@ public static class QueuesEndpoints
                                                     ErrorCount,
                                                     DeadLetterCount,
                                                     CountStartTime,
-                                                    CountDuration
+                                                    CountDuration,
+                                                    QueueMaxDeliveryCount
                                                 FROM {conn.Schema}.Queues
                                                 WHERE QueueName = @QueueName;
                                                 """,
@@ -110,6 +114,47 @@ public static class QueuesEndpoints
 
             return Results.Ok(queueView);
         });
+
+        group.MapGet("{queueId:long}/metrics",
+            async (IDatabaseConnectionFactory connectionFactory, IDbConnectionProvider conn, long queueId) =>
+            {
+                var sql = conn.SqlEngine switch
+                {
+                    ResQueueSqlEngine.Postgres => $"""
+                                                   SELECT 
+                                                       queue_metric_id AS QueueMetricId,
+                                                       start_time AS StartTime,
+                                                       duration AS Duration,
+                                                       queue_id AS QueueId,
+                                                       consume_count AS ConsumeCount,
+                                                       error_count AS ErrorCount,
+                                                       dead_letter_count AS DeadLetterCount
+                                                   FROM {conn.Schema}.queue_metric
+                                                   WHERE queue_id = @QueueId
+                                                   AND start_time >= NOW() - INTERVAL '10 minutes';
+                                                   """,
+                    ResQueueSqlEngine.SqlServer => $"""
+                                                    SELECT 
+                                                        QueueMetricId,
+                                                        StartTime,
+                                                        Duration,
+                                                        QueueId,
+                                                        ConsumeCount,
+                                                        ErrorCount,
+                                                        DeadLetterCount
+                                                    FROM {conn.Schema}.QueueMetric
+                                                    WHERE QueueId = @QueueId
+                                                    AND StartTime >= DATEADD(MINUTE, -10, GETDATE());
+                                                    """,
+                    _ => throw new NotSupportedException("Unsupported SQL engine")
+                };
+
+                await using var connection = connectionFactory.CreateConnection();
+
+                var queues = await connection.QueryAsync<QueueMetricDto>(sql, new { QueueId = queueId });
+
+                return Results.Ok(queues);
+            });
 
         group.MapGet("",
             async ([FromQuery] string queueName, IDatabaseConnectionFactory connectionFactory,

@@ -2,6 +2,24 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v1.4.0] - 2025-02-12
+
+### Added
+
+- Graph to visualize consumption
+- Queue max delivery count
+
+### Changed
+
+- Updated to MassTransit v8.3.6
+- Search filter better UX
+- Table row paddings and gridlines for better UX
+
+### Fixed
+
+- Selected tab color in dark mode
+- Breadcrumb links
+
 ## [v1.3.0] - 2025-01-09
 
 ### Added

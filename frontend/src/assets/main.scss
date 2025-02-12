@@ -1,13 +1,15 @@
-@import 'primeicons/primeicons.css';
+@import "primeicons/primeicons.css";
 
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import './primevue/tailwind.css';
-@import 'tailwindcss/utilities';
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "./primevue/tailwind.css";
+@import "tailwindcss/utilities";
 
 .font-mono {
   font-size: 0.95rem;
 }
+
+/* Tabs */
 
 .p-tablist-tab-list {
   @apply bg-transparent;
@@ -17,9 +19,21 @@
   @apply font-normal;
 }
 
+.p-tab-active {
+  @apply dark:text-primary-100;
+}
+
+.p-tablist-active-bar {
+  @apply hidden;
+}
+
+/* MenuBar */
+
 .p-menubar {
   @apply z-20 bg-transparent dark:bg-transparent;
 }
+
+/* DataTabel */
 
 .p-datatable.p-datatable-striped .p-datatable-tbody > tr.p-row-odd {
   @apply bg-surface-50 dark:bg-surface-950;
@@ -28,13 +42,44 @@
 .p-datatable-hoverable .p-datatable-tbody > tr:not(.p-datatable-row-selected):hover {
   @apply cursor-pointer bg-surface-100 text-surface-800 transition-none dark:bg-surface-800 dark:text-surface-0;
 }
+
 .p-datatable-tbody > tr {
   @apply transition-none;
 }
 
+.p-datatable-tbody > tr > td {
+  @apply px-4 py-1.5;
+}
+
+.rq-grid.p-datatable-gridlines {
+  .p-datatable-thead > tr > th {
+    @apply border-t-0;
+
+    &:first-child {
+      @apply border-s-0;
+    }
+
+    &:last-child {
+      @apply border-e-0;
+    }
+  }
+}
+
+.rq-grid.p-datatable.p-datatable-gridlines:has(.p-datatable-thead):has(.p-datatable-tbody) {
+  .p-datatable-tbody > tr > td {
+    &:first-child {
+      border-inline-start-width: 0px;
+    }
+    &:last-child {
+      border-inline-end-width: 0px;
+    }
+  }
+}
+
+/* Preset */
+
 html {
-  // font-size: 0.875rem;
-  font-size: 14px;
+  font-size: 0.875rem; /* 14px */
 }
 
 :root {

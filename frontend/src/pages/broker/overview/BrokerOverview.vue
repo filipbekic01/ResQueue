@@ -17,15 +17,11 @@ const data = computed(() => {
 </script>
 
 <template>
-  <DataTable
-    :value="data"
-    striped-rows
-    class="m-4 w-[40rem] overflow-hidden rounded-lg border dark:border-surface-700"
-  >
+  <DataTable show-gridlines :value="data" striped-rows class="rq-grid ">
     <Column header="Property" field="key" class="w-0 text-nowrap"></Column>
     <Column header="Value" field="value"></Column>
   </DataTable>
-  <Message severity="secondary" class="m-4 mt-0 w-[40rem]">
+  <Message severity="secondary" class="m-4  w-[40rem]">
     Learn more about SQL transport and configuration in
     <a
       href="https://masstransit.io/documentation/transports/sql"
