@@ -117,7 +117,7 @@ import { useQueueMetricsQuery } from '@/api/queues/queueMetricsQuery'
 import { useUserSettings } from '@/composables/userSettingsComposable'
 import type { QueueDto } from '@/dtos/queue/queueDto'
 import { format } from 'date-fns'
-import { computed, ref } from 'vue'
+import { computed, onUnmounted, ref } from 'vue'
 
 const { settings } = useUserSettings()
 
@@ -144,9 +144,29 @@ const props = defineProps<{
   queue: QueueDto
 }>()
 
-const { data: metrics } = useQueueMetricsQuery(computed(() => props.queue.id))
+const { data: metrics } = useQueueMetricsQuery(
+  computed(() => props.queue.id),
+  computed(() => settings.refetchInterval),
+)
 
+// --- Add a timer to force updates every minute ---
+// Create a reactive variable that updates every minute.
+const timer = ref(Date.now())
+const interval = setInterval(() => {
+  timer.value = Date.now()
+}, 5000) // 60_000 ms = 1 minute
+
+// Clean up the interval when the component is unmounted.
+onUnmounted(() => {
+  clearInterval(interval)
+})
+
+// === Graph Data Computation ===
+// Now include the timer variable in your computed dependency so that it updates every minute.
 const graphData = computed<DataPoint[]>(() => {
+  // Access timer.value to establish a dependency.
+  const _ = timer.value
+
   const data: DataPoint[] = []
   const now = new Date()
 
@@ -155,7 +175,7 @@ const graphData = computed<DataPoint[]>(() => {
     const timeString = format(pastTime, 'hh:mm')
 
     const minuteMetric = metrics.value?.find(
-      (x) => format(x.startTime, 'yyyy-MM-dd|HH:mm') == format(pastTime, 'yyyy-MM-dd|HH:mm'),
+      (x) => format(x.startTime, 'yyyy-MM-dd|HH:mm') === format(pastTime, 'yyyy-MM-dd|HH:mm'),
     )
 
     data.push({
@@ -195,13 +215,11 @@ const getY = (point: DataPoint, count: number): number => {
 }
 
 // --- New Helper for Y-axis ticks ---
-// For a given value v, calculate its y position on the axis.
 const getYForValue = (value: number): number => {
   return height - padding - (value / maxMessages.value) * graphHeight
 }
 
 // Computed tick values for the y-axis.
-// They are: max, ¾·max, ½·max, ¼·max, and 0.
 const tickValues = computed(() => {
   const maxVal = maxMessages.value
   return [maxVal, (3 / 4) * maxVal, (1 / 2) * maxVal, (1 / 4) * maxVal, 0]
