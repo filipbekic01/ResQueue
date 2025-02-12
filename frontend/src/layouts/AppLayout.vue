@@ -7,7 +7,6 @@ import Listbox from 'primevue/listbox'
 import type { MenuItem } from 'primevue/menuitem'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import Graph from './Graph.vue'
 
 const route = useRoute()
 const router = useRouter()
