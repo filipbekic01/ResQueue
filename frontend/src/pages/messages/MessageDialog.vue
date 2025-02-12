@@ -21,6 +21,10 @@ const emit = defineEmits<{
 const { highlightJson } = useJson()
 
 const body = computed(() => {
+  if (!props.selectedMessage.message) {
+    return undefined
+  }
+
   try {
     const content = JSON.parse(props.selectedMessage.message.body)
     return content
@@ -80,56 +84,56 @@ const jobStatePopover = ref()
       </div>
       <div class="border-b px-8 pb-6 pt-8 dark:border-b-surface-700">
         <div class="mb-2 text-surface-500 dark:text-surface-300">
-          {{ humanDateTime(displayedMessage.message.sentTime) }}
+          {{ humanDateTime(displayedMessage.message?.sentTime) }}
         </div>
         <div class="flex items-center gap-2.5 text-2xl">
           <span class="text-surface-700 dark:text-surface-0">{{
-            displayedMessage.message.messageType.replace('urn:message:', '')
+            displayedMessage.message?.messageType.replace('urn:message:', '')
           }}</span>
         </div>
         <div class="mt-4 flex gap-8">
           <div>
             <div class="text-surface-600 dark:text-surface-400">Machine</div>
             <div class="text-surface-400 dark:text-surface-200">
-              {{ displayedMessage.message.host?.machineName }}
+              {{ displayedMessage.message?.host?.machineName }}
             </div>
           </div>
           <div>
             <div class="text-surface-600 dark:text-surface-400">Process Name</div>
             <div class="text-surface-400 dark:text-surface-200">
-              {{ displayedMessage.message.host?.processName }}
+              {{ displayedMessage.message?.host?.processName }}
             </div>
           </div>
           <div>
             <div class="text-surface-600 dark:text-surface-400">PID</div>
             <div class="text-surface-400 dark:text-surface-200">
-              {{ displayedMessage.message.host?.processId }}
+              {{ displayedMessage.message?.host?.processId }}
             </div>
           </div>
           <div>
             <div class="text-surface-600 dark:text-surface-400">Assembly</div>
             <div class="text-surface-400 dark:text-surface-200">
-              {{ displayedMessage.message.host?.assembly }} ({{
-                displayedMessage.message.host?.assemblyVersion
+              {{ displayedMessage.message?.host?.assembly }} ({{
+                displayedMessage.message?.host?.assemblyVersion
               }})
             </div>
           </div>
           <div>
             <div class="text-surface-600 dark:text-surface-400">Framework</div>
             <div class="text-surface-400 dark:text-surface-200">
-              {{ displayedMessage.message.host?.frameworkVersion }}
+              {{ displayedMessage.message?.host?.frameworkVersion }}
             </div>
           </div>
           <div>
             <div class="text-surface-600 dark:text-surface-400">MassTransit</div>
             <div class="text-surface-400 dark:text-surface-200">
-              {{ displayedMessage.message.host?.massTransitVersion }}
+              {{ displayedMessage.message?.host?.massTransitVersion }}
             </div>
           </div>
           <div>
             <div class="text-surface-600 dark:text-surface-400">OS</div>
             <div class="text-surface-400 dark:text-surface-200">
-              {{ displayedMessage.message.host?.operatingSystemVersion }}
+              {{ displayedMessage.message?.host?.operatingSystemVersion }}
             </div>
           </div>
         </div>
@@ -140,10 +144,10 @@ const jobStatePopover = ref()
           <div class="flex w-[45%] flex-col overflow-auto border-e dark:border-e-surface-700">
             <div
               class="sticky top-0 flex flex-col gap-2 border-b bg-surface-0 px-8 py-6 dark:border-b-surface-700 dark:bg-surface-900 dark:text-surface-200"
-              v-if="displayedMessage.message.schedulingTokenId || job"
+              v-if="displayedMessage.message?.schedulingTokenId || job"
             >
               <div
-                v-if="displayedMessage.message.schedulingTokenId"
+                v-if="displayedMessage.message?.schedulingTokenId"
                 class="flex items-center gap-2"
               >
                 <i class="pi pi-clock"></i>Scheduled Message
@@ -201,43 +205,49 @@ const jobStatePopover = ref()
               <MessageHeader name="Message" />
               <MessageBlock
                 name="Transport Message ID"
-                :value="displayedMessage.message.transportMessageId"
+                :value="displayedMessage.message?.transportMessageId"
               />
-              <MessageBlock name="Content Type" :value="displayedMessage.message.contentType" />
-              <MessageBlock name="Message Type" :value="displayedMessage.message.messageType" />
-              <MessageBlock name="Message ID" :value="displayedMessage.message.messageId" />
-              <MessageBlock name="Correlation ID" :value="displayedMessage.message.correlationId" />
+              <MessageBlock name="Content Type" :value="displayedMessage.message?.contentType" />
+              <MessageBlock name="Message Type" :value="displayedMessage.message?.messageType" />
+              <MessageBlock name="Message ID" :value="displayedMessage.message?.messageId" />
+              <MessageBlock
+                name="Correlation ID"
+                :value="displayedMessage.message?.correlationId"
+              />
               <MessageBlock
                 name="Conversation ID"
-                :value="displayedMessage.message.conversationId"
+                :value="displayedMessage.message?.conversationId"
               />
-              <MessageBlock name="Request ID" :value="displayedMessage.message.requestId" />
-              <MessageBlock name="Initiator ID" :value="displayedMessage.message.initiatorId" />
+              <MessageBlock name="Request ID" :value="displayedMessage.message?.requestId" />
+              <MessageBlock name="Initiator ID" :value="displayedMessage.message?.initiatorId" />
               <MessageBlock
                 name="Scheduling Token ID"
-                :value="displayedMessage.message.schedulingTokenId"
+                :value="displayedMessage.message?.schedulingTokenId"
               />
-              <MessageBlock name="Source Address" :value="displayedMessage.message.sourceAddress" />
+              <MessageBlock
+                name="Source Address"
+                :value="displayedMessage.message?.sourceAddress"
+              />
               <MessageBlock
                 name="Destination Address"
-                :value="displayedMessage.message.destinationAddress"
+                :value="displayedMessage.message?.destinationAddress"
               />
               <MessageBlock
                 name="Response Address"
-                :value="displayedMessage.message.responseAddress"
+                :value="displayedMessage.message?.responseAddress"
               />
-              <MessageBlock name="Fault Address" :value="displayedMessage.message.faultAddress" />
-              <MessageBlock name="Sent Time" :value="displayedMessage.message.sentTime" />
+              <MessageBlock name="Fault Address" :value="displayedMessage.message?.faultAddress" />
+              <MessageBlock name="Sent Time" :value="displayedMessage.message?.sentTime" />
               <MessageBlock class="flex-col gap-2" name="Headers">
                 <div
                   class="whitespace-pre"
-                  v-html="highlightJson(displayedMessage.message.headers, true)"
+                  v-html="highlightJson(displayedMessage.message?.headers, true)"
                 ></div>
               </MessageBlock>
               <MessageBlock class="flex-col gap-2" name="Host">
                 <div
                   class="whitespace-pre"
-                  v-html="highlightJson(displayedMessage.message.host, true)"
+                  v-html="highlightJson(displayedMessage.message?.host, true)"
                 ></div>
               </MessageBlock>
             </div>
@@ -274,11 +284,12 @@ const jobStatePopover = ref()
                 </div>
               </Popover>
               <div class="absolute end-8 flex justify-between">
-                <span class="text-surface-500">{{ displayedMessage.message.contentType }}</span>
+                <span class="text-surface-500">{{ displayedMessage.message?.contentType }}</span>
               </div>
 
               <div
                 class="grow whitespace-pre font-mono dark:text-surface-400"
+                v-if="displayedMessage.message"
                 v-html="highlightJson(JSON.parse(displayedMessage.message.body))"
               ></div>
             </div>
