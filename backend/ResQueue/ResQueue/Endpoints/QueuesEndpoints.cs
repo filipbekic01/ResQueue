@@ -124,7 +124,6 @@ public static class QueuesEndpoints
                                                    SELECT 
                                                        queue_metric_id AS QueueMetricId,
                                                        start_time AS StartTime,
-                                                       duration AS Duration,
                                                        queue_id AS QueueId,
                                                        consume_count AS ConsumeCount,
                                                        error_count AS ErrorCount,
@@ -135,9 +134,8 @@ public static class QueuesEndpoints
                                                    """,
                     ResQueueSqlEngine.SqlServer => $"""
                                                     SELECT 
-                                                        QueueMetricId,
+                                                        Id AS QueueMetricId,
                                                         StartTime,
-                                                        Duration,
                                                         QueueId,
                                                         ConsumeCount,
                                                         ErrorCount,
