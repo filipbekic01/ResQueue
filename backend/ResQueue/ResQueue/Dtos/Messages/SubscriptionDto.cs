@@ -4,6 +4,6 @@ public record SubscriptionDto(
     string TopicName,
     string DestinationType,
     string DestinationName,
-    int SubscriptionType,
+    byte SubscriptionType,
     string RoutingKey
 );
