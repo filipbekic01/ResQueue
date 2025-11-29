@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import Listbox from "primevue/listbox";
-import type { MenuItem } from "primevue/menuitem";
 import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthQuery } from "@/api/auth/authQuery";
 import mtLogoUrlDark from "@/assets/images/masstransit-dark.svg";
 import mtLogoUrl from "@/assets/images/masstransit.svg";
+import ComputerIcon from "@/components/icons/ComputerIcon.vue";
+import MoonIcon from "@/components/icons/MoonIcon.vue";
+import SunIcon from "@/components/icons/SunIcon.vue";
 import { useUserSettings } from "@/composables/userSettingsComposable";
+import { useTheme } from "@/composables/useTheme";
 
 const route = useRoute();
 const router = useRouter();
@@ -15,9 +17,10 @@ const { isSuccess, isPending, error } = useAuthQuery();
 
 const capitalize = (value: string = "") => value.replace(/\b\w/g, (char) => char.toUpperCase());
 
-const { settings, updateSettings, toggleDarkMode, toggleGraph } = useUserSettings();
+const { settings, updateSettings, toggleGraph } = useUserSettings();
+const { currentTheme, cycleTheme } = useTheme();
 
-const autoRefreshPopover = ref();
+const autoRefreshPopoverOpen = ref(false);
 const refetchIntervalOptions = [
   {
     label: "Never",
@@ -55,11 +58,16 @@ const refetchIntervalOptions = [
 
 const onRefreshIntervalChange = (interval: number) => {
   updateSettings({ ...settings, refetchInterval: interval });
-  autoRefreshPopover.value.hide();
+  autoRefreshPopoverOpen.value = false;
 };
 
-const items = computed((): MenuItem[] => {
-  const items: MenuItem[] = [];
+interface BreadcrumbItem {
+  label: string;
+  command?: () => void;
+}
+
+const items = computed((): BreadcrumbItem[] => {
+  const items: BreadcrumbItem[] = [];
 
   if (route.name === "messages") {
     items.push({
@@ -88,25 +96,12 @@ const autoRefreshLabel = computed(() => {
 
 <template>
   <div v-if="!isPending && isSuccess" class="flex h-screen w-full flex-col">
-    <Popover ref="autoRefreshPopover">
-      <div class="flex w-72 flex-col gap-2">
-        <div>
-          Select an interval to automatically refresh the queues and messages view. We plan to integrate a real-time,
-          socket-based system for instant updates in a future release.
-        </div>
-        <Listbox
-          :options="refetchIntervalOptions"
-          :model-value="settings.refetchInterval"
-          @update:model-value="onRefreshIntervalChange"
-          option-value="value"
-          option-label="label"
-        ></Listbox>
-      </div>
-    </Popover>
+    <!-- Auto Refresh Dropdown -->
+    <div v-if="autoRefreshPopoverOpen" class="fixed inset-0 z-40" @click="autoRefreshPopoverOpen = false"></div>
 
     <div class="flex">
       <div class="flex grow flex-col">
-        <div class="dark:border-b-surface-700 flex items-center border-b px-4 pt-4 pb-4">
+        <div class="border-base-300 dark:border-base-content/20 flex items-center border-b px-4 pt-4 pb-4">
           <div class="flex">
             <div class="flex h-14 w-14 items-center justify-center rounded-xl text-2xl">
               <img :src="mtLogoUrl" class="w-full dark:hidden" />
@@ -116,25 +111,63 @@ const autoRefreshLabel = computed(() => {
             <div class="ms-4 flex flex-col justify-center">
               <div class="text-primary text-2xl font-semibold">MassTransit</div>
               <div class="flex items-center gap-2">
-                <Breadcrumb style="padding: 0" :model="items" />
+                <!-- Breadcrumb -->
+                <div class="breadcrumbs py-0 text-sm">
+                  <ul>
+                    <li v-for="(item, index) in items" :key="index">
+                      <a v-if="item.command" @click="item.command" class="cursor-pointer">{{ item.label }}</a>
+                      <span v-else>{{ item.label }}</span>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="my-auto ms-auto me-3 items-center">
-            <Button @click="toggleDarkMode" icon="pi pi-palette" text class="ms-1"></Button>
-            <Button
-              @click="(e) => autoRefreshPopover.toggle(e)"
-              :label="autoRefreshLabel"
-              icon="pi pi-hourglass "
-              text
-            ></Button>
-            <Button
-              @click="toggleGraph"
-              :icon="`pi pi-angle-${settings.showGraph ? 'right' : 'left'}`"
-              text
-              class="ms-1"
-            ></Button>
+          <div class="my-auto ms-auto me-3 flex items-center gap-1">
+            <button class="btn btn-ghost btn-sm" @click="cycleTheme" :title="`Theme: ${currentTheme}`">
+              <SunIcon v-if="currentTheme === 'light'" class="h-4 w-4" />
+              <MoonIcon v-else-if="currentTheme === 'dark'" class="h-4 w-4" />
+              <ComputerIcon v-else class="h-4 w-4" />
+            </button>
+
+            <!-- Auto Refresh Dropdown -->
+            <div class="dropdown dropdown-end">
+              <button
+                tabindex="0"
+                class="btn btn-ghost btn-sm"
+                @click="autoRefreshPopoverOpen = !autoRefreshPopoverOpen"
+              >
+                <i class="pi pi-hourglass"></i>
+                {{ autoRefreshLabel }}
+              </button>
+              <div
+                v-if="autoRefreshPopoverOpen"
+                tabindex="0"
+                class="dropdown-content bg-base-100 z-50 w-72 rounded-lg p-4 shadow-xl"
+              >
+                <div class="flex flex-col gap-2">
+                  <div class="text-base-content/70 text-sm">
+                    Select an interval to automatically refresh the queues and messages view. We plan to integrate a
+                    real-time, socket-based system for instant updates in a future release.
+                  </div>
+                  <ul class="menu bg-base-100 rounded-box w-full p-0">
+                    <li v-for="option in refetchIntervalOptions" :key="option.value">
+                      <a
+                        :class="{ active: settings.refetchInterval === option.value }"
+                        @click="onRefreshIntervalChange(option.value)"
+                      >
+                        {{ option.label }}
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn btn-ghost btn-sm" @click="toggleGraph">
+              <i :class="`pi pi-angle-${settings.showGraph ? 'right' : 'left'}`"></i>
+            </button>
           </div>
         </div>
         <slot name="menu"></slot>

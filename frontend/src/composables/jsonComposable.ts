@@ -47,7 +47,7 @@ export function useJson() {
     };
 
     function escapeHtml(html: string): string {
-      return String(html).replace(/[&<>"'`=]/g, (s) => entityMap[s]);
+      return String(html).replace(/[&<>"'`=]/g, (s) => entityMap[s] ?? s);
     }
 
     let jsonString: string;

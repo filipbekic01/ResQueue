@@ -9,13 +9,32 @@ const route = useRoute();
 <template>
   <AppLayout>
     <div class="flex flex-col overflow-auto">
-      <Tabs :value="route.name?.toString() ?? ''" @update:value="(a: any) => router.push({ name: a })">
-        <TabList>
-          <Tab value="overview" class="flex gap-2"><i class="pi pi-bars"></i> Overview</Tab>
-          <Tab value="topics" class="flex gap-2"><i class="pi pi-sitemap"></i> Topics</Tab>
-          <Tab value="queues" class="flex gap-2"><i class="pi pi-database rotate-90"></i> Queues</Tab>
-        </TabList>
-      </Tabs>
+      <div role="tablist" class="tabs tabs-border">
+        <button
+          role="tab"
+          class="tab flex gap-2"
+          :class="{ 'tab-active': route.name === 'overview' }"
+          @click="router.push({ name: 'overview' })"
+        >
+          <i class="pi pi-bars"></i> Overview
+        </button>
+        <button
+          role="tab"
+          class="tab flex gap-2"
+          :class="{ 'tab-active': route.name === 'topics' }"
+          @click="router.push({ name: 'topics' })"
+        >
+          <i class="pi pi-sitemap"></i> Topics
+        </button>
+        <button
+          role="tab"
+          class="tab flex gap-2"
+          :class="{ 'tab-active': route.name === 'queues' }"
+          @click="router.push({ name: 'queues' })"
+        >
+          <i class="pi pi-database rotate-90"></i> Queues
+        </button>
+      </div>
 
       <RouterView />
     </div>

@@ -1,14 +1,10 @@
 <script lang="ts" setup>
-import Button from "primevue/button";
-import Checkbox from "primevue/checkbox";
-import InputNumber from "primevue/inputnumber";
-import Select from "primevue/select";
-import { useToast } from "primevue/usetoast";
 import { computed, ref, watchEffect } from "vue";
 import { useRoute } from "vue-router";
 import { useRequeueMessagesMutation } from "@/api/messages/requeueMessagesMutation";
 import { useRequeueSpecificMessagesMutation } from "@/api/messages/requeueSpecificMessagesMutation";
 import { useQueue } from "@/composables/queueComposable";
+import { useToast } from "@/composables/useToast";
 import { errorToToast } from "@/utils/errorUtils";
 
 const props = defineProps<{
@@ -29,7 +25,7 @@ const { mutateAsync: requeueSpecificMessagesAsync } = useRequeueSpecificMessages
 const {
   query: { data: queues },
   queueOptions,
-} = useQueue(computed(() => route.params.queueName.toString()));
+} = useQueue(computed(() => route.params.queueName?.toString() ?? ""));
 
 const selectedQueue = computed(() => queues.value?.find((x) => x.id === props.selectedQueueId));
 
@@ -64,14 +60,12 @@ const requeueMessages = () => {
       .then(() => {
         emit("requeue:complete");
 
-        toast.add({
-          severity: "success",
-          summary: "Batch Requeue Completed",
-          detail: `Messages requeued to destination.`,
-          life: 3000,
-        });
+        toast.success("Messages requeued to destination.");
       })
-      .catch((e) => toast.add(errorToToast(e)));
+      .catch((e) => {
+        const err = errorToToast(e);
+        toast.error(err.detail);
+      });
   } else {
     requeueSpecificMessagesAsync({
       messageDeliveryIds: props.deliveryMessageIds,
@@ -83,14 +77,12 @@ const requeueMessages = () => {
       .then(() => {
         emit("requeue:complete");
 
-        toast.add({
-          severity: "success",
-          summary: "Requeue Completed",
-          detail: `Messages requeued to destination.`,
-          life: 3000,
-        });
+        toast.success("Messages requeued to destination.");
       })
-      .catch((e) => toast.add(errorToToast(e)));
+      .catch((e) => {
+        const err = errorToToast(e);
+        toast.error(err.detail);
+      });
   }
 };
 </script>
@@ -99,39 +91,43 @@ const requeueMessages = () => {
   <div class="flex flex-col gap-3">
     <div v-if="batch" class="flex flex-col gap-1">
       <label for="requeue-message-count" class="flex">Message count</label>
-      <InputNumber
-        :invalid="requeueMessageCount <= 0"
+      <input
+        type="number"
         id="requeue-message-count"
-        v-model="requeueMessageCount"
+        v-model.number="requeueMessageCount"
+        class="input input-bordered w-full"
+        :class="{ 'input-error': requeueMessageCount <= 0 }"
         aria-describedby="requeue-message-count-help"
-      ></InputNumber>
-      <small id="requeue-message-count-help">Takes first N messages from the top.</small>
+      />
+      <small id="requeue-message-count-help" class="text-base-content/60">Takes first N messages from the top.</small>
     </div>
     <div class="flex flex-col gap-1">
       <label>Destination</label>
-      <Select
-        v-model="requeueTargetQueueId"
-        :options="requeueTargetQueueOptions"
-        option-label="queueNameByType"
-        option-value="queue.id"
-      ></Select>
+      <select v-model="requeueTargetQueueId" class="select select-bordered w-full">
+        <option v-for="option in requeueTargetQueueOptions" :key="option.queue.id" :value="option.queue.id">
+          {{ option.queueNameByType }}
+        </option>
+      </select>
     </div>
 
     <div class="flex flex-col gap-1">
       <label>Delay in seconds</label>
-      <InputNumber :step="1" v-model="requeueDelay"></InputNumber>
+      <input type="number" v-model.number="requeueDelay" class="input input-bordered w-full" step="1" />
     </div>
     <div class="flex flex-col gap-1">
       <label>Redelivery count</label>
-      <InputNumber :step="1" v-model="requeueRedeliveryCount"></InputNumber>
+      <input type="number" v-model.number="requeueRedeliveryCount" class="input input-bordered w-full" step="1" />
     </div>
 
     <div v-if="!batch" class="flex items-center gap-2">
-      <Checkbox id="transactional" v-model="requeueTransactional" binary></Checkbox>
+      <input type="checkbox" id="transactional" v-model="requeueTransactional" class="checkbox checkbox-sm" />
       <label for="transactional">Within single transaction</label>
     </div>
-    <div v-else>Batch requeue uses single transaction.</div>
+    <div v-else class="text-base-content/60">Batch requeue uses single transaction.</div>
 
-    <Button @click="requeueMessages" icon="pi pi-arrow-right" icon-pos="right" label="Requeue"></Button>
+    <button class="btn btn-primary" @click="requeueMessages">
+      Requeue
+      <i class="pi pi-arrow-right"></i>
+    </button>
   </div>
 </template>

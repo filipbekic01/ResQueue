@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import Button from "primevue/button";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useJobStateQuery } from "@/api/jobs/jobStateQuery";
 import { useSingleMessageQuery } from "@/api/messages/singleMessageQuery";
@@ -63,7 +62,7 @@ onBeforeUnmount(() => {
   window.removeEventListener("keydown", handleEscKey);
 });
 
-const jobStatePopover = ref();
+const jobStatePopoverOpen = ref(false);
 </script>
 <template>
   <div
@@ -72,61 +71,63 @@ const jobStatePopover = ref();
   ></div>
 
   <div
-    class="bg-surface-0 dark:bg-surface-900 absolute end-0 bottom-0 z-50 mx-auto flex h-[100%] w-[90%] flex-col overflow-auto rounded-s-xl shadow-2xl"
+    class="bg-base-100 absolute end-0 bottom-0 z-50 mx-auto flex h-full w-[90%] flex-col overflow-auto rounded-s-xl shadow-2xl"
   >
-    <div class="flex h-[100%] flex-col overflow-hidden">
+    <div class="flex h-full flex-col overflow-hidden">
       <div class="absolute end-0 top-0 p-6">
-        <Button icon="pi pi-times" severity="secondary" @click="emit('close')"></Button>
+        <button class="btn btn-ghost btn-sm btn-circle" @click="emit('close')">
+          <i class="pi pi-times"></i>
+        </button>
       </div>
-      <div class="dark:border-b-surface-700 border-b px-8 pt-8 pb-6">
-        <div class="text-surface-500 dark:text-surface-300 mb-2">
+      <div class="border-base-300 dark:border-base-content/20 border-b px-8 pt-8 pb-6">
+        <div class="text-base-content/60 mb-2">
           {{ humanDateTime(displayedMessage.message?.sentTime) }}
         </div>
         <div class="flex items-center gap-2.5 text-2xl">
-          <span class="text-surface-700 dark:text-surface-0">{{
+          <span class="text-base-content">{{
             displayedMessage.message?.messageType.replace("urn:message:", "")
           }}</span>
         </div>
         <div class="mt-4 flex gap-8">
           <div>
-            <div class="text-surface-600 dark:text-surface-400">Machine</div>
-            <div class="text-surface-400 dark:text-surface-200">
+            <div class="text-base-content/70">Machine</div>
+            <div class="text-base-content/50">
               {{ displayedMessage.message?.host?.machineName }}
             </div>
           </div>
           <div>
-            <div class="text-surface-600 dark:text-surface-400">Process Name</div>
-            <div class="text-surface-400 dark:text-surface-200">
+            <div class="text-base-content/70">Process Name</div>
+            <div class="text-base-content/50">
               {{ displayedMessage.message?.host?.processName }}
             </div>
           </div>
           <div>
-            <div class="text-surface-600 dark:text-surface-400">PID</div>
-            <div class="text-surface-400 dark:text-surface-200">
+            <div class="text-base-content/70">PID</div>
+            <div class="text-base-content/50">
               {{ displayedMessage.message?.host?.processId }}
             </div>
           </div>
           <div>
-            <div class="text-surface-600 dark:text-surface-400">Assembly</div>
-            <div class="text-surface-400 dark:text-surface-200">
+            <div class="text-base-content/70">Assembly</div>
+            <div class="text-base-content/50">
               {{ displayedMessage.message?.host?.assembly }} ({{ displayedMessage.message?.host?.assemblyVersion }})
             </div>
           </div>
           <div>
-            <div class="text-surface-600 dark:text-surface-400">Framework</div>
-            <div class="text-surface-400 dark:text-surface-200">
+            <div class="text-base-content/70">Framework</div>
+            <div class="text-base-content/50">
               {{ displayedMessage.message?.host?.frameworkVersion }}
             </div>
           </div>
           <div>
-            <div class="text-surface-600 dark:text-surface-400">MassTransit</div>
-            <div class="text-surface-400 dark:text-surface-200">
+            <div class="text-base-content/70">MassTransit</div>
+            <div class="text-base-content/50">
               {{ displayedMessage.message?.host?.massTransitVersion }}
             </div>
           </div>
           <div>
-            <div class="text-surface-600 dark:text-surface-400">OS</div>
-            <div class="text-surface-400 dark:text-surface-200">
+            <div class="text-base-content/70">OS</div>
+            <div class="text-base-content/50">
               {{ displayedMessage.message?.host?.operatingSystemVersion }}
             </div>
           </div>
@@ -135,9 +136,9 @@ const jobStatePopover = ref();
 
       <div class="flex grow flex-col overflow-auto">
         <div class="flex shrink-0 grow basis-2/3 overflow-auto">
-          <div class="dark:border-e-surface-700 flex w-[45%] flex-col overflow-auto border-e">
+          <div class="border-base-300 dark:border-base-content/20 flex w-[45%] flex-col overflow-auto border-e">
             <div
-              class="bg-surface-0 dark:border-b-surface-700 dark:bg-surface-900 dark:text-surface-200 sticky top-0 flex flex-col gap-2 border-b px-8 py-6"
+              class="bg-base-100 border-base-300 dark:border-base-content/20 sticky top-0 flex flex-col gap-2 border-b px-8 py-6"
               v-if="displayedMessage.message?.schedulingTokenId || job"
             >
               <div v-if="displayedMessage.message?.schedulingTokenId" class="flex items-center gap-2">
@@ -145,13 +146,15 @@ const jobStatePopover = ref();
               </div>
               <div v-if="job" class="">
                 The message belongs to the {{ job.isRecurring ? "recurring" : "" }} job —
-                <span @click="(e) => jobStatePopover.toggle(e)" class="cursor-pointer text-blue-500 hover:text-blue-400"
+                <span
+                  @click="jobStatePopoverOpen = !jobStatePopoverOpen"
+                  class="cursor-pointer text-blue-500 hover:text-blue-400"
                   >click for details.</span
                 >
               </div>
             </div>
             <template v-if="hasAdditionalData">
-              <div class="dark:border-b-surface-700 flex flex-col gap-4 border-b p-8">
+              <div class="border-base-300 dark:border-base-content/20 flex flex-col gap-4 border-b p-8">
                 <MessageHeader name="Additional Data" />
                 <template v-for="(value, key) in displayedMessage.additionalData" :key="key">
                   <MessageBlock :name="key">
@@ -181,7 +184,7 @@ const jobStatePopover = ref();
                 <div class="whitespace-pre" v-html="highlightJson(transportHeadersTrimmed, true)"></div>
               </MessageBlock>
             </div>
-            <div class="dark:border-t-surface-700 flex flex-col gap-4 border-t p-8">
+            <div class="border-base-300 dark:border-base-content/20 flex flex-col gap-4 border-t p-8">
               <MessageHeader name="Message" />
               <MessageBlock name="Transport Message ID" :value="displayedMessage.message?.transportMessageId" />
               <MessageBlock name="Content Type" :value="displayedMessage.message?.contentType" />
@@ -207,41 +210,49 @@ const jobStatePopover = ref();
           </div>
           <div class="flex w-[55%] flex-col gap-4 overflow-auto">
             <div class="relative p-8">
-              <Popover ref="jobStatePopover">
-                <div v-if="job" class="flex flex-col gap-4 p-5">
-                  <MessageHeader name="Job State" />
-                  <MessageBlock name="Job ID" :value="job.jobId" />
-                  <MessageBlock name="Submitted">
-                    {{ humanDateTime(job.submitted) }}
-                  </MessageBlock>
-                  <MessageBlock name="Started" :value="job.started">
-                    {{ humanDateTime(job.started) }}
-                  </MessageBlock>
-                  <MessageBlock name="Completed" :value="job.completed">
-                    {{ humanDateTime(job.completed) }}
-                  </MessageBlock>
-                  <MessageBlock name="Duration" :value="job.duration" />
-                  <MessageBlock name="Faulted" :value="job.faulted" />
-                  <MessageBlock name="Reason" :value="job.reason" />
-                  <MessageBlock name="Last Retry Attempt" :value="job.lastRetryAttempt" />
-                  <MessageBlock name="Current State" :value="job.currentState" />
-                  <MessageBlock name="Progress Value" :value="job.progressValue" />
-                  <MessageBlock name="Progress Limit" :value="job.progressLimit" />
-                  <MessageBlock name="Job State" :value="job.jobState" />
-                  <MessageBlock name="Next Start Date" :value="job.nextStartDate">
-                    {{ humanDateTime(job.nextStartDate) }}
-                  </MessageBlock>
-                  <MessageBlock name="Recurring" :value="job.isRecurring" />
-                  <MessageBlock name="Start Date" :value="job.startDate" />
-                  <MessageBlock name="End Date" :value="job.endDate" />
-                </div>
-              </Popover>
+              <!-- Job State Popover/Modal -->
+              <div
+                v-if="jobStatePopoverOpen && job"
+                class="bg-base-100 absolute top-8 left-8 z-50 flex flex-col gap-4 rounded-lg p-5 shadow-xl"
+              >
+                <button
+                  class="btn btn-ghost btn-xs btn-circle absolute top-2 right-2"
+                  @click="jobStatePopoverOpen = false"
+                >
+                  ✕
+                </button>
+                <MessageHeader name="Job State" />
+                <MessageBlock name="Job ID" :value="job.jobId" />
+                <MessageBlock name="Submitted">
+                  {{ humanDateTime(job.submitted) }}
+                </MessageBlock>
+                <MessageBlock name="Started" :value="job.started">
+                  {{ humanDateTime(job.started) }}
+                </MessageBlock>
+                <MessageBlock name="Completed" :value="job.completed">
+                  {{ humanDateTime(job.completed) }}
+                </MessageBlock>
+                <MessageBlock name="Duration" :value="job.duration" />
+                <MessageBlock name="Faulted" :value="job.faulted" />
+                <MessageBlock name="Reason" :value="job.reason" />
+                <MessageBlock name="Last Retry Attempt" :value="job.lastRetryAttempt" />
+                <MessageBlock name="Current State" :value="job.currentState" />
+                <MessageBlock name="Progress Value" :value="job.progressValue" />
+                <MessageBlock name="Progress Limit" :value="job.progressLimit" />
+                <MessageBlock name="Job State" :value="job.jobState" />
+                <MessageBlock name="Next Start Date" :value="job.nextStartDate">
+                  {{ humanDateTime(job.nextStartDate) }}
+                </MessageBlock>
+                <MessageBlock name="Recurring" :value="job.isRecurring" />
+                <MessageBlock name="Start Date" :value="job.startDate" />
+                <MessageBlock name="End Date" :value="job.endDate" />
+              </div>
               <div class="absolute end-8 flex justify-between">
-                <span class="text-surface-500">{{ displayedMessage.message?.contentType }}</span>
+                <span class="text-base-content/60">{{ displayedMessage.message?.contentType }}</span>
               </div>
 
               <div
-                class="dark:text-surface-400 grow font-mono whitespace-pre"
+                class="text-base-content/70 grow font-mono whitespace-pre"
                 v-if="displayedMessage.message"
                 v-html="highlightJson(JSON.parse(displayedMessage.message.body))"
               ></div>

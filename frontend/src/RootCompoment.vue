@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import ConfirmDialog from "primevue/confirmdialog";
-import DynamicDialog from "primevue/dynamicdialog";
-import Toast from "primevue/toast";
 import { onBeforeMount } from "vue";
 import { RouterView } from "vue-router";
+import ConfirmationDialogContainer from "./components/ConfirmationDialogContainer.vue";
+import ToastContainer from "./components/ToastContainer.vue";
 import { useUserSettings } from "./composables/userSettingsComposable";
 
 const { init } = useUserSettings();
@@ -14,11 +13,7 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <ConfirmDialog></ConfirmDialog>
-
-  <DynamicDialog />
-
-  <Toast position="top-right" />
-
+  <ConfirmationDialogContainer />
+  <ToastContainer />
   <RouterView />
 </template>

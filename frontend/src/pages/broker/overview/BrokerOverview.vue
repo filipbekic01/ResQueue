@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import Message from "primevue/message";
 import { computed } from "vue";
 import { useAuthQuery } from "@/api/auth/authQuery";
 
@@ -17,17 +16,39 @@ const data = computed(() => {
 </script>
 
 <template>
-  <DataTable show-gridlines :value="data" striped-rows class="rq-grid">
-    <Column header="Property" field="key" class="w-0 text-nowrap"></Column>
-    <Column header="Value" field="value"></Column>
-  </DataTable>
-  <Message severity="secondary" class="m-4 w-[40rem]">
-    Learn more about SQL transport and configuration in
-    <a
-      href="https://masstransit.io/documentation/transports/sql"
-      target="_blank"
-      class="text-blue-500 hover:text-blue-400"
-      >official documentation</a
-    >.</Message
-  >
+  <div class="overflow-x-auto">
+    <table class="table-zebra table w-auto">
+      <thead>
+        <tr>
+          <th class="whitespace-nowrap">Property</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in data" :key="item.key">
+          <td class="whitespace-nowrap font-medium">{{ item.key }}</td>
+          <td>{{ item.value }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div role="alert" class="alert m-4 w-[40rem]">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="h-6 w-6 shrink-0 stroke-current">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      ></path>
+    </svg>
+    <span>
+      Learn more about SQL transport and configuration in
+      <a
+        href="https://masstransit.io/documentation/transports/sql"
+        target="_blank"
+        class="text-blue-500 hover:text-blue-400"
+        >official documentation</a
+      >.
+    </span>
+  </div>
 </template>

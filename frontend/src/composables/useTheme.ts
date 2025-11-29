@@ -1,10 +1,10 @@
-import { onUnmounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 
 export type Theme = "light" | "dark" | "system";
 
-// Global shared state for dashboard theme
-const dashboardTheme = ref<Theme>("system");
-let systemThemeListener: (() => void) | null = null;
+// Global shared state for theme
+const currentTheme = ref<Theme>("system");
+let initialized = false;
 
 export function useTheme() {
   // Get system preference
@@ -13,96 +13,84 @@ export function useTheme() {
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   };
 
-  // Apply theme to DOM
-  const applyTheme = (theme: Theme) => {
-    if (typeof document === "undefined") return;
-
-    let actualTheme: "light" | "dark";
-
-    if (theme === "system") {
-      actualTheme = getSystemTheme();
-    } else {
-      actualTheme = theme;
+  // Get the actual resolved theme (light or dark)
+  const resolvedTheme = computed((): "light" | "dark" => {
+    if (currentTheme.value === "system") {
+      return getSystemTheme();
     }
+    return currentTheme.value;
+  });
 
-    document.documentElement.setAttribute("data-theme", actualTheme);
-  };
-
-  // Force light theme (for non-dashboard pages)
-  const forceLightTheme = () => {
+  // Apply theme to DOM
+  const applyTheme = () => {
     if (typeof document === "undefined") return;
-    document.documentElement.setAttribute("data-theme", "light");
+    document.documentElement.setAttribute("data-theme", resolvedTheme.value);
   };
 
   // Load saved theme from localStorage
-  const loadDashboardTheme = () => {
+  const loadTheme = () => {
     if (typeof localStorage === "undefined") {
-      dashboardTheme.value = "system";
+      currentTheme.value = "system";
       return;
     }
 
     const savedTheme = localStorage.getItem("theme") as Theme;
     if (savedTheme && ["light", "dark", "system"].includes(savedTheme)) {
-      dashboardTheme.value = savedTheme;
+      currentTheme.value = savedTheme;
     } else {
-      dashboardTheme.value = "system";
+      currentTheme.value = "system";
     }
   };
 
   // Set theme and save to localStorage
   const setTheme = (theme: Theme) => {
-    dashboardTheme.value = theme;
+    currentTheme.value = theme;
     if (typeof localStorage !== "undefined") {
       localStorage.setItem("theme", theme);
     }
-    applyTheme(theme);
+    applyTheme();
   };
 
-  // Setup system theme listener
-  const setupSystemThemeListener = () => {
-    if (systemThemeListener) return; // Already set up
-    if (typeof window === "undefined") return;
-
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = () => {
-      if (dashboardTheme.value === "system") {
-        applyTheme("system");
-      }
-    };
-
-    mediaQuery.addEventListener("change", handleChange);
-    systemThemeListener = () => {
-      mediaQuery.removeEventListener("change", handleChange);
-      systemThemeListener = null;
-    };
+  // Cycle through themes: light -> dark -> system -> light
+  const cycleTheme = () => {
+    if (currentTheme.value === "light") {
+      setTheme("dark");
+    } else if (currentTheme.value === "dark") {
+      setTheme("system");
+    } else {
+      setTheme("light");
+    }
   };
 
-  // Initialize for dashboard (with theme switching)
-  const initializeDashboardTheme = () => {
-    loadDashboardTheme();
-    applyTheme(dashboardTheme.value);
-    setupSystemThemeListener();
+  // Initialize theme system
+  const init = () => {
+    if (initialized) return;
+    initialized = true;
+
+    loadTheme();
+    applyTheme();
+
+    // Listen for system theme changes
+    if (typeof window !== "undefined") {
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      mediaQuery.addEventListener("change", () => {
+        if (currentTheme.value === "system") {
+          applyTheme();
+        }
+      });
+    }
 
     // Watch for theme changes
-    const stopWatching = watch(dashboardTheme, (newTheme) => {
-      applyTheme(newTheme);
+    watch(currentTheme, () => {
+      applyTheme();
     });
-
-    // Cleanup function
-    onUnmounted(() => {
-      stopWatching();
-    });
-  };
-
-  // Initialize for non-dashboard pages (forced light theme)
-  const initializeLightTheme = () => {
-    forceLightTheme();
   };
 
   return {
-    currentTheme: dashboardTheme,
+    currentTheme,
+    resolvedTheme,
     setTheme,
-    initializeDashboardTheme,
-    initializeLightTheme,
+    cycleTheme,
+    init,
   };
 }

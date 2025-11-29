@@ -1,4 +1,5 @@
 import { reactive } from "vue";
+import { useTheme } from "./useTheme";
 
 interface UserSettings {
   queueType: number;
@@ -7,7 +8,6 @@ interface UserSettings {
   queueSearch: string;
   topicSearch: string;
   refetchInterval: number;
-  darkMode: boolean;
   showGraph: boolean;
 }
 
@@ -20,7 +20,6 @@ const settings = reactive<UserSettings>({
   queueSearch: "",
   topicSearch: "",
   refetchInterval: 5000,
-  darkMode: false,
   showGraph: true,
 });
 
@@ -30,7 +29,9 @@ const init = () => {
     Object.assign(settings, JSON.parse(storedSettings));
   }
 
-  loadDarkMode();
+  // Initialize theme system
+  const { init: initTheme } = useTheme();
+  initTheme();
 };
 
 const updateSettings = (newSettings: UserSettings) => {
@@ -38,30 +39,14 @@ const updateSettings = (newSettings: UserSettings) => {
   localStorage.setItem(storageKey, JSON.stringify(settings));
 };
 
-const toggleDarkMode = () => {
-  updateSettings({ ...settings, darkMode: !settings.darkMode });
-  loadDarkMode();
-};
-
 const toggleGraph = () => {
   updateSettings({ ...settings, showGraph: !settings.showGraph });
-};
-
-const loadDarkMode = () => {
-  const htmlElement = document.documentElement;
-
-  if (settings.darkMode === true) {
-    htmlElement.classList.add("dark");
-  } else {
-    htmlElement.classList.remove("dark");
-  }
 };
 
 export function useUserSettings() {
   return {
     settings,
     init,
-    toggleDarkMode,
     toggleGraph,
     updateSettings,
   };

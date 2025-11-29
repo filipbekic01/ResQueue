@@ -1,5 +1,9 @@
-import type { ToastMessageOptions } from "primevue/toast";
 import type { ProblemDetails } from "@/dtos/problemDetails";
+
+export interface ToastError {
+  title: string;
+  detail: string;
+}
 
 export const errorToProblemDetails = (error: any): ProblemDetails => {
   const hasOwnProp = Object.prototype.hasOwnProperty;
@@ -62,13 +66,11 @@ export const errorToProblemDetails = (error: any): ProblemDetails => {
   return defaultProblemDetails;
 };
 
-export const errorToToast = (error: any): ToastMessageOptions => {
+export const errorToToast = (error: any): ToastError => {
   const problemDetails = errorToProblemDetails(error);
 
   return {
-    severity: "error",
-    summary: problemDetails.title || "Error",
+    title: problemDetails.title || "Error",
     detail: problemDetails.detail || "An unexpected error occurred.",
-    life: 3000,
   };
 };

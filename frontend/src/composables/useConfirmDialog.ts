@@ -1,5 +1,5 @@
 import { reactive } from "vue";
-import type { ConfirmDialogType } from "../components/ConfirmDialog.vue";
+import type { ConfirmDialogType } from "../components/ConfirmationDialog.vue";
 
 export interface ConfirmDialogOptions {
   type?: ConfirmDialogType;
