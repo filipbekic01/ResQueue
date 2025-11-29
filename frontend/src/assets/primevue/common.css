@@ -25,7 +25,7 @@
 }
 
 .p-toggleable-content-leave-active {
-  @apply overflow-hidden transition-[max-height] ease-[cubic-bezier(0,1,0,1)] animate-duration-[450ms];
+  @apply animate-duration-[450ms] overflow-hidden transition-[max-height] ease-[cubic-bezier(0,1,0,1)];
 }
 
 .p-toggleable-content-enter-active {
@@ -51,7 +51,7 @@
 }
 
 .p-overlay-mask {
-  @apply fixed start-0 top-0 h-full w-full bg-black/50 text-surface-200 transition-colors duration-150;
+  @apply text-surface-200 fixed start-0 top-0 h-full w-full bg-black/50 transition-colors duration-150;
 }
 
 .p-overlay-mask-enter {

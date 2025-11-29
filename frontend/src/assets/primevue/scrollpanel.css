@@ -3,7 +3,7 @@
 }
 
 .p-scrollpanel-content {
-  @apply relative h-[calc(100%+18px)] w-[calc(100%+18px)] overflow-auto pb-[18px] pr-[18px] ps-0 pt-0 [scrollbar-width:none];
+  @apply relative h-[calc(100%+18px)] w-[calc(100%+18px)] overflow-auto ps-0 pt-0 pr-[18px] pb-[18px] [scrollbar-width:none];
 }
 
 .p-scrollpanel-content::-webkit-scrollbar {
@@ -11,7 +11,7 @@
 }
 
 .p-scrollpanel-bar {
-  @apply relative z-20 cursor-pointer rounded-sm border-none bg-surface-100 opacity-0 transition-opacity duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary dark:bg-surface-800;
+  @apply bg-surface-100 focus-visible:outline-primary dark:bg-surface-800 relative z-20 cursor-pointer rounded-sm border-none opacity-0 transition-opacity duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2;
 }
 
 .p-scrollpanel-bar-y {

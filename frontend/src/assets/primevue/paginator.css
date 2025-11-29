@@ -1,5 +1,5 @@
 .p-paginator {
-  @apply flex flex-wrap items-center justify-center gap-1 rounded-md bg-surface-0 px-4 py-2 text-surface-700 dark:bg-surface-900 dark:text-surface-0;
+  @apply bg-surface-0 text-surface-700 dark:bg-surface-900 dark:text-surface-0 flex flex-wrap items-center justify-center gap-1 rounded-md px-4 py-2;
 }
 
 .p-paginator-content {
@@ -19,7 +19,7 @@
 .p-paginator-last,
 .p-paginator-first,
 .p-paginator-prev {
-  @apply relative m-0 inline-flex h-10 min-w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full border-none bg-transparent p-0 leading-none text-surface-500 transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary dark:text-surface-400;
+  @apply text-surface-500 focus-visible:outline-primary dark:text-surface-400 relative m-0 inline-flex h-10 min-w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full border-none bg-transparent p-0 leading-none transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2;
 }
 
 .p-paginator-page:not(.p-disabled):not(.p-paginator-page-selected):hover,

@@ -10,7 +10,7 @@
 }
 
 .p-inputgroupaddon {
-  @apply flex min-w-10 items-center justify-center border-y border-surface-300 bg-surface-0 p-2 text-surface-400 dark:border-surface-700 dark:bg-surface-950;
+  @apply border-surface-300 bg-surface-0 text-surface-400 dark:border-surface-700 dark:bg-surface-950 flex min-w-10 items-center justify-center border-y p-2;
 }
 
 .p-inputgroupaddon:first-child,

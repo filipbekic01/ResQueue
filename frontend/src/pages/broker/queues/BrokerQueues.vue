@@ -1,51 +1,51 @@
 <script lang="ts" setup>
-import { useQueuesViewQuery } from '@/api/queues/queuesViewQuery'
-import { useUserSettings } from '@/composables/userSettingsComposable'
-import { FilterMatchMode } from '@primevue/core/api'
-import Column from 'primevue/column'
-import DataTable, { type DataTableSortEvent } from 'primevue/datatable'
-import IconField from 'primevue/iconfield'
-import InputIcon from 'primevue/inputicon'
-import InputText from 'primevue/inputtext'
-import { computed, ref, watchEffect } from 'vue'
-import { useRouter } from 'vue-router'
+import { FilterMatchMode } from "@primevue/core/api";
+import Column from "primevue/column";
+import DataTable, { type DataTableSortEvent } from "primevue/datatable";
+import IconField from "primevue/iconfield";
+import InputIcon from "primevue/inputicon";
+import InputText from "primevue/inputtext";
+import { computed, ref, watchEffect } from "vue";
+import { useRouter } from "vue-router";
+import { useQueuesViewQuery } from "@/api/queues/queuesViewQuery";
+import { useUserSettings } from "@/composables/userSettingsComposable";
 
-const router = useRouter()
+const router = useRouter();
 
-const { settings, updateSettings } = useUserSettings()
+const { settings, updateSettings } = useUserSettings();
 
-const { data } = useQueuesViewQuery(computed(() => settings.refetchInterval))
-const queuesView = computed(() => data.value ?? [])
+const { data } = useQueuesViewQuery(computed(() => settings.refetchInterval));
+const queuesView = computed(() => data.value ?? []);
 
 const selectQueue = (data: any) => {
   router.push({
-    name: 'messages',
+    name: "messages",
     params: {
       queueName: data.queueName,
     },
-  })
-}
+  });
+};
 
-const search = ref(settings.queueSearch)
+const search = ref(settings.queueSearch);
 
 watchEffect(() => {
   updateSettings({
     ...settings,
     queueSearch: search.value,
-  })
-})
+  });
+});
 
 const filters = ref({
   queueName: { value: search, matchMode: FilterMatchMode.CONTAINS },
-})
+});
 
 const onSort = (e: DataTableSortEvent) => {
   updateSettings({
     ...settings,
     sortOrder: e.sortOrder === null || e.sortOrder === undefined ? undefined : e.sortOrder,
     sortField: e.sortField ? e.sortField.toString() : undefined,
-  })
-}
+  });
+};
 </script>
 
 <template>
@@ -67,7 +67,7 @@ const onSort = (e: DataTableSortEvent) => {
       @row-select="(e) => selectQueue(e.data)"
       @sort="onSort"
     >
-      <Column field="queueName" class="overflow-hidden overflow-ellipsis py-0">
+      <Column field="queueName" class="overflow-hidden py-0 overflow-ellipsis">
         <template #header>
           <div class="flex w-full items-center">
             <b>Name</b>
@@ -76,7 +76,7 @@ const onSort = (e: DataTableSortEvent) => {
               <InputIcon class="pi pi-times cursor-pointer" v-else @click="search = ''" />
               <InputText
                 placeholder="Search anything..."
-                class="w-full border-0 shadow-none dark:bg-surface-900"
+                class="dark:bg-surface-900 w-full border-0 shadow-none"
                 v-model="search"
                 ref="searchInputText"
               />
@@ -86,25 +86,14 @@ const onSort = (e: DataTableSortEvent) => {
       </Column>
       <Column field="queueAutoDelete" header="Auto Delete" class="w-[0] whitespace-nowrap">
         <template #body="{ data }">
-          <div v-show="data['queueAutoDelete']" class="text-nowrap">
-            {{ data['queueAutoDelete'] / 60 }}m
-          </div>
+          <div v-show="data['queueAutoDelete']" class="text-nowrap">{{ data["queueAutoDelete"] / 60 }}m</div>
           <div v-show="!data['queueAutoDelete']">-</div>
         </template>
       </Column>
-      <Column
-        field="queueMaxDeliveryCount"
-        header="Max Delivery"
-        class="w-0 whitespace-nowrap"
-      ></Column>
+      <Column field="queueMaxDeliveryCount" header="Max Delivery" class="w-0 whitespace-nowrap"></Column>
       <Column sortable field="ready" header="Ready" class="w-[0]"> </Column>
       <Column sortable field="errored" header="Errored" class="w-[0]"></Column>
-      <Column
-        sortable
-        field="deadLettered"
-        header="Dead Lettered"
-        class="w-[0] whitespace-nowrap"
-      ></Column>
+      <Column sortable field="deadLettered" header="Dead Lettered" class="w-[0] whitespace-nowrap"></Column>
       <Column sortable field="scheduled" header="Scheduled" class="w-[0]"></Column>
       <Column sortable field="locked" header="Locked" class="w-[0]"></Column>
     </DataTable>

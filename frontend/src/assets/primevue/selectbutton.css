@@ -1,11 +1,11 @@
-@import './togglebutton';
+@import "./togglebutton";
 
 .p-selectbutton {
-  @apply inline-flex select-none rounded-md;
+  @apply inline-flex rounded-md select-none;
 }
 
 .p-selectbutton .p-togglebutton {
-  @apply rounded-none border-y border-r border-s-0;
+  @apply rounded-none border-y border-s-0 border-r;
 }
 
 .p-selectbutton .p-togglebutton:focus-visible {

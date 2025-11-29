@@ -11,7 +11,7 @@
 }
 
 .p-message-close-button {
-  @apply relative ms-auto flex h-7 w-7 flex-shrink-0 cursor-pointer select-none items-center justify-center overflow-hidden rounded-full border-none bg-transparent p-0 text-inherit transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2;
+  @apply relative ms-auto flex h-7 w-7 flex-shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full border-none bg-transparent p-0 text-inherit transition-colors duration-200 select-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2;
 }
 
 .p-message-info {
@@ -79,7 +79,7 @@
 }
 
 .p-message-secondary {
-  @apply bg-surface-100 text-surface-600 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.04)] outline-surface-200 dark:bg-surface-800 dark:text-surface-300 dark:outline-surface-700;
+  @apply bg-surface-100 text-surface-600 outline-surface-200 dark:bg-surface-800 dark:text-surface-300 dark:outline-surface-700 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.04)];
 }
 
 .p-message-secondary .p-message-close-button {
@@ -95,7 +95,7 @@
 }
 
 .p-message-contrast {
-  @apply bg-surface-900 text-surface-50 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.04)] outline-surface-950 dark:bg-surface-0 dark:text-surface-950 dark:outline-surface-100;
+  @apply bg-surface-900 text-surface-50 outline-surface-950 dark:bg-surface-0 dark:text-surface-950 dark:outline-surface-100 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.04)];
 }
 
 .p-message-contrast .p-message-close-button {

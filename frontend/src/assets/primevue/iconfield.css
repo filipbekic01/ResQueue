@@ -3,7 +3,7 @@
 }
 
 .p-inputicon {
-  @apply absolute top-1/2 -mt-2 leading-none text-surface-400;
+  @apply text-surface-400 absolute top-1/2 -mt-2 leading-none;
 }
 
 .p-iconfield .p-inputicon:first-child {

@@ -3,7 +3,7 @@
 }
 
 .p-iftalabel label {
-  @apply pointer-events-none absolute start-3 top-2 text-xs font-medium leading-none text-surface-500 transition-all duration-200 ease-out dark:text-surface-400;
+  @apply text-surface-500 dark:text-surface-400 pointer-events-none absolute start-3 top-2 text-xs leading-none font-medium transition-all duration-200 ease-out;
 }
 
 .p-iftalabel .p-inputtext,
@@ -13,7 +13,7 @@
 .p-iftalabel .p-autocomplete-input-multiple,
 .p-iftalabel .p-cascadeselect-label,
 .p-iftalabel .p-treeselect-label {
-  @apply pb-2 pt-6;
+  @apply pt-6 pb-2;
 }
 
 .p-iftalabel:has(.p-invalid) label {

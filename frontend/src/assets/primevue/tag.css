@@ -1,5 +1,5 @@
 .p-tag {
-  @apply inline-flex items-center justify-center gap-1 rounded-md bg-primary-100 px-2 py-1 text-sm font-bold text-primary-700 dark:bg-primary-500/15 dark:text-primary-300;
+  @apply bg-primary-100 text-primary-700 dark:bg-primary-500/15 dark:text-primary-300 inline-flex items-center justify-center gap-1 rounded-md px-2 py-1 text-sm font-bold;
 }
 
 .p-tag-icon {

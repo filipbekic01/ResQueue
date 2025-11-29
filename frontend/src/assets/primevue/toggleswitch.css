@@ -7,11 +7,11 @@
 }
 
 .p-toggleswitch-slider {
-  @apply inline-block h-full w-full rounded-[30px] border border-transparent bg-surface-300 shadow-[0_1px_2px_0_rgba(18,18,23,0.05)] transition-colors duration-200 dark:bg-surface-700;
+  @apply bg-surface-300 dark:bg-surface-700 inline-block h-full w-full rounded-[30px] border border-transparent shadow-[0_1px_2px_0_rgba(18,18,23,0.05)] transition-colors duration-200;
 }
 
 .p-toggleswitch-handle {
-  @apply absolute start-1 top-1/2 -mt-2 flex h-4 w-4 items-center justify-center rounded-full bg-surface-0 text-surface-500 transition-[background,color,left] duration-200 dark:bg-surface-400 dark:text-surface-900;
+  @apply bg-surface-0 text-surface-500 dark:bg-surface-400 dark:text-surface-900 absolute start-1 top-1/2 -mt-2 flex h-4 w-4 items-center justify-center rounded-full transition-[background,color,left] duration-200;
 }
 
 .p-toggleswitch.p-toggleswitch-checked .p-toggleswitch-slider {
@@ -19,7 +19,7 @@
 }
 
 .p-toggleswitch.p-toggleswitch-checked .p-toggleswitch-handle {
-  @apply start-5 bg-surface-0 text-primary dark:bg-surface-900;
+  @apply bg-surface-0 text-primary dark:bg-surface-900 start-5;
 }
 
 .p-toggleswitch:not(.p-disabled):has(.p-toggleswitch-input:hover) .p-toggleswitch-slider {
@@ -30,18 +30,16 @@
   @apply bg-surface-0 text-surface-700 dark:bg-surface-300 dark:text-surface-800;
 }
 
-.p-toggleswitch:not(.p-disabled):has(.p-toggleswitch-input:hover).p-toggleswitch-checked
-  .p-toggleswitch-slider {
+.p-toggleswitch:not(.p-disabled):has(.p-toggleswitch-input:hover).p-toggleswitch-checked .p-toggleswitch-slider {
   @apply bg-primary-emphasis;
 }
 
-.p-toggleswitch:not(.p-disabled):has(.p-toggleswitch-input:hover).p-toggleswitch-checked
-  .p-toggleswitch-handle {
+.p-toggleswitch:not(.p-disabled):has(.p-toggleswitch-input:hover).p-toggleswitch-checked .p-toggleswitch-handle {
   @apply bg-surface-0 text-primary-emphasis dark:bg-surface-900;
 }
 
 .p-toggleswitch:not(.p-disabled):has(.p-toggleswitch-input:focus-visible) .p-toggleswitch-slider {
-  @apply outline outline-1 outline-offset-2 outline-primary;
+  @apply outline-primary outline outline-1 outline-offset-2;
 }
 
 .p-toggleswitch.p-invalid > .p-toggleswitch-slider {

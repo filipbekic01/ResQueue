@@ -7,7 +7,7 @@
 }
 
 .p-step-header {
-  @apply inline-flex cursor-pointer items-center gap-2 rounded-md border-none bg-transparent p-0 no-underline transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary;
+  @apply focus-visible:outline-primary inline-flex cursor-pointer items-center gap-2 rounded-md border-none bg-transparent p-0 no-underline transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2;
 }
 
 .p-step.p-disabled .p-step-header {
@@ -19,11 +19,11 @@
 }
 
 .p-step-title {
-  @apply block max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-medium text-surface-500 transition-colors duration-200 dark:text-surface-400;
+  @apply text-surface-500 dark:text-surface-400 block max-w-full overflow-hidden font-medium text-ellipsis whitespace-nowrap transition-colors duration-200;
 }
 
 .p-step-number {
-  @apply relative z-10 flex h-8 min-w-8 items-center justify-center rounded-full border-2 border-surface-200 bg-surface-0 text-lg font-medium leading-8 text-surface-500 after:absolute after:h-full after:w-full after:rounded-full after:shadow-[0px_0.5px_0px_0px_rgba(0,0,0,0.06),0px_1px_1px_0px_rgba(0,0,0,0.12)] dark:border-surface-700 dark:bg-surface-900 dark:text-surface-400;
+  @apply border-surface-200 bg-surface-0 text-surface-500 dark:border-surface-700 dark:bg-surface-900 dark:text-surface-400 relative z-10 flex h-8 min-w-8 items-center justify-center rounded-full border-2 text-lg leading-8 font-medium after:absolute after:h-full after:w-full after:rounded-full after:shadow-[0px_0.5px_0px_0px_rgba(0,0,0,0.06),0px_1px_1px_0px_rgba(0,0,0,0.12)];
 }
 
 .p-step-active .p-step-header {
@@ -39,7 +39,7 @@
 }
 
 .p-step:not(.p-disabled):focus-visible {
-  @apply outline outline-1 outline-offset-2 outline-primary;
+  @apply outline-primary outline outline-1 outline-offset-2;
 }
 
 .p-step:has(~ .p-step-active) .p-stepper-separator {
@@ -47,11 +47,11 @@
 }
 
 .p-stepper-separator {
-  @apply h-[2px] w-full flex-1 bg-surface-200 transition-colors duration-200 dark:bg-surface-700;
+  @apply bg-surface-200 dark:bg-surface-700 h-[2px] w-full flex-1 transition-colors duration-200;
 }
 
 .p-steppanels {
-  @apply px-2 pb-[1.125rem] pt-[0.875rem];
+  @apply px-2 pt-[0.875rem] pb-[1.125rem];
 }
 
 .p-steppanel {

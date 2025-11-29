@@ -1,10 +1,10 @@
-import { API_URL } from '@/constants/api'
-import type { RequeueSpecificMessagesDto } from '@/dtos/message/requeueSpecificMessagesDto'
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import axios from 'axios'
+import { useMutation, useQueryClient } from "@tanstack/vue-query";
+import axios from "axios";
+import { API_URL } from "@/constants/api";
+import type { RequeueSpecificMessagesDto } from "@/dtos/message/requeueSpecificMessagesDto";
 
 export function useRequeueSpecificMessagesMutation() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (dto: RequeueSpecificMessagesDto) =>
@@ -12,9 +12,9 @@ export function useRequeueSpecificMessagesMutation() {
         withCredentials: true,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['messages'] })
-      queryClient.invalidateQueries({ queryKey: ['queues-view'] })
-      queryClient.invalidateQueries({ queryKey: ['queue-view'] })
+      queryClient.invalidateQueries({ queryKey: ["messages"] });
+      queryClient.invalidateQueries({ queryKey: ["queues-view"] });
+      queryClient.invalidateQueries({ queryKey: ["queue-view"] });
     },
-  })
+  });
 }

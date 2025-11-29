@@ -1,11 +1,11 @@
-@import './inputtext';
+@import "./inputtext";
 
 .p-inputnumber {
   @apply relative inline-flex;
 }
 
 .p-inputnumber-button {
-  @apply flex w-10 flex-shrink-0 flex-grow-0 basis-auto cursor-pointer items-center justify-center border border-surface-300 bg-transparent text-surface-400 transition-colors duration-200 enabled:hover:border-surface-300 enabled:hover:bg-surface-100 enabled:hover:text-surface-500 enabled:active:border-surface-300 enabled:active:bg-surface-200 enabled:active:text-surface-600 dark:border-surface-700 dark:bg-transparent dark:text-surface-400 dark:enabled:hover:border-surface-700 dark:enabled:hover:bg-surface-800 dark:enabled:hover:text-surface-300 dark:enabled:active:border-surface-700 dark:enabled:active:bg-surface-700 dark:enabled:active:text-surface-200;
+  @apply border-surface-300 text-surface-400 enabled:hover:border-surface-300 enabled:hover:bg-surface-100 enabled:hover:text-surface-500 enabled:active:border-surface-300 enabled:active:bg-surface-200 enabled:active:text-surface-600 dark:border-surface-700 dark:text-surface-400 dark:enabled:hover:border-surface-700 dark:enabled:hover:bg-surface-800 dark:enabled:hover:text-surface-300 dark:enabled:active:border-surface-700 dark:enabled:active:bg-surface-700 dark:enabled:active:text-surface-200 flex w-10 flex-shrink-0 flex-grow-0 basis-auto cursor-pointer items-center justify-center border bg-transparent transition-colors duration-200 dark:bg-transparent;
 }
 
 .p-inputnumber-stacked .p-inputnumber-button {
@@ -49,7 +49,7 @@
 }
 
 .p-inputnumber-vertical .p-inputnumber-increment-button {
-  @apply order-1 w-full rounded-se-md rounded-ss-md border-b-0;
+  @apply order-1 w-full rounded-ss-md rounded-se-md border-b-0;
 }
 
 .p-inputnumber-vertical .p-inputnumber-input {

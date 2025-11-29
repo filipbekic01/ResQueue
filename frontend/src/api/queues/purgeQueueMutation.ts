@@ -1,10 +1,10 @@
-import { API_URL } from '@/constants/api'
-import type { PurgeQueueDto } from '@/dtos/queue/purgeQueueDto'
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import axios from 'axios'
+import { useMutation, useQueryClient } from "@tanstack/vue-query";
+import axios from "axios";
+import { API_URL } from "@/constants/api";
+import type { PurgeQueueDto } from "@/dtos/queue/purgeQueueDto";
 
 export function usePurgeQueueMutation() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (dto: PurgeQueueDto) =>
@@ -12,9 +12,9 @@ export function usePurgeQueueMutation() {
         withCredentials: true,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['messages'] })
-      queryClient.invalidateQueries({ queryKey: ['queues-view'] })
-      queryClient.invalidateQueries({ queryKey: ['queue-view'] })
+      queryClient.invalidateQueries({ queryKey: ["messages"] });
+      queryClient.invalidateQueries({ queryKey: ["queues-view"] });
+      queryClient.invalidateQueries({ queryKey: ["queue-view"] });
     },
-  })
+  });
 }

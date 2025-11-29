@@ -1,4 +1,4 @@
-@import './button';
+@import "./button";
 
 .p-speeddial {
   @apply static flex gap-2;
@@ -13,7 +13,7 @@
 }
 
 .p-speeddial-list {
-  @apply pointer-events-none z-20 m-0 flex list-none items-center justify-center gap-2 p-0 outline-none transition-[top] duration-200 ease-linear;
+  @apply pointer-events-none z-20 m-0 flex list-none items-center justify-center gap-2 p-0 transition-[top] duration-200 ease-linear outline-none;
 }
 
 .p-speeddial-item {

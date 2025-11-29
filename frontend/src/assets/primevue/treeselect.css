@@ -1,8 +1,8 @@
-@import './chip';
-@import './tree';
+@import "./chip";
+@import "./tree";
 
 .p-treeselect {
-  @apply relative inline-flex cursor-pointer select-none rounded-md border border-surface-300 bg-surface-0 shadow-[0_1px_2px_0_rgba(18,18,23,0.05)] transition-colors duration-200 dark:border-surface-700 dark:bg-surface-950;
+  @apply border-surface-300 bg-surface-0 dark:border-surface-700 dark:bg-surface-950 relative inline-flex cursor-pointer rounded-md border shadow-[0_1px_2px_0_rgba(18,18,23,0.05)] transition-colors duration-200 select-none;
 }
 
 .p-treeselect:not(.p-disabled):hover {
@@ -22,15 +22,15 @@
 }
 
 .p-treeselect.p-disabled {
-  @apply cursor-default bg-surface-200 text-surface-500 opacity-100 dark:bg-surface-700 dark:text-surface-400;
+  @apply bg-surface-200 text-surface-500 dark:bg-surface-700 dark:text-surface-400 cursor-default opacity-100;
 }
 
 .p-treeselect-dropdown {
-  @apply flex w-10 shrink-0 items-center justify-center rounded-e-md bg-transparent text-surface-500 dark:text-surface-400;
+  @apply text-surface-500 dark:text-surface-400 flex w-10 shrink-0 items-center justify-center rounded-e-md bg-transparent;
 }
 
 .p-treeselect-clear-icon {
-  @apply absolute end-10 top-1/2 -mt-2 text-surface-500 dark:text-surface-400;
+  @apply text-surface-500 dark:text-surface-400 absolute end-10 top-1/2 -mt-2;
 }
 
 .p-treeselect-label-container {
@@ -38,7 +38,7 @@
 }
 
 .p-treeselect-label {
-  @apply flex items-center gap-1 text-ellipsis whitespace-nowrap px-3 py-2 text-surface-700 dark:text-surface-0;
+  @apply text-surface-700 dark:text-surface-0 flex items-center gap-1 px-3 py-2 text-ellipsis whitespace-nowrap;
 }
 
 .p-treeselect-label.p-placeholder {
@@ -58,7 +58,7 @@
 }
 
 .p-treeselect-overlay {
-  @apply absolute left-0 top-0 rounded-md border border-surface-200 bg-surface-0 text-surface-700 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] dark:border-surface-700 dark:bg-surface-900 dark:text-surface-0;
+  @apply border-surface-200 bg-surface-0 text-surface-700 dark:border-surface-700 dark:bg-surface-900 dark:text-surface-0 absolute top-0 left-0 rounded-md border shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)];
 }
 
 .p-treeselect-tree-container {
@@ -82,7 +82,7 @@
 }
 
 .p-treeselect-label .p-chip {
-  @apply rounded-sm pb-1 pt-1;
+  @apply rounded-sm pt-1 pb-1;
 }
 
 .p-treeselect-label:has(.p-chip) {

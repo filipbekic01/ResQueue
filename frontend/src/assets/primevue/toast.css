@@ -1,5 +1,5 @@
 .p-toast {
-  @apply w-96 whitespace-pre-line break-words rounded-md;
+  @apply w-96 rounded-md break-words whitespace-pre-line;
 }
 
 .p-toast-message {
@@ -27,7 +27,7 @@
 }
 
 .p-toast-close-button {
-  @apply relative -end-1/4 -mt-[25%] flex h-7 w-7 cursor-pointer select-none items-center justify-center overflow-hidden rounded-full border-none bg-transparent p-0 text-inherit transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2;
+  @apply relative -end-1/4 -mt-[25%] flex h-7 w-7 cursor-pointer items-center justify-center overflow-hidden rounded-full border-none bg-transparent p-0 text-inherit transition-colors duration-200 select-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2;
 }
 
 .p-toast-close-button:dir(rtl) {
@@ -96,7 +96,7 @@
 }
 
 .p-toast-message-secondary {
-  @apply border-surface-200 bg-surface-100 text-surface-600 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.04)] dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300;
+  @apply border-surface-200 bg-surface-100 text-surface-600 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.04)];
 }
 
 .p-toast-message-secondary .p-toast-detail {
@@ -108,7 +108,7 @@
 }
 
 .p-toast-message-contrast {
-  @apply border-surface-950 bg-surface-900 text-surface-50 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.04)] dark:border-surface-100 dark:bg-surface-0 dark:text-surface-950;
+  @apply border-surface-950 bg-surface-900 text-surface-50 dark:border-surface-100 dark:bg-surface-0 dark:text-surface-950 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.04)];
 }
 
 .p-toast-message-contrast .p-toast-detail {

@@ -1,7 +1,7 @@
-@import './button';
+@import "./button";
 
 .p-scrolltop.p-button {
-  @apply fixed bottom-5 end-5;
+  @apply fixed end-5 bottom-5;
 }
 
 .p-scrolltop-sticky.p-button {

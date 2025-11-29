@@ -1,42 +1,42 @@
 <script lang="ts" setup>
-import { useDeleteMessagesMutation } from '@/api/messages/deleteMessagesMutation'
-import { useMessagesQuery } from '@/api/messages/messagesQuery'
-import { usePurgeQueueMutation } from '@/api/queues/purgeQueueMutation'
-import { useQueue } from '@/composables/queueComposable'
-import { useUserSettings } from '@/composables/userSettingsComposable'
-import RequeueDialog from '@/dialogs/RequeueDialog.vue'
-import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
-import type { QueueDto } from '@/dtos/queue/queueDto'
-import AppLayout from '@/layouts/AppLayout.vue'
-import Graph from '@/layouts/Graph.vue'
-import { humanDateTime } from '@/utils/dateTimeUtil'
-import { errorToToast } from '@/utils/errorUtils'
-import { useQueryClient } from '@tanstack/vue-query'
-import Column from 'primevue/column'
-import DataTable, { type DataTablePageEvent } from 'primevue/datatable'
-import type { MenuItem } from 'primevue/menuitem'
-import Tabs from 'primevue/tabs'
-import { useConfirm } from 'primevue/useconfirm'
-import { useToast } from 'primevue/usetoast'
-import { computed, ref, watchEffect } from 'vue'
-import { useRouter } from 'vue-router'
-import MessageDialog from './MessageDialog.vue'
+import { useQueryClient } from "@tanstack/vue-query";
+import Column from "primevue/column";
+import DataTable, { type DataTablePageEvent } from "primevue/datatable";
+import type { MenuItem } from "primevue/menuitem";
+import Tabs from "primevue/tabs";
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+import { computed, ref, watchEffect } from "vue";
+import { useRouter } from "vue-router";
+import { useDeleteMessagesMutation } from "@/api/messages/deleteMessagesMutation";
+import { useMessagesQuery } from "@/api/messages/messagesQuery";
+import { usePurgeQueueMutation } from "@/api/queues/purgeQueueMutation";
+import { useQueue } from "@/composables/queueComposable";
+import { useUserSettings } from "@/composables/userSettingsComposable";
+import RequeueDialog from "@/dialogs/RequeueDialog.vue";
+import type { MessageDeliveryDto } from "@/dtos/message/messageDeliveryDto";
+import type { QueueDto } from "@/dtos/queue/queueDto";
+import AppLayout from "@/layouts/AppLayout.vue";
+import Graph from "@/layouts/Graph.vue";
+import { humanDateTime } from "@/utils/dateTimeUtil";
+import { errorToToast } from "@/utils/errorUtils";
+import MessageDialog from "./MessageDialog.vue";
 
 const props = defineProps<{
-  queueName: string
-}>()
+  queueName: string;
+}>();
 
-const router = useRouter()
+const router = useRouter();
 
-const queryClient = useQueryClient()
+const queryClient = useQueryClient();
 
-const confirm = useConfirm()
-const toast = useToast()
+const confirm = useConfirm();
+const toast = useToast();
 
-const first = ref(0)
-const pageIndex = ref(0)
+const first = ref(0);
+const pageIndex = ref(0);
 
-const { settings, updateSettings } = useUserSettings()
+const { settings, updateSettings } = useUserSettings();
 
 // Queues
 const {
@@ -45,27 +45,26 @@ const {
   query: { data: queues },
   primaryQueue,
   getQueueTypeLabel,
-} = useQueue(computed(() => props.queueName))
+} = useQueue(computed(() => props.queueName));
 
-const selectedQueueId = ref<number>()
-const selectedQueue = computed(() => queues.value?.find((x) => x.id === selectedQueueId.value))
+const selectedQueueId = ref<number>();
+const selectedQueue = computed(() => queues.value?.find((x) => x.id === selectedQueueId.value));
 
 const updateSelectedQueue = (queue: QueueDto) => {
-  selectedQueueId.value = queue.id
-  updateSettings({ ...settings, queueType: queue.type })
-}
+  selectedQueueId.value = queue.id;
+  updateSettings({ ...settings, queueType: queue.type });
+};
 
 watchEffect(() => {
   if (selectedQueueId.value || !queueOptions.value.length || !queueView.value) {
-    return
+    return;
   }
 
-  selectedQueueId.value =
-    queueOptions.value.find((x) => x.queue.type == settings.queueType)?.queue.id ?? undefined
-})
+  selectedQueueId.value = queueOptions.value.find((x) => x.queue.type == settings.queueType)?.queue.id ?? undefined;
+});
 
 // Purge queue
-const { mutateAsync: purgeQueueAsync, isPending: isPurgeQueuePending } = usePurgeQueueMutation()
+const { mutateAsync: purgeQueueAsync, isPending: isPurgeQueuePending } = usePurgeQueueMutation();
 
 // Messages
 const {
@@ -76,22 +75,21 @@ const {
   computed(() => selectedQueueId.value),
   pageIndex,
   computed(() => settings.refetchInterval),
-)
+);
 
 const toggleMessage = (msg?: MessageDeliveryDto) => {
   if (!msg) {
-    selectedMessageId.value = 0
+    selectedMessageId.value = 0;
   } else if (selectedMessageId.value === msg.messageDeliveryId) {
-    selectedMessageId.value = 0
+    selectedMessageId.value = 0;
   } else {
-    selectedMessageId.value = msg.messageDeliveryId
+    selectedMessageId.value = msg.messageDeliveryId;
   }
-}
+};
 
 // Delete messages
-const { mutateAsync: deleteMessagesAsync, isPending: isDeleteMessagesPending } =
-  useDeleteMessagesMutation()
-const deleteMessagesTransactional = ref(false)
+const { mutateAsync: deleteMessagesAsync, isPending: isDeleteMessagesPending } = useDeleteMessagesMutation();
+const deleteMessagesTransactional = ref(false);
 
 const deleteMessages = (e: any) => {
   deleteMessagesAsync({
@@ -99,42 +97,42 @@ const deleteMessages = (e: any) => {
     transactional: deleteMessagesTransactional.value,
   })
     .then(() => {
-      onActionComplete()
-      deleteMessagesPopover.value.hide(e.originalEvent)
+      onActionComplete();
+      deleteMessagesPopover.value.hide(e.originalEvent);
       toast.add({
-        severity: 'success',
-        summary: 'Messages Deleted',
+        severity: "success",
+        summary: "Messages Deleted",
         detail: `Messages delete procedure ran successfully.`,
         life: 3000,
-      })
+      });
     })
-    .catch((e) => toast.add(errorToToast(e)))
-}
+    .catch((e) => toast.add(errorToToast(e)));
+};
 
 // Selected messages
-const selectedMessageId = ref<number>(24)
+const selectedMessageId = ref<number>(24);
 const selectedMessage = computed(() =>
   messages.value?.items.find((x) => x.messageDeliveryId === selectedMessageId.value),
-)
+);
 
-const selectedMessages = ref<MessageDeliveryDto[]>([])
+const selectedMessages = ref<MessageDeliveryDto[]>([]);
 const selectedMessageIds = computed(() =>
   selectedMessages.value?.length ? selectedMessages.value.map((x) => x.messageDeliveryId) : [],
-)
+);
 
-const requeuePopover = ref()
-const requeueSpecificPopover = ref()
-const deleteMessagesPopover = ref()
+const requeuePopover = ref();
+const requeueSpecificPopover = ref();
+const deleteMessagesPopover = ref();
 
 const items = computed((): MenuItem[] => {
   return [
     {
-      label: 'Queues',
-      icon: 'pi pi-arrow-left',
+      label: "Queues",
+      icon: "pi pi-arrow-left",
       command: () => {
         router.push({
-          name: 'queues',
-        })
+          name: "queues",
+        });
       },
     },
     {
@@ -144,117 +142,113 @@ const items = computed((): MenuItem[] => {
       command: () => {
         refetchMessages().then(() => {
           toast.add({
-            severity: 'success',
-            summary: 'Queue Refreshed',
-            detail: 'The queue has been successfully updated.',
+            severity: "success",
+            summary: "Queue Refreshed",
+            detail: "The queue has been successfully updated.",
             life: 1000,
-          })
-        })
+          });
+        });
 
-        queryClient.invalidateQueries({ queryKey: ['queue-view'] })
+        queryClient.invalidateQueries({ queryKey: ["queue-view"] });
       },
     },
     {
       label: `Requeue`,
-      icon: 'pi pi-replay',
+      icon: "pi pi-replay",
       command: (e) => requeueSpecificPopover.value.toggle(e.originalEvent),
       disabled: !selectedMessageIds.value.length,
     },
     {
       label: `Batch Requeue`,
-      icon: 'pi pi-replay',
+      icon: "pi pi-replay",
       command: (e) => requeuePopover.value.toggle(e.originalEvent),
     },
     {
-      label: 'Delete',
-      icon: 'pi pi-trash',
+      label: "Delete",
+      icon: "pi pi-trash",
       disabled: !selectedMessageIds.value.length,
       command: (e) => {
-        deleteMessagesPopover.value.toggle(e.originalEvent)
+        deleteMessagesPopover.value.toggle(e.originalEvent);
       },
     },
     {
-      label: 'Purge',
-      icon: 'pi pi-eraser',
+      label: "Purge",
+      icon: "pi pi-eraser",
       disabled: isPurgeQueuePending.value,
       command: () => {
         confirm.require({
           header: `Purge Queue`,
           message: `Do you want to purge ${getQueueTypeLabel(selectedQueue.value?.type)} queue?`,
-          icon: 'pi pi-info-circle',
+          icon: "pi pi-info-circle",
           rejectProps: {
-            label: 'Cancel',
-            severity: 'secondary',
+            label: "Cancel",
+            severity: "secondary",
             outlined: true,
           },
           acceptProps: {
-            label: 'Purge',
-            severity: 'danger',
+            label: "Purge",
+            severity: "danger",
           },
           accept: () => {
             if (!selectedQueueId.value) {
-              return
+              return;
             }
 
             purgeQueueAsync({
               queueId: selectedQueueId.value,
             })
               .then(() => {
-                onActionComplete()
+                onActionComplete();
 
                 toast.add({
-                  severity: 'success',
-                  summary: 'Purge Completed',
+                  severity: "success",
+                  summary: "Purge Completed",
                   detail: `Queue has been purged successfully.`,
                   life: 3000,
-                })
+                });
               })
-              .catch((e) => toast.add(errorToToast(e)))
+              .catch((e) => toast.add(errorToToast(e)));
           },
           reject: () => {},
-        })
+        });
       },
     },
-  ]
-})
+  ];
+});
 
 const onRequeueComplete = () => {
-  requeueSpecificPopover.value.hide()
-  requeuePopover.value.hide()
+  requeueSpecificPopover.value.hide();
+  requeuePopover.value.hide();
 
-  onActionComplete()
-}
+  onActionComplete();
+};
 
 const onActionComplete = () => {
-  selectedMessages.value = []
-}
+  selectedMessages.value = [];
+};
 
 const onPage = (event: DataTablePageEvent) => {
-  pageIndex.value = event.page
-  first.value = event.first
-}
+  pageIndex.value = event.page;
+  first.value = event.first;
+};
 
 const getMessagesIcon = (queue: QueueDto) => {
   if (queue.type == 1) {
-    return 'pi-check-circle'
+    return "pi-check-circle";
   } else if (queue.type == 2) {
-    return 'pi-exclamation-circle'
+    return "pi-exclamation-circle";
   } else if (queue.type == 3) {
-    return 'pi-times-circle'
+    return "pi-times-circle";
   }
-}
+};
 
 const hasMtFaultMessages = computed(() => {
-  return messages.value?.items.some((x) => x.transportHeaders['MT-Fault-Message'])
-})
+  return messages.value?.items.some((x) => x.transportHeaders["MT-Fault-Message"]);
+});
 </script>
 
 <template>
-  <MessageDialog
-    v-if="selectedMessage"
-    :selected-message="selectedMessage"
-    @close="toggleMessage(undefined)"
-  />
+  <MessageDialog v-if="selectedMessage" :selected-message="selectedMessage" @close="toggleMessage(undefined)" />
 
   <Popover ref="deleteMessagesPopover">
     <div class="flex flex-col gap-3">
@@ -296,10 +290,7 @@ const hasMtFaultMessages = computed(() => {
   <AppLayout>
     <template #menu>
       <div class="flex items-center">
-        <Menubar
-          :model="items"
-          class="w-full rounded-none border-0 border-b dark:border-b-surface-700"
-        />
+        <Menubar :model="items" class="dark:border-b-surface-700 w-full rounded-none border-0 border-b" />
         <Tabs v-if="selectedQueueId" :value="selectedQueueId" class="ms-auto">
           <TabList>
             <Tab
@@ -320,7 +311,7 @@ const hasMtFaultMessages = computed(() => {
     <template #right>
       <div
         v-if="settings.showGraph"
-        class="flex grow items-center justify-center border-b border-s ps-3 dark:border-b-surface-700 dark:border-s-surface-700"
+        class="dark:border-b-surface-700 dark:border-s-surface-700 flex grow items-center justify-center border-s border-b ps-3"
       >
         <Graph v-if="primaryQueue" :queue="primaryQueue" />
       </div>
@@ -350,11 +341,7 @@ const hasMtFaultMessages = computed(() => {
         >
           <!-- Selection -->
 
-          <Column
-            selectionMode="multiple"
-            class="w-0"
-            style="vertical-align: top; text-align: center"
-          ></Column>
+          <Column selectionMode="multiple" class="w-0" style="vertical-align: top; text-align: center"></Column>
 
           <!-- ID -->
 
@@ -373,7 +360,7 @@ const hasMtFaultMessages = computed(() => {
             ]"
           >
             <template #body="{ data }">
-              {{ data.message.messageType.replace('urn:message:', '') }}
+              {{ data.message.messageType.replace("urn:message:", "") }}
             </template>
           </Column>
 
@@ -386,12 +373,9 @@ const hasMtFaultMessages = computed(() => {
             header="Fault Message"
           >
             <template #body="{ data }">
-              <div
-                v-if="data.transportHeaders['MT-Fault-Message']"
-                class="flex gap-3 dark:text-surface-400"
-              >
+              <div v-if="data.transportHeaders['MT-Fault-Message']" class="dark:text-surface-400 flex gap-3">
                 <i class="pi pi-circle-fill text-red-400" style="font-size: 0.625rem"></i
-                >{{ data.transportHeaders['MT-Fault-ExceptionType'] }}
+                >{{ data.transportHeaders["MT-Fault-ExceptionType"] }}
               </div>
               <div v-else>-</div>
             </template>
@@ -418,19 +402,11 @@ const hasMtFaultMessages = computed(() => {
 
           <!-- Scheduled -->
 
-          <Column
-            field="message.schedulingTokenId"
-            header="Scheduled"
-            class="w-0 whitespace-nowrap"
-          >
+          <Column field="message.schedulingTokenId" header="Scheduled" class="w-0 whitespace-nowrap">
             <template #header></template>
             <template #body="{ data }">
               <div class="flex items-center justify-center">
-                <i
-                  v-if="data.message.schedulingTokenId"
-                  class="pi pi-check"
-                  style="font-size: 0.825rem"
-                ></i>
+                <i v-if="data.message.schedulingTokenId" class="pi pi-check" style="font-size: 0.825rem"></i>
               </div>
             </template>
           </Column>
@@ -458,12 +434,7 @@ const hasMtFaultMessages = computed(() => {
 
           <!-- Enqueue Time -->
 
-          <Column
-            field="enqueueTime"
-            header="Enqueue Time"
-            header-class=""
-            class="w-0 whitespace-nowrap"
-          >
+          <Column field="enqueueTime" header="Enqueue Time" header-class="" class="w-0 whitespace-nowrap">
             <template #body="{ data }">
               <div class="flex gap-2">
                 {{ humanDateTime(data.enqueueTime) }}

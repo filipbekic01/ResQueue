@@ -1,4 +1,4 @@
 export interface DeleteMessagesDto {
-  messageDeliveryIds: number[]
-  transactional: boolean
+  messageDeliveryIds: number[];
+  transactional: boolean;
 }

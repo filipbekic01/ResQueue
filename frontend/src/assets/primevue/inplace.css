@@ -1,5 +1,5 @@
 .p-inplace-display {
-  @apply inline cursor-pointer rounded-md border border-transparent px-3 py-2 transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary;
+  @apply focus-visible:outline-primary inline cursor-pointer rounded-md border border-transparent px-3 py-2 transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2;
 }
 
 .p-inplace-display:not(.p-disabled):hover {

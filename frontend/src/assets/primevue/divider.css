@@ -1,5 +1,5 @@
 .p-divider-horizontal {
-  @apply relative mx-0 my-4 flex w-full items-center px-4 py-0 before:absolute before:start-0 before:top-1/2 before:block before:w-full before:border-t before:border-surface-200 dark:before:border-surface-700;
+  @apply before:border-surface-200 dark:before:border-surface-700 relative mx-0 my-4 flex w-full items-center px-4 py-0 before:absolute before:start-0 before:top-1/2 before:block before:w-full before:border-t;
 }
 
 .p-divider-horizontal .p-divider-content {
@@ -7,7 +7,7 @@
 }
 
 .p-divider-vertical {
-  @apply relative mx-4 my-0 flex min-h-full justify-center px-0 py-2 before:absolute before:start-1/2 before:top-0 before:block before:h-full before:border-s before:border-surface-200 before:dark:border-surface-700;
+  @apply before:border-surface-200 before:dark:border-surface-700 relative mx-4 my-0 flex min-h-full justify-center px-0 py-2 before:absolute before:start-1/2 before:top-0 before:block before:h-full before:border-s;
 }
 
 .p-divider.p-divider-vertical .p-divider-content {
@@ -15,7 +15,7 @@
 }
 
 .p-divider-content {
-  @apply z-10 bg-surface-0 text-surface-700 dark:bg-surface-900 dark:text-surface-0;
+  @apply bg-surface-0 text-surface-700 dark:bg-surface-900 dark:text-surface-0 z-10;
 }
 
 .p-divider-solid.p-divider-horizontal:before {

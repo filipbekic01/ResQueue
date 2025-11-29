@@ -1,25 +1,25 @@
 <script lang="ts" setup>
-import { useSubscriptionsQuery } from '@/api/subscriptions/subscriptionsQuery'
-import { useUserSettings } from '@/composables/userSettingsComposable'
-import { FilterMatchMode } from '@primevue/core/api'
-import { computed, ref, watchEffect } from 'vue'
+import { FilterMatchMode } from "@primevue/core/api";
+import { computed, ref, watchEffect } from "vue";
+import { useSubscriptionsQuery } from "@/api/subscriptions/subscriptionsQuery";
+import { useUserSettings } from "@/composables/userSettingsComposable";
 
-const { settings, updateSettings } = useUserSettings()
+const { settings, updateSettings } = useUserSettings();
 
-const { data: subscriptions } = useSubscriptionsQuery(computed(() => settings.refetchInterval))
+const { data: subscriptions } = useSubscriptionsQuery(computed(() => settings.refetchInterval));
 
-const search = ref(settings.topicSearch)
+const search = ref(settings.topicSearch);
 
 watchEffect(() => {
   updateSettings({
     ...settings,
     topicSearch: search.value,
-  })
-})
+  });
+});
 
 const filters = ref({
   topicName: { value: search, matchMode: FilterMatchMode.CONTAINS },
-})
+});
 </script>
 
 <template>
@@ -35,7 +35,7 @@ const filters = ref({
       v-model:filters="filters"
       filter-display="menu"
     >
-      <Column field="topicName" class="overflow-hidden overflow-ellipsis py-0">
+      <Column field="topicName" class="overflow-hidden py-0 overflow-ellipsis">
         <template #header>
           <div class="flex w-full items-center">
             <b>Name</b>
@@ -44,7 +44,7 @@ const filters = ref({
               <InputIcon class="pi pi-times cursor-pointer" v-else @click="search = ''" />
               <InputText
                 placeholder="Search anything..."
-                class="w-full border-0 shadow-none dark:bg-surface-900"
+                class="dark:bg-surface-900 w-full border-0 shadow-none"
                 v-model="search"
                 ref="searchInputText"
               />
@@ -52,29 +52,10 @@ const filters = ref({
           </div>
         </template>
       </Column>
-      <Column sortable field="routingKey" header="Routing Key" class="w-[0] whitespace-nowrap">
-      </Column>
-      <Column
-        sortable
-        field="destinationName"
-        header="Destination Name"
-        class="w-[0] whitespace-nowrap"
-      >
-      </Column>
-      <Column
-        sortable
-        field="destinationType"
-        header="Destination Type"
-        class="w-[0] whitespace-nowrap"
-      >
-      </Column>
-      <Column
-        sortable
-        field="subscriptionType"
-        header="Subscription Type"
-        class="w-[0] whitespace-nowrap"
-      >
-      </Column>
+      <Column sortable field="routingKey" header="Routing Key" class="w-[0] whitespace-nowrap"> </Column>
+      <Column sortable field="destinationName" header="Destination Name" class="w-[0] whitespace-nowrap"> </Column>
+      <Column sortable field="destinationType" header="Destination Type" class="w-[0] whitespace-nowrap"> </Column>
+      <Column sortable field="subscriptionType" header="Subscription Type" class="w-[0] whitespace-nowrap"> </Column>
     </DataTable>
   </div>
 </template>

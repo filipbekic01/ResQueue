@@ -1,17 +1,17 @@
-import { API_URL } from '@/constants/api'
-import type { AuthDto } from '@/dtos/authDto'
-import { useQuery } from '@tanstack/vue-query'
-import axios from 'axios'
+import { useQuery } from "@tanstack/vue-query";
+import axios from "axios";
+import { API_URL } from "@/constants/api";
+import type { AuthDto } from "@/dtos/authDto";
 
 export const useAuthQuery = () =>
   useQuery({
-    queryKey: ['auth'],
+    queryKey: ["auth"],
     queryFn: async () => {
       const response = await axios.get<AuthDto>(`${API_URL}/auth`, {
         withCredentials: true,
-      })
+      });
 
-      return response.data
+      return response.data;
     },
     retry: 0,
-  })
+  });

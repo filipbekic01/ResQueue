@@ -1,5 +1,5 @@
 .p-checkbox {
-  @apply relative inline-flex h-5 w-5 select-none align-bottom;
+  @apply relative inline-flex h-5 w-5 align-bottom select-none;
 }
 
 .p-checkbox-input {
@@ -7,11 +7,11 @@
 }
 
 .p-checkbox-box {
-  @apply flex h-5 w-5 items-center justify-center rounded-sm border border-surface-300 bg-surface-0 shadow-[0_1px_2px_0_rgba(18,18,23,0.05)] transition-colors duration-200 dark:border-surface-700 dark:bg-surface-950;
+  @apply border-surface-300 bg-surface-0 dark:border-surface-700 dark:bg-surface-950 flex h-5 w-5 items-center justify-center rounded-sm border shadow-[0_1px_2px_0_rgba(18,18,23,0.05)] transition-colors duration-200;
 }
 
 .p-checkbox-icon {
-  @apply h-[0.875rem] w-[0.875rem] text-sm text-surface-700 transition-colors duration-200 dark:text-surface-0;
+  @apply text-surface-700 dark:text-surface-0 h-[0.875rem] w-[0.875rem] text-sm transition-colors duration-200;
 }
 
 .p-checkbox:not(.p-disabled):has(.p-checkbox-input:hover) .p-checkbox-box {
@@ -35,7 +35,7 @@
 }
 
 .p-checkbox:not(.p-disabled):has(.p-checkbox-input:focus-visible) .p-checkbox-box {
-  @apply outline outline-1 outline-offset-2 outline-primary;
+  @apply outline-primary outline outline-1 outline-offset-2;
 }
 
 .p-checkbox.p-invalid > .p-checkbox-box {

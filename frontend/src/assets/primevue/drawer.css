@@ -1,7 +1,7 @@
-@import './button';
+@import "./button";
 
 .p-drawer {
-  @apply pointer-events-auto relative flex flex-col border border-surface-200 bg-surface-0 text-surface-700 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] transition-transform duration-300 dark:border-surface-700 dark:bg-surface-900 dark:text-surface-0;
+  @apply border-surface-200 bg-surface-0 text-surface-700 dark:border-surface-700 dark:bg-surface-900 dark:text-surface-0 pointer-events-auto relative flex flex-col border shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] transition-transform duration-300;
 }
 
 .p-drawer {
@@ -9,7 +9,7 @@
 }
 
 .p-drawer-content {
-  @apply flex-grow overflow-y-auto px-5 pb-5 pt-0;
+  @apply flex-grow overflow-y-auto px-5 pt-0 pb-5;
 }
 
 .p-drawer-header {
@@ -25,7 +25,7 @@
 }
 
 .p-drawer-full .p-drawer {
-  @apply left-0 top-0 h-screen max-h-full w-screen transform-none transition-none;
+  @apply top-0 left-0 h-screen max-h-full w-screen transform-none transition-none;
 }
 
 .p-drawer-left .p-drawer-enter-from,
@@ -55,7 +55,7 @@
 
 .p-drawer-full .p-drawer-enter-active,
 .p-drawer-full .p-drawer-leave-active {
-  @apply transition-opacity ease-[cubic-bezier(0.25,0.8,0.25,1)] animate-duration-400;
+  @apply animate-duration-400 transition-opacity ease-[cubic-bezier(0.25,0.8,0.25,1)];
 }
 
 .p-drawer-left .p-drawer {

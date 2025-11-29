@@ -1,61 +1,61 @@
-import { reactive } from 'vue'
+import { reactive } from "vue";
 
 interface UserSettings {
-  queueType: number
-  sortField?: string
-  sortOrder?: number
-  queueSearch: string
-  topicSearch: string
-  refetchInterval: number
-  darkMode: boolean
-  showGraph: boolean
+  queueType: number;
+  sortField?: string;
+  sortOrder?: number;
+  queueSearch: string;
+  topicSearch: string;
+  refetchInterval: number;
+  darkMode: boolean;
+  showGraph: boolean;
 }
 
-const storageKey = 'userSettings'
+const storageKey = "userSettings";
 
 const settings = reactive<UserSettings>({
   queueType: 1,
   sortField: undefined,
   sortOrder: undefined,
-  queueSearch: '',
-  topicSearch: '',
+  queueSearch: "",
+  topicSearch: "",
   refetchInterval: 5000,
   darkMode: false,
   showGraph: true,
-})
+});
 
 const init = () => {
-  const storedSettings = localStorage.getItem(storageKey)
+  const storedSettings = localStorage.getItem(storageKey);
   if (storedSettings) {
-    Object.assign(settings, JSON.parse(storedSettings))
+    Object.assign(settings, JSON.parse(storedSettings));
   }
 
-  loadDarkMode()
-}
+  loadDarkMode();
+};
 
 const updateSettings = (newSettings: UserSettings) => {
-  Object.assign(settings, newSettings)
-  localStorage.setItem(storageKey, JSON.stringify(settings))
-}
+  Object.assign(settings, newSettings);
+  localStorage.setItem(storageKey, JSON.stringify(settings));
+};
 
 const toggleDarkMode = () => {
-  updateSettings({ ...settings, darkMode: !settings.darkMode })
-  loadDarkMode()
-}
+  updateSettings({ ...settings, darkMode: !settings.darkMode });
+  loadDarkMode();
+};
 
 const toggleGraph = () => {
-  updateSettings({ ...settings, showGraph: !settings.showGraph })
-}
+  updateSettings({ ...settings, showGraph: !settings.showGraph });
+};
 
 const loadDarkMode = () => {
-  const htmlElement = document.documentElement
+  const htmlElement = document.documentElement;
 
   if (settings.darkMode === true) {
-    htmlElement.classList.add('dark')
+    htmlElement.classList.add("dark");
   } else {
-    htmlElement.classList.remove('dark')
+    htmlElement.classList.remove("dark");
   }
-}
+};
 
 export function useUserSettings() {
   return {
@@ -64,5 +64,5 @@ export function useUserSettings() {
     toggleDarkMode,
     toggleGraph,
     updateSettings,
-  }
+  };
 }

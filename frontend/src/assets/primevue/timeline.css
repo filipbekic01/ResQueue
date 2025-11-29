@@ -26,27 +26,19 @@
   @apply flex-row-reverse;
 }
 
-.p-timeline-vertical.p-timeline-alternate
-  .p-timeline-event:nth-child(odd)
-  .p-timeline-event-opposite {
+.p-timeline-vertical.p-timeline-alternate .p-timeline-event:nth-child(odd) .p-timeline-event-opposite {
   @apply text-end;
 }
 
-.p-timeline-vertical.p-timeline-alternate
-  .p-timeline-event:nth-child(odd)
-  .p-timeline-event-content {
+.p-timeline-vertical.p-timeline-alternate .p-timeline-event:nth-child(odd) .p-timeline-event-content {
   @apply text-start;
 }
 
-.p-timeline-vertical.p-timeline-alternate
-  .p-timeline-event:nth-child(even)
-  .p-timeline-event-opposite {
+.p-timeline-vertical.p-timeline-alternate .p-timeline-event:nth-child(even) .p-timeline-event-opposite {
   @apply text-start;
 }
 
-.p-timeline-vertical.p-timeline-alternate
-  .p-timeline-event:nth-child(even)
-  .p-timeline-event-content {
+.p-timeline-vertical.p-timeline-alternate .p-timeline-event:nth-child(even) .p-timeline-event-content {
   @apply text-end;
 }
 
@@ -76,11 +68,11 @@
 }
 
 .p-timeline-event-marker {
-  @apply relative inline-flex h-[1.125rem] w-[1.125rem] items-center justify-center self-baseline rounded-full border-2 border-surface-200 bg-surface-0 before:h-[0.375rem] before:w-[0.375rem] before:rounded-full before:bg-primary after:absolute after:h-full after:w-full after:rounded-full after:shadow-[0px_0.5px_0px_0px_rgba(0,0,0,0.06),0px_1px_1px_0px_rgba(0,0,0,0.12)] dark:border-surface-700 dark:bg-surface-900;
+  @apply border-surface-200 bg-surface-0 before:bg-primary dark:border-surface-700 dark:bg-surface-900 relative inline-flex h-[1.125rem] w-[1.125rem] items-center justify-center self-baseline rounded-full border-2 before:h-[0.375rem] before:w-[0.375rem] before:rounded-full after:absolute after:h-full after:w-full after:rounded-full after:shadow-[0px_0.5px_0px_0px_rgba(0,0,0,0.06),0px_1px_1px_0px_rgba(0,0,0,0.12)];
 }
 
 .p-timeline-event-connector {
-  @apply flex-grow bg-surface-200 dark:bg-surface-700;
+  @apply bg-surface-200 dark:bg-surface-700 flex-grow;
 }
 
 .p-timeline-horizontal {

@@ -1,7 +1,7 @@
-@import './badge';
+@import "./badge";
 
 .p-button {
-  @apply relative inline-flex cursor-pointer select-none items-center justify-center gap-2 overflow-hidden rounded-md border border-primary bg-primary px-3 py-2 text-primary-contrast transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary enabled:hover:border-primary-emphasis enabled:hover:bg-primary-emphasis enabled:active:border-primary-emphasis-alt enabled:active:bg-primary-emphasis-alt disabled:cursor-default;
+  @apply border-primary bg-primary text-primary-contrast focus-visible:outline-primary enabled:hover:border-primary-emphasis enabled:hover:bg-primary-emphasis enabled:active:border-primary-emphasis-alt enabled:active:bg-primary-emphasis-alt relative inline-flex cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-md border px-3 py-2 transition-colors duration-200 select-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 disabled:cursor-default;
 }
 
 .p-button-icon-right {
@@ -77,7 +77,7 @@
 }
 
 .p-button-secondary {
-  @apply border-surface-100 bg-surface-100 text-surface-600 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-surface-600 enabled:hover:border-surface-200 enabled:hover:bg-surface-200 enabled:hover:text-surface-700 enabled:active:border-surface-300 enabled:active:bg-surface-300 enabled:active:text-surface-800 dark:border-surface-800 dark:bg-surface-800 dark:text-surface-300 dark:focus-visible:outline-surface-300 dark:enabled:hover:border-surface-700 dark:enabled:hover:bg-surface-700 dark:enabled:hover:text-surface-200 dark:enabled:active:border-surface-600 dark:enabled:active:bg-surface-600 dark:enabled:active:text-surface-100;
+  @apply border-surface-100 bg-surface-100 text-surface-600 focus-visible:outline-surface-600 enabled:hover:border-surface-200 enabled:hover:bg-surface-200 enabled:hover:text-surface-700 enabled:active:border-surface-300 enabled:active:bg-surface-300 enabled:active:text-surface-800 dark:border-surface-800 dark:bg-surface-800 dark:text-surface-300 dark:focus-visible:outline-surface-300 dark:enabled:hover:border-surface-700 dark:enabled:hover:bg-surface-700 dark:enabled:hover:text-surface-200 dark:enabled:active:border-surface-600 dark:enabled:active:bg-surface-600 dark:enabled:active:text-surface-100 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2;
 }
 
 .p-button-success {
@@ -105,15 +105,15 @@
 }
 
 .p-button-contrast {
-  @apply border-surface-950 bg-surface-950 text-white focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-surface-950 enabled:hover:border-surface-900 enabled:hover:bg-surface-900 enabled:hover:text-white enabled:active:border-surface-800 enabled:active:bg-surface-800 enabled:active:text-white dark:border-surface-100 dark:bg-surface-0 dark:text-surface-950 dark:focus-visible:outline-surface-0 dark:enabled:hover:border-surface-200 dark:enabled:hover:bg-surface-100 dark:enabled:hover:text-surface-950 dark:enabled:active:border-surface-300 dark:enabled:active:bg-surface-200 dark:enabled:active:text-surface-950;
+  @apply border-surface-950 bg-surface-950 focus-visible:outline-surface-950 enabled:hover:border-surface-900 enabled:hover:bg-surface-900 enabled:active:border-surface-800 enabled:active:bg-surface-800 dark:border-surface-100 dark:bg-surface-0 dark:text-surface-950 dark:focus-visible:outline-surface-0 dark:enabled:hover:border-surface-200 dark:enabled:hover:bg-surface-100 dark:enabled:hover:text-surface-950 dark:enabled:active:border-surface-300 dark:enabled:active:bg-surface-200 dark:enabled:active:text-surface-950 text-white focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 enabled:hover:text-white enabled:active:text-white;
 }
 
 .p-button-outlined {
-  @apply border-primary-200 bg-transparent text-primary enabled:hover:border-primary-200 enabled:hover:bg-primary-50 enabled:hover:text-primary enabled:active:border-primary-200 enabled:active:bg-primary-100 enabled:active:text-primary dark:border-primary-700 dark:bg-transparent dark:text-primary dark:enabled:hover:border-primary-700 dark:enabled:hover:bg-primary/5 dark:enabled:hover:text-primary dark:enabled:active:border-primary-700 dark:enabled:active:bg-primary/15 dark:enabled:active:text-primary;
+  @apply border-primary-200 text-primary enabled:hover:border-primary-200 enabled:hover:bg-primary-50 enabled:hover:text-primary enabled:active:border-primary-200 enabled:active:bg-primary-100 enabled:active:text-primary dark:border-primary-700 dark:text-primary dark:enabled:hover:border-primary-700 dark:enabled:hover:bg-primary/5 dark:enabled:hover:text-primary dark:enabled:active:border-primary-700 dark:enabled:active:bg-primary/15 dark:enabled:active:text-primary bg-transparent dark:bg-transparent;
 }
 
 .p-button-outlined.p-button-secondary {
-  @apply border-surface-200 bg-transparent text-surface-500 enabled:hover:border-surface-200 enabled:hover:bg-surface-50 enabled:hover:text-surface-500 enabled:active:border-surface-200 enabled:active:bg-surface-100 enabled:active:text-surface-500 dark:border-surface-700 dark:bg-transparent dark:text-surface-400 dark:enabled:hover:border-surface-700 dark:enabled:hover:bg-white/5 dark:enabled:hover:text-surface-400 dark:enabled:active:border-surface-700 dark:enabled:active:bg-white/15 dark:enabled:active:text-surface-400;
+  @apply border-surface-200 text-surface-500 enabled:hover:border-surface-200 enabled:hover:bg-surface-50 enabled:hover:text-surface-500 enabled:active:border-surface-200 enabled:active:bg-surface-100 enabled:active:text-surface-500 dark:border-surface-700 dark:text-surface-400 dark:enabled:hover:border-surface-700 dark:enabled:hover:text-surface-400 dark:enabled:active:border-surface-700 dark:enabled:active:text-surface-400 bg-transparent dark:bg-transparent dark:enabled:hover:bg-white/5 dark:enabled:active:bg-white/15;
 }
 
 .p-button-outlined.p-button-success {
@@ -137,19 +137,19 @@
 }
 
 .p-button-outlined.p-button-contrast {
-  @apply border-surface-700 bg-transparent text-surface-950 enabled:hover:border-surface-700 enabled:hover:bg-surface-50 enabled:hover:text-surface-950 enabled:active:border-surface-700 enabled:active:bg-surface-100 enabled:active:text-surface-950 dark:border-surface-500 dark:bg-transparent dark:text-surface-0 dark:enabled:hover:border-surface-500 dark:enabled:hover:bg-surface-800 dark:enabled:hover:text-surface-0 dark:enabled:active:border-surface-500 dark:enabled:active:bg-surface-700 dark:enabled:active:text-surface-0;
+  @apply border-surface-700 text-surface-950 enabled:hover:border-surface-700 enabled:hover:bg-surface-50 enabled:hover:text-surface-950 enabled:active:border-surface-700 enabled:active:bg-surface-100 enabled:active:text-surface-950 dark:border-surface-500 dark:text-surface-0 dark:enabled:hover:border-surface-500 dark:enabled:hover:bg-surface-800 dark:enabled:hover:text-surface-0 dark:enabled:active:border-surface-500 dark:enabled:active:bg-surface-700 dark:enabled:active:text-surface-0 bg-transparent dark:bg-transparent;
 }
 
 .p-button-outlined.p-button-plain {
-  @apply border-surface-200 bg-transparent text-surface-700 enabled:hover:border-surface-200 enabled:hover:bg-surface-50 enabled:hover:text-surface-700 enabled:active:border-surface-200 enabled:active:bg-surface-100 enabled:active:text-surface-700 dark:border-surface-600 dark:bg-transparent dark:text-surface-0 dark:enabled:hover:border-surface-600 dark:enabled:hover:bg-surface-800 dark:enabled:hover:text-surface-0 dark:enabled:active:border-surface-600 dark:enabled:active:bg-surface-700 dark:enabled:active:text-surface-0;
+  @apply border-surface-200 text-surface-700 enabled:hover:border-surface-200 enabled:hover:bg-surface-50 enabled:hover:text-surface-700 enabled:active:border-surface-200 enabled:active:bg-surface-100 enabled:active:text-surface-700 dark:border-surface-600 dark:text-surface-0 dark:enabled:hover:border-surface-600 dark:enabled:hover:bg-surface-800 dark:enabled:hover:text-surface-0 dark:enabled:active:border-surface-600 dark:enabled:active:bg-surface-700 dark:enabled:active:text-surface-0 bg-transparent dark:bg-transparent;
 }
 
 .p-button-text {
-  @apply border-transparent bg-transparent text-primary enabled:hover:border-transparent enabled:hover:bg-primary-50 enabled:hover:text-primary enabled:active:border-transparent enabled:active:bg-primary-100 enabled:active:text-primary dark:border-transparent dark:bg-transparent dark:text-primary dark:enabled:hover:border-transparent dark:enabled:hover:bg-primary/5 dark:enabled:hover:text-primary dark:enabled:active:border-transparent dark:enabled:active:bg-primary/15 dark:enabled:active:text-primary;
+  @apply text-primary enabled:hover:bg-primary-50 enabled:hover:text-primary enabled:active:bg-primary-100 enabled:active:text-primary dark:text-primary dark:enabled:hover:bg-primary/5 dark:enabled:hover:text-primary dark:enabled:active:bg-primary/15 dark:enabled:active:text-primary border-transparent bg-transparent enabled:hover:border-transparent enabled:active:border-transparent dark:border-transparent dark:bg-transparent dark:enabled:hover:border-transparent dark:enabled:active:border-transparent;
 }
 
 .p-button-text.p-button-secondary {
-  @apply border-transparent bg-transparent text-surface-500 enabled:hover:border-transparent enabled:hover:bg-surface-50 enabled:hover:text-surface-500 enabled:active:border-transparent enabled:active:bg-surface-100 enabled:active:text-surface-500 dark:border-transparent dark:bg-transparent dark:text-surface-400 dark:enabled:hover:border-transparent dark:enabled:hover:bg-surface-800 dark:enabled:hover:text-surface-400 dark:enabled:active:border-transparent dark:enabled:active:bg-surface-700 dark:enabled:active:text-surface-400;
+  @apply text-surface-500 enabled:hover:bg-surface-50 enabled:hover:text-surface-500 enabled:active:bg-surface-100 enabled:active:text-surface-500 dark:text-surface-400 dark:enabled:hover:bg-surface-800 dark:enabled:hover:text-surface-400 dark:enabled:active:bg-surface-700 dark:enabled:active:text-surface-400 border-transparent bg-transparent enabled:hover:border-transparent enabled:active:border-transparent dark:border-transparent dark:bg-transparent dark:enabled:hover:border-transparent dark:enabled:active:border-transparent;
 }
 
 .p-button-text.p-button-success {
@@ -173,11 +173,11 @@
 }
 
 .p-button-text.p-button-plain {
-  @apply border-transparent bg-transparent text-surface-700 enabled:hover:border-transparent enabled:hover:bg-surface-50 enabled:hover:text-surface-700 enabled:active:border-transparent enabled:active:bg-surface-100 enabled:active:text-surface-700 dark:border-transparent dark:bg-transparent dark:text-surface-0 dark:enabled:hover:border-transparent dark:enabled:hover:bg-surface-800 dark:enabled:hover:text-surface-0 dark:enabled:active:border-transparent dark:enabled:active:bg-surface-700 dark:enabled:active:text-surface-0;
+  @apply text-surface-700 enabled:hover:bg-surface-50 enabled:hover:text-surface-700 enabled:active:bg-surface-100 enabled:active:text-surface-700 dark:text-surface-0 dark:enabled:hover:bg-surface-800 dark:enabled:hover:text-surface-0 dark:enabled:active:bg-surface-700 dark:enabled:active:text-surface-0 border-transparent bg-transparent enabled:hover:border-transparent enabled:active:border-transparent dark:border-transparent dark:bg-transparent dark:enabled:hover:border-transparent dark:enabled:active:border-transparent;
 }
 
 .p-button-link {
-  @apply border-transparent bg-transparent text-primary enabled:hover:border-transparent enabled:hover:bg-transparent enabled:hover:text-primary enabled:active:border-transparent enabled:active:bg-transparent enabled:active:text-primary;
+  @apply text-primary enabled:hover:text-primary enabled:active:text-primary border-transparent bg-transparent enabled:hover:border-transparent enabled:hover:bg-transparent enabled:active:border-transparent enabled:active:bg-transparent;
 }
 
 .p-button-link:not(:disabled):hover .p-button-label {

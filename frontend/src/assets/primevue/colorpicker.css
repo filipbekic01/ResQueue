@@ -7,11 +7,11 @@
 }
 
 .p-colorpicker-preview {
-  @apply h-6 w-6 cursor-pointer rounded-md border-none p-0 transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-auto;
+  @apply focus-visible:outline-primary h-6 w-6 cursor-pointer rounded-md border-none p-0 transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 disabled:cursor-auto;
 }
 
 .p-colorpicker-panel {
-  @apply absolute start-0 top-0 h-[166px] w-[193px] rounded-md border border-surface-900 bg-surface-800 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] dark:border-surface-700 dark:bg-surface-900;
+  @apply border-surface-900 bg-surface-800 dark:border-surface-700 dark:bg-surface-900 absolute start-0 top-0 h-[166px] w-[193px] rounded-md border shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)];
 }
 
 .p-colorpicker-panel-inline {
@@ -31,7 +31,7 @@
 }
 
 .p-colorpicker-color-handle {
-  @apply absolute start-[150px] top-0 -ms-[5px] -mt-[5px] mb-0 me-0 h-[10px] w-[10px] cursor-pointer rounded-full border border-surface-0 opacity-85;
+  @apply border-surface-0 absolute start-[150px] top-0 -ms-[5px] me-0 -mt-[5px] mb-0 h-[10px] w-[10px] cursor-pointer rounded-full border opacity-85;
 }
 
 .p-colorpicker-hue {
@@ -39,5 +39,5 @@
 }
 
 .p-colorpicker-hue-handle {
-  @apply absolute start-0 top-[150px] -ms-[2px] -mt-[5px] h-[10px] w-[21px] cursor-pointer border-2 border-surface-0 opacity-85;
+  @apply border-surface-0 absolute start-0 top-[150px] -ms-[2px] -mt-[5px] h-[10px] w-[21px] cursor-pointer border-2 opacity-85;
 }

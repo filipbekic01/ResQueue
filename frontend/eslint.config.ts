@@ -1,26 +1,22 @@
-import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
-import { defineConfigWithVueTs, vueTsConfigs } from "@vue/eslint-config-typescript";
-import pluginVue from 'eslint-plugin-vue'
-import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
-import { globalIgnores } from "eslint/config";
 import prettierConfig from "@vue/eslint-config-prettier";
+import skipFormatting from "@vue/eslint-config-prettier/skip-formatting";
+import { defineConfigWithVueTs, vueTsConfigs } from "@vue/eslint-config-typescript";
+import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
+import pluginVue from "eslint-plugin-vue";
+import { globalIgnores } from "eslint/config";
 
 export default defineConfigWithVueTs(
   {
-    name: 'app/files-to-lint',
-    files: ['**/*.{ts,mts,tsx,vue}'],
+    name: "app/files-to-lint",
+    files: ["**/*.{ts,mts,tsx,vue}"],
   },
-  globalIgnores([
-    "**/dist/**",
-    "**/dist-ssr/**",
-    "**/coverage/**",
-  ]),
+  globalIgnores(["**/dist/**", "**/dist-ssr/**", "**/coverage/**"]),
   pluginVue.configs["flat/strongly-recommended"],
   vueTsConfigs.recommended,
   skipFormatting,
   eslintPluginPrettierRecommended,
   prettierConfig, // loads .prettierrc.cjs
-   {
+  {
     rules: {
       "vue/multi-word-component-names": "off",
       "@typescript-eslint/no-explicit-any": "off",

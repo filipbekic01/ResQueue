@@ -1,21 +1,21 @@
-@import './button';
-@import './message';
-@import './progressbar';
+@import "./button";
+@import "./message";
+@import "./progressbar";
 
-.p-fileupload input[type='file'] {
+.p-fileupload input[type="file"] {
   @apply hidden;
 }
 
 .p-fileupload-advanced {
-  @apply rounded-md border border-surface-200 bg-surface-0 text-surface-700 dark:border-surface-700 dark:bg-surface-900 dark:text-surface-0;
+  @apply border-surface-200 bg-surface-0 text-surface-700 dark:border-surface-700 dark:bg-surface-900 dark:text-surface-0 rounded-md border;
 }
 
 .p-fileupload-header {
-  @apply flex items-center gap-2 p-[1.125rem] text-surface-700 dark:text-surface-0;
+  @apply text-surface-700 dark:text-surface-0 flex items-center gap-2 p-[1.125rem];
 }
 
 .p-fileupload-content {
-  @apply relative border border-transparent px-[1.125rem] pb-[1.125rem] pt-0 transition-colors duration-200;
+  @apply relative border border-transparent px-[1.125rem] pt-0 pb-[1.125rem] transition-colors duration-200;
 }
 
 .p-fileupload-content .p-progressbar {
@@ -27,7 +27,7 @@
 }
 
 .p-fileupload-file {
-  @apply flex flex-wrap items-center gap-2 border-b border-surface-200 p-4 last:border-b-0 dark:border-surface-700;
+  @apply border-surface-200 dark:border-surface-700 flex flex-wrap items-center gap-2 border-b p-4 last:border-b-0;
 }
 
 .p-fileupload-file-info {
@@ -43,7 +43,7 @@
 }
 
 .p-fileupload-highlight {
-  @apply border border-dashed border-primary;
+  @apply border-primary border border-dashed;
 }
 
 .p-fileupload-advanced .p-message {

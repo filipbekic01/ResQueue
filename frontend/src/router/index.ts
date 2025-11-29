@@ -1,55 +1,55 @@
-import resqueueConfig from '@/config/resqueue'
-import Broker from '@/pages/broker/Broker.vue'
-import BrokerOverview from '@/pages/broker/overview/BrokerOverview.vue'
-import BrokerQueues from '@/pages/broker/queues/BrokerQueues.vue'
-import BrokerRecurringJobs from '@/pages/broker/recurring-jobs/BrokerRecurringJobs.vue'
-import BrokerTopics from '@/pages/broker/topics/BrokerTopics.vue'
-import { createRouter, createWebHistory } from 'vue-router'
-import Messages from '../pages/messages/Messages.vue'
+import { createRouter, createWebHistory } from "vue-router";
+import resqueueConfig from "@/config/resqueue";
+import Broker from "@/pages/broker/Broker.vue";
+import BrokerOverview from "@/pages/broker/overview/BrokerOverview.vue";
+import BrokerQueues from "@/pages/broker/queues/BrokerQueues.vue";
+import BrokerRecurringJobs from "@/pages/broker/recurring-jobs/BrokerRecurringJobs.vue";
+import BrokerTopics from "@/pages/broker/topics/BrokerTopics.vue";
+import Messages from "../pages/messages/Messages.vue";
 
 const router = createRouter({
-  history: createWebHistory('/' + resqueueConfig.prefix),
+  history: createWebHistory("/" + resqueueConfig.prefix),
   routes: [
     {
-      path: '',
+      path: "",
       redirect: {
-        name: 'queues',
+        name: "queues",
       },
       component: Broker,
       children: [
         {
-          path: '',
-          name: 'overview',
+          path: "",
+          name: "overview",
           props: true,
           component: BrokerOverview,
         },
         {
-          path: '/topics',
-          name: 'topics',
+          path: "/topics",
+          name: "topics",
           props: true,
           component: BrokerTopics,
         },
         {
-          path: '/queues',
-          name: 'queues',
+          path: "/queues",
+          name: "queues",
           props: (route) => ({ ...route.query }),
           component: BrokerQueues,
         },
         {
-          path: '/recurring-jobs',
-          name: 'recurring-jobs',
+          path: "/recurring-jobs",
+          name: "recurring-jobs",
           props: true,
           component: BrokerRecurringJobs,
         },
       ],
     },
     {
-      path: '/queues/:queueName',
-      name: 'messages',
+      path: "/queues/:queueName",
+      name: "messages",
       props: true,
       component: Messages,
     },
   ],
-})
+});
 
-export default router
+export default router;

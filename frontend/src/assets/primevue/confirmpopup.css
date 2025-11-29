@@ -1,7 +1,7 @@
-@import './button';
+@import "./button";
 
 .p-confirmpopup {
-  @apply absolute left-0 top-0 mt-[10px] rounded-md border border-surface-200 bg-surface-0 text-surface-700 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] before:pointer-events-none before:absolute before:bottom-full before:left-5 before:-ms-[10px] before:h-0 before:w-0 before:border-[10px] before:border-transparent before:border-b-surface-200 after:pointer-events-none after:absolute after:bottom-full after:left-5 after:-ms-[8px] after:h-0 after:w-0 after:border-[8px] after:border-transparent after:border-b-surface-0 dark:border-surface-700 dark:bg-surface-900 dark:text-surface-0 dark:before:border-b-surface-700 dark:after:border-b-surface-900;
+  @apply border-surface-200 bg-surface-0 text-surface-700 before:border-b-surface-200 after:border-b-surface-0 dark:border-surface-700 dark:bg-surface-900 dark:text-surface-0 dark:before:border-b-surface-700 dark:after:border-b-surface-900 absolute top-0 left-0 mt-[10px] rounded-md border shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] before:pointer-events-none before:absolute before:bottom-full before:left-5 before:-ms-[10px] before:h-0 before:w-0 before:border-[10px] before:border-transparent after:pointer-events-none after:absolute after:bottom-full after:left-5 after:-ms-[8px] after:h-0 after:w-0 after:border-[8px] after:border-transparent;
 }
 
 .p-confirmpopup-content {
@@ -9,11 +9,11 @@
 }
 
 .p-confirmpopup-icon {
-  @apply h-6 w-6 text-2xl text-surface-700 dark:text-surface-0;
+  @apply text-surface-700 dark:text-surface-0 h-6 w-6 text-2xl;
 }
 
 .p-confirmpopup-footer {
-  @apply flex justify-end gap-2 px-3 pb-3 pt-0;
+  @apply flex justify-end gap-2 px-3 pt-0 pb-3;
 }
 
 .p-confirmpopup-footer button {
@@ -46,13 +46,13 @@
 
 .p-confirmpopup-flipped:after,
 .p-confirmpopup-flipped:before {
-  @apply bottom-auto top-full;
+  @apply top-full bottom-auto;
 }
 
 .p-confirmpopup-flipped:after {
-  @apply border-b-transparent border-t-surface-0 dark:border-t-surface-900;
+  @apply border-t-surface-0 dark:border-t-surface-900 border-b-transparent;
 }
 
 .p-confirmpopup-flipped:before {
-  @apply border-b-transparent border-t-surface-200 dark:border-t-surface-700;
+  @apply border-t-surface-200 dark:border-t-surface-700 border-b-transparent;
 }

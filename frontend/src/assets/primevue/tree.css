@@ -1,5 +1,5 @@
 .p-tree {
-  @apply bg-surface-0 p-4 text-surface-700 dark:bg-surface-900 dark:text-surface-0;
+  @apply bg-surface-0 text-surface-700 dark:bg-surface-900 dark:text-surface-0 p-4;
 }
 
 .p-tree-root-children,
@@ -8,11 +8,11 @@
 }
 
 .p-tree-root-children {
-  @apply px-0 pb-0 pt-[2px];
+  @apply px-0 pt-[2px] pb-0;
 }
 
 .p-tree-node-children {
-  @apply pb-0 pe-0 ps-4 pt-[2px];
+  @apply ps-4 pe-0 pt-[2px] pb-0;
 }
 
 .p-tree-node {
@@ -20,11 +20,11 @@
 }
 
 .p-tree-node-content {
-  @apply flex items-center gap-1 rounded-md px-2 py-1 text-surface-700 transition-colors duration-200 dark:text-surface-0;
+  @apply text-surface-700 dark:text-surface-0 flex items-center gap-1 rounded-md px-2 py-1 transition-colors duration-200;
 }
 
 .p-tree-node:focus-visible > .p-tree-node-content {
-  @apply outline outline-1 outline-offset-2 outline-primary;
+  @apply outline-primary outline outline-1 outline-offset-2;
 }
 
 .p-tree-node-content.p-tree-node-selectable:not(.p-tree-node-selected):hover {
@@ -44,7 +44,7 @@
 }
 
 .p-tree-node-toggle-button {
-  @apply relative inline-flex h-7 w-7 flex-shrink-0 cursor-pointer select-none items-center justify-center overflow-hidden rounded-full border-none bg-transparent p-0 text-surface-500 transition-colors duration-200 enabled:hover:bg-surface-100 enabled:hover:text-surface-600 dark:text-surface-400 dark:enabled:hover:bg-surface-800 dark:enabled:hover:text-surface-300;
+  @apply text-surface-500 enabled:hover:bg-surface-100 enabled:hover:text-surface-600 dark:text-surface-400 dark:enabled:hover:bg-surface-800 dark:enabled:hover:text-surface-300 relative inline-flex h-7 w-7 flex-shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full border-none bg-transparent p-0 transition-colors duration-200 select-none;
 }
 
 .p-tree-node-content.p-tree-node-selected .p-tree-node-toggle-button:hover {
@@ -64,7 +64,7 @@
 }
 
 .p-tree-node-icon {
-  @apply text-surface-500 transition-colors duration-200 dark:text-surface-400;
+  @apply text-surface-500 dark:text-surface-400 transition-colors duration-200;
 }
 
 .p-tree-node-content.p-tree-node-selected .p-tree-node-icon {

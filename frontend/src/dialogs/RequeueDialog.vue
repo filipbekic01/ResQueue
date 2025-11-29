@@ -1,57 +1,55 @@
 <script lang="ts" setup>
-import { useRequeueMessagesMutation } from '@/api/messages/requeueMessagesMutation'
-import { useRequeueSpecificMessagesMutation } from '@/api/messages/requeueSpecificMessagesMutation'
-import { useQueue } from '@/composables/queueComposable'
-import { errorToToast } from '@/utils/errorUtils'
-import Button from 'primevue/button'
-import Checkbox from 'primevue/checkbox'
-import InputNumber from 'primevue/inputnumber'
-import Select from 'primevue/select'
-import { useToast } from 'primevue/usetoast'
-import { computed, ref, watchEffect } from 'vue'
-import { useRoute } from 'vue-router'
+import Button from "primevue/button";
+import Checkbox from "primevue/checkbox";
+import InputNumber from "primevue/inputnumber";
+import Select from "primevue/select";
+import { useToast } from "primevue/usetoast";
+import { computed, ref, watchEffect } from "vue";
+import { useRoute } from "vue-router";
+import { useRequeueMessagesMutation } from "@/api/messages/requeueMessagesMutation";
+import { useRequeueSpecificMessagesMutation } from "@/api/messages/requeueSpecificMessagesMutation";
+import { useQueue } from "@/composables/queueComposable";
+import { errorToToast } from "@/utils/errorUtils";
 
 const props = defineProps<{
-  selectedQueueId: number
-  deliveryMessageIds: number[]
-  batch: boolean
-}>()
+  selectedQueueId: number;
+  deliveryMessageIds: number[];
+  batch: boolean;
+}>();
 
 const emit = defineEmits<{
-  (e: 'requeue:complete'): void
-}>()
+  (e: "requeue:complete"): void;
+}>();
 
-const toast = useToast()
-const route = useRoute()
+const toast = useToast();
+const route = useRoute();
 
-const { mutateAsync: requeueMessagesAsync } = useRequeueMessagesMutation()
-const { mutateAsync: requeueSpecificMessagesAsync } = useRequeueSpecificMessagesMutation()
+const { mutateAsync: requeueMessagesAsync } = useRequeueMessagesMutation();
+const { mutateAsync: requeueSpecificMessagesAsync } = useRequeueSpecificMessagesMutation();
 const {
   query: { data: queues },
   queueOptions,
-} = useQueue(computed(() => route.params.queueName.toString()))
+} = useQueue(computed(() => route.params.queueName.toString()));
 
-const selectedQueue = computed(() => queues.value?.find((x) => x.id === props.selectedQueueId))
+const selectedQueue = computed(() => queues.value?.find((x) => x.id === props.selectedQueueId));
 
-const requeueMessageCount = ref(0)
-const requeueRedeliveryCount = ref(10)
-const requeueDelay = ref(0)
-const requeueTargetQueueId = ref<number>()
-const requeueTargetQueue = computed(() =>
-  queues.value?.find((x) => x.id === requeueTargetQueueId.value),
-)
+const requeueMessageCount = ref(0);
+const requeueRedeliveryCount = ref(10);
+const requeueDelay = ref(0);
+const requeueTargetQueueId = ref<number>();
+const requeueTargetQueue = computed(() => queues.value?.find((x) => x.id === requeueTargetQueueId.value));
 const requeueTargetQueueOptions = computed(() =>
   queueOptions.value.filter((x) => x.queue.id !== props.selectedQueueId),
-)
-const requeueTransactional = ref(false)
+);
+const requeueTransactional = ref(false);
 
 watchEffect(() => {
-  requeueTargetQueueId.value = requeueTargetQueueOptions.value.find((x) => x)?.queue.id
-})
+  requeueTargetQueueId.value = requeueTargetQueueOptions.value.find((x) => x)?.queue.id;
+});
 
 const requeueMessages = () => {
   if (!selectedQueue.value || !requeueTargetQueue.value) {
-    return
+    return;
   }
 
   if (props.batch) {
@@ -64,16 +62,16 @@ const requeueMessages = () => {
       delay: requeueDelay.value,
     })
       .then(() => {
-        emit('requeue:complete')
+        emit("requeue:complete");
 
         toast.add({
-          severity: 'success',
-          summary: 'Batch Requeue Completed',
+          severity: "success",
+          summary: "Batch Requeue Completed",
           detail: `Messages requeued to destination.`,
           life: 3000,
-        })
+        });
       })
-      .catch((e) => toast.add(errorToToast(e)))
+      .catch((e) => toast.add(errorToToast(e)));
   } else {
     requeueSpecificMessagesAsync({
       messageDeliveryIds: props.deliveryMessageIds,
@@ -83,18 +81,18 @@ const requeueMessages = () => {
       transactional: requeueTransactional.value,
     })
       .then(() => {
-        emit('requeue:complete')
+        emit("requeue:complete");
 
         toast.add({
-          severity: 'success',
-          summary: 'Requeue Completed',
+          severity: "success",
+          summary: "Requeue Completed",
           detail: `Messages requeued to destination.`,
           life: 3000,
-        })
+        });
       })
-      .catch((e) => toast.add(errorToToast(e)))
+      .catch((e) => toast.add(errorToToast(e)));
   }
-}
+};
 </script>
 
 <template>
@@ -134,11 +132,6 @@ const requeueMessages = () => {
     </div>
     <div v-else>Batch requeue uses single transaction.</div>
 
-    <Button
-      @click="requeueMessages"
-      icon="pi pi-arrow-right"
-      icon-pos="right"
-      label="Requeue"
-    ></Button>
+    <Button @click="requeueMessages" icon="pi pi-arrow-right" icon-pos="right" label="Requeue"></Button>
   </div>
 </template>

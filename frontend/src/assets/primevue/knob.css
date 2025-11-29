@@ -7,7 +7,7 @@
 }
 
 .p-knob svg {
-  @apply rounded-full transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary;
+  @apply focus-visible:outline-primary rounded-full transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2;
 }
 
 .p-knob svg path:first-child {

@@ -1,5 +1,5 @@
 .p-badge {
-  @apply inline-flex h-6 min-w-6 items-center justify-center rounded-md bg-primary px-2 py-0 text-xs font-bold text-primary-contrast;
+  @apply bg-primary text-primary-contrast inline-flex h-6 min-w-6 items-center justify-center rounded-md px-2 py-0 text-xs font-bold;
 }
 
 .p-badge-dot {
@@ -31,7 +31,7 @@
 }
 
 .p-badge-contrast {
-  @apply bg-surface-950 text-white dark:bg-white dark:text-surface-950;
+  @apply bg-surface-950 dark:text-surface-950 text-white dark:bg-white;
 }
 
 .p-badge-sm {

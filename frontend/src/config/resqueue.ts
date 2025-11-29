@@ -1,13 +1,13 @@
 export interface ResqeueConfig {
-  prefix: string
+  prefix: string;
 }
 
 const config: ResqeueConfig = (
   globalThis as typeof globalThis & {
-    resqueueConfig?: ResqeueConfig
+    resqueueConfig?: ResqeueConfig;
   }
 ).resqueueConfig ?? {
-  prefix: '',
-}
+  prefix: "",
+};
 
-export default config
+export default config;

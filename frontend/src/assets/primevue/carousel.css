@@ -1,4 +1,4 @@
-@import './button';
+@import "./button";
 
 .p-carousel {
   @apply flex flex-col;
@@ -38,7 +38,7 @@
 }
 
 .p-carousel-indicator-button {
-  @apply m-0 flex h-2 w-8 cursor-pointer select-none items-center justify-center rounded-md border-none bg-surface-200 p-0 transition-colors duration-200 hover:bg-surface-300 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary dark:bg-surface-700 dark:hover:bg-surface-600;
+  @apply bg-surface-200 hover:bg-surface-300 focus-visible:outline-primary dark:bg-surface-700 dark:hover:bg-surface-600 m-0 flex h-2 w-8 cursor-pointer items-center justify-center rounded-md border-none p-0 transition-colors duration-200 select-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2;
 }
 
 .p-carousel-indicator-active .p-carousel-indicator-button {

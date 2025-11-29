@@ -3,7 +3,7 @@
 }
 
 .p-metergroup-meters {
-  @apply flex rounded-md bg-surface-200 dark:bg-surface-700;
+  @apply bg-surface-200 dark:bg-surface-700 flex rounded-md;
 }
 
 .p-metergroup-label-list {
@@ -59,7 +59,7 @@
 }
 
 .p-metergroup-vertical .p-metergroup-meter:first-of-type {
-  @apply rounded-se-md rounded-ss-md;
+  @apply rounded-ss-md rounded-se-md;
 }
 
 .p-metergroup-vertical .p-metergroup-meter:last-of-type {

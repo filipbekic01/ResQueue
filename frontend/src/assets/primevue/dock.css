@@ -11,7 +11,7 @@
 }
 
 .p-dock-item {
-  @apply rounded-md p-2 transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] will-change-transform focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary;
+  @apply focus-visible:outline-primary rounded-md p-2 transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] will-change-transform focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2;
 }
 
 .p-dock-item-link {
@@ -27,7 +27,7 @@
 }
 
 .p-dock-bottom {
-  @apply bottom-0 start-0 w-full;
+  @apply start-0 bottom-0 w-full;
 }
 
 .p-dock-bottom .p-dock-item {

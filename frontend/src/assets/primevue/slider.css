@@ -1,13 +1,13 @@
 .p-slider {
-  @apply relative rounded-sm bg-surface-200 dark:bg-surface-700;
+  @apply bg-surface-200 dark:bg-surface-700 relative rounded-sm;
 }
 
 .p-slider-handle {
-  @apply flex h-[20px] w-[20px] cursor-grab touch-none items-center justify-center rounded-full bg-surface-200 transition-colors duration-200 before:block before:h-[16px] before:w-[16px] before:rounded-full before:bg-surface-0 before:shadow-[0px_0.5px_0px_0px_rgba(0,0,0,0.08),0px_1px_1px_0px_rgba(0,0,0,0.14)] before:transition-colors before:duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-primary dark:bg-surface-700 dark:before:bg-surface-950;
+  @apply bg-surface-200 before:bg-surface-0 focus-visible:outline-primary dark:bg-surface-700 dark:before:bg-surface-950 flex h-[20px] w-[20px] cursor-grab touch-none items-center justify-center rounded-full transition-colors duration-200 before:block before:h-[16px] before:w-[16px] before:rounded-full before:shadow-[0px_0.5px_0px_0px_rgba(0,0,0,0.08),0px_1px_1px_0px_rgba(0,0,0,0.14)] before:transition-colors before:duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2;
 }
 
 .p-slider-range {
-  @apply block rounded-sm bg-primary;
+  @apply bg-primary block rounded-sm;
 }
 
 .p-slider.p-slider-horizontal {
@@ -27,9 +27,9 @@
 }
 
 .p-slider-vertical .p-slider-handle {
-  @apply start-1/2 -mb-[10px] -ms-[10px];
+  @apply start-1/2 -ms-[10px] -mb-[10px];
 }
 
 .p-slider-vertical .p-slider-range {
-  @apply bottom-0 start-0 w-full;
+  @apply start-0 bottom-0 w-full;
 }
