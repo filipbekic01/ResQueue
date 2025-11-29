@@ -196,19 +196,53 @@ const hasMtFaultMessages = computed(() => {
 
   <AppLayout>
     <template #menu>
+      <!-- Queue Header -->
+      <div class="border-base-200 dark:border-base-content/10 bg-base-100 border-b px-4 py-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <button
+              class="text-base-content/50 hover:text-base-content hover:bg-base-200 flex cursor-pointer items-center justify-center rounded-lg p-1.5 transition-colors"
+              @click="goToQueues"
+              title="Back to Queues"
+            >
+              <ArrowLeftIcon class="h-5 w-5" />
+            </button>
+            <div>
+              <h1 class="text-base-content text-xl font-semibold tracking-tight">{{ queueName }}</h1>
+              <div class="text-base-content/50 mt-0.5 flex items-center gap-3 text-xs">
+                <span v-if="queueView?.queueAutoDelete" class="flex items-center gap-1">
+                  Auto-delete: {{ queueView.queueAutoDelete / 60 }}m
+                </span>
+                <span v-if="queueView?.queueMaxDeliveryCount" class="flex items-center gap-1">
+                  Max delivery: {{ queueView.queueMaxDeliveryCount }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div v-if="queueView" class="flex items-center gap-2">
+            <div class="bg-base-200/50 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5">
+              <span class="text-base-content/60 text-xs">Ready</span>
+              <span class="text-base-content text-sm font-semibold">{{ queueView.ready }}</span>
+            </div>
+            <div class="bg-warning/10 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5">
+              <span class="text-warning/70 text-xs">Errored</span>
+              <span class="text-warning text-sm font-semibold">{{ queueView.errored }}</span>
+            </div>
+            <div class="bg-error/10 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5">
+              <span class="text-error/70 text-xs">Dead</span>
+              <span class="text-error text-sm font-semibold">{{ queueView.deadLettered }}</span>
+            </div>
+            <div class="bg-info/10 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5">
+              <span class="text-info/70 text-xs">Scheduled</span>
+              <span class="text-info text-sm font-semibold">{{ queueView.scheduled }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="border-base-200 dark:border-base-content/10 flex items-center border-b">
         <!-- Menu bar -->
         <div class="flex items-center gap-1 px-2 py-1.5">
-          <button
-            class="text-base-content/60 hover:text-base-content hover:bg-base-200 flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
-            @click="goToQueues"
-          >
-            <ArrowLeftIcon class="h-4 w-4" />
-            Queues
-          </button>
-
-          <div class="bg-base-300 mx-1 h-4 w-px"></div>
-
           <button
             class="text-base-content/60 hover:text-base-content hover:bg-base-200 flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
             :disabled="isPending"
