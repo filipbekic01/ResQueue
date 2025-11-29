@@ -13,7 +13,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: "9.0.x"
+          dotnet-version: "10.0.x"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -43,7 +43,7 @@ jobs:
   DeployImage:
     runs-on: ubuntu-latest
     env:
-      ResQueueImageVersion: "1.4.1"
+      ResQueueImageVersion: "1.5.0"
       DockerRegistry: ghcr.io
       DockerRepository: filipbekic01/resqueue
     steps:
@@ -53,7 +53,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: "9.0.x"
+          dotnet-version: "10.0.x"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -77,11 +77,11 @@ jobs:
 
       - name: Publish x64 image
         working-directory: backend/ResQueue/ResQueue.Standalone
-        run: dotnet publish --os linux -p:TargetFramework=net9.0 --arch x64 /t:PublishContainer -p:ContainerImageTag=${ResQueueImageVersion}-x64 -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry}
+        run: dotnet publish --os linux -p:TargetFramework=net10.0 --arch x64 /t:PublishContainer -p:ContainerImageTag=${ResQueueImageVersion}-x64 -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry}
 
       - name: Publish arm64 image
         working-directory: backend/ResQueue/ResQueue.Standalone
-        run: dotnet publish --os linux -p:TargetFramework=net9.0 --arch arm64 /t:PublishContainer -p:ContainerImageTag=${ResQueueImageVersion}-arm64 -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry}
+        run: dotnet publish --os linux -p:TargetFramework=net10.0 --arch arm64 /t:PublishContainer -p:ContainerImageTag=${ResQueueImageVersion}-arm64 -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry}
 
       - name: Publish image manifest
         run: |

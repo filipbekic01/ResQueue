@@ -26,7 +26,9 @@ public class Program
 
         builder.Services.AddResQueue(opt =>
         {
-            opt.SqlEngine = ResQueueSqlEngine.SqlServer;
+            // opt.SqlEngine = ResQueueSqlEngine.SqlServer;
+            opt.SqlEngine = ResQueueSqlEngine.Postgres;
+
             opt.AppendAdditionalData = msg =>
             {
                 msg.AdditionalData.Add("Example-Data", "Example header value");
@@ -37,14 +39,15 @@ public class Program
 
         builder.Services.AddOptions<SqlTransportOptions>().Configure(options =>
         {
-            options.ConnectionString = builder.Configuration["SQL"] ?? throw new NullReferenceException();
+            // options.ConnectionString = builder.Configuration["SQL"] ?? throw new NullReferenceException();
+            options.ConnectionString = builder.Configuration["Postgres"] ?? throw new NullReferenceException();
         });
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        // builder.Services.AddPostgresMigrationHostedService();
-        builder.Services.AddSqlServerMigrationHostedService();
+        builder.Services.AddPostgresMigrationHostedService();
+        // builder.Services.AddSqlServerMigrationHostedService();
 
         // Must go after MassTransit migrations
         builder.Services.AddResQueueMigrationsHostedService();
@@ -71,17 +74,17 @@ public class Program
 
             mt.AddJobSagaStateMachines();
 
-            // mt.UsingPostgres((context, config) =>
-            // {
-            //     config.UseSqlMessageScheduler();
-            //     config.ConfigureEndpoints(context);
-            // });
-
-            mt.UsingSqlServer((context, config) =>
+            mt.UsingPostgres((context, config) =>
             {
                 config.UseSqlMessageScheduler();
                 config.ConfigureEndpoints(context);
             });
+
+            // mt.UsingSqlServer((context, config) =>
+            // {
+            //     config.UseSqlMessageScheduler();
+            //     config.ConfigureEndpoints(context);
+            // });
         });
 
         var app = builder.Build();
