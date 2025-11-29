@@ -99,9 +99,6 @@ const autoRefreshLabel = computed(() => {
 
 <template>
   <div v-if="!isPending && isSuccess" class="flex h-screen w-full flex-col">
-    <!-- Auto Refresh Dropdown -->
-    <div v-if="autoRefreshPopoverOpen" class="fixed inset-0 z-40" @click="autoRefreshPopoverOpen = false"></div>
-
     <div class="flex">
       <div class="flex grow flex-col">
         <div class="border-base-300 dark:border-base-content/20 flex items-center border-b px-4 pt-4 pb-4">
@@ -135,19 +132,14 @@ const autoRefreshLabel = computed(() => {
             </button>
 
             <!-- Auto Refresh Dropdown -->
-            <div class="dropdown dropdown-end">
-              <button
-                tabindex="0"
-                class="btn btn-ghost btn-sm"
-                @click="autoRefreshPopoverOpen = !autoRefreshPopoverOpen"
-              >
+            <div class="relative">
+              <button class="btn btn-ghost btn-sm" @click="autoRefreshPopoverOpen = !autoRefreshPopoverOpen">
                 <HourglassIcon class="h-4 w-4" />
                 {{ autoRefreshLabel }}
               </button>
               <div
                 v-if="autoRefreshPopoverOpen"
-                tabindex="0"
-                class="dropdown-content bg-base-100 z-50 w-72 rounded-lg p-4 shadow-xl"
+                class="bg-base-100 border-base-300 absolute right-0 z-50 mt-1 w-72 rounded-lg border p-4 shadow-xl"
               >
                 <div class="flex flex-col gap-2">
                   <div class="text-base-content/70 text-sm">
@@ -166,6 +158,12 @@ const autoRefreshLabel = computed(() => {
                   </ul>
                 </div>
               </div>
+              <!-- Backdrop to close dropdown when clicking outside -->
+              <div
+                v-if="autoRefreshPopoverOpen"
+                class="fixed inset-0 z-40"
+                @click="autoRefreshPopoverOpen = false"
+              ></div>
             </div>
 
             <button class="btn btn-ghost btn-sm" @click="toggleGraph">
