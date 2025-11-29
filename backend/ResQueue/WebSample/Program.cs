@@ -63,7 +63,7 @@ public class Program
 
             mt.SetMartenSagaRepositoryProvider();
 
-            mt.AddConsumer<YourConsumer>()
+            mt.AddConsumer<CustomExampleTestConsumer>()
                 .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
 
             mt.AddConsumer<YourConsumer1>()
@@ -94,7 +94,10 @@ public class Program
         app.UseResQueue();
 
         app.MapGet("/publish",
-            async (IPublishEndpoint endpoint) => { await endpoint.Publish(new YourMessage(Guid.NewGuid())); });
+            async (IPublishEndpoint endpoint) =>
+            {
+                await endpoint.Publish(new CustomExampleTestMessage(Guid.NewGuid()));
+            });
 
         app.MapGet("/start-job",
             async (IPublishEndpoint endpoint) =>

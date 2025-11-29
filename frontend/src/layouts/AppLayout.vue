@@ -111,8 +111,8 @@ const shouldShowGraph = computed(() => isMessagesPage.value && settings.showGrap
         <!-- Graph Toggle - Only show on messages page -->
         <button
           v-if="isMessagesPage"
-          class="btn btn-ghost btn-sm gap-1.5"
-          :class="{ 'text-primary': settings.showGraph }"
+          class="btn btn-sm gap-1.5"
+          :class="{ 'btn-ghost': !settings.showGraph }"
           @click="toggleGraph"
           :title="settings.showGraph ? 'Hide metrics graph' : 'Show metrics graph'"
         >
