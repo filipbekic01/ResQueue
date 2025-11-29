@@ -11,28 +11,32 @@ const route = useRoute();
 
 <template>
   <AppLayout>
-    <div class="flex flex-col overflow-auto">
-      <div role="tablist" class="tabs tabs-border">
+    <div class="flex min-h-0 flex-1 flex-col">
+      <!-- Navigation Tabs -->
+      <div class="border-base-200 dark:border-base-content/10 flex gap-1 border-b px-4 py-2">
         <button
-          role="tab"
-          class="tab flex gap-2"
-          :class="{ 'tab-active': route.name === 'overview' }"
+          class="text-base-content/60 hover:text-base-content hover:bg-base-200 flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+          :class="{
+            'bg-base-200 text-base-content!': route.name === 'overview',
+          }"
           @click="router.push({ name: 'overview' })"
         >
           <BarsIcon class="h-4 w-4" /> Overview
         </button>
         <button
-          role="tab"
-          class="tab flex gap-2"
-          :class="{ 'tab-active': route.name === 'topics' }"
+          class="text-base-content/60 hover:text-base-content hover:bg-base-200 flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+          :class="{
+            'bg-base-200 text-base-content!': route.name === 'topics',
+          }"
           @click="router.push({ name: 'topics' })"
         >
           <SitemapIcon class="h-4 w-4" /> Topics
         </button>
         <button
-          role="tab"
-          class="tab flex gap-2"
-          :class="{ 'tab-active': route.name === 'queues' }"
+          class="text-base-content/60 hover:text-base-content hover:bg-base-200 flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+          :class="{
+            'bg-base-200 text-base-content!': route.name === 'queues',
+          }"
           @click="router.push({ name: 'queues' })"
         >
           <DatabaseIcon class="h-4 w-4 rotate-90" /> Queues

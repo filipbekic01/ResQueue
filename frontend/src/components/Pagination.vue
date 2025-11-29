@@ -78,11 +78,15 @@ const onPageSizeChange = (event: Event) => {
 </script>
 
 <template>
-  <div class="flex flex-wrap items-center justify-between gap-4 px-2 py-3">
+  <div class="flex flex-wrap items-center justify-between gap-4 px-4 py-2.5">
     <!-- Page size selector -->
     <div v-if="showPageSizeSelector" class="flex items-center gap-2">
-      <span class="text-base-content/70 text-sm">Rows per page:</span>
-      <select class="select select-bordered select-sm" :value="pageSize" @change="onPageSizeChange">
+      <span class="text-base-content/50 text-xs">Rows per page</span>
+      <select
+        class="bg-base-200/50 border-base-200 focus:border-base-300 rounded-md border px-2 py-1 text-xs outline-none"
+        :value="pageSize"
+        @change="onPageSizeChange"
+      >
         <option v-for="option in pageSizeOptions" :key="option" :value="option">
           {{ option }}
         </option>
@@ -90,18 +94,29 @@ const onPageSizeChange = (event: Event) => {
     </div>
 
     <!-- Info text -->
-    <div class="text-base-content/70 text-sm">Showing {{ startItem }} to {{ endItem }} of {{ totalItems }} entries</div>
+    <div class="text-base-content/50 text-xs">{{ startItem }}-{{ endItem }} of {{ totalItems }}</div>
 
     <!-- Pagination buttons -->
-    <div class="join">
-      <button class="btn btn-sm join-item" :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">«</button>
+    <div class="flex items-center gap-1">
+      <button
+        class="hover:bg-base-200 text-base-content/60 hover:text-base-content flex h-7 w-7 items-center justify-center rounded-md text-sm transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+        :disabled="currentPage === 1"
+        @click="goToPage(currentPage - 1)"
+      >
+        ‹
+      </button>
 
       <template v-for="page in visiblePages" :key="page">
-        <button v-if="page === '...'" class="btn btn-sm join-item btn-disabled">...</button>
+        <span v-if="page === '...'" class="text-base-content/30 flex h-7 w-7 items-center justify-center text-xs"
+          >...</span
+        >
         <button
           v-else
-          class="btn btn-sm join-item"
-          :class="{ 'btn-active': page === currentPage }"
+          class="flex h-7 w-7 items-center justify-center rounded-md text-xs transition-colors"
+          :class="{
+            'bg-base-200 text-base-content font-medium': page === currentPage,
+            'text-base-content/60 hover:bg-base-200 hover:text-base-content': page !== currentPage,
+          }"
           @click="goToPage(page as number)"
         >
           {{ page }}
@@ -109,11 +124,11 @@ const onPageSizeChange = (event: Event) => {
       </template>
 
       <button
-        class="btn btn-sm join-item"
+        class="hover:bg-base-200 text-base-content/60 hover:text-base-content flex h-7 w-7 items-center justify-center rounded-md text-sm transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
         :disabled="currentPage === totalPages || totalPages === 0"
         @click="goToPage(currentPage + 1)"
       >
-        »
+        ›
       </button>
     </div>
   </div>

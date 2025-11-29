@@ -86,9 +86,7 @@ const jobStatePopoverOpen = ref(false);
           {{ humanDateTime(displayedMessage.message?.sentTime) }}
         </div>
         <div class="flex items-center gap-2.5 text-2xl">
-          <span class="text-base-content">{{
-            displayedMessage.message?.messageType.replace("urn:message:", "")
-          }}</span>
+          <span class="text-base-content">{{ displayedMessage.message?.messageType.replace("urn:message:", "") }}</span>
         </div>
         <div class="mt-4 flex gap-8">
           <div>

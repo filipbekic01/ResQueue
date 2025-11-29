@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { computed, ref, watchEffect } from "vue";
 import { useSubscriptionsQuery } from "@/api/subscriptions/subscriptionsQuery";
-import { useUserSettings } from "@/composables/userSettingsComposable";
 import Pagination from "@/components/Pagination.vue";
+import { useUserSettings } from "@/composables/userSettingsComposable";
 import type { SubscriptionDto } from "@/dtos/subscriptions/subscriptionDto";
 
 const { settings, updateSettings } = useUserSettings();
@@ -85,68 +85,93 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div class="flex h-full flex-col">
+  <div class="flex min-h-0 flex-1 flex-col">
     <!-- Search bar -->
-    <div class="border-base-300 flex items-center gap-2 border-b px-4 py-2">
-      <span class="font-semibold">Name</span>
+    <div class="border-base-200 dark:border-base-content/10 flex shrink-0 items-center gap-3 border-b px-4 py-2">
       <div class="relative flex-1">
         <input
           v-model="search"
           type="text"
           placeholder="Search topics..."
-          class="input input-bordered input-sm w-full max-w-xs"
+          class="bg-base-200/50 focus:bg-base-100 border-base-200 focus:border-base-300 w-full max-w-sm rounded-lg border px-3 py-1.5 text-sm transition-colors outline-none"
         />
         <button
           v-if="search"
-          class="text-base-content/50 hover:text-base-content absolute top-1/2 right-2 -translate-y-1/2"
+          class="text-base-content/40 hover:text-base-content absolute top-1/2 right-2.5 -translate-y-1/2 cursor-pointer transition-colors"
           @click="search = ''"
         >
           ✕
         </button>
       </div>
+      <span class="text-base-content/40 text-xs">{{ filteredSubscriptions.length }} topics</span>
     </div>
 
     <!-- Table -->
-    <div class="grow overflow-auto">
-      <table class="table-zebra table-pin-rows table w-full">
-        <thead>
-          <tr>
-            <th>Topic Name</th>
-            <th class="w-0 cursor-pointer whitespace-nowrap" @click="toggleSort('routingKey')">
+    <div class="min-h-0 flex-1 overflow-auto">
+      <table class="table w-full">
+        <thead class="bg-base-100 sticky top-0">
+          <tr class="border-base-200 dark:border-base-content/10 border-b">
+            <th class="text-base-content/60 text-xs font-medium">Topic Name</th>
+            <th
+              class="text-base-content/60 w-0 cursor-pointer text-xs font-medium whitespace-nowrap"
+              @click="toggleSort('routingKey')"
+            >
               Routing Key
-              <span v-if="sortField === 'routingKey'">{{ sortOrder === "asc" ? "▲" : "▼" }}</span>
+              <span v-if="sortField === 'routingKey'" class="text-primary">{{ sortOrder === "asc" ? "↑" : "↓" }}</span>
             </th>
-            <th class="w-0 cursor-pointer whitespace-nowrap" @click="toggleSort('destinationName')">
+            <th
+              class="text-base-content/60 w-0 cursor-pointer text-xs font-medium whitespace-nowrap"
+              @click="toggleSort('destinationName')"
+            >
               Destination Name
-              <span v-if="sortField === 'destinationName'">{{ sortOrder === "asc" ? "▲" : "▼" }}</span>
+              <span v-if="sortField === 'destinationName'" class="text-primary">{{
+                sortOrder === "asc" ? "↑" : "↓"
+              }}</span>
             </th>
-            <th class="w-0 cursor-pointer whitespace-nowrap" @click="toggleSort('destinationType')">
+            <th
+              class="text-base-content/60 w-0 cursor-pointer text-xs font-medium whitespace-nowrap"
+              @click="toggleSort('destinationType')"
+            >
               Destination Type
-              <span v-if="sortField === 'destinationType'">{{ sortOrder === "asc" ? "▲" : "▼" }}</span>
+              <span v-if="sortField === 'destinationType'" class="text-primary">{{
+                sortOrder === "asc" ? "↑" : "↓"
+              }}</span>
             </th>
-            <th class="w-0 cursor-pointer whitespace-nowrap" @click="toggleSort('subscriptionType')">
+            <th
+              class="text-base-content/60 w-0 cursor-pointer text-xs font-medium whitespace-nowrap"
+              @click="toggleSort('subscriptionType')"
+            >
               Subscription Type
-              <span v-if="sortField === 'subscriptionType'">{{ sortOrder === "asc" ? "▲" : "▼" }}</span>
+              <span v-if="sortField === 'subscriptionType'" class="text-primary">{{
+                sortOrder === "asc" ? "↑" : "↓"
+              }}</span>
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="sub in paginatedSubscriptions" :key="`${sub.topicName}-${sub.destinationName}`">
-            <td class="max-w-xs truncate">{{ sub.topicName }}</td>
-            <td>{{ sub.routingKey }}</td>
-            <td>{{ sub.destinationName }}</td>
-            <td>{{ sub.destinationType }}</td>
-            <td>{{ sub.subscriptionType }}</td>
+          <tr
+            v-for="sub in paginatedSubscriptions"
+            :key="`${sub.topicName}-${sub.destinationName}`"
+            class="border-base-200 dark:border-base-content/5 border-b transition-colors"
+          >
+            <td class="text-base-content max-w-xs truncate py-2.5 text-sm font-medium">{{ sub.topicName }}</td>
+            <td class="text-base-content/60 py-2.5 text-sm">{{ sub.routingKey || "-" }}</td>
+            <td class="text-base-content/60 py-2.5 text-sm">{{ sub.destinationName }}</td>
+            <td class="text-base-content/60 py-2.5 text-sm">{{ sub.destinationType }}</td>
+            <td class="text-base-content/60 py-2.5 text-sm">{{ sub.subscriptionType }}</td>
           </tr>
           <tr v-if="paginatedSubscriptions.length === 0">
-            <td colspan="5" class="text-base-content/50 text-center">No topics found</td>
+            <td colspan="5" class="text-base-content/40 py-12 text-center text-sm">No topics found</td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <!-- Pagination -->
-    <div class="border-base-300 border-t">
+    <div
+      v-if="filteredSubscriptions.length > pageSize"
+      class="border-base-200 dark:border-base-content/10 shrink-0 border-t"
+    >
       <Pagination
         :total-items="filteredSubscriptions.length"
         v-model:current-page="currentPage"

@@ -26,7 +26,7 @@ const data = computed(() => {
       </thead>
       <tbody>
         <tr v-for="item in data" :key="item.key">
-          <td class="whitespace-nowrap font-medium">{{ item.key }}</td>
+          <td class="font-medium whitespace-nowrap">{{ item.key }}</td>
           <td>{{ item.value }}</td>
         </tr>
       </tbody>

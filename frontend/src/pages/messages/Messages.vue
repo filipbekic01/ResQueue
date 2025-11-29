@@ -194,28 +194,34 @@ const hasMtFaultMessages = computed(() => {
 <template>
   <MessageDialog v-if="selectedMessage" :selected-message="selectedMessage" @close="toggleMessage(undefined)" />
 
-  <!-- Delete Messages Dropdown -->
-  <div v-if="deleteMessagesDropdownOpen" class="fixed inset-0 z-50" @click="deleteMessagesDropdownOpen = false"></div>
-
   <AppLayout>
     <template #menu>
-      <div class="flex items-center">
-        <!-- Menu bar with DaisyUI buttons -->
-        <div class="border-base-300 dark:border-base-content/20 flex w-full items-center gap-1 border-b px-2 py-1.5">
-          <button class="btn btn-ghost btn-sm" @click="goToQueues">
+      <div class="border-base-200 dark:border-base-content/10 flex items-center border-b">
+        <!-- Menu bar -->
+        <div class="flex items-center gap-1 px-2 py-1.5">
+          <button
+            class="text-base-content/60 hover:text-base-content hover:bg-base-200 flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+            @click="goToQueues"
+          >
             <ArrowLeftIcon class="h-4 w-4" />
             Queues
           </button>
-          <button class="btn btn-ghost btn-sm" :disabled="isPending" @click="refreshQueue">
+
+          <div class="bg-base-300 mx-1 h-4 w-px"></div>
+
+          <button
+            class="text-base-content/60 hover:text-base-content hover:bg-base-200 flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
+            :disabled="isPending"
+            @click="refreshQueue"
+          >
             <RefreshIcon class="h-4 w-4" />
             Refresh
           </button>
 
           <!-- Requeue Specific Dropdown -->
-          <div class="dropdown">
+          <div class="relative">
             <button
-              tabindex="0"
-              class="btn btn-ghost btn-sm"
+              class="text-base-content/60 hover:text-base-content hover:bg-base-200 flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
               :disabled="!selectedMessageIds.length"
               @click="requeueSpecificPopoverOpen = !requeueSpecificPopoverOpen"
             >
@@ -224,8 +230,7 @@ const hasMtFaultMessages = computed(() => {
             </button>
             <div
               v-if="requeueSpecificPopoverOpen"
-              tabindex="0"
-              class="dropdown-content bg-base-100 z-50 w-72 rounded-lg p-4 shadow-xl"
+              class="bg-base-100 border-base-200 dark:border-base-content/10 absolute left-0 z-50 mt-1 w-72 rounded-lg border p-4 shadow-lg"
             >
               <RequeueDialog
                 v-if="selectedQueueId"
@@ -235,18 +240,25 @@ const hasMtFaultMessages = computed(() => {
                 @requeue:complete="onRequeueComplete"
               />
             </div>
+            <div
+              v-if="requeueSpecificPopoverOpen"
+              class="fixed inset-0 z-40"
+              @click="requeueSpecificPopoverOpen = false"
+            ></div>
           </div>
 
           <!-- Batch Requeue Dropdown -->
-          <div class="dropdown">
-            <button tabindex="0" class="btn btn-ghost btn-sm" @click="requeuePopoverOpen = !requeuePopoverOpen">
+          <div class="relative">
+            <button
+              class="text-base-content/60 hover:text-base-content hover:bg-base-200 flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+              @click="requeuePopoverOpen = !requeuePopoverOpen"
+            >
               <ReplayIcon class="h-4 w-4" />
               Batch Requeue
             </button>
             <div
               v-if="requeuePopoverOpen"
-              tabindex="0"
-              class="dropdown-content bg-base-100 z-50 w-72 rounded-lg p-4 shadow-xl"
+              class="bg-base-100 border-base-200 dark:border-base-content/10 absolute left-0 z-50 mt-1 w-72 rounded-lg border p-4 shadow-lg"
             >
               <RequeueDialog
                 v-if="selectedQueueId"
@@ -256,13 +268,13 @@ const hasMtFaultMessages = computed(() => {
                 @requeue:complete="onRequeueComplete"
               />
             </div>
+            <div v-if="requeuePopoverOpen" class="fixed inset-0 z-40" @click="requeuePopoverOpen = false"></div>
           </div>
 
           <!-- Delete Dropdown -->
-          <div class="dropdown">
+          <div class="relative">
             <button
-              tabindex="0"
-              class="btn btn-ghost btn-sm"
+              class="text-base-content/60 hover:text-base-content hover:bg-base-200 flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
               :disabled="!selectedMessageIds.length"
               @click="deleteMessagesDropdownOpen = !deleteMessagesDropdownOpen"
             >
@@ -271,19 +283,13 @@ const hasMtFaultMessages = computed(() => {
             </button>
             <div
               v-if="deleteMessagesDropdownOpen"
-              tabindex="0"
-              class="dropdown-content bg-base-100 z-50 w-64 rounded-lg p-4 shadow-xl"
+              class="bg-base-100 border-base-200 dark:border-base-content/10 absolute left-0 z-50 mt-1 w-64 rounded-lg border p-4 shadow-lg"
             >
               <div class="flex flex-col gap-3">
-                <div class="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="delete-transactional"
-                    v-model="deleteMessagesTransactional"
-                    class="checkbox checkbox-sm"
-                  />
-                  <label for="delete-transactional">Within single transaction</label>
-                </div>
+                <label class="flex cursor-pointer items-center gap-2 text-sm">
+                  <input type="checkbox" v-model="deleteMessagesTransactional" class="checkbox checkbox-sm" />
+                  Within single transaction
+                </label>
                 <button
                   class="btn btn-error btn-sm"
                   :class="{ loading: isDeleteMessagesPending }"
@@ -296,20 +302,26 @@ const hasMtFaultMessages = computed(() => {
             </div>
           </div>
 
-          <button class="btn btn-ghost btn-sm" :disabled="isPurgeQueuePending" @click="purgeQueue">
+          <button
+            class="text-error/70 hover:text-error hover:bg-error/10 flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
+            :disabled="isPurgeQueuePending"
+            @click="purgeQueue"
+          >
             <EraserIcon class="h-4 w-4" />
             Purge
           </button>
         </div>
 
-        <!-- Tabs for queue types -->
-        <div v-if="selectedQueueId" role="tablist" class="tabs tabs-border ms-auto">
+        <!-- Queue type tabs -->
+        <div v-if="selectedQueueId" class="ms-auto flex items-center gap-1 px-2">
           <button
             v-for="item in queueOptions"
             :key="item.queue.id"
-            role="tab"
-            class="tab flex gap-2"
-            :class="{ 'tab-active': selectedQueueId === item.queue.id }"
+            class="flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+            :class="{
+              'bg-base-200 text-base-content': selectedQueueId === item.queue.id,
+              'text-base-content/60 hover:text-base-content hover:bg-base-200/50': selectedQueueId !== item.queue.id,
+            }"
             @click="updateSelectedQueue(item.queue)"
           >
             <component :is="getMessagesIconComponent(item.queue)" class="h-4 w-4" />
@@ -319,22 +331,17 @@ const hasMtFaultMessages = computed(() => {
       </div>
     </template>
 
-    <template #right>
-      <div
-        v-if="settings.showGraph"
-        class="border-base-300 dark:border-base-content/20 flex grow items-center justify-center border-s border-b ps-3"
-      >
-        <Graph v-if="primaryQueue" :queue="primaryQueue" />
-      </div>
+    <template #bottom>
+      <Graph v-if="primaryQueue" :queue="primaryQueue" />
     </template>
 
     <template v-if="messages?.items.length">
-      <div class="flex grow flex-col overflow-auto">
+      <div class="flex min-h-0 flex-1 flex-col">
         <!-- Table -->
-        <div class="grow overflow-auto">
-          <table class="table-zebra table-pin-rows table w-full">
-            <thead>
-              <tr>
+        <div class="min-h-0 flex-1 overflow-auto">
+          <table class="table w-full">
+            <thead class="bg-base-100 sticky top-0">
+              <tr class="border-base-200 dark:border-base-content/10 border-b">
                 <th class="w-0">
                   <input
                     type="checkbox"
@@ -346,26 +353,36 @@ const hasMtFaultMessages = computed(() => {
                     "
                   />
                 </th>
-                <th class="w-0 whitespace-nowrap">ID</th>
-                <th :class="{ 'w-0': hasMtFaultMessages }" class="whitespace-nowrap">URN</th>
-                <th v-if="hasMtFaultMessages" class="whitespace-nowrap">Fault Message</th>
-                <th class="w-0 whitespace-nowrap">Expires At</th>
-                <th class="w-0 whitespace-nowrap">Recurring</th>
-                <th class="w-0 whitespace-nowrap">Scheduled</th>
-                <th class="w-0 whitespace-nowrap">Locked</th>
-                <th class="w-0 whitespace-nowrap">Priority</th>
-                <th class="w-0 whitespace-nowrap">Enqueue Time</th>
+                <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">ID</th>
+                <th
+                  :class="{ 'w-0': hasMtFaultMessages }"
+                  class="text-base-content/60 text-xs font-medium whitespace-nowrap"
+                >
+                  URN
+                </th>
+                <th v-if="hasMtFaultMessages" class="text-base-content/60 text-xs font-medium whitespace-nowrap">
+                  Fault Message
+                </th>
+                <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Expires At</th>
+                <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Recurring</th>
+                <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Scheduled</th>
+                <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Locked</th>
+                <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Priority</th>
+                <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Enqueue Time</th>
               </tr>
             </thead>
             <tbody>
               <tr
                 v-for="msg in messages.items"
                 :key="msg.messageDeliveryId"
-                class="hover cursor-pointer"
-                :class="{ 'bg-base-200': selectedMessages.some((m) => m.messageDeliveryId === msg.messageDeliveryId) }"
+                class="border-base-200 dark:border-base-content/5 cursor-pointer border-b transition-colors"
+                :class="{
+                  'bg-base-200': selectedMessages.some((m) => m.messageDeliveryId === msg.messageDeliveryId),
+                  'hover:bg-base-200/50': !selectedMessages.some((m) => m.messageDeliveryId === msg.messageDeliveryId),
+                }"
                 @click="toggleMessage(msg)"
               >
-                <td class="w-0" @click.stop>
+                <td class="w-0 py-2.5" @click.stop>
                   <input
                     type="checkbox"
                     class="checkbox checkbox-sm"
@@ -377,30 +394,40 @@ const hasMtFaultMessages = computed(() => {
                     "
                   />
                 </td>
-                <td class="whitespace-nowrap">{{ msg.messageDeliveryId }}</td>
-                <td class="whitespace-nowrap">{{ msg.message?.messageType?.replace("urn:message:", "") }}</td>
-                <td v-if="hasMtFaultMessages">
-                  <div v-if="msg.transportHeaders?.['MT-Fault-Message']" class="text-base-content/60 flex gap-3">
-                    <span class="inline-block h-2 w-2 rounded-full bg-red-400"></span>
-                    {{ msg.transportHeaders?.["MT-Fault-ExceptionType"] }}
+                <td class="text-base-content/60 py-2.5 text-sm whitespace-nowrap">{{ msg.messageDeliveryId }}</td>
+                <td class="text-base-content max-w-xs truncate py-2.5 text-sm font-medium whitespace-nowrap">
+                  {{ msg.message?.messageType?.replace("urn:message:", "") }}
+                </td>
+                <td v-if="hasMtFaultMessages" class="py-2.5">
+                  <div
+                    v-if="msg.transportHeaders?.['MT-Fault-Message']"
+                    class="text-error flex items-center gap-2 text-sm"
+                  >
+                    <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
+                    <span class="max-w-xs truncate">{{ msg.transportHeaders?.["MT-Fault-ExceptionType"] }}</span>
                   </div>
-                  <div v-else>-</div>
+                  <span v-else class="text-base-content/30 text-sm">-</span>
                 </td>
-                <td class="whitespace-nowrap">{{ msg.expirationTime ?? "-" }}</td>
-                <td class="text-center">
-                  <span v-if="msg.isRecurring">✓</span>
+                <td class="text-base-content/60 py-2.5 text-sm whitespace-nowrap">{{ msg.expirationTime ?? "-" }}</td>
+                <td class="py-2.5 text-center">
+                  <span v-if="msg.isRecurring" class="text-success text-sm">✓</span>
+                  <span v-else class="text-base-content/20 text-sm">-</span>
                 </td>
-                <td class="text-center">
-                  <span v-if="msg.message?.schedulingTokenId">✓</span>
+                <td class="py-2.5 text-center">
+                  <span v-if="msg.message?.schedulingTokenId" class="text-info text-sm">✓</span>
+                  <span v-else class="text-base-content/20 text-sm">-</span>
                 </td>
-                <td class="text-center">
-                  <span v-if="!msg.lockId">✓</span>
+                <td class="py-2.5 text-center">
+                  <span v-if="!msg.lockId" class="text-warning text-sm">✓</span>
+                  <span v-else class="text-base-content/20 text-sm">-</span>
                 </td>
-                <td class="text-center">{{ msg.priority }}</td>
-                <td class="whitespace-nowrap">{{ humanDateTime(msg.enqueueTime) }}</td>
+                <td class="text-base-content/60 py-2.5 text-center text-sm">{{ msg.priority }}</td>
+                <td class="text-base-content/60 py-2.5 text-sm whitespace-nowrap">
+                  {{ humanDateTime(msg.enqueueTime) }}
+                </td>
               </tr>
               <tr v-if="messages.items.length === 0">
-                <td :colspan="hasMtFaultMessages ? 10 : 9" class="text-base-content/50 text-center">
+                <td :colspan="hasMtFaultMessages ? 10 : 9" class="text-base-content/40 py-12 text-center text-sm">
                   No messages found
                 </td>
               </tr>
@@ -409,7 +436,7 @@ const hasMtFaultMessages = computed(() => {
         </div>
 
         <!-- Pagination -->
-        <div v-if="messages.totalPages > 1" class="border-base-300 border-t">
+        <div v-if="messages.totalPages > 1" class="border-base-200 dark:border-base-content/10 shrink-0 border-t">
           <Pagination
             :total-items="messages.totalCount"
             v-model:current-page="currentPage"

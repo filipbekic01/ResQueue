@@ -103,54 +103,71 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div class="flex h-full flex-col">
+  <div class="flex min-h-0 flex-1 flex-col">
     <!-- Search bar -->
-    <div class="border-base-300 flex items-center gap-2 border-b px-4 py-2">
-      <span class="font-semibold">Name</span>
+    <div class="border-base-200 dark:border-base-content/10 flex shrink-0 items-center gap-3 border-b px-4 py-2">
       <div class="relative flex-1">
         <input
           v-model="search"
           type="text"
           placeholder="Search queues..."
-          class="input input-bordered input-sm w-full max-w-xs"
+          class="bg-base-200/50 focus:bg-base-100 border-base-200 focus:border-base-300 w-full max-w-sm rounded-lg border px-3 py-1.5 text-sm transition-colors outline-none"
         />
         <button
           v-if="search"
-          class="text-base-content/50 hover:text-base-content absolute top-1/2 right-2 -translate-y-1/2"
+          class="text-base-content/40 hover:text-base-content absolute top-1/2 right-2.5 -translate-y-1/2 cursor-pointer transition-colors"
           @click="search = ''"
         >
           ✕
         </button>
       </div>
+      <span class="text-base-content/40 text-xs">{{ filteredQueues.length }} queues</span>
     </div>
 
     <!-- Table -->
-    <div class="grow overflow-auto">
-      <table class="table-zebra table-pin-rows table w-full">
-        <thead>
-          <tr>
-            <th>Queue Name</th>
-            <th class="w-0 whitespace-nowrap">Auto Delete</th>
-            <th class="w-0 whitespace-nowrap">Max Delivery</th>
-            <th class="w-0 cursor-pointer whitespace-nowrap" @click="toggleSort('ready')">
+    <div class="min-h-0 flex-1 overflow-auto">
+      <table class="table w-full">
+        <thead class="bg-base-100 sticky top-0">
+          <tr class="border-base-200 dark:border-base-content/10 border-b">
+            <th class="text-base-content/60 text-xs font-medium">Queue Name</th>
+            <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Auto Delete</th>
+            <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Max Delivery</th>
+            <th
+              class="text-base-content/60 w-0 cursor-pointer text-xs font-medium whitespace-nowrap"
+              @click="toggleSort('ready')"
+            >
               Ready
-              <span v-if="sortField === 'ready'">{{ sortOrder === "asc" ? "▲" : "▼" }}</span>
+              <span v-if="sortField === 'ready'" class="text-primary">{{ sortOrder === "asc" ? "↑" : "↓" }}</span>
             </th>
-            <th class="w-0 cursor-pointer whitespace-nowrap" @click="toggleSort('errored')">
+            <th
+              class="text-base-content/60 w-0 cursor-pointer text-xs font-medium whitespace-nowrap"
+              @click="toggleSort('errored')"
+            >
               Errored
-              <span v-if="sortField === 'errored'">{{ sortOrder === "asc" ? "▲" : "▼" }}</span>
+              <span v-if="sortField === 'errored'" class="text-primary">{{ sortOrder === "asc" ? "↑" : "↓" }}</span>
             </th>
-            <th class="w-0 cursor-pointer whitespace-nowrap" @click="toggleSort('deadLettered')">
+            <th
+              class="text-base-content/60 w-0 cursor-pointer text-xs font-medium whitespace-nowrap"
+              @click="toggleSort('deadLettered')"
+            >
               Dead Lettered
-              <span v-if="sortField === 'deadLettered'">{{ sortOrder === "asc" ? "▲" : "▼" }}</span>
+              <span v-if="sortField === 'deadLettered'" class="text-primary">{{
+                sortOrder === "asc" ? "↑" : "↓"
+              }}</span>
             </th>
-            <th class="w-0 cursor-pointer whitespace-nowrap" @click="toggleSort('scheduled')">
+            <th
+              class="text-base-content/60 w-0 cursor-pointer text-xs font-medium whitespace-nowrap"
+              @click="toggleSort('scheduled')"
+            >
               Scheduled
-              <span v-if="sortField === 'scheduled'">{{ sortOrder === "asc" ? "▲" : "▼" }}</span>
+              <span v-if="sortField === 'scheduled'" class="text-primary">{{ sortOrder === "asc" ? "↑" : "↓" }}</span>
             </th>
-            <th class="w-0 cursor-pointer whitespace-nowrap" @click="toggleSort('locked')">
+            <th
+              class="text-base-content/60 w-0 cursor-pointer text-xs font-medium whitespace-nowrap"
+              @click="toggleSort('locked')"
+            >
               Locked
-              <span v-if="sortField === 'locked'">{{ sortOrder === "asc" ? "▲" : "▼" }}</span>
+              <span v-if="sortField === 'locked'" class="text-primary">{{ sortOrder === "asc" ? "↑" : "↓" }}</span>
             </th>
           </tr>
         </thead>
@@ -158,27 +175,49 @@ watchEffect(() => {
           <tr
             v-for="queue in paginatedQueues"
             :key="queue.queueName"
-            class="hover cursor-pointer"
+            class="hover:bg-base-200/50 border-base-200 dark:border-base-content/5 cursor-pointer border-b transition-colors"
             @click="selectQueue(queue)"
           >
-            <td class="max-w-xs truncate">{{ queue.queueName }}</td>
-            <td>{{ queue.queueAutoDelete ? `${queue.queueAutoDelete / 60}m` : "-" }}</td>
-            <td>{{ queue.queueMaxDeliveryCount }}</td>
-            <td>{{ queue.ready }}</td>
-            <td>{{ queue.errored }}</td>
-            <td>{{ queue.deadLettered }}</td>
-            <td>{{ queue.scheduled }}</td>
-            <td>{{ queue.locked }}</td>
+            <td class="text-base-content max-w-xs truncate py-2.5 text-sm font-medium">{{ queue.queueName }}</td>
+            <td class="text-base-content/60 py-2.5 text-sm">
+              {{ queue.queueAutoDelete ? `${queue.queueAutoDelete / 60}m` : "-" }}
+            </td>
+            <td class="text-base-content/60 py-2.5 text-sm">{{ queue.queueMaxDeliveryCount }}</td>
+            <td class="py-2.5 text-sm">
+              <span :class="queue.ready > 0 ? 'text-base-content font-medium' : 'text-base-content/40'">{{
+                queue.ready
+              }}</span>
+            </td>
+            <td class="py-2.5 text-sm">
+              <span :class="queue.errored > 0 ? 'text-warning font-medium' : 'text-base-content/40'">{{
+                queue.errored
+              }}</span>
+            </td>
+            <td class="py-2.5 text-sm">
+              <span :class="queue.deadLettered > 0 ? 'text-error font-medium' : 'text-base-content/40'">{{
+                queue.deadLettered
+              }}</span>
+            </td>
+            <td class="py-2.5 text-sm">
+              <span :class="queue.scheduled > 0 ? 'text-info font-medium' : 'text-base-content/40'">{{
+                queue.scheduled
+              }}</span>
+            </td>
+            <td class="py-2.5 text-sm">
+              <span :class="queue.locked > 0 ? 'text-base-content font-medium' : 'text-base-content/40'">{{
+                queue.locked
+              }}</span>
+            </td>
           </tr>
           <tr v-if="paginatedQueues.length === 0">
-            <td colspan="8" class="text-base-content/50 text-center">No queues found</td>
+            <td colspan="8" class="text-base-content/40 py-12 text-center text-sm">No queues found</td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <!-- Pagination -->
-    <div class="border-base-300 border-t">
+    <div v-if="filteredQueues.length > pageSize" class="border-base-200 dark:border-base-content/10 shrink-0 border-t">
       <Pagination
         :total-items="filteredQueues.length"
         v-model:current-page="currentPage"
