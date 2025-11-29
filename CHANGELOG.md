@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- Updated .NET 9 -> .NET 10
+- Updated MassTransit 8.3.6 -> MassTransit 8.5.6
+
+## [v1.4.1] - 2025-03-05
+
+### Fixed
+
 - Metrics endpoint for SQL server
 
 ## [v1.4.0] - 2025-02-12
