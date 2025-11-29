@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from "vue-router";
+import BarsIcon from "@/components/icons/BarsIcon.vue";
+import DatabaseIcon from "@/components/icons/DatabaseIcon.vue";
+import SitemapIcon from "@/components/icons/SitemapIcon.vue";
 import AppLayout from "@/layouts/AppLayout.vue";
 
 const router = useRouter();
@@ -16,7 +19,7 @@ const route = useRoute();
           :class="{ 'tab-active': route.name === 'overview' }"
           @click="router.push({ name: 'overview' })"
         >
-          <i class="pi pi-bars"></i> Overview
+          <BarsIcon class="h-4 w-4" /> Overview
         </button>
         <button
           role="tab"
@@ -24,7 +27,7 @@ const route = useRoute();
           :class="{ 'tab-active': route.name === 'topics' }"
           @click="router.push({ name: 'topics' })"
         >
-          <i class="pi pi-sitemap"></i> Topics
+          <SitemapIcon class="h-4 w-4" /> Topics
         </button>
         <button
           role="tab"
@@ -32,7 +35,7 @@ const route = useRoute();
           :class="{ 'tab-active': route.name === 'queues' }"
           @click="router.push({ name: 'queues' })"
         >
-          <i class="pi pi-database rotate-90"></i> Queues
+          <DatabaseIcon class="h-4 w-4 rotate-90" /> Queues
         </button>
       </div>
 

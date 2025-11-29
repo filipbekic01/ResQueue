@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { format, formatDistance } from "date-fns";
+import CircleFilledIcon from "@/components/icons/CircleFilledIcon.vue";
 import type { MessageDeliveryDto } from "@/dtos/message/messageDeliveryDto";
 
 defineProps<{
@@ -13,7 +14,7 @@ defineProps<{
   >
     <div class="flex items-center gap-2">
       <div class="items-cener flex gap-3 dark:text-red-400">
-        <i class="pi pi-circle-fill text-red-400"></i>
+        <CircleFilledIcon class="h-3 w-3 text-red-400" />
         {{ selectedMessage.transportHeaders["MT-Fault-ExceptionType"] }}
       </div>
       <span class="dark:text-surface-300">•</span>

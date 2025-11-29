@@ -5,6 +5,15 @@ import { useRouter } from "vue-router";
 import { useDeleteMessagesMutation } from "@/api/messages/deleteMessagesMutation";
 import { useMessagesQuery } from "@/api/messages/messagesQuery";
 import { usePurgeQueueMutation } from "@/api/queues/purgeQueueMutation";
+import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon.vue";
+import ArrowRightIcon from "@/components/icons/ArrowRightIcon.vue";
+import CheckCircleIcon from "@/components/icons/CheckCircleIcon.vue";
+import EraserIcon from "@/components/icons/EraserIcon.vue";
+import ExclamationCircleIcon from "@/components/icons/ExclamationCircleIcon.vue";
+import RefreshIcon from "@/components/icons/RefreshIcon.vue";
+import ReplayIcon from "@/components/icons/ReplayIcon.vue";
+import TrashIcon from "@/components/icons/TrashIcon.vue";
+import XCircleIcon from "@/components/icons/XCircleIcon.vue";
 import Pagination from "@/components/Pagination.vue";
 import { useQueue } from "@/composables/queueComposable";
 import { useConfirmDialog } from "@/composables/useConfirmDialog";
@@ -166,14 +175,15 @@ const onActionComplete = () => {
   selectedMessages.value = [];
 };
 
-const getMessagesIcon = (queue: QueueDto) => {
+const getMessagesIconComponent = (queue: QueueDto) => {
   if (queue.type == 1) {
-    return "pi-check-circle";
+    return CheckCircleIcon;
   } else if (queue.type == 2) {
-    return "pi-exclamation-circle";
+    return ExclamationCircleIcon;
   } else if (queue.type == 3) {
-    return "pi-times-circle";
+    return XCircleIcon;
   }
+  return CheckCircleIcon;
 };
 
 const hasMtFaultMessages = computed(() => {
@@ -193,11 +203,11 @@ const hasMtFaultMessages = computed(() => {
         <!-- Menu bar with DaisyUI buttons -->
         <div class="border-base-300 dark:border-base-content/20 flex w-full items-center gap-1 border-b px-2 py-1.5">
           <button class="btn btn-ghost btn-sm" @click="goToQueues">
-            <i class="pi pi-arrow-left"></i>
+            <ArrowLeftIcon class="h-4 w-4" />
             Queues
           </button>
           <button class="btn btn-ghost btn-sm" :disabled="isPending" @click="refreshQueue">
-            <i class="pi pi-refresh"></i>
+            <RefreshIcon class="h-4 w-4" />
             Refresh
           </button>
 
@@ -209,7 +219,7 @@ const hasMtFaultMessages = computed(() => {
               :disabled="!selectedMessageIds.length"
               @click="requeueSpecificPopoverOpen = !requeueSpecificPopoverOpen"
             >
-              <i class="pi pi-replay"></i>
+              <ReplayIcon class="h-4 w-4" />
               Requeue
             </button>
             <div
@@ -230,7 +240,7 @@ const hasMtFaultMessages = computed(() => {
           <!-- Batch Requeue Dropdown -->
           <div class="dropdown">
             <button tabindex="0" class="btn btn-ghost btn-sm" @click="requeuePopoverOpen = !requeuePopoverOpen">
-              <i class="pi pi-replay"></i>
+              <ReplayIcon class="h-4 w-4" />
               Batch Requeue
             </button>
             <div
@@ -256,7 +266,7 @@ const hasMtFaultMessages = computed(() => {
               :disabled="!selectedMessageIds.length"
               @click="deleteMessagesDropdownOpen = !deleteMessagesDropdownOpen"
             >
-              <i class="pi pi-trash"></i>
+              <TrashIcon class="h-4 w-4" />
               Delete
             </button>
             <div
@@ -280,14 +290,14 @@ const hasMtFaultMessages = computed(() => {
                   @click="deleteMessages"
                 >
                   Delete
-                  <i class="pi pi-arrow-right"></i>
+                  <ArrowRightIcon class="h-4 w-4" />
                 </button>
               </div>
             </div>
           </div>
 
           <button class="btn btn-ghost btn-sm" :disabled="isPurgeQueuePending" @click="purgeQueue">
-            <i class="pi pi-eraser"></i>
+            <EraserIcon class="h-4 w-4" />
             Purge
           </button>
         </div>
@@ -302,7 +312,7 @@ const hasMtFaultMessages = computed(() => {
             :class="{ 'tab-active': selectedQueueId === item.queue.id }"
             @click="updateSelectedQueue(item.queue)"
           >
-            <i class="pi" :class="getMessagesIcon(item.queue)"></i>
+            <component :is="getMessagesIconComponent(item.queue)" class="h-4 w-4" />
             {{ item.queueNameByType }}
           </button>
         </div>

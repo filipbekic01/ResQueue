@@ -4,7 +4,10 @@ import { useRoute, useRouter } from "vue-router";
 import { useAuthQuery } from "@/api/auth/authQuery";
 import mtLogoUrlDark from "@/assets/images/masstransit-dark.svg";
 import mtLogoUrl from "@/assets/images/masstransit.svg";
+import ChevronLeftIcon from "@/components/icons/ChevronLeftIcon.vue";
+import ChevronRightIcon from "@/components/icons/ChevronRightIcon.vue";
 import ComputerIcon from "@/components/icons/ComputerIcon.vue";
+import HourglassIcon from "@/components/icons/HourglassIcon.vue";
 import MoonIcon from "@/components/icons/MoonIcon.vue";
 import SunIcon from "@/components/icons/SunIcon.vue";
 import { useUserSettings } from "@/composables/userSettingsComposable";
@@ -138,7 +141,7 @@ const autoRefreshLabel = computed(() => {
                 class="btn btn-ghost btn-sm"
                 @click="autoRefreshPopoverOpen = !autoRefreshPopoverOpen"
               >
-                <i class="pi pi-hourglass"></i>
+                <HourglassIcon class="h-4 w-4" />
                 {{ autoRefreshLabel }}
               </button>
               <div
@@ -166,7 +169,8 @@ const autoRefreshLabel = computed(() => {
             </div>
 
             <button class="btn btn-ghost btn-sm" @click="toggleGraph">
-              <i :class="`pi pi-angle-${settings.showGraph ? 'right' : 'left'}`"></i>
+              <ChevronRightIcon v-if="settings.showGraph" class="h-4 w-4" />
+              <ChevronLeftIcon v-else class="h-4 w-4" />
             </button>
           </div>
         </div>

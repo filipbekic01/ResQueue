@@ -3,6 +3,7 @@ import { computed, ref, watchEffect } from "vue";
 import { useRoute } from "vue-router";
 import { useRequeueMessagesMutation } from "@/api/messages/requeueMessagesMutation";
 import { useRequeueSpecificMessagesMutation } from "@/api/messages/requeueSpecificMessagesMutation";
+import ArrowRightIcon from "@/components/icons/ArrowRightIcon.vue";
 import { useQueue } from "@/composables/queueComposable";
 import { useToast } from "@/composables/useToast";
 import { errorToToast } from "@/utils/errorUtils";
@@ -127,7 +128,7 @@ const requeueMessages = () => {
 
     <button class="btn btn-primary" @click="requeueMessages">
       Requeue
-      <i class="pi pi-arrow-right"></i>
+      <ArrowRightIcon class="h-4 w-4" />
     </button>
   </div>
 </template>

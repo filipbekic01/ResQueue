@@ -2,6 +2,8 @@
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useJobStateQuery } from "@/api/jobs/jobStateQuery";
 import { useSingleMessageQuery } from "@/api/messages/singleMessageQuery";
+import ClockIcon from "@/components/icons/ClockIcon.vue";
+import XMarkIcon from "@/components/icons/XMarkIcon.vue";
 import { useJson } from "@/composables/jsonComposable";
 import type { MessageDeliveryDto } from "@/dtos/message/messageDeliveryDto";
 import { humanDateTime } from "@/utils/dateTimeUtil";
@@ -76,7 +78,7 @@ const jobStatePopoverOpen = ref(false);
     <div class="flex h-full flex-col overflow-hidden">
       <div class="absolute end-0 top-0 p-6">
         <button class="btn btn-ghost btn-sm btn-circle" @click="emit('close')">
-          <i class="pi pi-times"></i>
+          <XMarkIcon class="h-4 w-4" />
         </button>
       </div>
       <div class="border-base-300 dark:border-base-content/20 border-b px-8 pt-8 pb-6">
@@ -142,7 +144,7 @@ const jobStatePopoverOpen = ref(false);
               v-if="displayedMessage.message?.schedulingTokenId || job"
             >
               <div v-if="displayedMessage.message?.schedulingTokenId" class="flex items-center gap-2">
-                <i class="pi pi-clock"></i>Scheduled Message
+                <ClockIcon class="h-4 w-4" />Scheduled Message
               </div>
               <div v-if="job" class="">
                 The message belongs to the {{ job.isRecurring ? "recurring" : "" }} job —
