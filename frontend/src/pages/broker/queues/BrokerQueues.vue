@@ -13,12 +13,13 @@ const { settings, updateSettings } = useUserSettings();
 const { data } = useQueuesViewQuery(computed(() => settings.refetchInterval));
 const queuesView = computed(() => data.value ?? []);
 
-const selectQueue = (queue: QueueViewDto) => {
+const selectQueue = (queue: QueueViewDto, queueType?: number) => {
   router.push({
     name: "messages",
     params: {
       queueName: queue.queueName,
     },
+    query: queueType ? { queueType: queueType.toString() } : undefined,
   });
 };
 
@@ -133,21 +134,21 @@ watchEffect(() => {
             <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Auto Delete</th>
             <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Max Delivery</th>
             <th
-              class="text-base-content/60 w-0 cursor-pointer text-xs font-medium whitespace-nowrap"
+              class="bg-success/5 text-base-content/60 w-0 cursor-pointer border-l-2 border-l-success/30 text-xs font-medium whitespace-nowrap"
               @click="toggleSort('ready')"
             >
               Ready
               <span v-if="sortField === 'ready'" class="text-primary">{{ sortOrder === "asc" ? "↑" : "↓" }}</span>
             </th>
             <th
-              class="text-base-content/60 w-0 cursor-pointer text-xs font-medium whitespace-nowrap"
+              class="bg-warning/5 text-base-content/60 w-0 cursor-pointer border-l-2 border-l-warning/30 text-xs font-medium whitespace-nowrap"
               @click="toggleSort('errored')"
             >
               Errored
               <span v-if="sortField === 'errored'" class="text-primary">{{ sortOrder === "asc" ? "↑" : "↓" }}</span>
             </th>
             <th
-              class="text-base-content/60 w-0 cursor-pointer text-xs font-medium whitespace-nowrap"
+              class="bg-error/5 text-base-content/60 w-0 cursor-pointer border-l-2 border-l-error/30 text-xs font-medium whitespace-nowrap"
               @click="toggleSort('deadLettered')"
             >
               Dead Lettered
@@ -183,17 +184,17 @@ watchEffect(() => {
               {{ queue.queueAutoDelete ? `${queue.queueAutoDelete / 60}m` : "-" }}
             </td>
             <td class="text-base-content/60 py-2.5 text-sm">{{ queue.queueMaxDeliveryCount }}</td>
-            <td class="py-2.5 text-sm">
+            <td class="bg-success/5 border-l-2 border-l-success/30 py-2.5 text-sm hover:underline" @click.stop="selectQueue(queue, 1)">
               <span :class="queue.ready > 0 ? 'text-base-content font-medium' : 'text-base-content/40'">{{
                 queue.ready
               }}</span>
             </td>
-            <td class="py-2.5 text-sm">
+            <td class="bg-warning/5 border-l-2 border-l-warning/30 py-2.5 text-sm hover:underline" @click.stop="selectQueue(queue, 2)">
               <span :class="queue.errored > 0 ? 'text-warning font-medium' : 'text-base-content/40'">{{
                 queue.errored
               }}</span>
             </td>
-            <td class="py-2.5 text-sm">
+            <td class="bg-error/5 border-l-2 border-l-error/30 py-2.5 text-sm hover:underline" @click.stop="selectQueue(queue, 3)">
               <span :class="queue.deadLettered > 0 ? 'text-error font-medium' : 'text-base-content/40'">{{
                 queue.deadLettered
               }}</span>

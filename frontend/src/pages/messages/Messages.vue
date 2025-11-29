@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useQueryClient } from "@tanstack/vue-query";
 import { computed, ref, watchEffect } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useDeleteMessagesMutation } from "@/api/messages/deleteMessagesMutation";
 import { useMessagesQuery } from "@/api/messages/messagesQuery";
 import { usePurgeQueueMutation } from "@/api/queues/purgeQueueMutation";
@@ -32,6 +32,7 @@ const props = defineProps<{
   queueName: string;
 }>();
 
+const route = useRoute();
 const router = useRouter();
 
 const queryClient = useQueryClient();
@@ -62,6 +63,7 @@ const selectedQueue = computed(() => queues.value?.find((x) => x.id === selected
 const updateSelectedQueue = (queue: QueueDto) => {
   selectedQueueId.value = queue.id;
   updateSettings({ ...settings, queueType: queue.type });
+  router.replace({ query: { ...route.query, queueType: queue.type.toString() } });
 };
 
 watchEffect(() => {
@@ -69,7 +71,18 @@ watchEffect(() => {
     return;
   }
 
-  selectedQueueId.value = queueOptions.value.find((x) => x.queue.type == settings.queueType)?.queue.id ?? undefined;
+  const queueTypeFromUrl = route.query.queueType ? Number(route.query.queueType) : null;
+  const queueTypeToUse = queueTypeFromUrl ?? settings.queueType;
+
+  selectedQueueId.value = queueOptions.value.find((x) => x.queue.type == queueTypeToUse)?.queue.id ?? undefined;
+
+  // Sync URL if it doesn't have queueType
+  if (!queueTypeFromUrl && selectedQueueId.value) {
+    const selectedQueue = queueOptions.value.find((x) => x.queue.id === selectedQueueId.value);
+    if (selectedQueue) {
+      router.replace({ query: { ...route.query, queueType: selectedQueue.queue.type.toString() } });
+    }
+  }
 });
 
 // Purge queue
@@ -197,7 +210,15 @@ const hasMtFaultMessages = computed(() => {
   <AppLayout>
     <template #menu>
       <!-- Queue Header -->
-      <div class="border-base-200 dark:border-base-content/10 bg-base-100 border-b px-4 py-3">
+      <div
+        class="border-base-200 dark:border-base-content/10 border-b px-4 py-3"
+        :class="{
+          'from-success/5 via-base-200 to-base-200 bg-gradient-to-r': selectedQueue?.type === 1,
+          'from-warning/10 via-base-200 to-base-200 bg-gradient-to-r': selectedQueue?.type === 2,
+          'from-error/10 via-base-200 to-base-200 bg-gradient-to-r': selectedQueue?.type === 3,
+          'bg-base-200': !selectedQueue,
+        }"
+      >
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <button
@@ -219,23 +240,30 @@ const hasMtFaultMessages = computed(() => {
               </div>
             </div>
           </div>
-          <div v-if="queueView" class="flex items-center gap-2">
-            <div class="bg-base-200/50 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5">
-              <span class="text-base-content/60 text-xs">Ready</span>
-              <span class="text-base-content text-sm font-semibold">{{ queueView.ready }}</span>
-            </div>
-            <div class="bg-warning/10 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5">
-              <span class="text-warning/70 text-xs">Errored</span>
-              <span class="text-warning text-sm font-semibold">{{ queueView.errored }}</span>
-            </div>
-            <div class="bg-error/10 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5">
-              <span class="text-error/70 text-xs">Dead</span>
-              <span class="text-error text-sm font-semibold">{{ queueView.deadLettered }}</span>
-            </div>
-            <div class="bg-info/10 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5">
-              <span class="text-info/70 text-xs">Scheduled</span>
-              <span class="text-info text-sm font-semibold">{{ queueView.scheduled }}</span>
-            </div>
+          <div v-if="selectedQueueId" class="flex items-center gap-1">
+            <button
+              v-for="item in queueOptions"
+              :key="item.queue.id"
+              class="flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-all"
+              :class="{
+                'bg-success/15 text-success ring-success/30 ring-1':
+                  selectedQueueId === item.queue.id && item.queue.type === 1,
+                'bg-warning/15 text-warning ring-warning/30 ring-1':
+                  selectedQueueId === item.queue.id && item.queue.type === 2,
+                'bg-error/15 text-error ring-error/30 ring-1':
+                  selectedQueueId === item.queue.id && item.queue.type === 3,
+                'text-success/60 hover:text-success hover:bg-success/10':
+                  selectedQueueId !== item.queue.id && item.queue.type === 1,
+                'text-warning/60 hover:text-warning hover:bg-warning/10':
+                  selectedQueueId !== item.queue.id && item.queue.type === 2,
+                'text-error/60 hover:text-error hover:bg-error/10':
+                  selectedQueueId !== item.queue.id && item.queue.type === 3,
+              }"
+              @click="updateSelectedQueue(item.queue)"
+            >
+              <component :is="getMessagesIconComponent(item.queue)" class="h-4 w-4" />
+              {{ item.queueNameByType }}
+            </button>
           </div>
         </div>
       </div>
@@ -343,23 +371,6 @@ const hasMtFaultMessages = computed(() => {
           >
             <EraserIcon class="h-4 w-4" />
             Purge
-          </button>
-        </div>
-
-        <!-- Queue type tabs -->
-        <div v-if="selectedQueueId" class="ms-auto flex items-center gap-1 px-2">
-          <button
-            v-for="item in queueOptions"
-            :key="item.queue.id"
-            class="flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
-            :class="{
-              'bg-base-200 text-base-content': selectedQueueId === item.queue.id,
-              'text-base-content/60 hover:text-base-content hover:bg-base-200/50': selectedQueueId !== item.queue.id,
-            }"
-            @click="updateSelectedQueue(item.queue)"
-          >
-            <component :is="getMessagesIconComponent(item.queue)" class="h-4 w-4" />
-            {{ item.queueNameByType }}
           </button>
         </div>
       </div>
