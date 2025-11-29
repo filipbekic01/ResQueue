@@ -81,53 +81,55 @@ const jobStatePopoverOpen = ref(false);
           <XMarkIcon class="h-4 w-4" />
         </button>
       </div>
-      <div class="border-base-300 dark:border-base-content/20 border-b px-8 pt-8 pb-6">
-        <div class="text-base-content/60 mb-2">
+      <div class="border-base-200 dark:border-base-content/10 border-b px-8 pt-8 pb-6">
+        <div class="text-base-content/50 mb-1 text-sm">
           {{ humanDateTime(displayedMessage.message?.sentTime) }}
         </div>
-        <div class="flex items-center gap-2.5 text-2xl">
-          <span class="text-base-content">{{ displayedMessage.message?.messageType.replace("urn:message:", "") }}</span>
+        <div class="flex items-center gap-2.5">
+          <span class="text-base-content text-xl font-semibold">{{
+            displayedMessage.message?.messageType.replace("urn:message:", "")
+          }}</span>
         </div>
-        <div class="mt-4 flex gap-8">
+        <div class="mt-5 flex flex-wrap gap-x-8 gap-y-3">
           <div>
-            <div class="text-base-content/70">Machine</div>
-            <div class="text-base-content/50">
+            <div class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Machine</div>
+            <div class="text-base-content/70 text-sm">
               {{ displayedMessage.message?.host?.machineName }}
             </div>
           </div>
           <div>
-            <div class="text-base-content/70">Process Name</div>
-            <div class="text-base-content/50">
+            <div class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Process Name</div>
+            <div class="text-base-content/70 text-sm">
               {{ displayedMessage.message?.host?.processName }}
             </div>
           </div>
           <div>
-            <div class="text-base-content/70">PID</div>
-            <div class="text-base-content/50">
+            <div class="text-base-content/50 text-xs font-medium tracking-wide uppercase">PID</div>
+            <div class="text-base-content/70 text-sm">
               {{ displayedMessage.message?.host?.processId }}
             </div>
           </div>
           <div>
-            <div class="text-base-content/70">Assembly</div>
-            <div class="text-base-content/50">
+            <div class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Assembly</div>
+            <div class="text-base-content/70 text-sm">
               {{ displayedMessage.message?.host?.assembly }} ({{ displayedMessage.message?.host?.assemblyVersion }})
             </div>
           </div>
           <div>
-            <div class="text-base-content/70">Framework</div>
-            <div class="text-base-content/50">
+            <div class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Framework</div>
+            <div class="text-base-content/70 text-sm">
               {{ displayedMessage.message?.host?.frameworkVersion }}
             </div>
           </div>
           <div>
-            <div class="text-base-content/70">MassTransit</div>
-            <div class="text-base-content/50">
+            <div class="text-base-content/50 text-xs font-medium tracking-wide uppercase">MassTransit</div>
+            <div class="text-base-content/70 text-sm">
               {{ displayedMessage.message?.host?.massTransitVersion }}
             </div>
           </div>
           <div>
-            <div class="text-base-content/70">OS</div>
-            <div class="text-base-content/50">
+            <div class="text-base-content/50 text-xs font-medium tracking-wide uppercase">OS</div>
+            <div class="text-base-content/70 text-sm">
               {{ displayedMessage.message?.host?.operatingSystemVersion }}
             </div>
           </div>
@@ -138,23 +140,30 @@ const jobStatePopoverOpen = ref(false);
         <div class="flex shrink-0 grow basis-2/3 overflow-auto">
           <div class="border-base-300 dark:border-base-content/20 flex w-[45%] flex-col overflow-auto border-e">
             <div
-              class="bg-base-100 border-base-300 dark:border-base-content/20 sticky top-0 flex flex-col gap-2 border-b px-8 py-6"
+              class="bg-base-100 border-base-200 dark:border-base-content/10 sticky top-0 z-10 flex flex-col gap-2 border-b px-6 py-4"
               v-if="displayedMessage.message?.schedulingTokenId || job"
             >
-              <div v-if="displayedMessage.message?.schedulingTokenId" class="flex items-center gap-2">
-                <ClockIcon class="h-4 w-4" />Scheduled Message
-              </div>
-              <div v-if="job" class="">
-                The message belongs to the {{ job.isRecurring ? "recurring" : "" }} job —
-                <span
-                  @click="jobStatePopoverOpen = !jobStatePopoverOpen"
-                  class="cursor-pointer text-blue-500 hover:text-blue-400"
-                  >click for details.</span
+              <div class="bg-info/5 -mx-6 -my-4 flex flex-col gap-2 px-6 py-4">
+                <div
+                  v-if="displayedMessage.message?.schedulingTokenId"
+                  class="text-info flex items-center gap-2 text-sm"
                 >
+                  <ClockIcon class="h-4 w-4" />Scheduled Message
+                </div>
+                <div v-if="job" class="text-sm">
+                  <span class="text-base-content/70"
+                    >The message belongs to the {{ job.isRecurring ? "recurring" : "" }} job —</span
+                  >
+                  <span
+                    @click="jobStatePopoverOpen = !jobStatePopoverOpen"
+                    class="text-primary cursor-pointer hover:underline"
+                    >click for details.</span
+                  >
+                </div>
               </div>
             </div>
             <template v-if="hasAdditionalData">
-              <div class="border-base-300 dark:border-base-content/20 flex flex-col gap-4 border-b p-8">
+              <div class="border-base-200 dark:border-base-content/10 flex flex-col gap-3 border-b px-6 py-5">
                 <MessageHeader name="Additional Data" />
                 <template v-for="(value, key) in displayedMessage.additionalData" :key="key">
                   <MessageBlock :name="key">
@@ -163,7 +172,7 @@ const jobStatePopoverOpen = ref(false);
                 </template>
               </div>
             </template>
-            <div class="flex flex-col gap-4 p-8">
+            <div class="flex flex-col gap-3 px-6 py-5">
               <MessageHeader name="Delivery" />
               <MessageBlock name="Message Delivery ID" :value="displayedMessage.messageDeliveryId" />
               <MessageBlock name="Transport Message ID" :value="displayedMessage.transportMessageId" />
@@ -180,11 +189,14 @@ const jobStatePopoverOpen = ref(false);
               <MessageBlock name="Delivery Count" :value="displayedMessage.deliveryCount" />
               <MessageBlock name="Max. Delivery Count" :value="displayedMessage.maxDeliveryCount" />
               <MessageBlock name="Last Delivered" :value="displayedMessage.lastDelivered" />
-              <MessageBlock class="flex-col gap-2" name="Transport Headers">
-                <div class="whitespace-pre" v-html="highlightJson(transportHeadersTrimmed, true)"></div>
+              <MessageBlock name="Transport Headers">
+                <div
+                  class="bg-base-200/50 rounded-md p-3 font-mono text-xs whitespace-pre"
+                  v-html="highlightJson(transportHeadersTrimmed, true)"
+                ></div>
               </MessageBlock>
             </div>
-            <div class="border-base-300 dark:border-base-content/20 flex flex-col gap-4 border-t p-8">
+            <div class="border-base-200 dark:border-base-content/10 flex flex-col gap-3 border-t px-6 py-5">
               <MessageHeader name="Message" />
               <MessageBlock name="Transport Message ID" :value="displayedMessage.message?.transportMessageId" />
               <MessageBlock name="Content Type" :value="displayedMessage.message?.contentType" />
@@ -200,23 +212,29 @@ const jobStatePopoverOpen = ref(false);
               <MessageBlock name="Response Address" :value="displayedMessage.message?.responseAddress" />
               <MessageBlock name="Fault Address" :value="displayedMessage.message?.faultAddress" />
               <MessageBlock name="Sent Time" :value="displayedMessage.message?.sentTime" />
-              <MessageBlock class="flex-col gap-2" name="Headers">
-                <div class="whitespace-pre" v-html="highlightJson(displayedMessage.message?.headers, true)"></div>
+              <MessageBlock name="Headers">
+                <div
+                  class="bg-base-200/50 rounded-md p-3 font-mono text-xs whitespace-pre"
+                  v-html="highlightJson(displayedMessage.message?.headers, true)"
+                ></div>
               </MessageBlock>
-              <MessageBlock class="flex-col gap-2" name="Host">
-                <div class="whitespace-pre" v-html="highlightJson(displayedMessage.message?.host, true)"></div>
+              <MessageBlock name="Host">
+                <div
+                  class="bg-base-200/50 rounded-md p-3 font-mono text-xs whitespace-pre"
+                  v-html="highlightJson(displayedMessage.message?.host, true)"
+                ></div>
               </MessageBlock>
             </div>
           </div>
-          <div class="flex w-[55%] flex-col gap-4 overflow-auto">
-            <div class="relative p-8">
+          <div class="flex w-[55%] flex-col overflow-auto">
+            <div class="relative h-full p-6">
               <!-- Job State Popover/Modal -->
               <div
                 v-if="jobStatePopoverOpen && job"
-                class="bg-base-100 absolute top-8 left-8 z-50 flex flex-col gap-4 rounded-lg p-5 shadow-xl"
+                class="bg-base-100 border-base-200 dark:border-base-content/10 absolute top-6 left-6 z-50 flex flex-col gap-3 rounded-xl border p-5 shadow-xl"
               >
                 <button
-                  class="btn btn-ghost btn-xs btn-circle absolute top-2 right-2"
+                  class="btn btn-ghost btn-xs btn-circle absolute top-3 right-3"
                   @click="jobStatePopoverOpen = false"
                 >
                   ✕
@@ -247,12 +265,14 @@ const jobStatePopoverOpen = ref(false);
                 <MessageBlock name="Start Date" :value="job.startDate" />
                 <MessageBlock name="End Date" :value="job.endDate" />
               </div>
-              <div class="absolute end-8 flex justify-between">
-                <span class="text-base-content/60">{{ displayedMessage.message?.contentType }}</span>
+              <div class="absolute end-6 top-6">
+                <span class="text-base-content/40 bg-base-200/50 rounded-md px-2 py-1 text-xs font-medium">{{
+                  displayedMessage.message?.contentType
+                }}</span>
               </div>
 
               <div
-                class="text-base-content/70 grow font-mono whitespace-pre"
+                class="text-base-content/70 grow font-mono text-sm leading-relaxed whitespace-pre"
                 v-if="displayedMessage.message"
                 v-html="highlightJson(JSON.parse(displayedMessage.message.body))"
               ></div>

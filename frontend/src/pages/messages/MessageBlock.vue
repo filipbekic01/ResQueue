@@ -6,9 +6,9 @@ defineProps<{
 </script>
 
 <template>
-  <div class="flex">
-    <div class="text-surface-500 dark:text-surface-400 w-72 shrink-0">{{ name }}</div>
-    <div class="text-surface-600 dark:text-surface-500 overflow-hidden break-words">
+  <div class="flex text-sm">
+    <div class="text-base-content/50 w-48 shrink-0 font-medium">{{ name }}</div>
+    <div class="text-base-content/80 overflow-hidden break-words">
       <slot>{{ value ?? "-" }}</slot>
     </div>
   </div>

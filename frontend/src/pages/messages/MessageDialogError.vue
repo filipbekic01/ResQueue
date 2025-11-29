@@ -10,15 +10,15 @@ defineProps<{
 
 <template>
   <div
-    class="dark:border-t-surface-700 flex basis-1/3 flex-col gap-2 overflow-auto border-s-4 border-t border-s-red-400 p-6"
+    class="border-base-200 dark:border-base-content/10 bg-error/5 flex basis-1/3 flex-col gap-3 overflow-auto border-t p-6"
   >
     <div class="flex items-center gap-2">
-      <div class="items-cener flex gap-3 dark:text-red-400">
-        <CircleFilledIcon class="h-3 w-3 text-red-400" />
-        {{ selectedMessage.transportHeaders["MT-Fault-ExceptionType"] }}
+      <div class="text-error flex items-center gap-2 font-medium">
+        <CircleFilledIcon class="h-2.5 w-2.5" />
+        <span class="text-sm">{{ selectedMessage.transportHeaders["MT-Fault-ExceptionType"] }}</span>
       </div>
-      <span class="dark:text-surface-300">•</span>
-      <div class="text-surface-500 dark:text-surface-300">
+      <span class="text-base-content/30">•</span>
+      <div class="text-base-content/50 text-sm">
         {{ format(selectedMessage.transportHeaders["MT-Fault-Timestamp"], "MMM dd HH:mm:ss") }}
         (failed
         {{ formatDistance(selectedMessage.transportHeaders["MT-Fault-Timestamp"], new Date()) }}
@@ -26,11 +26,11 @@ defineProps<{
       </div>
     </div>
 
-    <div class="text-red-700 dark:text-red-300">
+    <div class="text-error/90 text-sm font-medium">
       {{ selectedMessage.transportHeaders["MT-Fault-Message"] }}
     </div>
 
-    <div class="dark:text-surface-400 px-4 whitespace-pre text-red-900">
+    <div class="text-base-content/60 bg-base-200/50 overflow-auto rounded-lg p-4 font-mono text-xs whitespace-pre">
       {{
         selectedMessage.transportHeaders["MT-Fault-StackTrace"]
           ? selectedMessage.transportHeaders["MT-Fault-StackTrace"]
