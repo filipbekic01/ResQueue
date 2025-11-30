@@ -162,11 +162,11 @@ const shouldShowGraph = computed(() => isMessagesPage.value && showGraph.value);
             title="Auto refresh"
           >
             <div class="relative">
-              <RefreshIcon class="h-4 w-4" :class="{ 'text-success': isAutoRefreshActive }" />
+              <RefreshIcon class="h-3.5 w-3.5" />
               <!-- Circular progress indicator -->
-              <svg v-if="isAutoRefreshActive" class="absolute -inset-1 h-6 w-6" viewBox="0 0 24 24">
+              <svg v-if="isAutoRefreshActive" class="absolute -inset-1.5 h-6.5 w-6.5" viewBox="0 0 24 24">
                 <circle
-                  class="text-success/30"
+                  class="text-base-content/30"
                   cx="12"
                   cy="12"
                   r="10"
@@ -175,7 +175,7 @@ const shouldShowGraph = computed(() => isMessagesPage.value && showGraph.value);
                   stroke-width="2"
                 />
                 <circle
-                  class="text-success refresh-progress"
+                  class="text-base-content refresh-progress"
                   cx="12"
                   cy="12"
                   r="10"
@@ -187,9 +187,7 @@ const shouldShowGraph = computed(() => isMessagesPage.value && showGraph.value);
                 />
               </svg>
             </div>
-            <span class="text-xs font-medium" :class="{ 'text-success': isAutoRefreshActive }">{{
-              autoRefreshLabel
-            }}</span>
+            <span class="ms-2 text-xs font-medium">{{ autoRefreshLabel }}</span>
           </button>
           <div
             v-if="autoRefreshPopoverOpen"

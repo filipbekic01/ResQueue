@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { useQueryClient } from "@tanstack/vue-query";
-import { formatDistance, isFuture } from "date-fns";
 import { computed, ref, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useDeleteMessagesMutation } from "@/api/messages/deleteMessagesMutation";
@@ -10,12 +9,10 @@ import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon.vue";
 import CheckCircleIcon from "@/components/icons/CheckCircleIcon.vue";
 import EraserIcon from "@/components/icons/EraserIcon.vue";
 import ExclamationCircleIcon from "@/components/icons/ExclamationCircleIcon.vue";
-import HourglassIcon from "@/components/icons/HourglassIcon.vue";
 import RefreshIcon from "@/components/icons/RefreshIcon.vue";
 import ReplayIcon from "@/components/icons/ReplayIcon.vue";
 import TrashIcon from "@/components/icons/TrashIcon.vue";
 import XCircleIcon from "@/components/icons/XCircleIcon.vue";
-import ZapIcon from "@/components/icons/ZapIcon.vue";
 import Pagination from "@/components/Pagination.vue";
 import { useQueue } from "@/composables/queueComposable";
 import { useConfirmDialog } from "@/composables/useConfirmDialog";
@@ -26,9 +23,9 @@ import type { MessageDeliveryDto } from "@/dtos/message/messageDeliveryDto";
 import type { QueueDto } from "@/dtos/queue/queueDto";
 import AppLayout from "@/layouts/AppLayout.vue";
 import Graph from "@/layouts/Graph.vue";
-import { humanDateTime } from "@/utils/dateTimeUtil";
 import { errorToToast } from "@/utils/errorUtils";
 import MessageDialog from "./MessageDialog.vue";
+import MessagesTable from "./MessagesTable.vue";
 
 const props = defineProps<{
   queueName: string;
@@ -140,46 +137,6 @@ const selectedMessageIds = computed(() =>
   selectedMessages.value?.length ? selectedMessages.value.map((x) => x.messageDeliveryId) : [],
 );
 
-// Shift selection
-const lastSelectedIndex = ref<number | null>(null);
-
-const handleCheckboxChange = (msg: MessageDeliveryDto, event: Event) => {
-  const isChecked = (event.target as HTMLInputElement).checked;
-  const currentIndex = messages.value?.items.findIndex((m) => m.messageDeliveryId === msg.messageDeliveryId) ?? -1;
-
-  if ((event as MouseEvent).shiftKey && lastSelectedIndex.value !== null && messages.value?.items) {
-    // Shift+click: select range
-    const start = Math.min(lastSelectedIndex.value, currentIndex);
-    const end = Math.max(lastSelectedIndex.value, currentIndex);
-    const rangeItems = messages.value.items.slice(start, end + 1);
-
-    if (isChecked) {
-      // Add range to selection (avoiding duplicates)
-      const newSelection = [...selectedMessages.value];
-      for (const item of rangeItems) {
-        if (!newSelection.some((m) => m.messageDeliveryId === item.messageDeliveryId)) {
-          newSelection.push(item);
-        }
-      }
-      selectedMessages.value = newSelection;
-    } else {
-      // Remove range from selection
-      selectedMessages.value = selectedMessages.value.filter(
-        (m) => !rangeItems.some((r) => r.messageDeliveryId === m.messageDeliveryId),
-      );
-    }
-  } else {
-    // Normal click: toggle single item
-    if (isChecked) {
-      selectedMessages.value = [...selectedMessages.value, msg];
-    } else {
-      selectedMessages.value = selectedMessages.value.filter((m) => m.messageDeliveryId !== msg.messageDeliveryId);
-    }
-  }
-
-  lastSelectedIndex.value = currentIndex;
-};
-
 const requeuePopoverOpen = ref(false);
 const requeueSpecificPopoverOpen = ref(false);
 
@@ -247,43 +204,10 @@ const getMessagesIconComponent = (queue: QueueDto) => {
   return CheckCircleIcon;
 };
 
-const hasMtFaultMessages = computed(() => {
-  return messages.value?.items.some((x) => x.transportHeaders["MT-Fault-Message"]);
-});
-
 // Show status column for READY queue (type 1)
 const isReadyQueue = computed(() => {
   return selectedQueue.value?.type === 1;
 });
-
-// Helper to check if a message was previously faulted
-const wasPreviouslyFaulted = (msg: MessageDeliveryDto) => {
-  return msg.transportHeaders?.["MT-Reason"] === "fault" || msg.transportHeaders?.["MT-Fault-Message"];
-};
-
-// Get the last word from URN by splitting on : or .
-const getShortUrn = (urn: string | undefined): string => {
-  if (!urn) return "-";
-  const parts = urn.split(/[:.]/);
-  return parts[parts.length - 1] || urn;
-};
-
-// Get pending status text with relative time if in future
-const getPendingStatus = (enqueueTime: string | undefined): string => {
-  if (!enqueueTime) return "Pending";
-  const date = new Date(enqueueTime);
-  if (isFuture(date)) {
-    return `Pending (in ${formatDistance(date, new Date())})`;
-  }
-  return "Pending";
-};
-
-// Get failed status text with relative time
-const getFailedStatus = (lastDelivered: string | undefined): string => {
-  if (!lastDelivered) return "Failed";
-  const date = new Date(lastDelivered);
-  return `Failed (${formatDistance(date, new Date())} ago)`;
-};
 </script>
 
 <template>
@@ -296,8 +220,8 @@ const getFailedStatus = (lastDelivered: string | undefined): string => {
         class="border-base-200 dark:border-base-content/10 border-b px-4 py-3"
         :class="{
           'from-success/5 via-base-200 to-base-200 bg-gradient-to-r': selectedQueue?.type === 1,
-          'from-warning/10 via-base-200 to-base-200 bg-gradient-to-r': selectedQueue?.type === 2,
-          'from-error/10 via-base-200 to-base-200 bg-gradient-to-r': selectedQueue?.type === 3,
+          'from-error/10 via-base-200 to-base-200 bg-gradient-to-r': selectedQueue?.type === 2,
+          'from-base-content/10 via-base-200 to-base-200 bg-gradient-to-r': selectedQueue?.type === 3,
           'bg-base-200': !selectedQueue,
         }"
       >
@@ -327,15 +251,15 @@ const getFailedStatus = (lastDelivered: string | undefined): string => {
               :class="{
                 'bg-success/15 text-success ring-success/30 ring-1':
                   selectedQueueId === item.queue.id && item.queue.type === 1,
-                'bg-warning/15 text-warning ring-warning/30 ring-1':
-                  selectedQueueId === item.queue.id && item.queue.type === 2,
                 'bg-error/15 text-error ring-error/30 ring-1':
+                  selectedQueueId === item.queue.id && item.queue.type === 2,
+                'bg-base-content/15 text-base-content ring-base-content/30 ring-1':
                   selectedQueueId === item.queue.id && item.queue.type === 3,
                 'text-success/60 hover:text-success hover:bg-success/10':
                   selectedQueueId !== item.queue.id && item.queue.type === 1,
-                'text-warning/60 hover:text-warning hover:bg-warning/10':
-                  selectedQueueId !== item.queue.id && item.queue.type === 2,
                 'text-error/60 hover:text-error hover:bg-error/10':
+                  selectedQueueId !== item.queue.id && item.queue.type === 2,
+                'text-base-content/60 hover:text-base-content hover:bg-base-content/10':
                   selectedQueueId !== item.queue.id && item.queue.type === 3,
               }"
               @click="updateSelectedQueue(item.queue)"
@@ -510,125 +434,12 @@ const getFailedStatus = (lastDelivered: string | undefined): string => {
     <template v-if="messages?.items.length">
       <div class="flex min-h-0 flex-1 flex-col">
         <!-- Table -->
-        <div class="min-h-0 flex-1 overflow-auto">
-          <table class="table w-full">
-            <thead class="bg-base-100 sticky top-0 z-10">
-              <tr class="border-base-200 dark:border-base-content/10 border-b">
-                <th class="w-0">
-                  <input
-                    type="checkbox"
-                    class="checkbox checkbox-xs"
-                    :checked="selectedMessages.length === messages.items.length && messages.items.length > 0"
-                    :indeterminate="selectedMessages.length > 0 && selectedMessages.length < messages.items.length"
-                    @change="
-                      selectedMessages = selectedMessages.length === messages.items.length ? [] : [...messages.items]
-                    "
-                  />
-                </th>
-                <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">ID</th>
-                <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">URN</th>
-                <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Status</th>
-                <th v-if="hasMtFaultMessages" class="text-base-content/60 text-xs font-medium whitespace-nowrap">
-                  Fault Message
-                </th>
-                <!-- Spacer column: expands to fill available space, pushing other columns to be as narrow as possible -->
-                <th v-if="!hasMtFaultMessages"></th>
-                <th v-if="isReadyQueue" class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">
-                  Expires At
-                </th>
-                <th v-if="isReadyQueue" class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">
-                  Recurring
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="msg in messages.items"
-                :key="msg.messageDeliveryId"
-                class="border-base-200 dark:border-base-content/5 cursor-pointer border-b transition-colors"
-                :class="{
-                  'bg-base-200': selectedMessages.some((m) => m.messageDeliveryId === msg.messageDeliveryId),
-                  'hover:bg-base-200/50': !selectedMessages.some((m) => m.messageDeliveryId === msg.messageDeliveryId),
-                }"
-                @click="toggleMessage(msg)"
-              >
-                <td class="w-0 py-2.5" @click.stop>
-                  <input
-                    type="checkbox"
-                    class="checkbox checkbox-xs"
-                    :checked="selectedMessages.some((m) => m.messageDeliveryId === msg.messageDeliveryId)"
-                    @click="handleCheckboxChange(msg, $event)"
-                  />
-                </td>
-                <td class="text-base-content/60 w-0 py-2.5 text-sm whitespace-nowrap">{{ msg.messageDeliveryId }}</td>
-                <td class="text-base-content w-0 py-2.5 text-sm font-medium whitespace-nowrap">
-                  <div class="tooltip tooltip-right" :data-tip="msg.message?.messageType">
-                    {{ getShortUrn(msg.message?.messageType) }}
-                  </div>
-                </td>
-                <td class="w-0 py-2.5">
-                  <!-- Ready queue statuses -->
-                  <template v-if="isReadyQueue">
-                    <div
-                      v-if="msg.message?.schedulingTokenId"
-                      class="text-info flex items-center gap-2 text-sm"
-                      title="Scheduled for future delivery"
-                    >
-                      <HourglassIcon class="h-4 w-4 shrink-0" />
-                      <span class="whitespace-nowrap">
-                        {{ getPendingStatus(msg.enqueueTime) }}
-                      </span>
-                    </div>
-                    <div
-                      v-else-if="wasPreviouslyFaulted(msg)"
-                      class="text-warning flex items-center gap-2 text-sm"
-                      title="Requeued from error - awaiting retry"
-                    >
-                      <HourglassIcon class="h-4 w-4 shrink-0" />
-                      <span class="whitespace-nowrap">
-                        {{ getPendingStatus(msg.enqueueTime) }}
-                      </span>
-                    </div>
-                    <div v-else class="text-base-content/60 flex items-center gap-2 text-sm">
-                      <HourglassIcon class="h-4 w-4 shrink-0" />
-                      <span class="whitespace-nowrap">{{ getPendingStatus(msg.enqueueTime) }}</span>
-                    </div>
-                  </template>
-                  <!-- Error/Dead-letter queue status -->
-                  <template v-else>
-                    <div class="text-error flex items-center gap-2 text-sm">
-                      <ZapIcon class="h-4 w-4 shrink-0" />
-                      <span class="whitespace-nowrap">{{ getFailedStatus(msg.lastDelivered) }}</span>
-                    </div>
-                  </template>
-                </td>
-                <td v-if="hasMtFaultMessages" class="max-w-0 py-2.5">
-                  <div v-if="msg.transportHeaders?.['MT-Fault-Message']" class="text-error text-sm">
-                    <span class="truncate">{{ msg.transportHeaders?.["MT-Fault-Message"] }}</span>
-                  </div>
-                  <span v-else class="text-base-content/30 text-sm">-</span>
-                </td>
-                <!-- Spacer column: expands to fill available space, pushing other columns to be as narrow as possible -->
-                <td v-if="!hasMtFaultMessages"></td>
-                <td v-if="isReadyQueue" class="text-base-content/60 w-0 py-2.5 text-sm whitespace-nowrap">
-                  {{ msg.expirationTime ? humanDateTime(msg.expirationTime) : "-" }}
-                </td>
-                <td v-if="isReadyQueue" class="w-0 py-2.5 text-center">
-                  <span v-if="msg.isRecurring" class="text-base-content/60 text-sm">✓</span>
-                  <span v-else class="text-base-content/20 text-sm">-</span>
-                </td>
-              </tr>
-              <tr v-if="messages.items.length === 0">
-                <td
-                  :colspan="(hasMtFaultMessages ? 1 : 0) + (isReadyQueue ? 2 : 0) + (selectedQueue?.type !== 1 ? 8 : 6)"
-                  class="text-base-content/40 py-12 text-center text-sm"
-                >
-                  No messages found
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <MessagesTable
+          :messages="messages.items"
+          :is-ready-queue="isReadyQueue"
+          v-model:selected-messages="selectedMessages"
+          @message:click="toggleMessage"
+        />
 
         <!-- Pagination -->
         <div v-if="messages.totalPages > 1" class="border-base-200 dark:border-base-content/10 shrink-0 border-t">

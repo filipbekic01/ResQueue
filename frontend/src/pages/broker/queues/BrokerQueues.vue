@@ -134,7 +134,7 @@ const paginatedQueues = computed(() => {
             <th class="text-base-content/60 text-xs font-medium">Queue Name</th>
             <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Auto Delete</th>
             <th
-              class="text-base-content/60 w-0 cursor-pointer text-xs font-medium whitespace-nowrap"
+              class="bg-info/5 text-base-content/60 border-l-info/30 w-0 cursor-pointer border-l-2 text-xs font-medium whitespace-nowrap"
               @click="toggleSort('scheduled')"
             >
               Scheduled
@@ -159,7 +159,7 @@ const paginatedQueues = computed(() => {
               }}</span>
             </th>
             <th
-              class="bg-neutral/5 text-base-content/60 border-l-neutral/30 w-0 cursor-pointer border-l-2 text-xs font-medium whitespace-nowrap"
+              class="bg-base-content/5 text-base-content/60 border-l-base-content/20 w-0 cursor-pointer border-l-2 text-xs font-medium whitespace-nowrap"
               @click="toggleSort('deadLettered')"
             >
               Dead Lettered
@@ -180,7 +180,10 @@ const paginatedQueues = computed(() => {
             <td class="text-base-content/60 py-2.5 text-sm">
               {{ queue.queueAutoDelete ? `${queue.queueAutoDelete / 60}m` : "-" }}
             </td>
-            <td class="py-2.5 text-sm">
+            <td
+              class="bg-info/5 hover:bg-info/10 border-l-info/30 border-l-2 py-2.5 text-sm transition-colors"
+              @click.stop="selectQueue(queue, 1)"
+            >
               <span :class="queue.scheduled > 0 ? 'text-info font-medium' : 'text-base-content/40'">{{
                 queue.scheduled
               }}</span>
@@ -202,10 +205,10 @@ const paginatedQueues = computed(() => {
               }}</span>
             </td>
             <td
-              class="bg-neutral/5 hover:bg-neutral/10 border-l-neutral/30 border-l-2 py-2.5 text-sm transition-colors"
+              class="bg-base-content/5 hover:bg-base-content/10 border-l-base-content/20 border-l-2 py-2.5 text-sm transition-colors"
               @click.stop="selectQueue(queue, 3)"
             >
-              <span :class="queue.deadLettered > 0 ? 'text-neutral font-medium' : 'text-base-content/40'">{{
+              <span :class="queue.deadLettered > 0 ? 'text-base-content font-medium' : 'text-base-content/40'">{{
                 queue.deadLettered
               }}</span>
             </td>

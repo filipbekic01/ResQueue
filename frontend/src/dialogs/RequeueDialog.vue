@@ -67,11 +67,11 @@ const getQueueColorClasses = (type: number, isSelected: boolean) => {
       ? "bg-success/15 text-success ring-2 ring-success/40"
       : "bg-success/5 text-success/60 hover:bg-success/10 hover:text-success",
     2: isSelected
-      ? "bg-warning/15 text-warning ring-2 ring-warning/40"
-      : "bg-warning/5 text-warning/60 hover:bg-warning/10 hover:text-warning",
-    3: isSelected
       ? "bg-error/15 text-error ring-2 ring-error/40"
       : "bg-error/5 text-error/60 hover:bg-error/10 hover:text-error",
+    3: isSelected
+      ? "bg-base-content/15 text-base-content ring-2 ring-base-content/40"
+      : "bg-base-content/5 text-base-content/60 hover:bg-base-content/10 hover:text-base-content",
   };
   return baseClasses[type as keyof typeof baseClasses] || "";
 };
@@ -127,7 +127,7 @@ const requeueMessages = () => {
       <!-- Source Row -->
       <div
         v-if="selectedQueue"
-        class="flex items-center gap-2 rounded-lg px-3 py-2"
+        class="flex items-center justify-center gap-2 rounded-lg px-3 py-2"
         :class="getQueueColorClasses(selectedQueue.type, true)"
       >
         <component :is="getQueueIcon(selectedQueue.type)" class="h-4 w-4" />

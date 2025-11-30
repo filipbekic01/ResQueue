@@ -49,7 +49,7 @@ public static class TestEndpoints
                 // Send with 8 hour TTL
                 await endpoint.Send(message, ctx =>
                 {
-                    ctx.TimeToLive = TimeSpan.FromHours(8);
+                    ctx.TimeToLive = TimeSpan.FromSeconds(30);
                 });
 
                 return TypedResults.Ok(new

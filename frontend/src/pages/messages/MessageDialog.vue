@@ -158,21 +158,13 @@ const jobStatePopoverOpen = ref(false);
             <span
               class="mt-0.5 flex items-center gap-1.5 text-sm font-medium"
               :class="{
-                'text-info': displayedMessage.message?.schedulingTokenId,
-                'text-warning':
-                  !displayedMessage.message?.schedulingTokenId &&
-                  displayedMessage.enqueueTime &&
-                  new Date(displayedMessage.enqueueTime) > new Date(),
+                'text-info': displayedMessage.enqueueTime && new Date(displayedMessage.enqueueTime) > new Date(),
                 'text-base-content':
-                  !displayedMessage.message?.schedulingTokenId &&
-                  (!displayedMessage.enqueueTime || new Date(displayedMessage.enqueueTime) <= new Date()),
+                  !displayedMessage.enqueueTime || new Date(displayedMessage.enqueueTime) <= new Date(),
               }"
             >
               <ClockIcon
-                v-if="
-                  displayedMessage.message?.schedulingTokenId ||
-                  (displayedMessage.enqueueTime && new Date(displayedMessage.enqueueTime) > new Date())
-                "
+                v-if="displayedMessage.enqueueTime && new Date(displayedMessage.enqueueTime) > new Date()"
                 class="h-4 w-4"
               />
               {{ humanDateTime(displayedMessage.enqueueTime) }}
