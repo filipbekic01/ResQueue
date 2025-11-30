@@ -1,9 +1,8 @@
 using Marten;
 using MassTransit;
-using MassTransit.Contracts.JobService;
-using Microsoft.AspNetCore.Http.HttpResults;
 using ResQueue;
 using ResQueue.Enums;
+using WebSample.Consumers;
 
 namespace WebSample;
 
@@ -63,14 +62,20 @@ public class Program
 
             mt.SetMartenSagaRepositoryProvider();
 
-            mt.AddConsumer<CustomExampleTestConsumer>()
+            // 1. Schedule party consumer (for scheduled messages in 3 days)
+            mt.AddConsumer<SchedulePartyConsumer>()
                 .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
 
-            mt.AddConsumer<YourConsumer1>()
+            // 2. Birthday invite consumer (always fails, for testing requeue with 8h TTL)
+            mt.AddConsumer<BirthdayInviteConsumer>()
                 .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
 
-            mt.AddConsumer<AwesomeConsumer>()
+            // 3. Drink order consumer (fails for under 18, retries until dead-letter)
+            mt.AddConsumer<DrinkOrderConsumer>()
                 .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
+
+            // 4. Weather check job consumer (recurring every 3 minutes)
+            mt.AddConsumer<WeatherCheckConsumer>();
 
             mt.AddJobSagaStateMachines();
 
@@ -92,37 +97,7 @@ public class Program
         app.UseSwagger();
         app.UseSwaggerUI();
         app.UseResQueue();
-
-        app.MapGet("/publish",
-            async (IPublishEndpoint endpoint) =>
-            {
-                await endpoint.Publish(new CustomExampleTestMessage(Guid.NewGuid()));
-            });
-
-        app.MapGet("/start-job",
-            async (IPublishEndpoint endpoint) =>
-            {
-                var jobId = await endpoint.AddOrUpdateRecurringJob(nameof(AwesomeConsumer), new AwesomeRequest(),
-                    x => x.Every(minutes: 1));
-
-                return TypedResults.Ok(jobId);
-            });
-
-        app.MapGet("/cancel/{jobId:guid}",
-            async (IPublishEndpoint endpoint, Guid jobId) =>
-            {
-                await endpoint.CancelJob(jobId, "hoobastank");
-
-                return TypedResults.Ok();
-            });
-
-        app.MapGet("/state/{jobId:guid}",
-            async (IRequestClient<GetJobState> client, Guid jobId) =>
-            {
-                var state = await client.GetJobState(jobId);
-
-                return TypedResults.Ok(state);
-            });
+        app.MapTestEndpoints();
 
         app.Run();
     }

@@ -9,10 +9,12 @@ import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon.vue";
 import CheckCircleIcon from "@/components/icons/CheckCircleIcon.vue";
 import EraserIcon from "@/components/icons/EraserIcon.vue";
 import ExclamationCircleIcon from "@/components/icons/ExclamationCircleIcon.vue";
+import HourglassIcon from "@/components/icons/HourglassIcon.vue";
 import RefreshIcon from "@/components/icons/RefreshIcon.vue";
 import ReplayIcon from "@/components/icons/ReplayIcon.vue";
 import TrashIcon from "@/components/icons/TrashIcon.vue";
 import XCircleIcon from "@/components/icons/XCircleIcon.vue";
+import ZapIcon from "@/components/icons/ZapIcon.vue";
 import Pagination from "@/components/Pagination.vue";
 import { useQueue } from "@/composables/queueComposable";
 import { useConfirmDialog } from "@/composables/useConfirmDialog";
@@ -247,6 +249,39 @@ const getMessagesIconComponent = (queue: QueueDto) => {
 const hasMtFaultMessages = computed(() => {
   return messages.value?.items.some((x) => x.transportHeaders["MT-Fault-Message"]);
 });
+
+// Show status column for READY queue (type 1)
+const isReadyQueue = computed(() => {
+  return selectedQueue.value?.type === 1;
+});
+
+// Helper to check if a message was previously faulted
+const wasPreviouslyFaulted = (msg: MessageDeliveryDto) => {
+  return msg.transportHeaders?.["MT-Reason"] === "fault" || msg.transportHeaders?.["MT-Fault-Message"];
+};
+
+// Helper to get scheduled delivery time from message
+const getScheduledTime = (msg: MessageDeliveryDto): string | undefined => {
+  // Check additionalData first
+  if (msg.additionalData?.["ScheduledTime"]) {
+    return msg.additionalData["ScheduledTime"];
+  }
+  // Check transport headers
+  if (msg.transportHeaders?.["MT-Scheduling-DeliverAt"]) {
+    return msg.transportHeaders["MT-Scheduling-DeliverAt"];
+  }
+  // Try to parse from message body for recurring jobs
+  if (msg.message?.body) {
+    try {
+      const body = JSON.parse(msg.message.body);
+      if (body.scheduledTime) return body.scheduledTime;
+      if (body.nextStartDate) return body.nextStartDate;
+    } catch {
+      // Ignore parse errors
+    }
+  }
+  return undefined;
+};
 </script>
 
 <template>
@@ -493,20 +528,38 @@ const hasMtFaultMessages = computed(() => {
                 </th>
                 <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">ID</th>
                 <th
-                  :class="{ 'w-0': hasMtFaultMessages }"
+                  :class="{ 'w-0': hasMtFaultMessages || isReadyQueue }"
                   class="text-base-content/60 text-xs font-medium whitespace-nowrap"
                 >
                   URN
+                </th>
+                <th v-if="isReadyQueue" class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">
+                  Status
                 </th>
                 <th v-if="hasMtFaultMessages" class="text-base-content/60 text-xs font-medium whitespace-nowrap">
                   Fault Message
                 </th>
                 <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Expires At</th>
                 <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Recurring</th>
-                <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Scheduled</th>
+                <th
+                  v-if="selectedQueue?.type !== 1"
+                  class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap"
+                >
+                  Scheduled
+                </th>
                 <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Locked</th>
-                <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Priority</th>
-                <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Enqueue Time</th>
+                <th
+                  v-if="selectedQueue?.type !== 1"
+                  class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap"
+                >
+                  Delivery
+                </th>
+                <th
+                  v-if="selectedQueue?.type !== 1"
+                  class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap"
+                >
+                  Last Delivered
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -528,40 +581,73 @@ const hasMtFaultMessages = computed(() => {
                     @click="handleCheckboxChange(msg, $event)"
                   />
                 </td>
-                <td class="text-base-content/60 py-2.5 text-sm whitespace-nowrap">{{ msg.messageDeliveryId }}</td>
+                <td class="text-base-content/60 w-0 py-2.5 text-sm whitespace-nowrap">{{ msg.messageDeliveryId }}</td>
                 <td class="text-base-content max-w-xs truncate py-2.5 text-sm font-medium whitespace-nowrap">
                   {{ msg.message?.messageType?.replace("urn:message:", "") }}
+                </td>
+                <td v-if="isReadyQueue" class="w-0 py-2.5">
+                  <div
+                    v-if="msg.message?.schedulingTokenId"
+                    class="text-info flex items-center gap-2 text-sm"
+                    title="Scheduled for future delivery"
+                  >
+                    <HourglassIcon class="h-4 w-4 shrink-0" />
+                    <span class="whitespace-nowrap">
+                      {{ getScheduledTime(msg) ? humanDateTime(getScheduledTime(msg)) : "Scheduled" }}
+                    </span>
+                  </div>
+                  <div
+                    v-else-if="wasPreviouslyFaulted(msg)"
+                    class="text-warning flex items-center gap-2 text-sm"
+                    title="Requeued from error - awaiting retry"
+                  >
+                    <HourglassIcon class="h-4 w-4 shrink-0" />
+                    <span class="whitespace-nowrap">Pending Retry</span>
+                  </div>
+                  <div v-else class="text-base-content/60 flex items-center gap-2 text-sm">
+                    <HourglassIcon class="h-4 w-4 shrink-0" />
+                    <span class="whitespace-nowrap">Pending</span>
+                  </div>
                 </td>
                 <td v-if="hasMtFaultMessages" class="py-2.5">
                   <div
                     v-if="msg.transportHeaders?.['MT-Fault-Message']"
                     class="text-error flex items-center gap-2 text-sm"
                   >
-                    <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
-                    <span class="max-w-xs truncate">{{ msg.transportHeaders?.["MT-Fault-ExceptionType"] }}</span>
+                    <ZapIcon class="h-4 w-4 shrink-0" />
+                    <span class="max-w-xs truncate">{{ msg.transportHeaders?.["MT-Fault-Message"] }}</span>
                   </div>
                   <span v-else class="text-base-content/30 text-sm">-</span>
                 </td>
                 <td class="text-base-content/60 py-2.5 text-sm whitespace-nowrap">{{ msg.expirationTime ?? "-" }}</td>
                 <td class="py-2.5 text-center">
-                  <span v-if="msg.isRecurring" class="text-success text-sm">✓</span>
+                  <span v-if="msg.isRecurring" class="text-base-content/60 text-sm">✓</span>
+                  <span v-else class="text-base-content/20 text-sm">-</span>
+                </td>
+                <td v-if="selectedQueue?.type !== 1" class="py-2.5 text-center">
+                  <span v-if="msg.message?.schedulingTokenId" class="text-base-content/60 text-sm">✓</span>
                   <span v-else class="text-base-content/20 text-sm">-</span>
                 </td>
                 <td class="py-2.5 text-center">
-                  <span v-if="msg.message?.schedulingTokenId" class="text-info text-sm">✓</span>
+                  <span v-if="!msg.lockId" class="text-base-content/60 text-sm">✓</span>
                   <span v-else class="text-base-content/20 text-sm">-</span>
                 </td>
-                <td class="py-2.5 text-center">
-                  <span v-if="!msg.lockId" class="text-warning text-sm">✓</span>
-                  <span v-else class="text-base-content/20 text-sm">-</span>
+                <td v-if="selectedQueue?.type !== 1" class="py-2.5 text-center text-sm">
+                  <span :class="msg.deliveryCount > 1 ? 'text-warning' : 'text-base-content/60'">
+                    {{ msg.deliveryCount }}/{{ msg.maxDeliveryCount }}
+                  </span>
                 </td>
-                <td class="text-base-content/60 py-2.5 text-center text-sm">{{ msg.priority }}</td>
-                <td class="text-base-content/60 py-2.5 text-sm whitespace-nowrap">
-                  {{ humanDateTime(msg.enqueueTime) }}
+                <td v-if="selectedQueue?.type !== 1" class="text-base-content/60 py-2.5 text-sm whitespace-nowrap">
+                  {{ humanDateTime(msg.lastDelivered) }}
                 </td>
               </tr>
               <tr v-if="messages.items.length === 0">
-                <td :colspan="hasMtFaultMessages ? 10 : 9" class="text-base-content/40 py-12 text-center text-sm">
+                <td
+                  :colspan="
+                    (hasMtFaultMessages ? 1 : 0) + (isReadyQueue ? 1 : 0) + (selectedQueue?.type !== 1 ? 10 : 7)
+                  "
+                  class="text-base-content/40 py-12 text-center text-sm"
+                >
                   No messages found
                 </td>
               </tr>

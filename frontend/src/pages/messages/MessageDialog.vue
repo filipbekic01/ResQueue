@@ -4,7 +4,6 @@ import { useJobStateQuery } from "@/api/jobs/jobStateQuery";
 import { useSingleMessageQuery } from "@/api/messages/singleMessageQuery";
 import ClockIcon from "@/components/icons/ClockIcon.vue";
 import CopyIcon from "@/components/icons/CopyIcon.vue";
-import XMarkIcon from "@/components/icons/XMarkIcon.vue";
 import { useJson } from "@/composables/jsonComposable";
 import type { MessageDeliveryDto } from "@/dtos/message/messageDeliveryDto";
 import { humanDateTime } from "@/utils/dateTimeUtil";
@@ -82,78 +81,84 @@ const jobStatePopoverOpen = ref(false);
     class="bg-base-100 absolute end-0 bottom-0 z-50 mx-auto flex h-full w-[90%] flex-col overflow-auto rounded-s-xl shadow-2xl"
   >
     <div class="flex h-full flex-col overflow-hidden">
-      <div class="absolute end-0 top-0 p-6">
-        <button class="btn btn-ghost btn-sm btn-circle" @click="emit('close')">
-          <XMarkIcon class="h-4 w-4" />
-        </button>
-      </div>
       <div class="border-base-200 dark:border-base-content/10 border-b px-8 pt-8 pb-6">
-        <div class="mb-2 flex flex-wrap items-center gap-3 text-sm">
-          <div class="flex items-center gap-1.5">
-            <span class="bg-base-200 text-base-content/60 rounded px-1.5 py-0.5 text-xs font-medium">Sent</span>
-            <span class="text-base-content/70">{{ humanDateTime(displayedMessage.message?.sentTime) }}</span>
+        <!-- Message Type & Status Badge -->
+        <div class="mb-4 flex items-start justify-between gap-4">
+          <div class="min-w-0 flex-1">
+            <div class="text-base-content truncate text-xl font-semibold">
+              {{ displayedMessage.message?.messageType.replace("urn:message:", "") }}
+            </div>
+            <div class="text-base-content/50 mt-1 text-sm">
+              {{ displayedMessage.message?.sourceAddress }}
+            </div>
           </div>
-          <div class="flex items-center gap-1.5">
-            <span class="bg-base-200 text-base-content/60 rounded px-1.5 py-0.5 text-xs font-medium">Enqueued</span>
-            <span class="text-base-content/70">{{ humanDateTime(displayedMessage.enqueueTime) }}</span>
-          </div>
-          <div class="flex items-center gap-1.5">
+          <div class="flex shrink-0 items-center gap-2">
+            <!-- Message State Badge -->
             <span
-              :class="[
-                'rounded px-1.5 py-0.5 text-xs font-medium',
-                displayedMessage.deliveryCount > 1 ? 'bg-warning/10 text-warning' : 'bg-base-200 text-base-content/60',
-              ]"
-              >Delivery {{ displayedMessage.deliveryCount }}/{{ displayedMessage.maxDeliveryCount }}</span
+              v-if="displayedMessage.transportHeaders?.['MT-Reason'] === 'fault'"
+              class="bg-error/10 text-error inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
             >
+              <span class="bg-error h-1.5 w-1.5 rounded-full"></span>
+              Faulted
+            </span>
+            <span
+              v-else-if="displayedMessage.deliveryCount >= displayedMessage.maxDeliveryCount"
+              class="bg-error/10 text-error inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
+            >
+              <span class="bg-error h-1.5 w-1.5 rounded-full"></span>
+              Dead Letter
+            </span>
+            <span
+              v-else
+              class="bg-success/10 text-success inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
+            >
+              <span class="bg-success h-1.5 w-1.5 rounded-full"></span>
+              Ready
+            </span>
+            <!-- Scheduled indicator -->
+            <span
+              v-if="displayedMessage.message?.schedulingTokenId"
+              class="bg-info/10 text-info inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
+            >
+              <ClockIcon class="h-3 w-3" />
+              Scheduled
+            </span>
           </div>
         </div>
-        <div class="flex items-center gap-2.5">
-          <span class="text-base-content text-xl font-semibold">{{
-            displayedMessage.message?.messageType.replace("urn:message:", "")
-          }}</span>
-        </div>
-        <div class="mt-5 flex flex-wrap gap-x-8 gap-y-3">
-          <div>
-            <div class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Machine</div>
-            <div class="text-base-content/70 text-sm">
-              {{ displayedMessage.message?.host?.machineName }}
-            </div>
+
+        <!-- Key Metrics Row -->
+        <div
+          class="bg-base-200/50 divide-base-300 dark:divide-base-content/10 -mx-2 flex flex-wrap items-stretch divide-x rounded-lg"
+        >
+          <div class="flex min-w-0 flex-1 flex-col px-4 py-3">
+            <span class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Sent</span>
+            <span class="text-base-content mt-0.5 text-sm font-medium">{{
+              humanDateTime(displayedMessage.message?.sentTime)
+            }}</span>
           </div>
-          <div>
-            <div class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Process Name</div>
-            <div class="text-base-content/70 text-sm">
-              {{ displayedMessage.message?.host?.processName }}
-            </div>
+          <div class="flex min-w-0 flex-1 flex-col px-4 py-3">
+            <span class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Enqueued</span>
+            <span class="text-base-content mt-0.5 text-sm font-medium">{{
+              humanDateTime(displayedMessage.enqueueTime)
+            }}</span>
           </div>
-          <div>
-            <div class="text-base-content/50 text-xs font-medium tracking-wide uppercase">PID</div>
-            <div class="text-base-content/70 text-sm">
-              {{ displayedMessage.message?.host?.processId }}
-            </div>
+          <div class="flex min-w-0 flex-1 flex-col px-4 py-3">
+            <span class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Last Delivered</span>
+            <span class="text-base-content mt-0.5 text-sm font-medium">{{
+              humanDateTime(displayedMessage.lastDelivered) || "-"
+            }}</span>
           </div>
-          <div>
-            <div class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Assembly</div>
-            <div class="text-base-content/70 text-sm">
-              {{ displayedMessage.message?.host?.assembly }} ({{ displayedMessage.message?.host?.assemblyVersion }})
-            </div>
-          </div>
-          <div>
-            <div class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Framework</div>
-            <div class="text-base-content/70 text-sm">
-              {{ displayedMessage.message?.host?.frameworkVersion }}
-            </div>
-          </div>
-          <div>
-            <div class="text-base-content/50 text-xs font-medium tracking-wide uppercase">MassTransit</div>
-            <div class="text-base-content/70 text-sm">
-              {{ displayedMessage.message?.host?.massTransitVersion }}
-            </div>
-          </div>
-          <div>
-            <div class="text-base-content/50 text-xs font-medium tracking-wide uppercase">OS</div>
-            <div class="text-base-content/70 text-sm">
-              {{ displayedMessage.message?.host?.operatingSystemVersion }}
-            </div>
+          <div class="flex min-w-0 flex-1 flex-col px-4 py-3">
+            <span class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Delivery</span>
+            <span
+              class="mt-0.5 text-sm font-medium"
+              :class="displayedMessage.deliveryCount > 1 ? 'text-warning' : 'text-base-content'"
+            >
+              {{ displayedMessage.deliveryCount }} / {{ displayedMessage.maxDeliveryCount }}
+              <span v-if="displayedMessage.deliveryCount > 1" class="text-warning/70 text-xs font-normal"
+                >(retried)</span
+              >
+            </span>
           </div>
         </div>
       </div>
@@ -172,15 +177,54 @@ const jobStatePopoverOpen = ref(false);
                 >
                   <ClockIcon class="h-4 w-4" />Scheduled Message
                 </div>
-                <div v-if="job" class="text-sm">
+                <div v-if="job" class="relative text-sm">
                   <span class="text-base-content/70"
-                    >The message belongs to the {{ job.isRecurring ? "recurring" : "" }} job —</span
-                  >
+                    >The message belongs to the {{ job.isRecurring ? "recurring" : "" }} job —
+                  </span>
                   <span
                     @click="jobStatePopoverOpen = !jobStatePopoverOpen"
-                    class="text-primary cursor-pointer hover:underline"
+                    class="text-info cursor-pointer italic hover:underline"
                     >click for details.</span
                   >
+                  <!-- Job State Popover Backdrop -->
+                  <div v-if="jobStatePopoverOpen" class="fixed inset-0 z-40" @click="jobStatePopoverOpen = false"></div>
+                  <!-- Job State Popover -->
+                  <div
+                    v-if="jobStatePopoverOpen"
+                    class="bg-base-100 border-base-200 dark:border-base-content/10 absolute top-full left-0 z-50 mt-2 flex flex-col gap-3 rounded-xl border p-5 shadow-xl"
+                  >
+                    <button
+                      class="btn btn-ghost btn-xs btn-circle absolute top-3 right-3"
+                      @click="jobStatePopoverOpen = false"
+                    >
+                      ✕
+                    </button>
+                    <MessageHeader name="Job State" />
+                    <MessageBlock name="Job ID" :value="job.jobId" />
+                    <MessageBlock name="Submitted">
+                      {{ humanDateTime(job.submitted) }}
+                    </MessageBlock>
+                    <MessageBlock name="Started" :value="job.started">
+                      {{ humanDateTime(job.started) }}
+                    </MessageBlock>
+                    <MessageBlock name="Completed" :value="job.completed">
+                      {{ humanDateTime(job.completed) }}
+                    </MessageBlock>
+                    <MessageBlock name="Duration" :value="job.duration" />
+                    <MessageBlock name="Faulted" :value="job.faulted" />
+                    <MessageBlock name="Reason" :value="job.reason" />
+                    <MessageBlock name="Last Retry Attempt" :value="job.lastRetryAttempt" />
+                    <MessageBlock name="Current State" :value="job.currentState" />
+                    <MessageBlock name="Progress Value" :value="job.progressValue" />
+                    <MessageBlock name="Progress Limit" :value="job.progressLimit" />
+                    <MessageBlock name="Job State" :value="job.jobState" />
+                    <MessageBlock name="Next Start Date" :value="job.nextStartDate">
+                      {{ humanDateTime(job.nextStartDate) }}
+                    </MessageBlock>
+                    <MessageBlock name="Recurring" :value="job.isRecurring" />
+                    <MessageBlock name="Start Date" :value="job.startDate" />
+                    <MessageBlock name="End Date" :value="job.endDate" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -263,43 +307,6 @@ const jobStatePopoverOpen = ref(false);
           </div>
           <div class="flex w-[55%] flex-col overflow-auto">
             <div class="relative h-full p-6">
-              <!-- Job State Popover/Modal -->
-              <div
-                v-if="jobStatePopoverOpen && job"
-                class="bg-base-100 border-base-200 dark:border-base-content/10 absolute top-6 left-6 z-50 flex flex-col gap-3 rounded-xl border p-5 shadow-xl"
-              >
-                <button
-                  class="btn btn-ghost btn-xs btn-circle absolute top-3 right-3"
-                  @click="jobStatePopoverOpen = false"
-                >
-                  ✕
-                </button>
-                <MessageHeader name="Job State" />
-                <MessageBlock name="Job ID" :value="job.jobId" />
-                <MessageBlock name="Submitted">
-                  {{ humanDateTime(job.submitted) }}
-                </MessageBlock>
-                <MessageBlock name="Started" :value="job.started">
-                  {{ humanDateTime(job.started) }}
-                </MessageBlock>
-                <MessageBlock name="Completed" :value="job.completed">
-                  {{ humanDateTime(job.completed) }}
-                </MessageBlock>
-                <MessageBlock name="Duration" :value="job.duration" />
-                <MessageBlock name="Faulted" :value="job.faulted" />
-                <MessageBlock name="Reason" :value="job.reason" />
-                <MessageBlock name="Last Retry Attempt" :value="job.lastRetryAttempt" />
-                <MessageBlock name="Current State" :value="job.currentState" />
-                <MessageBlock name="Progress Value" :value="job.progressValue" />
-                <MessageBlock name="Progress Limit" :value="job.progressLimit" />
-                <MessageBlock name="Job State" :value="job.jobState" />
-                <MessageBlock name="Next Start Date" :value="job.nextStartDate">
-                  {{ humanDateTime(job.nextStartDate) }}
-                </MessageBlock>
-                <MessageBlock name="Recurring" :value="job.isRecurring" />
-                <MessageBlock name="Start Date" :value="job.startDate" />
-                <MessageBlock name="End Date" :value="job.endDate" />
-              </div>
               <div class="absolute end-6 top-6 flex items-center gap-2">
                 <button
                   class="btn btn-ghost btn-xs btn-circle"
