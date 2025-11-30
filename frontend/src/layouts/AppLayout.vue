@@ -45,6 +45,16 @@ interface BreadcrumbItem {
 const items = computed((): BreadcrumbItem[] => {
   const items: BreadcrumbItem[] = [];
 
+  // Always start with Dashboard (except when on dashboard itself)
+  if (route.name !== "dashboard") {
+    items.push({
+      label: "Dashboard",
+      command: () => {
+        router.push({ name: "dashboard" });
+      },
+    });
+  }
+
   if (route.name === "messages") {
     items.push({
       label: "Queues",
@@ -55,6 +65,18 @@ const items = computed((): BreadcrumbItem[] => {
 
     items.push({
       label: capitalize(route.params["queueName"]?.toString()),
+    });
+  } else if (route.name === "queues") {
+    items.push({
+      label: "Queues",
+    });
+  } else if (route.name === "topics") {
+    items.push({
+      label: "Topics",
+    });
+  } else if (route.name === "dashboard") {
+    items.push({
+      label: "Dashboard",
     });
   } else {
     items.push({
@@ -87,12 +109,14 @@ const shouldShowGraph = computed(() => isMessagesPage.value && showGraph.value);
     <header class="border-base-200 dark:border-base-content/10 flex h-14 shrink-0 items-center border-b px-4">
       <!-- Logo & Brand -->
       <div class="flex items-center gap-3">
-        <div class="flex h-8 w-8 items-center justify-center">
-          <img :src="mtLogoUrl" class="h-full w-full object-contain dark:hidden" alt="MassTransit" />
-          <img :src="mtLogoUrlDark" class="hidden h-full w-full object-contain dark:block" alt="MassTransit" />
-        </div>
-        <div class="flex items-center gap-2">
+        <router-link :to="{ name: 'dashboard' }" class="flex items-center gap-3 transition-opacity hover:opacity-80">
+          <div class="flex h-8 w-8 items-center justify-center">
+            <img :src="mtLogoUrl" class="h-full w-full object-contain dark:hidden" alt="MassTransit" />
+            <img :src="mtLogoUrlDark" class="hidden h-full w-full object-contain dark:block" alt="MassTransit" />
+          </div>
           <span class="text-base-content text-lg font-semibold tracking-tight">MassTransit</span>
+        </router-link>
+        <div class="flex items-center gap-2">
           <span class="text-base-content/30">·</span>
           <!-- Breadcrumb -->
           <nav class="text-base-content/60 flex items-center gap-1 text-sm">

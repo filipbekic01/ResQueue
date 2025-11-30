@@ -1,8 +1,5 @@
-using System.Data;
 using System.Data.Common;
 using Dapper;
-using Microsoft.Extensions.Options;
-using Npgsql;
 using ResQueue.Dtos.Messages;
 using ResQueue.Enums;
 using ResQueue.Factories;
@@ -21,7 +18,7 @@ public class RequeueSpecificMessagesFeature(
     IDbConnectionProvider conn
 ) : IRequeueSpecificMessagesFeature
 {
-    public async Task<OperationResult<RequeueSpecificMessagesResponse>> ExecuteAsync(
+    public async Task<RequeueSpecificMessagesResponse> ExecuteAsync(
         RequeueSpecificMessagesRequest request)
     {
         await using var connection = connectionFactory.CreateConnection();
@@ -47,8 +44,7 @@ public class RequeueSpecificMessagesFeature(
             }
         }
 
-        return OperationResult<RequeueSpecificMessagesResponse>.Success(
-            new RequeueSpecificMessagesResponse());
+        return new RequeueSpecificMessagesResponse();
     }
 
 

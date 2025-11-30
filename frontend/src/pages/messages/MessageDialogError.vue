@@ -44,7 +44,9 @@ const copyToClipboard = async (text: string) => {
       >
         <CopyIcon class="h-3.5 w-3.5" />
       </button>
-      <div class="text-base-content/60 bg-base-200/50 overflow-auto rounded-lg p-4 pr-10 font-mono text-xs whitespace-pre">
+      <div
+        class="text-base-content/60 bg-base-200/50 overflow-auto rounded-lg p-4 pr-10 font-mono text-xs whitespace-pre"
+      >
         {{
           selectedMessage.transportHeaders["MT-Fault-StackTrace"]
             ? selectedMessage.transportHeaders["MT-Fault-StackTrace"]

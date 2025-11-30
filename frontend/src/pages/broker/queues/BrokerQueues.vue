@@ -145,7 +145,9 @@ const paginatedQueues = computed(() => {
               @click="toggleSort('errored')"
             >
               Errored
-              <span v-if="sortField === 'errored'" class="text-base-content">{{ sortOrder === "asc" ? "↑" : "↓" }}</span>
+              <span v-if="sortField === 'errored'" class="text-base-content">{{
+                sortOrder === "asc" ? "↑" : "↓"
+              }}</span>
             </th>
             <th
               class="bg-error/5 text-base-content/60 border-l-error/30 w-0 cursor-pointer border-l-2 text-xs font-medium whitespace-nowrap"
@@ -161,7 +163,9 @@ const paginatedQueues = computed(() => {
               @click="toggleSort('scheduled')"
             >
               Scheduled
-              <span v-if="sortField === 'scheduled'" class="text-base-content">{{ sortOrder === "asc" ? "↑" : "↓" }}</span>
+              <span v-if="sortField === 'scheduled'" class="text-base-content">{{
+                sortOrder === "asc" ? "↑" : "↓"
+              }}</span>
             </th>
             <th
               class="text-base-content/60 w-0 cursor-pointer text-xs font-medium whitespace-nowrap"

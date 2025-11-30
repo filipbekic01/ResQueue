@@ -105,7 +105,7 @@ public class Program
                 var jobId = await endpoint.AddOrUpdateRecurringJob(nameof(AwesomeConsumer), new AwesomeRequest(),
                     x => x.Every(minutes: 1));
 
-                return Results.Ok(jobId);
+                return TypedResults.Ok(jobId);
             });
 
         app.MapGet("/cancel/{jobId:guid}",
@@ -113,7 +113,7 @@ public class Program
             {
                 await endpoint.CancelJob(jobId, "hoobastank");
 
-                return Results.Ok();
+                return TypedResults.Ok();
             });
 
         app.MapGet("/state/{jobId:guid}",
@@ -121,7 +121,7 @@ public class Program
             {
                 var state = await client.GetJobState(jobId);
 
-                return Results.Ok(state);
+                return TypedResults.Ok(state);
             });
 
         app.Run();

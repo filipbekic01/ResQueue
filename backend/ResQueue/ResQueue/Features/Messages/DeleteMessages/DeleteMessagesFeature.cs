@@ -1,6 +1,5 @@
 using System.Data.Common;
 using Dapper;
-using Microsoft.Extensions.Options;
 using ResQueue.Dtos.Messages;
 using ResQueue.Enums;
 using ResQueue.Factories;
@@ -19,7 +18,7 @@ public class DeleteMessagesFeature(
     IDbConnectionProvider conn
 ) : IDeleteMessagesFeature
 {
-    public async Task<OperationResult<DeleteMessagesResponse>> ExecuteAsync(DeleteMessagesRequest request)
+    public async Task<DeleteMessagesResponse> ExecuteAsync(DeleteMessagesRequest request)
     {
         await using var connection = connectionFactory.CreateConnection();
 
@@ -44,7 +43,7 @@ public class DeleteMessagesFeature(
             }
         }
 
-        return OperationResult<DeleteMessagesResponse>.Success(new DeleteMessagesResponse());
+        return new DeleteMessagesResponse();
     }
 
     private async Task CallRoutineAsync(long messageDeliveryId, DbConnection connection)

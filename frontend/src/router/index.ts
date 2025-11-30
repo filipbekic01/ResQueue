@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import resqueueConfig from "@/config/resqueue";
 import Broker from "@/pages/broker/Broker.vue";
-import BrokerOverview from "@/pages/broker/overview/BrokerOverview.vue";
+import Dashboard from "@/pages/broker/overview/Dashboard.vue";
 import BrokerQueues from "@/pages/broker/queues/BrokerQueues.vue";
 import BrokerRecurringJobs from "@/pages/broker/recurring-jobs/BrokerRecurringJobs.vue";
 import BrokerTopics from "@/pages/broker/topics/BrokerTopics.vue";
@@ -12,16 +12,13 @@ const router = createRouter({
   routes: [
     {
       path: "",
-      redirect: {
-        name: "queues",
-      },
       component: Broker,
       children: [
         {
           path: "",
-          name: "overview",
+          name: "dashboard",
           props: true,
-          component: BrokerOverview,
+          component: Dashboard,
         },
         {
           path: "/topics",

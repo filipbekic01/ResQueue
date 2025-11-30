@@ -1,6 +1,5 @@
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using ResQueue.Dtos.Messages;
 using ResQueue.Dtos.Queue;
 using ResQueue.Enums;
@@ -61,7 +60,7 @@ public static class QueuesEndpoints
 
             var queuesFromView = await connection.QueryAsync<QueueViewDto>(sql);
 
-            return Results.Ok(queuesFromView);
+            return TypedResults.Ok(queuesFromView);
         });
 
         group.MapGet("view/{queueName}", async (IDatabaseConnectionFactory connectionFactory,
@@ -112,7 +111,7 @@ public static class QueuesEndpoints
 
             var queueView = await connection.QuerySingleAsync<QueueViewDto>(sql, new { QueueName = queueName });
 
-            return Results.Ok(queueView);
+            return TypedResults.Ok(queueView);
         });
 
         group.MapGet("{queueId:long}/metrics",
@@ -151,7 +150,7 @@ public static class QueuesEndpoints
 
                 var queues = await connection.QueryAsync<QueueMetricDto>(sql, new { QueueId = queueId });
 
-                return Results.Ok(queues);
+                return TypedResults.Ok(queues);
             });
 
         group.MapGet("",
@@ -187,17 +186,14 @@ public static class QueuesEndpoints
 
                 var queues = await connection.QueryAsync<QueueDto>(sql, new { QueueName = queueName });
 
-                return Results.Ok(queues);
+                return TypedResults.Ok(queues);
             });
 
         group.MapPost("purge",
-            async (IPurgeQueueFeature feature, IDbConnectionProvider conn, [FromBody] PurgeQueueDto dto) =>
+            async (IPurgeQueueFeature feature, [FromBody] PurgeQueueDto dto) =>
             {
                 var result = await feature.ExecuteAsync(new PurgeQueueRequest(dto));
-
-                return result.IsSuccess
-                    ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem!);
+                return TypedResults.Ok(result);
             });
     }
 }

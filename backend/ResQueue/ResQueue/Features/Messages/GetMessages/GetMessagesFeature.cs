@@ -20,7 +20,7 @@ public class GetMessagesFeature(
     IDbConnectionProvider conn
 ) : IGetMessagesFeature
 {
-    public async Task<OperationResult<GetMessagesResponse>> ExecuteAsync(GetMessagesRequest request)
+    public async Task<GetMessagesResponse> ExecuteAsync(GetMessagesRequest request)
     {
         const int pageSize = 50;
         var pageIndex = request.PageIndex >= 0 ? request.PageIndex : 0;
@@ -47,7 +47,7 @@ public class GetMessagesFeature(
             splitOn: "MessageDeliveryId"
         ).ToList();
 
-        return OperationResult<GetMessagesResponse>.Success(new GetMessagesResponse(
+        return new GetMessagesResponse(
             new PaginatedResult<MessageDeliveryDto>()
             {
                 Items = messages,
@@ -55,7 +55,7 @@ public class GetMessagesFeature(
                 TotalPages = (int)Math.Ceiling((double)total / pageSize),
                 PageSize = pageSize,
                 TotalCount = total,
-            }));
+            });
     }
 
     private string GetSqlQueryCountText()

@@ -9,7 +9,7 @@ public static class AuthEndpoints
     {
         RouteGroupBuilder group = routes.MapGroup("auth");
 
-        group.MapGet("", (IDbConnectionProvider conn) => Results.Ok(new AuthDto(
+        group.MapGet("", (IDbConnectionProvider conn) => TypedResults.Ok(new AuthDto(
             SqlEngine: conn.SqlEngine,
             Username: conn.Username,
             Database: conn.Database,

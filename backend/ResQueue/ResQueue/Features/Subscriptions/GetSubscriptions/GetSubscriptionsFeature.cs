@@ -15,15 +15,15 @@ public class GetSubscriptionsFeature(
     IDbConnectionProvider conn
 ) : IGetSubscriptionsFeature
 {
-    public async Task<OperationResult<GetSubscriptionsResponse>> ExecuteAsync(GetSubscriptionsRequest request)
+    public async Task<GetSubscriptionsResponse> ExecuteAsync(GetSubscriptionsRequest request)
     {
         await using var connection = connectionFactory.CreateConnection();
 
         var subscriptions = await connection.QueryAsync<SubscriptionDto>(GetSqlQueryText());
 
-        return OperationResult<GetSubscriptionsResponse>.Success(new GetSubscriptionsResponse(
+        return new GetSubscriptionsResponse(
             Subscriptions: subscriptions.ToList()
-        ));
+        );
     }
 
     private string GetSqlQueryText()
