@@ -4,7 +4,7 @@ import { computed, toValue, type MaybeRef } from "vue";
 import { API_URL } from "@/constants/api";
 import type { QueueDto } from "@/dtos/queue/queueDto";
 
-export const useQueuesQuery = (queueName: MaybeRef<string>, refetchInterval: MaybeRef<number> = 5000) =>
+export const useQueuesQuery = (queueName: MaybeRef<string>) =>
   useQuery({
     queryKey: ["queues", queueName],
     queryFn: async () => {
@@ -18,5 +18,4 @@ export const useQueuesQuery = (queueName: MaybeRef<string>, refetchInterval: May
       return response.data;
     },
     enabled: computed(() => !!toValue(queueName)),
-    refetchInterval: refetchInterval,
   });

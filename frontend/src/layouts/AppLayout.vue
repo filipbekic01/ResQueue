@@ -67,10 +67,15 @@ const items = computed((): BreadcrumbItem[] => {
 
 const autoRefreshLabel = computed(() => {
   const option = refetchIntervalOptions.find((x) => x.value === refetchInterval.value);
-  return option?.value === 0 ? "" : option?.label;
+  return option?.label ?? "Off";
 });
 
 const isAutoRefreshActive = computed(() => refetchInterval.value > 0);
+
+const refreshAnimationDuration = computed(() => {
+  if (refetchInterval.value === 0) return "0s";
+  return `${refetchInterval.value / 1000}s`;
+});
 
 const isMessagesPage = computed(() => route.name === "messages");
 const shouldShowGraph = computed(() => isMessagesPage.value && showGraph.value);
@@ -124,12 +129,38 @@ const shouldShowGraph = computed(() => isMessagesPage.value && showGraph.value);
         <div class="relative">
           <button
             class="btn btn-ghost btn-sm gap-1.5"
-            :class="{ 'text-success': isAutoRefreshActive }"
             @click="autoRefreshPopoverOpen = !autoRefreshPopoverOpen"
             title="Auto refresh"
           >
-            <RefreshIcon class="h-4 w-4" :class="{ 'animate-spin': isAutoRefreshActive }" />
-            <span v-if="autoRefreshLabel" class="text-xs font-medium">{{ autoRefreshLabel }}</span>
+            <div class="relative">
+              <RefreshIcon class="h-4 w-4" :class="{ 'text-success': isAutoRefreshActive }" />
+              <!-- Circular progress indicator -->
+              <svg v-if="isAutoRefreshActive" class="absolute -inset-1 h-6 w-6" viewBox="0 0 24 24">
+                <circle
+                  class="text-success/30"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <circle
+                  class="text-success refresh-progress"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  :style="{ animationDuration: refreshAnimationDuration }"
+                />
+              </svg>
+            </div>
+            <span class="text-xs font-medium" :class="{ 'text-success': isAutoRefreshActive }">{{
+              autoRefreshLabel
+            }}</span>
           </button>
           <div
             v-if="autoRefreshPopoverOpen"
@@ -179,3 +210,22 @@ const shouldShowGraph = computed(() => isMessagesPage.value && showGraph.value);
     <div class="text-error">{{ error?.message }}</div>
   </div>
 </template>
+
+<style scoped>
+.refresh-progress {
+  stroke-dasharray: 62.83; /* 2 * PI * r (r=10) */
+  stroke-dashoffset: 62.83;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  animation: refresh-countdown linear infinite;
+}
+
+@keyframes refresh-countdown {
+  from {
+    stroke-dashoffset: 62.83;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+</style>

@@ -32,7 +32,7 @@ const getQueueTypeLabel = (type?: number) => {
 export function useQueue(queueName: Ref<string>) {
   const { refetchInterval } = useLocalSettings();
 
-  const query = useQueuesQuery(queueName, refetchInterval);
+  const query = useQueuesQuery(queueName);
   const queryView = useQueueViewQuery(queueName, refetchInterval);
 
   const queueOptions = computed(() => {

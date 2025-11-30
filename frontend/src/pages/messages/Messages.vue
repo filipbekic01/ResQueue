@@ -157,8 +157,8 @@ const purgeQueue = async () => {
   const confirmed = await confirm({
     type: "error",
     title: "Purge Queue",
-    message: `Do you want to purge ${getQueueTypeLabel(selectedQueue.value?.type)} queue?`,
-    confirmText: "Purge",
+    message: `This will permanently delete all messages in the ${getQueueTypeLabel(selectedQueue.value?.type)} queue. This action cannot be undone.`,
+    confirmText: `Purge "${getQueueTypeLabel(selectedQueue.value?.type)}" queue`,
     cancelText: "Cancel",
   });
 
