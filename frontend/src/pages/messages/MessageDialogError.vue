@@ -1,11 +1,16 @@
 <script lang="ts" setup>
 import { format, formatDistance } from "date-fns";
 import CircleFilledIcon from "@/components/icons/CircleFilledIcon.vue";
+import CopyIcon from "@/components/icons/CopyIcon.vue";
 import type { MessageDeliveryDto } from "@/dtos/message/messageDeliveryDto";
 
 defineProps<{
   selectedMessage: MessageDeliveryDto;
 }>();
+
+const copyToClipboard = async (text: string) => {
+  await navigator.clipboard.writeText(text);
+};
 </script>
 
 <template>
@@ -30,12 +35,22 @@ defineProps<{
       {{ selectedMessage.transportHeaders["MT-Fault-Message"] }}
     </div>
 
-    <div class="text-base-content/60 bg-base-200/50 overflow-auto rounded-lg p-4 font-mono text-xs whitespace-pre">
-      {{
-        selectedMessage.transportHeaders["MT-Fault-StackTrace"]
-          ? selectedMessage.transportHeaders["MT-Fault-StackTrace"]
-          : "Stack trace missing."
-      }}
+    <div class="relative">
+      <button
+        v-if="selectedMessage.transportHeaders['MT-Fault-StackTrace']"
+        class="btn btn-ghost btn-xs btn-circle absolute top-2 right-2 z-10"
+        @click="copyToClipboard(selectedMessage.transportHeaders['MT-Fault-StackTrace'])"
+        title="Copy to clipboard"
+      >
+        <CopyIcon class="h-3.5 w-3.5" />
+      </button>
+      <div class="text-base-content/60 bg-base-200/50 overflow-auto rounded-lg p-4 pr-10 font-mono text-xs whitespace-pre">
+        {{
+          selectedMessage.transportHeaders["MT-Fault-StackTrace"]
+            ? selectedMessage.transportHeaders["MT-Fault-StackTrace"]
+            : "Stack trace missing."
+        }}
+      </div>
     </div>
   </div>
 </template>

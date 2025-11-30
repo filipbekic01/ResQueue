@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useJobStateQuery } from "@/api/jobs/jobStateQuery";
 import { useSingleMessageQuery } from "@/api/messages/singleMessageQuery";
 import ClockIcon from "@/components/icons/ClockIcon.vue";
+import CopyIcon from "@/components/icons/CopyIcon.vue";
 import XMarkIcon from "@/components/icons/XMarkIcon.vue";
 import { useJson } from "@/composables/jsonComposable";
 import type { MessageDeliveryDto } from "@/dtos/message/messageDeliveryDto";
@@ -10,6 +11,11 @@ import { humanDateTime } from "@/utils/dateTimeUtil";
 import MessageBlock from "./MessageBlock.vue";
 import MessageDialogError from "./MessageDialogError.vue";
 import MessageHeader from "./MessageHeader.vue";
+
+const copyToClipboard = async (data: unknown) => {
+  const text = typeof data === "string" ? data : JSON.stringify(data, null, 2);
+  await navigator.clipboard.writeText(text);
+};
 
 const props = defineProps<{
   selectedMessage: MessageDeliveryDto;
@@ -190,10 +196,19 @@ const jobStatePopoverOpen = ref(false);
               <MessageBlock name="Max. Delivery Count" :value="displayedMessage.maxDeliveryCount" />
               <MessageBlock name="Last Delivered" :value="displayedMessage.lastDelivered" />
               <MessageBlock name="Transport Headers">
-                <div
-                  class="bg-base-200/50 rounded-md p-3 font-mono text-xs whitespace-pre"
-                  v-html="highlightJson(transportHeadersTrimmed, true)"
-                ></div>
+                <div class="relative">
+                  <button
+                    class="btn btn-ghost btn-xs btn-circle absolute top-2 right-2 z-10"
+                    @click="copyToClipboard(displayedMessage.transportHeaders)"
+                    title="Copy to clipboard"
+                  >
+                    <CopyIcon class="h-3.5 w-3.5" />
+                  </button>
+                  <div
+                    class="bg-base-200/50 overflow-x-auto rounded-md p-3 pr-10 font-mono text-xs whitespace-pre"
+                    v-html="highlightJson(transportHeadersTrimmed, true)"
+                  ></div>
+                </div>
               </MessageBlock>
             </div>
             <div class="border-base-200 dark:border-base-content/10 flex flex-col gap-3 border-t px-6 py-5">
@@ -265,7 +280,14 @@ const jobStatePopoverOpen = ref(false);
                 <MessageBlock name="Start Date" :value="job.startDate" />
                 <MessageBlock name="End Date" :value="job.endDate" />
               </div>
-              <div class="absolute end-6 top-6">
+              <div class="absolute end-6 top-6 flex items-center gap-2">
+                <button
+                  class="btn btn-ghost btn-xs btn-circle"
+                  @click="copyToClipboard(JSON.parse(displayedMessage.message?.body ?? '{}'))"
+                  title="Copy to clipboard"
+                >
+                  <CopyIcon class="h-3.5 w-3.5" />
+                </button>
                 <span class="text-base-content/40 bg-base-200/50 rounded-md px-2 py-1 text-xs font-medium">{{
                   displayedMessage.message?.contentType
                 }}</span>
