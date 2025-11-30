@@ -287,6 +287,12 @@ const hasMtFaultMessages = computed(() => {
             >
               <ReplayIcon class="h-4 w-4" />
               Requeue
+              <span
+                v-if="selectedMessageIds.length"
+                class="bg-base-content/10 text-base-content/80 rounded-full px-1.5 py-0.5 text-xs font-medium"
+              >
+                {{ selectedMessageIds.length }}
+              </span>
             </button>
             <div
               v-if="requeueSpecificPopoverOpen"
@@ -347,7 +353,7 @@ const hasMtFaultMessages = computed(() => {
             >
               <div class="flex flex-col gap-3">
                 <label class="flex cursor-pointer items-center gap-2 text-sm">
-                  <input type="checkbox" v-model="deleteMessagesTransactional" class="checkbox checkbox-sm" />
+                  <input type="checkbox" v-model="deleteMessagesTransactional" class="checkbox checkbox-xs" />
                   Within single transaction
                 </label>
                 <button
@@ -388,7 +394,7 @@ const hasMtFaultMessages = computed(() => {
                 <th class="w-0">
                   <input
                     type="checkbox"
-                    class="checkbox checkbox-sm"
+                    class="checkbox checkbox-xs"
                     :checked="selectedMessages.length === messages.items.length && messages.items.length > 0"
                     :indeterminate="selectedMessages.length > 0 && selectedMessages.length < messages.items.length"
                     @change="
@@ -428,7 +434,7 @@ const hasMtFaultMessages = computed(() => {
                 <td class="w-0 py-2.5" @click.stop>
                   <input
                     type="checkbox"
-                    class="checkbox checkbox-sm"
+                    class="checkbox checkbox-xs"
                     :checked="selectedMessages.some((m) => m.messageDeliveryId === msg.messageDeliveryId)"
                     @change="
                       selectedMessages = selectedMessages.some((m) => m.messageDeliveryId === msg.messageDeliveryId)
