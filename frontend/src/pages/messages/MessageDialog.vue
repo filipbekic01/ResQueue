@@ -88,8 +88,24 @@ const jobStatePopoverOpen = ref(false);
         </button>
       </div>
       <div class="border-base-200 dark:border-base-content/10 border-b px-8 pt-8 pb-6">
-        <div class="text-base-content/50 mb-1 text-sm">
-          {{ humanDateTime(displayedMessage.message?.sentTime) }}
+        <div class="mb-2 flex flex-wrap items-center gap-3 text-sm">
+          <div class="flex items-center gap-1.5">
+            <span class="bg-base-200 text-base-content/60 rounded px-1.5 py-0.5 text-xs font-medium">Sent</span>
+            <span class="text-base-content/70">{{ humanDateTime(displayedMessage.message?.sentTime) }}</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="bg-base-200 text-base-content/60 rounded px-1.5 py-0.5 text-xs font-medium">Enqueued</span>
+            <span class="text-base-content/70">{{ humanDateTime(displayedMessage.enqueueTime) }}</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span
+              :class="[
+                'rounded px-1.5 py-0.5 text-xs font-medium',
+                displayedMessage.deliveryCount > 1 ? 'bg-warning/10 text-warning' : 'bg-base-200 text-base-content/60',
+              ]"
+              >Delivery {{ displayedMessage.deliveryCount }}/{{ displayedMessage.maxDeliveryCount }}</span
+            >
+          </div>
         </div>
         <div class="flex items-center gap-2.5">
           <span class="text-base-content text-xl font-semibold">{{
@@ -194,7 +210,9 @@ const jobStatePopoverOpen = ref(false);
               <MessageBlock name="Lock ID" :value="displayedMessage.lockId" />
               <MessageBlock name="Delivery Count" :value="displayedMessage.deliveryCount" />
               <MessageBlock name="Max. Delivery Count" :value="displayedMessage.maxDeliveryCount" />
-              <MessageBlock name="Last Delivered" :value="displayedMessage.lastDelivered" />
+              <MessageBlock name="Last Delivered">
+                {{ humanDateTime(displayedMessage.lastDelivered) }}
+              </MessageBlock>
               <MessageBlock name="Transport Headers">
                 <div class="relative">
                   <button
@@ -226,7 +244,9 @@ const jobStatePopoverOpen = ref(false);
               <MessageBlock name="Destination Address" :value="displayedMessage.message?.destinationAddress" />
               <MessageBlock name="Response Address" :value="displayedMessage.message?.responseAddress" />
               <MessageBlock name="Fault Address" :value="displayedMessage.message?.faultAddress" />
-              <MessageBlock name="Sent Time" :value="displayedMessage.message?.sentTime" />
+              <MessageBlock name="Sent Time">
+                {{ humanDateTime(displayedMessage.message?.sentTime) }}
+              </MessageBlock>
               <MessageBlock name="Headers">
                 <div
                   class="bg-base-200/50 rounded-md p-3 font-mono text-xs whitespace-pre"
