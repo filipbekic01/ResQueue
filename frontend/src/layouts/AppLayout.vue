@@ -5,12 +5,10 @@ import { useAuthQuery } from "@/api/auth/authQuery";
 import mtLogoUrlDark from "@/assets/images/masstransit-dark.svg";
 import mtLogoUrl from "@/assets/images/masstransit.svg";
 import ChartBarIcon from "@/components/icons/ChartBarIcon.vue";
-import ComputerIcon from "@/components/icons/ComputerIcon.vue";
-import MoonIcon from "@/components/icons/MoonIcon.vue";
+import ChevronDownIcon from "@/components/icons/ChevronDownIcon.vue";
 import RefreshIcon from "@/components/icons/RefreshIcon.vue";
-import SunIcon from "@/components/icons/SunIcon.vue";
 import { useLocalSettings } from "@/composables/useLocalSettings";
-import { useTheme } from "@/composables/useTheme";
+import { allThemes, useTheme } from "@/composables/useTheme";
 
 const route = useRoute();
 const router = useRouter();
@@ -20,7 +18,14 @@ const { isSuccess, isPending, error } = useAuthQuery();
 const capitalize = (value: string = "") => value.replace(/\b\w/g, (char) => char.toUpperCase());
 
 const { showGraph, refetchInterval, toggleGraph, setRefetchInterval } = useLocalSettings();
-const { currentTheme, cycleTheme } = useTheme();
+const { currentTheme, darkThemes, lightThemes, setTheme } = useTheme();
+
+const themeDropdownOpen = ref(false);
+
+const currentThemeLabel = computed(() => {
+  const theme = allThemes.find((t) => t.name === currentTheme.value);
+  return theme?.label ?? "Dark";
+});
 
 const autoRefreshPopoverOpen = ref(false);
 const refetchIntervalOptions = [
@@ -205,12 +210,61 @@ const shouldShowGraph = computed(() => isMessagesPage.value && showGraph.value);
           <div v-if="autoRefreshPopoverOpen" class="fixed inset-0 z-40" @click="autoRefreshPopoverOpen = false"></div>
         </div>
 
-        <!-- Theme Toggle -->
-        <button class="btn btn-ghost btn-sm btn-square" @click="cycleTheme" :title="`Theme: ${currentTheme}`">
-          <SunIcon v-if="currentTheme === 'light'" class="h-4 w-4 opacity-60" />
-          <MoonIcon v-else-if="currentTheme === 'dark'" class="h-4 w-4 opacity-60" />
-          <ComputerIcon v-else class="h-4 w-4 opacity-60" />
-        </button>
+        <!-- Theme Dropdown -->
+        <div class="relative">
+          <button
+            class="btn btn-ghost btn-sm gap-1.5"
+            @click="themeDropdownOpen = !themeDropdownOpen"
+            title="Select theme"
+          >
+            <span class="text-xs font-medium">{{ currentThemeLabel }}</span>
+            <ChevronDownIcon class="h-3 w-3 opacity-60" />
+          </button>
+          <div
+            v-if="themeDropdownOpen"
+            class="bg-base-100 border-base-200 dark:border-base-content/10 absolute right-0 z-50 mt-2 max-h-80 min-w-48 overflow-y-auto rounded-lg border p-1 shadow-lg"
+          >
+            <!-- Dark Themes Section -->
+            <div class="text-base-content/50 px-3 py-2 text-xs font-medium tracking-wider uppercase">Dark Themes</div>
+            <button
+              v-for="theme in darkThemes"
+              :key="theme.name"
+              class="hover:bg-base-200 flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition-colors"
+              :class="{ 'bg-base-200 text-primary': currentTheme === theme.name }"
+              @click="
+                setTheme(theme.name);
+                themeDropdownOpen = false;
+              "
+            >
+              <span class="flex items-center gap-2">
+                {{ theme.label }}
+                <span v-if="theme.recommended" class="badge badge-primary badge-xs">Recommended</span>
+              </span>
+              <span v-if="currentTheme === theme.name" class="text-primary">✓</span>
+            </button>
+
+            <!-- Light Themes Section -->
+            <div
+              class="text-base-content/50 border-base-200 mt-2 border-t px-3 py-2 text-xs font-medium tracking-wider uppercase"
+            >
+              Light Themes
+            </div>
+            <button
+              v-for="theme in lightThemes"
+              :key="theme.name"
+              class="hover:bg-base-200 flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition-colors"
+              :class="{ 'bg-base-200 text-primary': currentTheme === theme.name }"
+              @click="
+                setTheme(theme.name);
+                themeDropdownOpen = false;
+              "
+            >
+              <span>{{ theme.label }}</span>
+              <span v-if="currentTheme === theme.name" class="text-primary">✓</span>
+            </button>
+          </div>
+          <div v-if="themeDropdownOpen" class="fixed inset-0 z-40" @click="themeDropdownOpen = false"></div>
+        </div>
       </div>
     </header>
 

@@ -1,5 +1,5 @@
 import { computed } from "vue";
-import { useTheme } from "./useTheme";
+import { darkThemes, useTheme } from "./useTheme";
 
 type HighlightColorOptions = {
   keyColor?: string;
@@ -11,10 +11,12 @@ type HighlightColorOptions = {
 };
 
 export function useJson() {
-  const { resolvedTheme } = useTheme();
+  const { currentTheme } = useTheme();
+
+  const isDarkTheme = computed(() => darkThemes.some((t) => t.name === currentTheme.value));
 
   const themeBasedColors = computed(() => {
-    if (resolvedTheme.value === "dark") {
+    if (isDarkTheme.value) {
       return {
         keyColor: "#569CD6", // Blue for keys
         numberColor: "#B5CEA8", // Light green for numbers

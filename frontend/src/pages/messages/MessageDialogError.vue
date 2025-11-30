@@ -15,7 +15,7 @@ const copyToClipboard = async (text: string) => {
 
 <template>
   <div
-    class="border-base-200 dark:border-base-content/10 bg-error/5 flex basis-1/3 flex-col gap-3 overflow-auto border-t p-6"
+    class="border-base-200 dark:border-base-content/10 bg-error/5 relative flex basis-1/3 flex-col gap-3 overflow-hidden border-t p-6"
   >
     <div class="flex items-center gap-2">
       <div class="text-error flex items-center gap-2 font-medium">
@@ -35,24 +35,22 @@ const copyToClipboard = async (text: string) => {
       {{ selectedMessage.transportHeaders["MT-Fault-Message"] }}
     </div>
 
-    <div class="relative">
-      <button
-        v-if="selectedMessage.transportHeaders['MT-Fault-StackTrace']"
-        class="btn btn-ghost btn-xs btn-circle absolute top-2 right-2 z-10"
-        @click="copyToClipboard(selectedMessage.transportHeaders['MT-Fault-StackTrace'])"
-        title="Copy to clipboard"
-      >
-        <CopyIcon class="h-3.5 w-3.5" />
-      </button>
-      <div
-        class="text-base-content/60 bg-base-200/50 overflow-auto rounded-lg p-4 pr-10 font-mono text-xs whitespace-pre"
-      >
-        {{
-          selectedMessage.transportHeaders["MT-Fault-StackTrace"]
-            ? selectedMessage.transportHeaders["MT-Fault-StackTrace"]
-            : "Stack trace missing."
-        }}
-      </div>
+    <button
+      v-if="selectedMessage.transportHeaders['MT-Fault-StackTrace']"
+      class="btn btn-ghost btn-xs btn-circle absolute top-5 right-5 z-10"
+      @click="copyToClipboard(selectedMessage.transportHeaders['MT-Fault-StackTrace'])"
+      title="Copy to clipboard"
+    >
+      <CopyIcon class="h-3.5 w-3.5" />
+    </button>
+    <div
+      class="text-base-content/60 bg-base-200/50 overflow-auto rounded-lg p-4 pr-10 font-mono text-xs whitespace-pre"
+    >
+      {{
+        selectedMessage.transportHeaders["MT-Fault-StackTrace"]
+          ? selectedMessage.transportHeaders["MT-Fault-StackTrace"]
+          : "Stack trace missing."
+      }}
     </div>
   </div>
 </template>

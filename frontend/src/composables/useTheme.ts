@@ -1,44 +1,81 @@
-import { computed, ref, watch } from "vue";
+import { ref, watch } from "vue";
 
-export type Theme = "light" | "dark" | "system";
+// Theme definition type
+export interface ThemeOption {
+  name: string;
+  label: string;
+  recommended?: boolean;
+}
+
+// Dark themes
+export const darkThemes: ThemeOption[] = [
+  { name: "dark", label: "Dark", recommended: true },
+  { name: "synthwave", label: "Synthwave" },
+  { name: "halloween", label: "Halloween" },
+  { name: "forest", label: "Forest" },
+  { name: "black", label: "Black" },
+  { name: "luxury", label: "Luxury" },
+  { name: "dracula", label: "Dracula" },
+  { name: "business", label: "Business" },
+  { name: "night", label: "Night" },
+  { name: "coffee", label: "Coffee" },
+  { name: "dim", label: "Dim" },
+  { name: "sunset", label: "Sunset" },
+];
+
+// Light themes
+export const lightThemes: ThemeOption[] = [
+  { name: "light", label: "Light" },
+  { name: "cupcake", label: "Cupcake" },
+  { name: "bumblebee", label: "Bumblebee" },
+  { name: "emerald", label: "Emerald" },
+  { name: "corporate", label: "Corporate" },
+  { name: "retro", label: "Retro" },
+  { name: "cyberpunk", label: "Cyberpunk" },
+  { name: "valentine", label: "Valentine" },
+  { name: "garden", label: "Garden" },
+  { name: "lofi", label: "Lo-Fi" },
+  { name: "pastel", label: "Pastel" },
+  { name: "fantasy", label: "Fantasy" },
+  { name: "wireframe", label: "Wireframe" },
+  { name: "cmyk", label: "CMYK" },
+  { name: "autumn", label: "Autumn" },
+  { name: "acid", label: "Acid" },
+  { name: "lemonade", label: "Lemonade" },
+  { name: "winter", label: "Winter" },
+  { name: "nord", label: "Nord" },
+  { name: "aqua", label: "Aqua" },
+];
+
+// All themes combined for validation
+export const allThemes: ThemeOption[] = [...darkThemes, ...lightThemes];
+
+export type Theme = string;
 
 // Global shared state for theme
-const currentTheme = ref<Theme>("system");
+const currentTheme = ref<Theme>("dark");
 let initialized = false;
 
 export function useTheme() {
-  // Get system preference
-  const getSystemTheme = (): "light" | "dark" => {
-    if (typeof window === "undefined") return "light";
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  };
-
-  // Get the actual resolved theme (light or dark)
-  const resolvedTheme = computed((): "light" | "dark" => {
-    if (currentTheme.value === "system") {
-      return getSystemTheme();
-    }
-    return currentTheme.value;
-  });
-
   // Apply theme to DOM
   const applyTheme = () => {
     if (typeof document === "undefined") return;
-    document.documentElement.setAttribute("data-theme", resolvedTheme.value);
+    document.documentElement.setAttribute("data-theme", currentTheme.value);
   };
 
   // Load saved theme from localStorage
   const loadTheme = () => {
     if (typeof localStorage === "undefined") {
-      currentTheme.value = "system";
+      currentTheme.value = "dark";
       return;
     }
 
     const savedTheme = localStorage.getItem("theme") as Theme;
-    if (savedTheme && ["light", "dark", "system"].includes(savedTheme)) {
+    const validThemes = allThemes.map((t) => t.name);
+    if (savedTheme && validThemes.includes(savedTheme)) {
       currentTheme.value = savedTheme;
     } else {
-      currentTheme.value = "system";
+      currentTheme.value = "dark";
     }
   };
 
@@ -51,17 +88,6 @@ export function useTheme() {
     applyTheme();
   };
 
-  // Cycle through themes: light -> dark -> system -> light
-  const cycleTheme = () => {
-    if (currentTheme.value === "light") {
-      setTheme("dark");
-    } else if (currentTheme.value === "dark") {
-      setTheme("system");
-    } else {
-      setTheme("light");
-    }
-  };
-
   // Initialize theme system
   const init = () => {
     if (initialized) return;
@@ -69,16 +95,6 @@ export function useTheme() {
 
     loadTheme();
     applyTheme();
-
-    // Listen for system theme changes
-    if (typeof window !== "undefined") {
-      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      mediaQuery.addEventListener("change", () => {
-        if (currentTheme.value === "system") {
-          applyTheme();
-        }
-      });
-    }
 
     // Watch for theme changes
     watch(currentTheme, () => {
@@ -88,9 +104,9 @@ export function useTheme() {
 
   return {
     currentTheme,
-    resolvedTheme,
+    darkThemes,
+    lightThemes,
     setTheme,
-    cycleTheme,
     init,
   };
 }
