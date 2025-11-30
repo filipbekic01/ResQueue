@@ -260,25 +260,10 @@ const wasPreviouslyFaulted = (msg: MessageDeliveryDto) => {
   return msg.transportHeaders?.["MT-Reason"] === "fault" || msg.transportHeaders?.["MT-Fault-Message"];
 };
 
-// Helper to get scheduled delivery time from message
+// For scheduled messages, enqueueTime is the future delivery time
 const getScheduledTime = (msg: MessageDeliveryDto): string | undefined => {
-  // Check additionalData first
-  if (msg.additionalData?.["ScheduledTime"]) {
-    return msg.additionalData["ScheduledTime"];
-  }
-  // Check transport headers
-  if (msg.transportHeaders?.["MT-Scheduling-DeliverAt"]) {
-    return msg.transportHeaders["MT-Scheduling-DeliverAt"];
-  }
-  // Try to parse from message body for recurring jobs
-  if (msg.message?.body) {
-    try {
-      const body = JSON.parse(msg.message.body);
-      if (body.scheduledTime) return body.scheduledTime;
-      if (body.nextStartDate) return body.nextStartDate;
-    } catch {
-      // Ignore parse errors
-    }
+  if (msg.message?.schedulingTokenId && msg.enqueueTime) {
+    return msg.enqueueTime;
   }
   return undefined;
 };
@@ -536,6 +521,7 @@ const getScheduledTime = (msg: MessageDeliveryDto): string | undefined => {
                 <th v-if="isReadyQueue" class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">
                   Status
                 </th>
+                <th v-if="isReadyQueue"></th>
                 <th v-if="hasMtFaultMessages" class="text-base-content/60 text-xs font-medium whitespace-nowrap">
                   Fault Message
                 </th>
@@ -609,6 +595,7 @@ const getScheduledTime = (msg: MessageDeliveryDto): string | undefined => {
                     <span class="whitespace-nowrap">Pending</span>
                   </div>
                 </td>
+                <td v-if="isReadyQueue"></td>
                 <td v-if="hasMtFaultMessages" class="py-2.5">
                   <div
                     v-if="msg.transportHeaders?.['MT-Fault-Message']"
@@ -644,7 +631,7 @@ const getScheduledTime = (msg: MessageDeliveryDto): string | undefined => {
               <tr v-if="messages.items.length === 0">
                 <td
                   :colspan="
-                    (hasMtFaultMessages ? 1 : 0) + (isReadyQueue ? 1 : 0) + (selectedQueue?.type !== 1 ? 10 : 7)
+                    (hasMtFaultMessages ? 1 : 0) + (isReadyQueue ? 2 : 0) + (selectedQueue?.type !== 1 ? 10 : 7)
                   "
                   class="text-base-content/40 py-12 text-center text-sm"
                 >

@@ -4,6 +4,7 @@ import { useJobStateQuery } from "@/api/jobs/jobStateQuery";
 import { useSingleMessageQuery } from "@/api/messages/singleMessageQuery";
 import ClockIcon from "@/components/icons/ClockIcon.vue";
 import CopyIcon from "@/components/icons/CopyIcon.vue";
+import RefreshIcon from "@/components/icons/RefreshIcon.vue";
 import { useJson } from "@/composables/jsonComposable";
 import type { MessageDeliveryDto } from "@/dtos/message/messageDeliveryDto";
 import { humanDateTime } from "@/utils/dateTimeUtil";
@@ -93,6 +94,22 @@ const jobStatePopoverOpen = ref(false);
             </div>
           </div>
           <div class="flex shrink-0 items-center gap-2">
+            <!-- Scheduled Flag -->
+            <span
+              v-if="displayedMessage.message?.schedulingTokenId"
+              class="bg-base-200 text-base-content/60 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
+            >
+              <ClockIcon class="h-3 w-3" />
+              Scheduled
+            </span>
+            <!-- Recurring Flag -->
+            <span
+              v-if="displayedMessage.isRecurring"
+              class="bg-base-200 text-base-content/60 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
+            >
+              <RefreshIcon class="h-3 w-3" />
+              Recurring
+            </span>
             <!-- Message State Badge -->
             <span
               v-if="displayedMessage.transportHeaders?.['MT-Reason'] === 'fault'"
@@ -115,14 +132,6 @@ const jobStatePopoverOpen = ref(false);
               <span class="bg-success h-1.5 w-1.5 rounded-full"></span>
               Ready
             </span>
-            <!-- Scheduled indicator -->
-            <span
-              v-if="displayedMessage.message?.schedulingTokenId"
-              class="bg-info/10 text-info inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
-            >
-              <ClockIcon class="h-3 w-3" />
-              Scheduled
-            </span>
           </div>
         </div>
 
@@ -137,10 +146,14 @@ const jobStatePopoverOpen = ref(false);
             }}</span>
           </div>
           <div class="flex min-w-0 flex-1 flex-col px-4 py-3">
-            <span class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Enqueued</span>
-            <span class="text-base-content mt-0.5 text-sm font-medium">{{
-              humanDateTime(displayedMessage.enqueueTime)
-            }}</span>
+            <span class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Enqueue Time</span>
+            <span
+              class="mt-0.5 flex items-center gap-1.5 text-sm font-medium"
+              :class="displayedMessage.message?.schedulingTokenId ? 'text-info' : 'text-base-content'"
+            >
+              <ClockIcon v-if="displayedMessage.message?.schedulingTokenId" class="h-4 w-4" />
+              {{ humanDateTime(displayedMessage.enqueueTime) }}
+            </span>
           </div>
           <div class="flex min-w-0 flex-1 flex-col px-4 py-3">
             <span class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Last Delivered</span>
@@ -168,15 +181,9 @@ const jobStatePopoverOpen = ref(false);
           <div class="border-base-300 dark:border-base-content/20 flex w-[45%] flex-col overflow-auto border-e">
             <div
               class="bg-base-100 border-base-200 dark:border-base-content/10 sticky top-0 z-10 flex flex-col gap-2 border-b px-6 py-4"
-              v-if="displayedMessage.message?.schedulingTokenId || job"
+              v-if="job"
             >
               <div class="bg-info/5 -mx-6 -my-4 flex flex-col gap-2 px-6 py-4">
-                <div
-                  v-if="displayedMessage.message?.schedulingTokenId"
-                  class="text-info flex items-center gap-2 text-sm"
-                >
-                  <ClockIcon class="h-4 w-4" />Scheduled Message
-                </div>
                 <div v-if="job" class="relative text-sm">
                   <span class="text-base-content/70"
                     >The message belongs to the {{ job.isRecurring ? "recurring" : "" }} job —
