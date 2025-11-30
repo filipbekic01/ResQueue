@@ -143,7 +143,7 @@ const jobStatePopoverOpen = ref(false);
       </div>
 
       <div class="flex grow flex-col overflow-auto">
-        <div class="flex shrink-0 grow basis-2/3 overflow-auto">
+        <div class="flex shrink grow basis-1/2 overflow-auto">
           <div class="border-base-300 dark:border-base-content/20 flex w-[45%] flex-col overflow-auto border-e">
             <div
               class="bg-base-100 border-base-200 dark:border-base-content/10 sticky top-0 z-10 flex flex-col gap-2 border-b px-6 py-4"
