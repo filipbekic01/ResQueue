@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useQueryClient } from "@tanstack/vue-query";
+import { formatDistance, isFuture } from "date-fns";
 import { computed, ref, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useDeleteMessagesMutation } from "@/api/messages/deleteMessagesMutation";
@@ -260,12 +261,28 @@ const wasPreviouslyFaulted = (msg: MessageDeliveryDto) => {
   return msg.transportHeaders?.["MT-Reason"] === "fault" || msg.transportHeaders?.["MT-Fault-Message"];
 };
 
-// For scheduled messages, enqueueTime is the future delivery time
-const getScheduledTime = (msg: MessageDeliveryDto): string | undefined => {
-  if (msg.message?.schedulingTokenId && msg.enqueueTime) {
-    return msg.enqueueTime;
+// Get the last word from URN by splitting on : or .
+const getShortUrn = (urn: string | undefined): string => {
+  if (!urn) return "-";
+  const parts = urn.split(/[:.]/);
+  return parts[parts.length - 1] || urn;
+};
+
+// Get pending status text with relative time if in future
+const getPendingStatus = (enqueueTime: string | undefined): string => {
+  if (!enqueueTime) return "Pending";
+  const date = new Date(enqueueTime);
+  if (isFuture(date)) {
+    return `Pending (in ${formatDistance(date, new Date())})`;
   }
-  return undefined;
+  return "Pending";
+};
+
+// Get failed status text with relative time
+const getFailedStatus = (lastDelivered: string | undefined): string => {
+  if (!lastDelivered) return "Failed";
+  const date = new Date(lastDelivered);
+  return `Failed (${formatDistance(date, new Date())} ago)`;
 };
 </script>
 
@@ -463,7 +480,7 @@ const getScheduledTime = (msg: MessageDeliveryDto): string | undefined => {
           </div>
 
           <button
-            class="text-error/70 hover:text-error hover:bg-error/10 flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
+            class="text-base-content/60 hover:text-base-content hover:bg-base-200 flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
             :disabled="isPurgeQueuePending"
             @click="purgeQueue"
           >
@@ -512,34 +529,18 @@ const getScheduledTime = (msg: MessageDeliveryDto): string | undefined => {
                   />
                 </th>
                 <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">ID</th>
-                <th
-                  :class="{ 'w-0': hasMtFaultMessages || isReadyQueue }"
-                  class="text-base-content/60 text-xs font-medium whitespace-nowrap"
-                >
-                  URN
-                </th>
-                <th v-if="isReadyQueue" class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">
-                  Status
-                </th>
-                <th v-if="isReadyQueue"></th>
+                <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">URN</th>
+                <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Status</th>
                 <th v-if="hasMtFaultMessages" class="text-base-content/60 text-xs font-medium whitespace-nowrap">
                   Fault Message
                 </th>
+                <!-- Spacer column: expands to fill available space, pushing other columns to be as narrow as possible -->
+                <th v-if="!hasMtFaultMessages"></th>
                 <th v-if="isReadyQueue" class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">
                   Expires At
                 </th>
                 <th v-if="isReadyQueue" class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">
                   Recurring
-                </th>
-                <th v-if="isReadyQueue" class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">
-                  Scheduled
-                </th>
-                <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Locked</th>
-                <th
-                  v-if="selectedQueue?.type !== 1"
-                  class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap"
-                >
-                  Last Delivered
                 </th>
               </tr>
             </thead>
@@ -563,70 +564,66 @@ const getScheduledTime = (msg: MessageDeliveryDto): string | undefined => {
                   />
                 </td>
                 <td class="text-base-content/60 w-0 py-2.5 text-sm whitespace-nowrap">{{ msg.messageDeliveryId }}</td>
-                <td class="text-base-content max-w-xs truncate py-2.5 text-sm font-medium whitespace-nowrap">
-                  {{ msg.message?.messageType?.replace("urn:message:", "") }}
-                </td>
-                <td v-if="isReadyQueue" class="w-0 py-2.5">
-                  <div
-                    v-if="msg.message?.schedulingTokenId"
-                    class="text-info flex items-center gap-2 text-sm"
-                    title="Scheduled for future delivery"
-                  >
-                    <HourglassIcon class="h-4 w-4 shrink-0" />
-                    <span class="whitespace-nowrap">
-                      {{ getScheduledTime(msg) ? humanDateTime(getScheduledTime(msg)) : "Scheduled" }}
-                    </span>
-                  </div>
-                  <div
-                    v-else-if="wasPreviouslyFaulted(msg)"
-                    class="text-warning flex items-center gap-2 text-sm"
-                    title="Requeued from error - awaiting retry"
-                  >
-                    <HourglassIcon class="h-4 w-4 shrink-0" />
-                    <span class="whitespace-nowrap">
-                      {{ msg.enqueueTime ? humanDateTime(msg.enqueueTime) : "Pending Retry" }}
-                    </span>
-                  </div>
-                  <div v-else class="text-base-content/60 flex items-center gap-2 text-sm">
-                    <HourglassIcon class="h-4 w-4 shrink-0" />
-                    <span class="whitespace-nowrap">Pending</span>
+                <td class="text-base-content w-0 py-2.5 text-sm font-medium whitespace-nowrap">
+                  <div class="tooltip tooltip-right" :data-tip="msg.message?.messageType">
+                    {{ getShortUrn(msg.message?.messageType) }}
                   </div>
                 </td>
-                <td v-if="isReadyQueue"></td>
-                <td v-if="hasMtFaultMessages" class="py-2.5">
-                  <div
-                    v-if="msg.transportHeaders?.['MT-Fault-Message']"
-                    class="text-error flex items-center gap-2 text-sm"
-                  >
-                    <ZapIcon class="h-4 w-4 shrink-0" />
-                    <span class="max-w-xs truncate">{{ msg.transportHeaders?.["MT-Fault-Message"] }}</span>
+                <td class="w-0 py-2.5">
+                  <!-- Ready queue statuses -->
+                  <template v-if="isReadyQueue">
+                    <div
+                      v-if="msg.message?.schedulingTokenId"
+                      class="text-info flex items-center gap-2 text-sm"
+                      title="Scheduled for future delivery"
+                    >
+                      <HourglassIcon class="h-4 w-4 shrink-0" />
+                      <span class="whitespace-nowrap">
+                        {{ getPendingStatus(msg.enqueueTime) }}
+                      </span>
+                    </div>
+                    <div
+                      v-else-if="wasPreviouslyFaulted(msg)"
+                      class="text-warning flex items-center gap-2 text-sm"
+                      title="Requeued from error - awaiting retry"
+                    >
+                      <HourglassIcon class="h-4 w-4 shrink-0" />
+                      <span class="whitespace-nowrap">
+                        {{ getPendingStatus(msg.enqueueTime) }}
+                      </span>
+                    </div>
+                    <div v-else class="text-base-content/60 flex items-center gap-2 text-sm">
+                      <HourglassIcon class="h-4 w-4 shrink-0" />
+                      <span class="whitespace-nowrap">{{ getPendingStatus(msg.enqueueTime) }}</span>
+                    </div>
+                  </template>
+                  <!-- Error/Dead-letter queue status -->
+                  <template v-else>
+                    <div class="text-error flex items-center gap-2 text-sm">
+                      <ZapIcon class="h-4 w-4 shrink-0" />
+                      <span class="whitespace-nowrap">{{ getFailedStatus(msg.lastDelivered) }}</span>
+                    </div>
+                  </template>
+                </td>
+                <td v-if="hasMtFaultMessages" class="max-w-0 py-2.5">
+                  <div v-if="msg.transportHeaders?.['MT-Fault-Message']" class="text-base-content/60 text-sm">
+                    <span class="truncate">{{ msg.transportHeaders?.["MT-Fault-Message"] }}</span>
                   </div>
                   <span v-else class="text-base-content/30 text-sm">-</span>
                 </td>
-                <td v-if="isReadyQueue" class="text-base-content/60 py-2.5 text-sm whitespace-nowrap">
+                <!-- Spacer column: expands to fill available space, pushing other columns to be as narrow as possible -->
+                <td v-if="!hasMtFaultMessages"></td>
+                <td v-if="isReadyQueue" class="text-base-content/60 w-0 py-2.5 text-sm whitespace-nowrap">
                   {{ msg.expirationTime ? humanDateTime(msg.expirationTime) : "-" }}
                 </td>
-                <td v-if="isReadyQueue" class="py-2.5 text-center">
+                <td v-if="isReadyQueue" class="w-0 py-2.5 text-center">
                   <span v-if="msg.isRecurring" class="text-base-content/60 text-sm">✓</span>
                   <span v-else class="text-base-content/20 text-sm">-</span>
-                </td>
-                <td v-if="isReadyQueue" class="py-2.5 text-center">
-                  <span v-if="msg.message?.schedulingTokenId" class="text-base-content/60 text-sm">✓</span>
-                  <span v-else class="text-base-content/20 text-sm">-</span>
-                </td>
-                <td class="py-2.5 text-center">
-                  <span v-if="msg.lockId" class="text-base-content/60 text-sm">✓</span>
-                  <span v-else class="text-base-content/20 text-sm">-</span>
-                </td>
-                <td v-if="selectedQueue?.type !== 1" class="text-base-content/60 py-2.5 text-sm whitespace-nowrap">
-                  {{ humanDateTime(msg.lastDelivered) }}
                 </td>
               </tr>
               <tr v-if="messages.items.length === 0">
                 <td
-                  :colspan="
-                    (hasMtFaultMessages ? 1 : 0) + (isReadyQueue ? 2 : 0) + (selectedQueue?.type !== 1 ? 10 : 7)
-                  "
+                  :colspan="(hasMtFaultMessages ? 1 : 0) + (isReadyQueue ? 2 : 0) + (selectedQueue?.type !== 1 ? 8 : 6)"
                   class="text-base-content/40 py-12 text-center text-sm"
                 >
                   No messages found
