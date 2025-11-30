@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useQueuesViewQuery } from "@/api/queues/queuesViewQuery";
+import DatabaseIcon from "@/components/icons/DatabaseIcon.vue";
 import Pagination from "@/components/Pagination.vue";
 import { useLocalSettings } from "@/composables/useLocalSettings";
 import type { QueueViewDto } from "@/dtos/queue/queueViewDto";
@@ -223,11 +224,21 @@ const paginatedQueues = computed(() => {
               }}</span>
             </td>
           </tr>
-          <tr v-if="paginatedQueues.length === 0">
-            <td colspan="8" class="text-base-content/40 py-12 text-center text-sm">No queues found</td>
-          </tr>
         </tbody>
       </table>
+
+      <!-- Empty State -->
+      <div v-if="paginatedQueues.length === 0" class="flex flex-1 flex-col items-center justify-center gap-4 p-8">
+        <div class="bg-base-200 flex h-16 w-16 items-center justify-center rounded-full">
+          <DatabaseIcon class="text-base-content/30 h-8 w-8" />
+        </div>
+        <div class="text-center">
+          <h3 class="text-base-content text-lg font-medium">No queues found</h3>
+          <p class="text-base-content/50 mt-1 text-sm">
+            {{ search ? "Try adjusting your search terms." : "Queues will appear here when they are created." }}
+          </p>
+        </div>
+      </div>
     </div>
 
     <!-- Pagination -->

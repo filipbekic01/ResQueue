@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useSubscriptionsQuery } from "@/api/subscriptions/subscriptionsQuery";
+import SitemapIcon from "@/components/icons/SitemapIcon.vue";
 import Pagination from "@/components/Pagination.vue";
 import { useLocalSettings } from "@/composables/useLocalSettings";
 import type { SubscriptionDto } from "@/dtos/subscriptions/subscriptionDto";
@@ -173,11 +174,26 @@ const paginatedSubscriptions = computed(() => {
             <td class="text-base-content/60 py-2.5 text-sm">{{ sub.destinationType }}</td>
             <td class="text-base-content/60 py-2.5 text-sm">{{ sub.subscriptionType }}</td>
           </tr>
-          <tr v-if="paginatedSubscriptions.length === 0">
-            <td colspan="5" class="text-base-content/40 py-12 text-center text-sm">No topics found</td>
-          </tr>
         </tbody>
       </table>
+
+      <!-- Empty State -->
+      <div
+        v-if="paginatedSubscriptions.length === 0"
+        class="flex flex-1 flex-col items-center justify-center gap-4 p-8"
+      >
+        <div class="bg-base-200 flex h-16 w-16 items-center justify-center rounded-full">
+          <SitemapIcon class="text-base-content/30 h-8 w-8" />
+        </div>
+        <div class="text-center">
+          <h3 class="text-base-content text-lg font-medium">No topics found</h3>
+          <p class="text-base-content/50 mt-1 text-sm">
+            {{
+              search ? "Try adjusting your search terms." : "Topics will appear here when subscriptions are created."
+            }}
+          </p>
+        </div>
+      </div>
     </div>
 
     <!-- Pagination -->

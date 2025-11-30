@@ -6,7 +6,6 @@ import { useDeleteMessagesMutation } from "@/api/messages/deleteMessagesMutation
 import { useMessagesQuery } from "@/api/messages/messagesQuery";
 import { usePurgeQueueMutation } from "@/api/queues/purgeQueueMutation";
 import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon.vue";
-import ArrowRightIcon from "@/components/icons/ArrowRightIcon.vue";
 import CheckCircleIcon from "@/components/icons/CheckCircleIcon.vue";
 import EraserIcon from "@/components/icons/EraserIcon.vue";
 import ExclamationCircleIcon from "@/components/icons/ExclamationCircleIcon.vue";
@@ -41,7 +40,6 @@ const { confirm } = useConfirmDialog();
 const toast = useToast();
 
 const currentPage = ref(1);
-const pageSize = ref(20);
 
 const { refetchInterval } = useLocalSettings();
 
@@ -139,17 +137,66 @@ const selectedMessageIds = computed(() =>
   selectedMessages.value?.length ? selectedMessages.value.map((x) => x.messageDeliveryId) : [],
 );
 
+// Shift selection
+const lastSelectedIndex = ref<number | null>(null);
+
+const handleCheckboxChange = (msg: MessageDeliveryDto, event: Event) => {
+  const isChecked = (event.target as HTMLInputElement).checked;
+  const currentIndex = messages.value?.items.findIndex((m) => m.messageDeliveryId === msg.messageDeliveryId) ?? -1;
+
+  if ((event as MouseEvent).shiftKey && lastSelectedIndex.value !== null && messages.value?.items) {
+    // Shift+click: select range
+    const start = Math.min(lastSelectedIndex.value, currentIndex);
+    const end = Math.max(lastSelectedIndex.value, currentIndex);
+    const rangeItems = messages.value.items.slice(start, end + 1);
+
+    if (isChecked) {
+      // Add range to selection (avoiding duplicates)
+      const newSelection = [...selectedMessages.value];
+      for (const item of rangeItems) {
+        if (!newSelection.some((m) => m.messageDeliveryId === item.messageDeliveryId)) {
+          newSelection.push(item);
+        }
+      }
+      selectedMessages.value = newSelection;
+    } else {
+      // Remove range from selection
+      selectedMessages.value = selectedMessages.value.filter(
+        (m) => !rangeItems.some((r) => r.messageDeliveryId === m.messageDeliveryId),
+      );
+    }
+  } else {
+    // Normal click: toggle single item
+    if (isChecked) {
+      selectedMessages.value = [...selectedMessages.value, msg];
+    } else {
+      selectedMessages.value = selectedMessages.value.filter((m) => m.messageDeliveryId !== msg.messageDeliveryId);
+    }
+  }
+
+  lastSelectedIndex.value = currentIndex;
+};
+
 const requeuePopoverOpen = ref(false);
 const requeueSpecificPopoverOpen = ref(false);
+
+const isRefreshing = ref(false);
 
 const goToQueues = () => {
   router.push({ name: "queues" });
 };
 
 const refreshQueue = () => {
-  refetchMessages().then(() => {
-    toast.success("The queue has been successfully updated.");
-  });
+  isRefreshing.value = true;
+  refetchMessages()
+    .then(() => {
+      toast.success("The queue has been successfully updated.");
+    })
+    .finally(() => {
+      setTimeout(() => {
+        isRefreshing.value = false;
+      }, 300);
+    });
   queryClient.invalidateQueries({ queryKey: ["queue-view"] });
 };
 
@@ -228,9 +275,9 @@ const hasMtFaultMessages = computed(() => {
             </button>
             <div>
               <h1 class="text-base-content text-xl font-semibold tracking-tight">{{ queueName }}</h1>
-              <div class="text-base-content/50 mt-0.5 flex items-center gap-3 text-xs">
-                <span v-if="queueView?.queueAutoDelete" class="flex items-center gap-1">
-                  Auto-delete: {{ queueView.queueAutoDelete / 60 }}m
+              <div class="text-base-content/50 mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                <span class="flex items-center gap-1">
+                  Auto-delete: {{ queueView?.queueAutoDelete ? `${queueView.queueAutoDelete / 60}m` : "Off" }}
                 </span>
                 <span v-if="queueView?.queueMaxDeliveryCount" class="flex items-center gap-1">
                   Max delivery: {{ queueView.queueMaxDeliveryCount }}
@@ -274,7 +321,7 @@ const hasMtFaultMessages = computed(() => {
             :disabled="isPending"
             @click="refreshQueue"
           >
-            <RefreshIcon class="h-4 w-4" />
+            <RefreshIcon class="h-4 w-4" :class="{ 'refresh-spin': isRefreshing }" />
             Refresh
           </button>
 
@@ -296,7 +343,7 @@ const hasMtFaultMessages = computed(() => {
             </button>
             <div
               v-if="requeueSpecificPopoverOpen"
-              class="bg-base-100 border-base-200 dark:border-base-content/10 absolute left-0 z-50 mt-1 w-72 rounded-lg border p-4 shadow-lg"
+              class="bg-base-100 border-base-200 dark:border-base-content/10 absolute left-0 z-50 mt-1 w-80 rounded-lg border p-4 shadow-lg"
             >
               <RequeueDialog
                 v-if="selectedQueueId"
@@ -324,7 +371,7 @@ const hasMtFaultMessages = computed(() => {
             </button>
             <div
               v-if="requeuePopoverOpen"
-              class="bg-base-100 border-base-200 dark:border-base-content/10 absolute left-0 z-50 mt-1 w-72 rounded-lg border p-4 shadow-lg"
+              class="bg-base-100 border-base-200 dark:border-base-content/10 absolute left-0 z-50 mt-1 w-80 rounded-lg border p-4 shadow-lg"
             >
               <RequeueDialog
                 v-if="selectedQueueId"
@@ -349,23 +396,50 @@ const hasMtFaultMessages = computed(() => {
             </button>
             <div
               v-if="deleteMessagesDropdownOpen"
-              class="bg-base-100 border-base-200 dark:border-base-content/10 absolute left-0 z-50 mt-1 w-64 rounded-lg border p-4 shadow-lg"
+              class="bg-base-100 border-base-200 dark:border-base-content/10 absolute left-0 z-50 mt-1 w-72 rounded-lg border p-4 shadow-lg"
             >
-              <div class="flex flex-col gap-3">
-                <label class="flex cursor-pointer items-center gap-2 text-sm">
-                  <input type="checkbox" v-model="deleteMessagesTransactional" class="checkbox checkbox-xs" />
-                  Within single transaction
-                </label>
+              <div class="flex flex-col gap-4">
+                <!-- Visual indicator -->
+                <div class="bg-error/10 flex items-center gap-3 rounded-lg p-3">
+                  <div class="bg-error/20 text-error flex h-10 w-10 items-center justify-center rounded-full">
+                    <TrashIcon class="h-5 w-5" />
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-base-content text-sm font-medium"
+                      >{{ selectedMessageIds.length }} message{{ selectedMessageIds.length !== 1 ? "s" : "" }}</span
+                    >
+                    <span class="text-base-content/50 text-xs">will be permanently deleted</span>
+                  </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="border-base-200 dark:border-base-content/10 border-t"></div>
+
+                <!-- Options -->
+                <div class="flex flex-col gap-2">
+                  <span class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Options</span>
+                  <label class="flex cursor-pointer items-center gap-2 text-sm">
+                    <input type="checkbox" v-model="deleteMessagesTransactional" class="checkbox checkbox-xs" />
+                    <span class="text-base-content/70">Within single transaction</span>
+                  </label>
+                </div>
+
+                <!-- Delete button -->
                 <button
-                  class="btn btn-error btn-sm"
+                  class="btn btn-error btn-sm w-full"
                   :class="{ loading: isDeleteMessagesPending }"
                   @click="deleteMessages"
                 >
-                  Delete
-                  <ArrowRightIcon class="h-4 w-4" />
+                  <TrashIcon class="h-4 w-4" />
+                  Delete {{ selectedMessageIds.length }} message{{ selectedMessageIds.length !== 1 ? "s" : "" }}
                 </button>
               </div>
             </div>
+            <div
+              v-if="deleteMessagesDropdownOpen"
+              class="fixed inset-0 z-40"
+              @click="deleteMessagesDropdownOpen = false"
+            ></div>
           </div>
 
           <button
@@ -384,12 +458,27 @@ const hasMtFaultMessages = computed(() => {
       <Graph v-if="primaryQueue" :queue="primaryQueue" />
     </template>
 
+    <!-- Empty State -->
+    <template v-if="messages && !messages.items.length">
+      <div class="flex flex-1 flex-col items-center justify-center gap-4 p-8">
+        <div class="bg-base-200 flex h-16 w-16 items-center justify-center rounded-full">
+          <CheckCircleIcon class="text-base-content/30 h-8 w-8" />
+        </div>
+        <div class="text-center">
+          <h3 class="text-base-content text-lg font-medium">No messages</h3>
+          <p class="text-base-content/50 mt-1 text-sm">
+            This queue is empty. Messages will appear here when they arrive.
+          </p>
+        </div>
+      </div>
+    </template>
+
     <template v-if="messages?.items.length">
       <div class="flex min-h-0 flex-1 flex-col">
         <!-- Table -->
         <div class="min-h-0 flex-1 overflow-auto">
           <table class="table w-full">
-            <thead class="bg-base-100 sticky top-0">
+            <thead class="bg-base-100 sticky top-0 z-10">
               <tr class="border-base-200 dark:border-base-content/10 border-b">
                 <th class="w-0">
                   <input
@@ -436,11 +525,7 @@ const hasMtFaultMessages = computed(() => {
                     type="checkbox"
                     class="checkbox checkbox-xs"
                     :checked="selectedMessages.some((m) => m.messageDeliveryId === msg.messageDeliveryId)"
-                    @change="
-                      selectedMessages = selectedMessages.some((m) => m.messageDeliveryId === msg.messageDeliveryId)
-                        ? selectedMessages.filter((m) => m.messageDeliveryId !== msg.messageDeliveryId)
-                        : [...selectedMessages, msg]
-                    "
+                    @click="handleCheckboxChange(msg, $event)"
                   />
                 </td>
                 <td class="text-base-content/60 py-2.5 text-sm whitespace-nowrap">{{ msg.messageDeliveryId }}</td>
@@ -497,3 +582,21 @@ const hasMtFaultMessages = computed(() => {
     </template>
   </AppLayout>
 </template>
+
+<style scoped>
+.refresh-spin {
+  animation: refresh-spin 0.3s ease-in-out;
+}
+
+@keyframes refresh-spin {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(0.85) rotate(180deg);
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+  }
+}
+</style>
