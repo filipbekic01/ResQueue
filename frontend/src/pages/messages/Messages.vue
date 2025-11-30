@@ -525,21 +525,16 @@ const getScheduledTime = (msg: MessageDeliveryDto): string | undefined => {
                 <th v-if="hasMtFaultMessages" class="text-base-content/60 text-xs font-medium whitespace-nowrap">
                   Fault Message
                 </th>
-                <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Expires At</th>
-                <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Recurring</th>
-                <th
-                  v-if="selectedQueue?.type !== 1"
-                  class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap"
-                >
+                <th v-if="isReadyQueue" class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">
+                  Expires At
+                </th>
+                <th v-if="isReadyQueue" class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">
+                  Recurring
+                </th>
+                <th v-if="isReadyQueue" class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">
                   Scheduled
                 </th>
                 <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Locked</th>
-                <th
-                  v-if="selectedQueue?.type !== 1"
-                  class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap"
-                >
-                  Delivery
-                </th>
                 <th
                   v-if="selectedQueue?.type !== 1"
                   class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap"
@@ -588,7 +583,9 @@ const getScheduledTime = (msg: MessageDeliveryDto): string | undefined => {
                     title="Requeued from error - awaiting retry"
                   >
                     <HourglassIcon class="h-4 w-4 shrink-0" />
-                    <span class="whitespace-nowrap">Pending Retry</span>
+                    <span class="whitespace-nowrap">
+                      {{ msg.enqueueTime ? humanDateTime(msg.enqueueTime) : "Pending Retry" }}
+                    </span>
                   </div>
                   <div v-else class="text-base-content/60 flex items-center gap-2 text-sm">
                     <HourglassIcon class="h-4 w-4 shrink-0" />
@@ -606,23 +603,20 @@ const getScheduledTime = (msg: MessageDeliveryDto): string | undefined => {
                   </div>
                   <span v-else class="text-base-content/30 text-sm">-</span>
                 </td>
-                <td class="text-base-content/60 py-2.5 text-sm whitespace-nowrap">{{ msg.expirationTime ?? "-" }}</td>
-                <td class="py-2.5 text-center">
+                <td v-if="isReadyQueue" class="text-base-content/60 py-2.5 text-sm whitespace-nowrap">
+                  {{ msg.expirationTime ? humanDateTime(msg.expirationTime) : "-" }}
+                </td>
+                <td v-if="isReadyQueue" class="py-2.5 text-center">
                   <span v-if="msg.isRecurring" class="text-base-content/60 text-sm">✓</span>
                   <span v-else class="text-base-content/20 text-sm">-</span>
                 </td>
-                <td v-if="selectedQueue?.type !== 1" class="py-2.5 text-center">
+                <td v-if="isReadyQueue" class="py-2.5 text-center">
                   <span v-if="msg.message?.schedulingTokenId" class="text-base-content/60 text-sm">✓</span>
                   <span v-else class="text-base-content/20 text-sm">-</span>
                 </td>
                 <td class="py-2.5 text-center">
-                  <span v-if="!msg.lockId" class="text-base-content/60 text-sm">✓</span>
+                  <span v-if="msg.lockId" class="text-base-content/60 text-sm">✓</span>
                   <span v-else class="text-base-content/20 text-sm">-</span>
-                </td>
-                <td v-if="selectedQueue?.type !== 1" class="py-2.5 text-center text-sm">
-                  <span :class="msg.deliveryCount > 1 ? 'text-warning' : 'text-base-content/60'">
-                    {{ msg.deliveryCount }}/{{ msg.maxDeliveryCount }}
-                  </span>
                 </td>
                 <td v-if="selectedQueue?.type !== 1" class="text-base-content/60 py-2.5 text-sm whitespace-nowrap">
                   {{ humanDateTime(msg.lastDelivered) }}

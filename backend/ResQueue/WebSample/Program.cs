@@ -71,8 +71,10 @@ public class Program
                 .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
 
             // 3. Drink order consumer (fails for under 18, retries until dead-letter)
-            mt.AddConsumer<DrinkOrderConsumer>()
-                .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
+            mt.AddConsumer<DrinkOrderConsumer>(cfg =>
+            {
+                cfg.UseMessageRetry(r => r.Immediate(3));
+            }).Endpoint(e => { e.ConcurrentMessageLimit = 1; });
 
             // 4. Weather check job consumer (recurring every 3 minutes)
             mt.AddConsumer<WeatherCheckConsumer>();

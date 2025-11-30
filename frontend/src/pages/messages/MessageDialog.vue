@@ -149,9 +149,24 @@ const jobStatePopoverOpen = ref(false);
             <span class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Enqueue Time</span>
             <span
               class="mt-0.5 flex items-center gap-1.5 text-sm font-medium"
-              :class="displayedMessage.message?.schedulingTokenId ? 'text-info' : 'text-base-content'"
+              :class="{
+                'text-info': displayedMessage.message?.schedulingTokenId,
+                'text-warning':
+                  !displayedMessage.message?.schedulingTokenId &&
+                  displayedMessage.enqueueTime &&
+                  new Date(displayedMessage.enqueueTime) > new Date(),
+                'text-base-content':
+                  !displayedMessage.message?.schedulingTokenId &&
+                  (!displayedMessage.enqueueTime || new Date(displayedMessage.enqueueTime) <= new Date()),
+              }"
             >
-              <ClockIcon v-if="displayedMessage.message?.schedulingTokenId" class="h-4 w-4" />
+              <ClockIcon
+                v-if="
+                  displayedMessage.message?.schedulingTokenId ||
+                  (displayedMessage.enqueueTime && new Date(displayedMessage.enqueueTime) > new Date())
+                "
+                class="h-4 w-4"
+              />
               {{ humanDateTime(displayedMessage.enqueueTime) }}
             </span>
           </div>
@@ -160,18 +175,6 @@ const jobStatePopoverOpen = ref(false);
             <span class="text-base-content mt-0.5 text-sm font-medium">{{
               humanDateTime(displayedMessage.lastDelivered) || "-"
             }}</span>
-          </div>
-          <div class="flex min-w-0 flex-1 flex-col px-4 py-3">
-            <span class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Delivery</span>
-            <span
-              class="mt-0.5 text-sm font-medium"
-              :class="displayedMessage.deliveryCount > 1 ? 'text-warning' : 'text-base-content'"
-            >
-              {{ displayedMessage.deliveryCount }} / {{ displayedMessage.maxDeliveryCount }}
-              <span v-if="displayedMessage.deliveryCount > 1" class="text-warning/70 text-xs font-normal"
-                >(retried)</span
-              >
-            </span>
           </div>
         </div>
       </div>
