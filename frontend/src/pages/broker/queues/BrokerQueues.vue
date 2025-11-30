@@ -1,16 +1,17 @@
 <script lang="ts" setup>
-import { computed, ref, watchEffect } from "vue";
-import { useRouter } from "vue-router";
+import { computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useQueuesViewQuery } from "@/api/queues/queuesViewQuery";
 import Pagination from "@/components/Pagination.vue";
-import { useUserSettings } from "@/composables/userSettingsComposable";
+import { useLocalSettings } from "@/composables/useLocalSettings";
 import type { QueueViewDto } from "@/dtos/queue/queueViewDto";
 
+const route = useRoute();
 const router = useRouter();
 
-const { settings, updateSettings } = useUserSettings();
+const { refetchInterval } = useLocalSettings();
 
-const { data } = useQueuesViewQuery(computed(() => settings.refetchInterval));
+const { data } = useQueuesViewQuery(refetchInterval);
 const queuesView = computed(() => data.value ?? []);
 
 const selectQueue = (queue: QueueViewDto, queueType?: number) => {
@@ -23,47 +24,53 @@ const selectQueue = (queue: QueueViewDto, queueType?: number) => {
   });
 };
 
-const search = ref(settings.queueSearch);
-
-watchEffect(() => {
-  updateSettings({
-    ...settings,
-    queueSearch: search.value,
-  });
+// Search from URL
+const search = computed({
+  get: () => (route.query.search as string) ?? "",
+  set: (value: string) => {
+    router.replace({ query: { ...route.query, search: value || undefined } });
+  },
 });
 
-// Sorting
+// Sorting from URL
 type SortField = "ready" | "errored" | "deadLettered" | "scheduled" | "locked" | null;
-const sortField = ref<SortField>((settings.sortField as SortField) ?? null);
-const sortOrder = ref<"asc" | "desc" | null>(
-  settings.sortOrder === 1 ? "asc" : settings.sortOrder === -1 ? "desc" : null,
-);
+
+const sortField = computed({
+  get: () => (route.query.sortField as SortField) ?? null,
+  set: (value: SortField) => {
+    router.replace({ query: { ...route.query, sortField: value || undefined } });
+  },
+});
+
+const sortOrder = computed({
+  get: () => (route.query.sortOrder as "asc" | "desc" | null) ?? null,
+  set: (value: "asc" | "desc" | null) => {
+    router.replace({ query: { ...route.query, sortOrder: value || undefined } });
+  },
+});
 
 const toggleSort = (field: SortField) => {
   if (sortField.value === field) {
     if (sortOrder.value === "asc") {
-      sortOrder.value = "desc";
+      router.replace({ query: { ...route.query, sortOrder: "desc" } });
     } else if (sortOrder.value === "desc") {
-      sortField.value = null;
-      sortOrder.value = null;
+      router.replace({ query: { ...route.query, sortField: undefined, sortOrder: undefined } });
     } else {
-      sortOrder.value = "asc";
+      router.replace({ query: { ...route.query, sortField: field, sortOrder: "asc" } });
     }
   } else {
-    sortField.value = field;
-    sortOrder.value = "asc";
+    router.replace({ query: { ...route.query, sortField: field, sortOrder: "asc" } });
   }
-
-  updateSettings({
-    ...settings,
-    sortOrder: sortOrder.value === "asc" ? 1 : sortOrder.value === "desc" ? -1 : undefined,
-    sortField: sortField.value ?? undefined,
-  });
 };
 
-// Pagination
-const currentPage = ref(1);
-const pageSize = ref(20);
+// Pagination from URL
+const currentPage = computed({
+  get: () => Number(route.query.page) || 1,
+  set: (value: number) => {
+    router.replace({ query: { ...route.query, page: value > 1 ? value : undefined } });
+  },
+});
+const pageSize = 20;
 
 // Filtered, sorted and paginated data
 const filteredQueues = computed(() => {
@@ -90,16 +97,9 @@ const filteredQueues = computed(() => {
 });
 
 const paginatedQueues = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
+  const start = (currentPage.value - 1) * pageSize;
+  const end = start + pageSize;
   return filteredQueues.value.slice(start, end);
-});
-
-// Reset to page 1 when search changes
-watchEffect(() => {
-  if (search.value !== undefined) {
-    currentPage.value = 1;
-  }
 });
 </script>
 
@@ -134,25 +134,25 @@ watchEffect(() => {
             <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Auto Delete</th>
             <th class="text-base-content/60 w-0 text-xs font-medium whitespace-nowrap">Max Delivery</th>
             <th
-              class="bg-success/5 text-base-content/60 w-0 cursor-pointer border-l-2 border-l-success/30 text-xs font-medium whitespace-nowrap"
+              class="bg-success/5 text-base-content/60 border-l-success/30 w-0 cursor-pointer border-l-2 text-xs font-medium whitespace-nowrap"
               @click="toggleSort('ready')"
             >
               Ready
-              <span v-if="sortField === 'ready'" class="text-primary">{{ sortOrder === "asc" ? "↑" : "↓" }}</span>
+              <span v-if="sortField === 'ready'" class="text-base-content">{{ sortOrder === "asc" ? "↑" : "↓" }}</span>
             </th>
             <th
-              class="bg-warning/5 text-base-content/60 w-0 cursor-pointer border-l-2 border-l-warning/30 text-xs font-medium whitespace-nowrap"
+              class="bg-warning/5 text-base-content/60 border-l-warning/30 w-0 cursor-pointer border-l-2 text-xs font-medium whitespace-nowrap"
               @click="toggleSort('errored')"
             >
               Errored
-              <span v-if="sortField === 'errored'" class="text-primary">{{ sortOrder === "asc" ? "↑" : "↓" }}</span>
+              <span v-if="sortField === 'errored'" class="text-base-content">{{ sortOrder === "asc" ? "↑" : "↓" }}</span>
             </th>
             <th
-              class="bg-error/5 text-base-content/60 w-0 cursor-pointer border-l-2 border-l-error/30 text-xs font-medium whitespace-nowrap"
+              class="bg-error/5 text-base-content/60 border-l-error/30 w-0 cursor-pointer border-l-2 text-xs font-medium whitespace-nowrap"
               @click="toggleSort('deadLettered')"
             >
               Dead Lettered
-              <span v-if="sortField === 'deadLettered'" class="text-primary">{{
+              <span v-if="sortField === 'deadLettered'" class="text-base-content">{{
                 sortOrder === "asc" ? "↑" : "↓"
               }}</span>
             </th>
@@ -161,14 +161,14 @@ watchEffect(() => {
               @click="toggleSort('scheduled')"
             >
               Scheduled
-              <span v-if="sortField === 'scheduled'" class="text-primary">{{ sortOrder === "asc" ? "↑" : "↓" }}</span>
+              <span v-if="sortField === 'scheduled'" class="text-base-content">{{ sortOrder === "asc" ? "↑" : "↓" }}</span>
             </th>
             <th
               class="text-base-content/60 w-0 cursor-pointer text-xs font-medium whitespace-nowrap"
               @click="toggleSort('locked')"
             >
               Locked
-              <span v-if="sortField === 'locked'" class="text-primary">{{ sortOrder === "asc" ? "↑" : "↓" }}</span>
+              <span v-if="sortField === 'locked'" class="text-base-content">{{ sortOrder === "asc" ? "↑" : "↓" }}</span>
             </th>
           </tr>
         </thead>
@@ -184,17 +184,26 @@ watchEffect(() => {
               {{ queue.queueAutoDelete ? `${queue.queueAutoDelete / 60}m` : "-" }}
             </td>
             <td class="text-base-content/60 py-2.5 text-sm">{{ queue.queueMaxDeliveryCount }}</td>
-            <td class="bg-success/5 border-l-2 border-l-success/30 py-2.5 text-sm hover:underline" @click.stop="selectQueue(queue, 1)">
+            <td
+              class="bg-success/5 border-l-success/30 border-l-2 py-2.5 text-sm hover:underline"
+              @click.stop="selectQueue(queue, 1)"
+            >
               <span :class="queue.ready > 0 ? 'text-base-content font-medium' : 'text-base-content/40'">{{
                 queue.ready
               }}</span>
             </td>
-            <td class="bg-warning/5 border-l-2 border-l-warning/30 py-2.5 text-sm hover:underline" @click.stop="selectQueue(queue, 2)">
+            <td
+              class="bg-warning/5 border-l-warning/30 border-l-2 py-2.5 text-sm hover:underline"
+              @click.stop="selectQueue(queue, 2)"
+            >
               <span :class="queue.errored > 0 ? 'text-warning font-medium' : 'text-base-content/40'">{{
                 queue.errored
               }}</span>
             </td>
-            <td class="bg-error/5 border-l-2 border-l-error/30 py-2.5 text-sm hover:underline" @click.stop="selectQueue(queue, 3)">
+            <td
+              class="bg-error/5 border-l-error/30 border-l-2 py-2.5 text-sm hover:underline"
+              @click.stop="selectQueue(queue, 3)"
+            >
               <span :class="queue.deadLettered > 0 ? 'text-error font-medium' : 'text-base-content/40'">{{
                 queue.deadLettered
               }}</span>
@@ -219,11 +228,7 @@ watchEffect(() => {
 
     <!-- Pagination -->
     <div v-if="filteredQueues.length > pageSize" class="border-base-200 dark:border-base-content/10 shrink-0 border-t">
-      <Pagination
-        :total-items="filteredQueues.length"
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-      />
+      <Pagination :total-items="filteredQueues.length" v-model:current-page="currentPage" :page-size="pageSize" />
     </div>
   </div>
 </template>

@@ -17,7 +17,7 @@ import XCircleIcon from "@/components/icons/XCircleIcon.vue";
 import Pagination from "@/components/Pagination.vue";
 import { useQueue } from "@/composables/queueComposable";
 import { useConfirmDialog } from "@/composables/useConfirmDialog";
-import { useUserSettings } from "@/composables/userSettingsComposable";
+import { useLocalSettings } from "@/composables/useLocalSettings";
 import { useToast } from "@/composables/useToast";
 import RequeueDialog from "@/dialogs/RequeueDialog.vue";
 import type { MessageDeliveryDto } from "@/dtos/message/messageDeliveryDto";
@@ -43,7 +43,7 @@ const toast = useToast();
 const currentPage = ref(1);
 const pageSize = ref(20);
 
-const { settings, updateSettings } = useUserSettings();
+const { refetchInterval } = useLocalSettings();
 
 // Computed page index for API (0-based)
 const pageIndex = computed(() => currentPage.value - 1);
@@ -62,7 +62,6 @@ const selectedQueue = computed(() => queues.value?.find((x) => x.id === selected
 
 const updateSelectedQueue = (queue: QueueDto) => {
   selectedQueueId.value = queue.id;
-  updateSettings({ ...settings, queueType: queue.type });
   router.replace({ query: { ...route.query, queueType: queue.type.toString() } });
 };
 
@@ -71,13 +70,12 @@ watchEffect(() => {
     return;
   }
 
-  const queueTypeFromUrl = route.query.queueType ? Number(route.query.queueType) : null;
-  const queueTypeToUse = queueTypeFromUrl ?? settings.queueType;
+  const queueTypeFromUrl = route.query.queueType ? Number(route.query.queueType) : 1;
 
-  selectedQueueId.value = queueOptions.value.find((x) => x.queue.type == queueTypeToUse)?.queue.id ?? undefined;
+  selectedQueueId.value = queueOptions.value.find((x) => x.queue.type == queueTypeFromUrl)?.queue.id ?? undefined;
 
   // Sync URL if it doesn't have queueType
-  if (!queueTypeFromUrl && selectedQueueId.value) {
+  if (!route.query.queueType && selectedQueueId.value) {
     const selectedQueue = queueOptions.value.find((x) => x.queue.id === selectedQueueId.value);
     if (selectedQueue) {
       router.replace({ query: { ...route.query, queueType: selectedQueue.queue.type.toString() } });
@@ -96,7 +94,7 @@ const {
 } = useMessagesQuery(
   computed(() => selectedQueueId.value),
   pageIndex,
-  computed(() => settings.refetchInterval),
+  refetchInterval,
 );
 
 const toggleMessage = (msg?: MessageDeliveryDto) => {

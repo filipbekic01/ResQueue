@@ -9,7 +9,7 @@ import ComputerIcon from "@/components/icons/ComputerIcon.vue";
 import MoonIcon from "@/components/icons/MoonIcon.vue";
 import RefreshIcon from "@/components/icons/RefreshIcon.vue";
 import SunIcon from "@/components/icons/SunIcon.vue";
-import { useUserSettings } from "@/composables/userSettingsComposable";
+import { useLocalSettings } from "@/composables/useLocalSettings";
 import { useTheme } from "@/composables/useTheme";
 
 const route = useRoute();
@@ -19,7 +19,7 @@ const { isSuccess, isPending, error } = useAuthQuery();
 
 const capitalize = (value: string = "") => value.replace(/\b\w/g, (char) => char.toUpperCase());
 
-const { settings, updateSettings, toggleGraph } = useUserSettings();
+const { showGraph, refetchInterval, toggleGraph, setRefetchInterval } = useLocalSettings();
 const { currentTheme, cycleTheme } = useTheme();
 
 const autoRefreshPopoverOpen = ref(false);
@@ -33,7 +33,7 @@ const refetchIntervalOptions = [
 ];
 
 const onRefreshIntervalChange = (interval: number) => {
-  updateSettings({ ...settings, refetchInterval: interval });
+  setRefetchInterval(interval);
   autoRefreshPopoverOpen.value = false;
 };
 
@@ -66,14 +66,14 @@ const items = computed((): BreadcrumbItem[] => {
 });
 
 const autoRefreshLabel = computed(() => {
-  const option = refetchIntervalOptions.find((x) => x.value === settings.refetchInterval);
+  const option = refetchIntervalOptions.find((x) => x.value === refetchInterval.value);
   return option?.value === 0 ? "" : option?.label;
 });
 
-const isAutoRefreshActive = computed(() => settings.refetchInterval > 0);
+const isAutoRefreshActive = computed(() => refetchInterval.value > 0);
 
 const isMessagesPage = computed(() => route.name === "messages");
-const shouldShowGraph = computed(() => isMessagesPage.value && settings.showGraph);
+const shouldShowGraph = computed(() => isMessagesPage.value && showGraph.value);
 </script>
 
 <template>
@@ -112,9 +112,9 @@ const shouldShowGraph = computed(() => isMessagesPage.value && settings.showGrap
         <button
           v-if="isMessagesPage"
           class="btn btn-sm gap-1.5"
-          :class="{ 'btn-ghost': !settings.showGraph }"
+          :class="{ 'btn-ghost': !showGraph }"
           @click="toggleGraph"
-          :title="settings.showGraph ? 'Hide metrics graph' : 'Show metrics graph'"
+          :title="showGraph ? 'Hide metrics graph' : 'Show metrics graph'"
         >
           <ChartBarIcon class="h-4 w-4" />
           <span class="text-xs font-medium">Metrics</span>
@@ -140,11 +140,11 @@ const shouldShowGraph = computed(() => isMessagesPage.value && settings.showGrap
               v-for="option in refetchIntervalOptions"
               :key="option.value"
               class="hover:bg-base-200 flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition-colors"
-              :class="{ 'bg-base-200 text-success': settings.refetchInterval === option.value }"
+              :class="{ 'bg-base-200 text-success': refetchInterval === option.value }"
               @click="onRefreshIntervalChange(option.value)"
             >
               <span>{{ option.label }}</span>
-              <span v-if="settings.refetchInterval === option.value" class="text-success">✓</span>
+              <span v-if="refetchInterval === option.value" class="text-success">✓</span>
             </button>
           </div>
           <div v-if="autoRefreshPopoverOpen" class="fixed inset-0 z-40" @click="autoRefreshPopoverOpen = false"></div>

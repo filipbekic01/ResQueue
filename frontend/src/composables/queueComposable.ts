@@ -3,7 +3,7 @@ import { useQueuesQuery } from "@/api/queues/queuesQuery";
 import { useQueueViewQuery } from "@/api/queues/queueViewQuery";
 import type { QueueViewDto } from "@/dtos/queue/queueViewDto";
 import { QueueTypeEnum } from "@/enums/queueTypeEnum";
-import { useUserSettings } from "./userSettingsComposable";
+import { useLocalSettings } from "./useLocalSettings";
 
 const getQueueName = (type: number, queueView?: QueueViewDto) => {
   if (type === 1) {
@@ -30,16 +30,10 @@ const getQueueTypeLabel = (type?: number) => {
 };
 
 export function useQueue(queueName: Ref<string>) {
-  const { settings } = useUserSettings();
+  const { refetchInterval } = useLocalSettings();
 
-  const query = useQueuesQuery(
-    queueName,
-    computed(() => settings.refetchInterval),
-  );
-  const queryView = useQueueViewQuery(
-    queueName,
-    computed(() => settings.refetchInterval),
-  );
+  const query = useQueuesQuery(queueName, refetchInterval);
+  const queryView = useQueueViewQuery(queueName, refetchInterval);
 
   const queueOptions = computed(() => {
     if (!query.data.value) {

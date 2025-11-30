@@ -3,9 +3,9 @@ import { onBeforeMount } from "vue";
 import { RouterView } from "vue-router";
 import ConfirmationDialogContainer from "./components/ConfirmationDialogContainer.vue";
 import ToastContainer from "./components/ToastContainer.vue";
-import { useUserSettings } from "./composables/userSettingsComposable";
+import { useTheme } from "./composables/useTheme";
 
-const { init } = useUserSettings();
+const { init } = useTheme();
 
 onBeforeMount(() => {
   init();

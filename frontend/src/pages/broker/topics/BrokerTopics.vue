@@ -1,47 +1,65 @@
 <script lang="ts" setup>
-import { computed, ref, watchEffect } from "vue";
+import { computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useSubscriptionsQuery } from "@/api/subscriptions/subscriptionsQuery";
 import Pagination from "@/components/Pagination.vue";
-import { useUserSettings } from "@/composables/userSettingsComposable";
+import { useLocalSettings } from "@/composables/useLocalSettings";
 import type { SubscriptionDto } from "@/dtos/subscriptions/subscriptionDto";
 
-const { settings, updateSettings } = useUserSettings();
+const route = useRoute();
+const router = useRouter();
 
-const { data: subscriptions } = useSubscriptionsQuery(computed(() => settings.refetchInterval));
+const { refetchInterval } = useLocalSettings();
 
-const search = ref(settings.topicSearch);
+const { data: subscriptions } = useSubscriptionsQuery(refetchInterval);
 
-watchEffect(() => {
-  updateSettings({
-    ...settings,
-    topicSearch: search.value,
-  });
+// Search from URL
+const search = computed({
+  get: () => (route.query.search as string) ?? "",
+  set: (value: string) => {
+    router.replace({ query: { ...route.query, search: value || undefined } });
+  },
 });
 
-// Sorting
+// Sorting from URL
 type SortField = keyof SubscriptionDto | null;
-const sortField = ref<SortField>(null);
-const sortOrder = ref<"asc" | "desc" | null>(null);
+
+const sortField = computed({
+  get: () => (route.query.sortField as SortField) ?? null,
+  set: (value: SortField) => {
+    router.replace({ query: { ...route.query, sortField: value || undefined } });
+  },
+});
+
+const sortOrder = computed({
+  get: () => (route.query.sortOrder as "asc" | "desc" | null) ?? null,
+  set: (value: "asc" | "desc" | null) => {
+    router.replace({ query: { ...route.query, sortOrder: value || undefined } });
+  },
+});
 
 const toggleSort = (field: SortField) => {
   if (sortField.value === field) {
     if (sortOrder.value === "asc") {
-      sortOrder.value = "desc";
+      router.replace({ query: { ...route.query, sortOrder: "desc" } });
     } else if (sortOrder.value === "desc") {
-      sortField.value = null;
-      sortOrder.value = null;
+      router.replace({ query: { ...route.query, sortField: undefined, sortOrder: undefined } });
     } else {
-      sortOrder.value = "asc";
+      router.replace({ query: { ...route.query, sortField: field, sortOrder: "asc" } });
     }
   } else {
-    sortField.value = field;
-    sortOrder.value = "asc";
+    router.replace({ query: { ...route.query, sortField: field, sortOrder: "asc" } });
   }
 };
 
-// Pagination
-const currentPage = ref(1);
-const pageSize = ref(20);
+// Pagination from URL
+const currentPage = computed({
+  get: () => Number(route.query.page) || 1,
+  set: (value: number) => {
+    router.replace({ query: { ...route.query, page: value > 1 ? value : undefined } });
+  },
+});
+const pageSize = 20;
 
 // Filtered, sorted and paginated data
 const filteredSubscriptions = computed(() => {
@@ -71,16 +89,9 @@ const filteredSubscriptions = computed(() => {
 });
 
 const paginatedSubscriptions = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
+  const start = (currentPage.value - 1) * pageSize;
+  const end = start + pageSize;
   return filteredSubscriptions.value.slice(start, end);
-});
-
-// Reset to page 1 when search changes
-watchEffect(() => {
-  if (search.value !== undefined) {
-    currentPage.value = 1;
-  }
 });
 </script>
 
@@ -117,14 +128,16 @@ watchEffect(() => {
               @click="toggleSort('routingKey')"
             >
               Routing Key
-              <span v-if="sortField === 'routingKey'" class="text-primary">{{ sortOrder === "asc" ? "↑" : "↓" }}</span>
+              <span v-if="sortField === 'routingKey'" class="text-base-content">{{
+                sortOrder === "asc" ? "↑" : "↓"
+              }}</span>
             </th>
             <th
               class="text-base-content/60 w-0 cursor-pointer text-xs font-medium whitespace-nowrap"
               @click="toggleSort('destinationName')"
             >
               Destination Name
-              <span v-if="sortField === 'destinationName'" class="text-primary">{{
+              <span v-if="sortField === 'destinationName'" class="text-base-content">{{
                 sortOrder === "asc" ? "↑" : "↓"
               }}</span>
             </th>
@@ -133,7 +146,7 @@ watchEffect(() => {
               @click="toggleSort('destinationType')"
             >
               Destination Type
-              <span v-if="sortField === 'destinationType'" class="text-primary">{{
+              <span v-if="sortField === 'destinationType'" class="text-base-content">{{
                 sortOrder === "asc" ? "↑" : "↓"
               }}</span>
             </th>
@@ -142,7 +155,7 @@ watchEffect(() => {
               @click="toggleSort('subscriptionType')"
             >
               Subscription Type
-              <span v-if="sortField === 'subscriptionType'" class="text-primary">{{
+              <span v-if="sortField === 'subscriptionType'" class="text-base-content">{{
                 sortOrder === "asc" ? "↑" : "↓"
               }}</span>
             </th>
@@ -175,7 +188,7 @@ watchEffect(() => {
       <Pagination
         :total-items="filteredSubscriptions.length"
         v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
+        :page-size="pageSize"
       />
     </div>
   </div>

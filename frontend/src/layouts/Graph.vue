@@ -1,7 +1,9 @@
 <template>
   <div class="flex h-full flex-row">
     <!-- Header (now vertical on the left) -->
-    <div class="border-base-200 dark:border-base-content/10 flex w-40 shrink-0 flex-col justify-center gap-3 border-r px-4 py-2">
+    <div
+      class="border-base-200 dark:border-base-content/10 flex w-40 shrink-0 flex-col justify-center gap-3 border-r px-4 py-2"
+    >
       <div class="flex flex-col">
         <span class="text-base-content text-sm font-medium">Queue Metrics</span>
         <span class="text-base-content/50 text-xs">Last 10 minutes</span>
@@ -25,7 +27,13 @@
 
     <!-- Graph Area -->
     <div ref="graphContainer" class="flex min-w-0 flex-1 items-center justify-center overflow-hidden p-4">
-      <svg :width="graphWidth" :height="graphHeight" :viewBox="`0 0 ${graphWidth} ${graphHeight}`" preserveAspectRatio="xMidYMid meet" class="h-full w-full max-h-full cursor-default select-none">
+      <svg
+        :width="graphWidth"
+        :height="graphHeight"
+        :viewBox="`0 0 ${graphWidth} ${graphHeight}`"
+        preserveAspectRatio="xMidYMid meet"
+        class="h-full max-h-full w-full cursor-default select-none"
+      >
         <!-- Grid lines -->
         <g class="text-base-content/10">
           <line
@@ -184,10 +192,10 @@ export interface DataPoint {
 import { format } from "date-fns";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useQueueMetricsQuery } from "@/api/queues/queueMetricsQuery";
-import { useUserSettings } from "@/composables/userSettingsComposable";
+import { useLocalSettings } from "@/composables/useLocalSettings";
 import type { QueueDto } from "@/dtos/queue/queueDto";
 
-const { settings } = useUserSettings();
+const { refetchInterval } = useLocalSettings();
 
 // === Tooltip & Hover Reactive Variables ===
 const hoveredPoint = ref<DataPoint | null>(null);
@@ -214,7 +222,7 @@ const props = defineProps<{
 
 const { data: metrics } = useQueueMetricsQuery(
   computed(() => props.queue.id),
-  computed(() => settings.refetchInterval),
+  refetchInterval,
 );
 
 // --- Add a timer to force updates every minute ---
