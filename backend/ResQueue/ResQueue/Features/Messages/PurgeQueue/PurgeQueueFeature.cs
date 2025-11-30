@@ -1,6 +1,5 @@
 using System.Data.Common;
 using Dapper;
-using Microsoft.Extensions.Options;
 using ResQueue.Dtos.Messages;
 using ResQueue.Enums;
 using ResQueue.Factories;
@@ -19,7 +18,7 @@ public class PurgeQueueFeature(
     IDbConnectionProvider conn
 ) : IPurgeQueueFeature
 {
-    public async Task<OperationResult<PurgeQueueResponse>> ExecuteAsync(PurgeQueueRequest request)
+    public async Task<PurgeQueueResponse> ExecuteAsync(PurgeQueueRequest request)
     {
         await using var connection = connectionFactory.CreateConnection();
 
@@ -27,7 +26,7 @@ public class PurgeQueueFeature(
 
         await CallRoutineAsync(request, connection);
 
-        return OperationResult<PurgeQueueResponse>.Success(new PurgeQueueResponse());
+        return new PurgeQueueResponse();
     }
 
     private async Task CallRoutineAsync(PurgeQueueRequest request, DbConnection connection)

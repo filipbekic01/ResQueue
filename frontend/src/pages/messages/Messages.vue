@@ -1,42 +1,50 @@
 <script lang="ts" setup>
-import { useDeleteMessagesMutation } from '@/api/messages/deleteMessagesMutation'
-import { useMessagesQuery } from '@/api/messages/messagesQuery'
-import { usePurgeQueueMutation } from '@/api/queues/purgeQueueMutation'
-import { useQueue } from '@/composables/queueComposable'
-import { useUserSettings } from '@/composables/userSettingsComposable'
-import RequeueDialog from '@/dialogs/RequeueDialog.vue'
-import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
-import type { QueueDto } from '@/dtos/queue/queueDto'
-import AppLayout from '@/layouts/AppLayout.vue'
-import Graph from '@/layouts/Graph.vue'
-import { humanDateTime } from '@/utils/dateTimeUtil'
-import { errorToToast } from '@/utils/errorUtils'
-import { useQueryClient } from '@tanstack/vue-query'
-import Column from 'primevue/column'
-import DataTable, { type DataTablePageEvent } from 'primevue/datatable'
-import type { MenuItem } from 'primevue/menuitem'
-import Tabs from 'primevue/tabs'
-import { useConfirm } from 'primevue/useconfirm'
-import { useToast } from 'primevue/usetoast'
-import { computed, ref, watchEffect } from 'vue'
-import { useRouter } from 'vue-router'
-import MessageDialog from './MessageDialog.vue'
+import { useQueryClient } from "@tanstack/vue-query";
+import { computed, ref, watchEffect } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useDeleteMessagesMutation } from "@/api/messages/deleteMessagesMutation";
+import { useMessagesQuery } from "@/api/messages/messagesQuery";
+import { usePurgeQueueMutation } from "@/api/queues/purgeQueueMutation";
+import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon.vue";
+import CheckCircleIcon from "@/components/icons/CheckCircleIcon.vue";
+import EraserIcon from "@/components/icons/EraserIcon.vue";
+import ExclamationCircleIcon from "@/components/icons/ExclamationCircleIcon.vue";
+import RefreshIcon from "@/components/icons/RefreshIcon.vue";
+import ReplayIcon from "@/components/icons/ReplayIcon.vue";
+import TrashIcon from "@/components/icons/TrashIcon.vue";
+import XCircleIcon from "@/components/icons/XCircleIcon.vue";
+import Pagination from "@/components/Pagination.vue";
+import { useQueue } from "@/composables/queueComposable";
+import { useConfirmDialog } from "@/composables/useConfirmDialog";
+import { useLocalSettings } from "@/composables/useLocalSettings";
+import { useToast } from "@/composables/useToast";
+import RequeueDialog from "@/dialogs/RequeueDialog.vue";
+import type { MessageDeliveryDto } from "@/dtos/message/messageDeliveryDto";
+import type { QueueDto } from "@/dtos/queue/queueDto";
+import AppLayout from "@/layouts/AppLayout.vue";
+import Graph from "@/layouts/Graph.vue";
+import { errorToToast } from "@/utils/errorUtils";
+import MessageDialog from "./MessageDialog.vue";
+import MessagesTable from "./MessagesTable.vue";
 
 const props = defineProps<{
-  queueName: string
-}>()
+  queueName: string;
+}>();
 
-const router = useRouter()
+const route = useRoute();
+const router = useRouter();
 
-const queryClient = useQueryClient()
+const queryClient = useQueryClient();
 
-const confirm = useConfirm()
-const toast = useToast()
+const { confirm } = useConfirmDialog();
+const toast = useToast();
 
-const first = ref(0)
-const pageIndex = ref(0)
+const currentPage = ref(1);
 
-const { settings, updateSettings } = useUserSettings()
+const { refetchInterval } = useLocalSettings();
+
+// Computed page index for API (0-based)
+const pageIndex = computed(() => currentPage.value - 1);
 
 // Queues
 const {
@@ -45,27 +53,36 @@ const {
   query: { data: queues },
   primaryQueue,
   getQueueTypeLabel,
-} = useQueue(computed(() => props.queueName))
+} = useQueue(computed(() => props.queueName));
 
-const selectedQueueId = ref<number>()
-const selectedQueue = computed(() => queues.value?.find((x) => x.id === selectedQueueId.value))
+const selectedQueueId = ref<number>();
+const selectedQueue = computed(() => queues.value?.find((x) => x.id === selectedQueueId.value));
 
 const updateSelectedQueue = (queue: QueueDto) => {
-  selectedQueueId.value = queue.id
-  updateSettings({ ...settings, queueType: queue.type })
-}
+  selectedQueueId.value = queue.id;
+  router.replace({ query: { ...route.query, queueType: queue.type.toString() } });
+};
 
 watchEffect(() => {
   if (selectedQueueId.value || !queueOptions.value.length || !queueView.value) {
-    return
+    return;
   }
 
-  selectedQueueId.value =
-    queueOptions.value.find((x) => x.queue.type == settings.queueType)?.queue.id ?? undefined
-})
+  const queueTypeFromUrl = route.query.queueType ? Number(route.query.queueType) : 1;
+
+  selectedQueueId.value = queueOptions.value.find((x) => x.queue.type == queueTypeFromUrl)?.queue.id ?? undefined;
+
+  // Sync URL if it doesn't have queueType
+  if (!route.query.queueType && selectedQueueId.value) {
+    const selectedQueue = queueOptions.value.find((x) => x.queue.id === selectedQueueId.value);
+    if (selectedQueue) {
+      router.replace({ query: { ...route.query, queueType: selectedQueue.queue.type.toString() } });
+    }
+  }
+});
 
 // Purge queue
-const { mutateAsync: purgeQueueAsync, isPending: isPurgeQueuePending } = usePurgeQueueMutation()
+const { mutateAsync: purgeQueueAsync, isPending: isPurgeQueuePending } = usePurgeQueueMutation();
 
 // Messages
 const {
@@ -75,403 +92,383 @@ const {
 } = useMessagesQuery(
   computed(() => selectedQueueId.value),
   pageIndex,
-  computed(() => settings.refetchInterval),
-)
+  refetchInterval,
+);
 
 const toggleMessage = (msg?: MessageDeliveryDto) => {
   if (!msg) {
-    selectedMessageId.value = 0
+    selectedMessageId.value = 0;
   } else if (selectedMessageId.value === msg.messageDeliveryId) {
-    selectedMessageId.value = 0
+    selectedMessageId.value = 0;
   } else {
-    selectedMessageId.value = msg.messageDeliveryId
+    selectedMessageId.value = msg.messageDeliveryId;
   }
-}
+};
 
 // Delete messages
-const { mutateAsync: deleteMessagesAsync, isPending: isDeleteMessagesPending } =
-  useDeleteMessagesMutation()
-const deleteMessagesTransactional = ref(false)
+const { mutateAsync: deleteMessagesAsync, isPending: isDeleteMessagesPending } = useDeleteMessagesMutation();
+const deleteMessagesTransactional = ref(false);
+const deleteMessagesDropdownOpen = ref(false);
 
-const deleteMessages = (e: any) => {
+const deleteMessages = () => {
   deleteMessagesAsync({
     messageDeliveryIds: selectedMessages.value.map((m) => m.messageDeliveryId),
     transactional: deleteMessagesTransactional.value,
   })
     .then(() => {
-      onActionComplete()
-      deleteMessagesPopover.value.hide(e.originalEvent)
-      toast.add({
-        severity: 'success',
-        summary: 'Messages Deleted',
-        detail: `Messages delete procedure ran successfully.`,
-        life: 3000,
-      })
+      onActionComplete();
+      deleteMessagesDropdownOpen.value = false;
+      toast.success("Messages delete procedure ran successfully.");
     })
-    .catch((e) => toast.add(errorToToast(e)))
-}
+    .catch((e) => {
+      const err = errorToToast(e);
+      toast.error(err.detail);
+    });
+};
 
 // Selected messages
-const selectedMessageId = ref<number>(24)
+const selectedMessageId = ref<number>(24);
 const selectedMessage = computed(() =>
   messages.value?.items.find((x) => x.messageDeliveryId === selectedMessageId.value),
-)
+);
 
-const selectedMessages = ref<MessageDeliveryDto[]>([])
+const selectedMessages = ref<MessageDeliveryDto[]>([]);
 const selectedMessageIds = computed(() =>
   selectedMessages.value?.length ? selectedMessages.value.map((x) => x.messageDeliveryId) : [],
-)
+);
 
-const requeuePopover = ref()
-const requeueSpecificPopover = ref()
-const deleteMessagesPopover = ref()
+const requeuePopoverOpen = ref(false);
+const requeueSpecificPopoverOpen = ref(false);
 
-const items = computed((): MenuItem[] => {
-  return [
-    {
-      label: 'Queues',
-      icon: 'pi pi-arrow-left',
-      command: () => {
-        router.push({
-          name: 'queues',
-        })
-      },
-    },
-    {
-      label: `Refresh`,
-      icon: `pi pi-refresh`,
-      disabled: isPending.value,
-      command: () => {
-        refetchMessages().then(() => {
-          toast.add({
-            severity: 'success',
-            summary: 'Queue Refreshed',
-            detail: 'The queue has been successfully updated.',
-            life: 1000,
-          })
-        })
+const isRefreshing = ref(false);
 
-        queryClient.invalidateQueries({ queryKey: ['queue-view'] })
-      },
-    },
-    {
-      label: `Requeue`,
-      icon: 'pi pi-replay',
-      command: (e) => requeueSpecificPopover.value.toggle(e.originalEvent),
-      disabled: !selectedMessageIds.value.length,
-    },
-    {
-      label: `Batch Requeue`,
-      icon: 'pi pi-replay',
-      command: (e) => requeuePopover.value.toggle(e.originalEvent),
-    },
-    {
-      label: 'Delete',
-      icon: 'pi pi-trash',
-      disabled: !selectedMessageIds.value.length,
-      command: (e) => {
-        deleteMessagesPopover.value.toggle(e.originalEvent)
-      },
-    },
-    {
-      label: 'Purge',
-      icon: 'pi pi-eraser',
-      disabled: isPurgeQueuePending.value,
-      command: () => {
-        confirm.require({
-          header: `Purge Queue`,
-          message: `Do you want to purge ${getQueueTypeLabel(selectedQueue.value?.type)} queue?`,
-          icon: 'pi pi-info-circle',
-          rejectProps: {
-            label: 'Cancel',
-            severity: 'secondary',
-            outlined: true,
-          },
-          acceptProps: {
-            label: 'Purge',
-            severity: 'danger',
-          },
-          accept: () => {
-            if (!selectedQueueId.value) {
-              return
-            }
+const goToQueues = () => {
+  router.push({ name: "queues" });
+};
 
-            purgeQueueAsync({
-              queueId: selectedQueueId.value,
-            })
-              .then(() => {
-                onActionComplete()
+const refreshQueue = () => {
+  isRefreshing.value = true;
+  refetchMessages()
+    .then(() => {
+      toast.success("The queue has been successfully updated.");
+    })
+    .finally(() => {
+      setTimeout(() => {
+        isRefreshing.value = false;
+      }, 300);
+    });
+  queryClient.invalidateQueries({ queryKey: ["queue-view"] });
+};
 
-                toast.add({
-                  severity: 'success',
-                  summary: 'Purge Completed',
-                  detail: `Queue has been purged successfully.`,
-                  life: 3000,
-                })
-              })
-              .catch((e) => toast.add(errorToToast(e)))
-          },
-          reject: () => {},
-        })
-      },
-    },
-  ]
-})
+const purgeQueue = async () => {
+  const confirmed = await confirm({
+    type: "error",
+    title: "Purge Queue",
+    message: `This will permanently delete all messages in the ${getQueueTypeLabel(selectedQueue.value?.type)} queue. This action cannot be undone.`,
+    confirmText: `Purge "${getQueueTypeLabel(selectedQueue.value?.type)}" queue`,
+    cancelText: "Cancel",
+  });
+
+  if (confirmed && selectedQueueId.value) {
+    purgeQueueAsync({ queueId: selectedQueueId.value })
+      .then(() => {
+        onActionComplete();
+        toast.success("Queue has been purged successfully.");
+      })
+      .catch((e) => {
+        const err = errorToToast(e);
+        toast.error(err.detail);
+      });
+  }
+};
 
 const onRequeueComplete = () => {
-  requeueSpecificPopover.value.hide()
-  requeuePopover.value.hide()
+  requeueSpecificPopoverOpen.value = false;
+  requeuePopoverOpen.value = false;
 
-  onActionComplete()
-}
+  onActionComplete();
+};
 
 const onActionComplete = () => {
-  selectedMessages.value = []
-}
+  selectedMessages.value = [];
+};
 
-const onPage = (event: DataTablePageEvent) => {
-  pageIndex.value = event.page
-  first.value = event.first
-}
-
-const getMessagesIcon = (queue: QueueDto) => {
+const getMessagesIconComponent = (queue: QueueDto) => {
   if (queue.type == 1) {
-    return 'pi-check-circle'
+    return CheckCircleIcon;
   } else if (queue.type == 2) {
-    return 'pi-exclamation-circle'
+    return ExclamationCircleIcon;
   } else if (queue.type == 3) {
-    return 'pi-times-circle'
+    return XCircleIcon;
   }
-}
+  return CheckCircleIcon;
+};
 
-const hasMtFaultMessages = computed(() => {
-  return messages.value?.items.some((x) => x.transportHeaders['MT-Fault-Message'])
-})
+// Show status column for READY queue (type 1)
+const isReadyQueue = computed(() => {
+  return selectedQueue.value?.type === 1;
+});
 </script>
 
 <template>
-  <MessageDialog
-    v-if="selectedMessage"
-    :selected-message="selectedMessage"
-    @close="toggleMessage(undefined)"
-  />
-
-  <Popover ref="deleteMessagesPopover">
-    <div class="flex flex-col gap-3">
-      <div class="flex items-center gap-2">
-        <Checkbox id="transactional" v-model="deleteMessagesTransactional" binary></Checkbox>
-        <label for="transactional">Within single transaction</label>
-      </div>
-      <Button
-        icon="pi pi-arrow-right"
-        severity="danger"
-        :loading="isDeleteMessagesPending"
-        icon-pos="right"
-        :label="`Delete`"
-        @click="deleteMessages"
-      ></Button>
-    </div>
-  </Popover>
-
-  <Popover ref="requeueSpecificPopover">
-    <RequeueDialog
-      v-if="selectedQueueId"
-      :selected-queue-id="selectedQueueId"
-      :batch="false"
-      :delivery-message-ids="selectedMessageIds"
-      @requeue:complete="onRequeueComplete"
-    />
-  </Popover>
-
-  <Popover ref="requeuePopover">
-    <RequeueDialog
-      v-if="selectedQueueId"
-      :selected-queue-id="selectedQueueId"
-      :batch="true"
-      :delivery-message-ids="[]"
-      @requeue:complete="onRequeueComplete"
-    />
-  </Popover>
+  <MessageDialog v-if="selectedMessage" :selected-message="selectedMessage" @close="toggleMessage(undefined)" />
 
   <AppLayout>
     <template #menu>
-      <div class="flex items-center">
-        <Menubar
-          :model="items"
-          class="w-full rounded-none border-0 border-b dark:border-b-surface-700"
-        />
-        <Tabs v-if="selectedQueueId" :value="selectedQueueId" class="ms-auto">
-          <TabList>
-            <Tab
+      <!-- Queue Header -->
+      <div
+        class="border-base-200 dark:border-base-content/10 border-b px-4 py-3"
+        :class="{
+          'from-success/5 via-base-200 to-base-200 bg-gradient-to-r': selectedQueue?.type === 1,
+          'from-error/10 via-base-200 to-base-200 bg-gradient-to-r': selectedQueue?.type === 2,
+          'from-base-content/10 via-base-200 to-base-200 bg-gradient-to-r': selectedQueue?.type === 3,
+          'bg-base-200': !selectedQueue,
+        }"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <button
+              class="text-base-content/50 hover:text-base-content hover:bg-base-200 flex cursor-pointer items-center justify-center rounded-lg p-1.5 transition-colors"
+              @click="goToQueues"
+              title="Back to Queues"
+            >
+              <ArrowLeftIcon class="h-5 w-5" />
+            </button>
+            <div>
+              <h1 class="text-base-content text-xl font-semibold tracking-tight">{{ queueName }}</h1>
+              <div class="text-base-content/50 mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                <span class="flex items-center gap-1">
+                  Auto-delete: {{ queueView?.queueAutoDelete ? `${queueView.queueAutoDelete / 60}m` : "Off" }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div v-if="selectedQueueId" class="flex items-center gap-1">
+            <button
               v-for="item in queueOptions"
               :key="item.queue.id"
-              :value="item.queue.id"
-              class="flex gap-2"
+              class="flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-all"
+              :class="{
+                'bg-success/15 text-success ring-success/30 ring-1':
+                  selectedQueueId === item.queue.id && item.queue.type === 1,
+                'bg-error/15 text-error ring-error/30 ring-1':
+                  selectedQueueId === item.queue.id && item.queue.type === 2,
+                'bg-base-content/15 text-base-content ring-base-content/30 ring-1':
+                  selectedQueueId === item.queue.id && item.queue.type === 3,
+                'text-success/60 hover:text-success hover:bg-success/10':
+                  selectedQueueId !== item.queue.id && item.queue.type === 1,
+                'text-error/60 hover:text-error hover:bg-error/10':
+                  selectedQueueId !== item.queue.id && item.queue.type === 2,
+                'text-base-content/60 hover:text-base-content hover:bg-base-content/10':
+                  selectedQueueId !== item.queue.id && item.queue.type === 3,
+              }"
               @click="updateSelectedQueue(item.queue)"
             >
-              <i class="pi" :class="getMessagesIcon(item.queue)"></i>
+              <component :is="getMessagesIconComponent(item.queue)" class="h-4 w-4" />
               {{ item.queueNameByType }}
-            </Tab>
-          </TabList>
-        </Tabs>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-base-200 dark:border-base-content/10 flex items-center border-b">
+        <!-- Menu bar -->
+        <div class="flex items-center gap-1 px-2 py-1.5">
+          <button
+            class="text-base-content/60 hover:text-base-content hover:bg-base-200 flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
+            :disabled="isPending"
+            @click="refreshQueue"
+          >
+            <RefreshIcon class="h-4 w-4" :class="{ 'refresh-spin': isRefreshing }" />
+            Refresh
+          </button>
+
+          <!-- Requeue Specific Dropdown -->
+          <div class="relative">
+            <button
+              class="text-base-content/60 hover:text-base-content hover:bg-base-200 flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
+              :disabled="!selectedMessageIds.length"
+              @click="requeueSpecificPopoverOpen = !requeueSpecificPopoverOpen"
+            >
+              <ReplayIcon class="h-4 w-4" />
+              Requeue
+              <span
+                v-if="selectedMessageIds.length"
+                class="bg-base-content/10 text-base-content/80 rounded-full px-1.5 py-0.5 text-xs font-medium"
+              >
+                {{ selectedMessageIds.length }}
+              </span>
+            </button>
+            <div
+              v-if="requeueSpecificPopoverOpen"
+              class="bg-base-100 border-base-200 dark:border-base-content/10 absolute left-0 z-50 mt-1 w-80 rounded-lg border p-4 shadow-lg"
+            >
+              <RequeueDialog
+                v-if="selectedQueueId"
+                :selected-queue-id="selectedQueueId"
+                :batch="false"
+                :delivery-message-ids="selectedMessageIds"
+                @requeue:complete="onRequeueComplete"
+              />
+            </div>
+            <div
+              v-if="requeueSpecificPopoverOpen"
+              class="fixed inset-0 z-40"
+              @click="requeueSpecificPopoverOpen = false"
+            ></div>
+          </div>
+
+          <!-- Batch Requeue Dropdown -->
+          <div class="relative">
+            <button
+              class="text-base-content/60 hover:text-base-content hover:bg-base-200 flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+              @click="requeuePopoverOpen = !requeuePopoverOpen"
+            >
+              <ReplayIcon class="h-4 w-4" />
+              Batch Requeue
+            </button>
+            <div
+              v-if="requeuePopoverOpen"
+              class="bg-base-100 border-base-200 dark:border-base-content/10 absolute left-0 z-50 mt-1 w-80 rounded-lg border p-4 shadow-lg"
+            >
+              <RequeueDialog
+                v-if="selectedQueueId"
+                :selected-queue-id="selectedQueueId"
+                :batch="true"
+                :delivery-message-ids="[]"
+                @requeue:complete="onRequeueComplete"
+              />
+            </div>
+            <div v-if="requeuePopoverOpen" class="fixed inset-0 z-40" @click="requeuePopoverOpen = false"></div>
+          </div>
+
+          <!-- Delete Dropdown -->
+          <div class="relative">
+            <button
+              class="text-base-content/60 hover:text-base-content hover:bg-base-200 flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
+              :disabled="!selectedMessageIds.length"
+              @click="deleteMessagesDropdownOpen = !deleteMessagesDropdownOpen"
+            >
+              <TrashIcon class="h-4 w-4" />
+              Delete
+            </button>
+            <div
+              v-if="deleteMessagesDropdownOpen"
+              class="bg-base-100 border-base-200 dark:border-base-content/10 absolute left-0 z-50 mt-1 w-72 rounded-lg border p-4 shadow-lg"
+            >
+              <div class="flex flex-col gap-4">
+                <!-- Visual indicator -->
+                <div class="bg-error/10 flex items-center gap-3 rounded-lg p-3">
+                  <div class="bg-error/20 text-error flex h-10 w-10 items-center justify-center rounded-full">
+                    <TrashIcon class="h-5 w-5" />
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-base-content text-sm font-medium"
+                      >{{ selectedMessageIds.length }} message{{ selectedMessageIds.length !== 1 ? "s" : "" }}</span
+                    >
+                    <span class="text-base-content/50 text-xs">will be permanently deleted</span>
+                  </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="border-base-200 dark:border-base-content/10 border-t"></div>
+
+                <!-- Options -->
+                <div class="flex flex-col gap-2">
+                  <span class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Options</span>
+                  <label class="flex cursor-pointer items-center gap-2 text-sm">
+                    <input type="checkbox" v-model="deleteMessagesTransactional" class="checkbox checkbox-xs" />
+                    <span class="text-base-content/70">Within single transaction</span>
+                  </label>
+                </div>
+
+                <!-- Delete button -->
+                <button
+                  class="btn btn-error btn-sm w-full"
+                  :class="{ loading: isDeleteMessagesPending }"
+                  @click="deleteMessages"
+                >
+                  <TrashIcon class="h-4 w-4" />
+                  Delete {{ selectedMessageIds.length }} message{{ selectedMessageIds.length !== 1 ? "s" : "" }}
+                </button>
+              </div>
+            </div>
+            <div
+              v-if="deleteMessagesDropdownOpen"
+              class="fixed inset-0 z-40"
+              @click="deleteMessagesDropdownOpen = false"
+            ></div>
+          </div>
+
+          <button
+            class="text-base-content/60 hover:text-base-content hover:bg-base-200 flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
+            :disabled="isPurgeQueuePending"
+            @click="purgeQueue"
+          >
+            <EraserIcon class="h-4 w-4" />
+            Purge
+          </button>
+        </div>
       </div>
     </template>
 
-    <template #right>
-      <div
-        v-if="settings.showGraph"
-        class="flex grow items-center justify-center border-b border-s ps-3 dark:border-b-surface-700 dark:border-s-surface-700"
-      >
-        <Graph v-if="primaryQueue" :queue="primaryQueue" />
+    <template #bottom>
+      <Graph v-if="primaryQueue" :queue="primaryQueue" />
+    </template>
+
+    <!-- Empty State -->
+    <template v-if="messages && !messages.items.length">
+      <div class="flex flex-1 flex-col items-center justify-center gap-4 p-8">
+        <div class="bg-base-200 flex h-16 w-16 items-center justify-center rounded-full">
+          <CheckCircleIcon class="text-base-content/30 h-8 w-8" />
+        </div>
+        <div class="text-center">
+          <h3 class="text-base-content text-lg font-medium">No messages</h3>
+          <p class="text-base-content/50 mt-1 text-sm">
+            This queue is empty. Messages will appear here when they arrive.
+          </p>
+        </div>
       </div>
     </template>
 
     <template v-if="messages?.items.length">
-      <div class="flex grow flex-col overflow-auto">
-        <DataTable
-          show-gridlines
-          class="rq-grid"
-          :show-headers="true"
-          v-model:selection="selectedMessages"
-          :value="messages.items"
-          :rows="messages.pageSize"
-          :total-records="messages.totalCount"
-          :loading="isPending"
-          :first="first"
-          :paginator="messages.totalPages > 1"
-          lazy
-          data-key="messageDeliveryId"
-          scrollable
-          striped-rows
-          scroll-height="flex"
-          row-hover
-          @page="onPage"
-          @row-click="(e) => toggleMessage(e.data)"
-        >
-          <!-- Selection -->
+      <div class="flex min-h-0 flex-1 flex-col">
+        <!-- Table -->
+        <MessagesTable
+          :messages="messages.items"
+          :is-ready-queue="isReadyQueue"
+          v-model:selected-messages="selectedMessages"
+          @message:click="toggleMessage"
+        />
 
-          <Column
-            selectionMode="multiple"
-            class="w-0"
-            style="vertical-align: top; text-align: center"
-          ></Column>
-
-          <!-- ID -->
-
-          <Column field="messageDeliveryId" header="ID" class="w-0 whitespace-nowrap"> </Column>
-
-          <!-- URN -->
-
-          <Column
-            field="message.messageType"
-            header="URN"
-            class="whitespace-nowrap"
-            :class="[
-              {
-                'w-0': hasMtFaultMessages,
-              },
-            ]"
-          >
-            <template #body="{ data }">
-              {{ data.message.messageType.replace('urn:message:', '') }}
-            </template>
-          </Column>
-
-          <!-- Fault Message -->
-
-          <Column
-            v-if="hasMtFaultMessages"
-            field="message.transportHeaders"
-            class="whitespace-nowrap"
-            header="Fault Message"
-          >
-            <template #body="{ data }">
-              <div
-                v-if="data.transportHeaders['MT-Fault-Message']"
-                class="flex gap-3 dark:text-surface-400"
-              >
-                <i class="pi pi-circle-fill text-red-400" style="font-size: 0.625rem"></i
-                >{{ data.transportHeaders['MT-Fault-ExceptionType'] }}
-              </div>
-              <div v-else>-</div>
-            </template>
-          </Column>
-
-          <!-- Expires At -->
-
-          <Column field="message.expirationTime" header="Expires At" class="w-0 whitespace-nowrap">
-            <template #body="{ data }">
-              {{ data.message.expirationTime }}
-            </template>
-          </Column>
-
-          <!-- Recurring -->
-
-          <Column field="message.isRecurring" header="Recurring" class="w-0 whitespace-nowrap">
-            <template #header></template>
-            <template #body="{ data }">
-              <div class="flex items-center justify-center">
-                <i v-if="data.isRecurring" class="pi pi-check" style="font-size: 0.825rem"></i>
-              </div>
-            </template>
-          </Column>
-
-          <!-- Scheduled -->
-
-          <Column
-            field="message.schedulingTokenId"
-            header="Scheduled"
-            class="w-0 whitespace-nowrap"
-          >
-            <template #header></template>
-            <template #body="{ data }">
-              <div class="flex items-center justify-center">
-                <i
-                  v-if="data.message.schedulingTokenId"
-                  class="pi pi-check"
-                  style="font-size: 0.825rem"
-                ></i>
-              </div>
-            </template>
-          </Column>
-
-          <!-- Locked -->
-
-          <Column field="message.lockedId" header="Locked" class="w-0 whitespace-nowrap">
-            <template #header></template>
-            <template #body="{ data }">
-              <div class="flex items-center justify-center" v-if="!data.lockId">
-                <i class="pi pi-check" style="font-size: 0.825rem"></i>
-              </div>
-            </template>
-          </Column>
-
-          <!-- Priority -->
-
-          <Column field="priority" header="Priority" class="w-0 justify-center whitespace-nowrap">
-            <template #body="{ data }">
-              <div class="text-center">
-                {{ data.priority }}
-              </div>
-            </template>
-          </Column>
-
-          <!-- Enqueue Time -->
-
-          <Column
-            field="enqueueTime"
-            header="Enqueue Time"
-            header-class=""
-            class="w-0 whitespace-nowrap"
-          >
-            <template #body="{ data }">
-              <div class="flex gap-2">
-                {{ humanDateTime(data.enqueueTime) }}
-              </div>
-            </template>
-          </Column>
-        </DataTable>
+        <!-- Pagination -->
+        <div v-if="messages.totalPages > 1" class="border-base-200 dark:border-base-content/10 shrink-0 border-t">
+          <Pagination
+            :total-items="messages.totalCount"
+            v-model:current-page="currentPage"
+            :page-size="messages.pageSize"
+            :show-page-size-selector="false"
+          />
+        </div>
       </div>
     </template>
   </AppLayout>
 </template>
+
+<style scoped>
+.refresh-spin {
+  animation: refresh-spin 0.3s ease-in-out;
+}
+
+@keyframes refresh-spin {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(0.85) rotate(180deg);
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+  }
+}
+</style>

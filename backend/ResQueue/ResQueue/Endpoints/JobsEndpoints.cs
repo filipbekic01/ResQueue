@@ -14,7 +14,7 @@ public static class JobsEndpoints
             {
                 var state = await client.GetJobState(jobId);
 
-                return Results.Ok(state);
+                return TypedResults.Ok(state);
             });
     }
 }

@@ -1,8 +1,8 @@
 using Dapper;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using ResQueue.Dtos.Messages;
 using ResQueue.Enums;
+using ResQueue.Exceptions;
 using ResQueue.Factories;
 using ResQueue.Features.Messages.GetSingleMessage.Models;
 using ResQueue.Providers.DbConnectionProvider;
@@ -24,7 +24,7 @@ public class GetSingleMessageFeature(
     IOptions<ResQueueOptions> resQueueOptions
 ) : IGetSingleMessageFeature
 {
-    public async Task<OperationResult<GetSingleMessageResponse>> ExecuteAsync(GetSingleMessageRequest request)
+    public async Task<GetSingleMessageResponse> ExecuteAsync(GetSingleMessageRequest request)
     {
         var sql = GetSqlQueryText();
 
@@ -43,17 +43,13 @@ public class GetSingleMessageFeature(
 
         if (message is null)
         {
-            return OperationResult<GetSingleMessageResponse>.Failure(new ProblemDetails
-            {
-                Status = 404,
-                Title = "Not Found"
-            });
+            throw new ResQueueException("Not Found", 404);
         }
 
         message = await InvokeTransformers(message);
         message = AppendAdditionalData(message);
 
-        return OperationResult<GetSingleMessageResponse>.Success(new GetSingleMessageResponse(message));
+        return new GetSingleMessageResponse(message);
     }
 
     private async Task<MessageDeliveryDto> InvokeTransformers(MessageDeliveryDto message)

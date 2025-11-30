@@ -1,3 +1,3 @@
 export interface PurgeQueueDto {
-  queueId: number
+  queueId: number;
 }

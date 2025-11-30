@@ -1,40 +1,50 @@
 <script lang="ts" setup>
-import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
-import { format, formatDistance } from 'date-fns'
+import DotnetStackTraceHighlighter from "@/components/DotnetStackTraceHighlighter.vue";
+import CopyIcon from "@/components/icons/CopyIcon.vue";
+import type { MessageDeliveryDto } from "@/dtos/message/messageDeliveryDto";
 
 defineProps<{
-  selectedMessage: MessageDeliveryDto
-}>()
+  selectedMessage: MessageDeliveryDto;
+}>();
+
+const copyToClipboard = async (text: string) => {
+  await navigator.clipboard.writeText(text);
+};
 </script>
 
 <template>
   <div
-    class="flex basis-1/3 flex-col gap-2 overflow-auto border-s-4 border-t border-s-red-400 p-6 dark:border-t-surface-700"
+    class="border-base-200 dark:border-base-content/10 bg-base-content/3 relative flex max-h-[40%] shrink flex-col gap-2 overflow-auto border-t shadow"
   >
-    <div class="flex items-center gap-2">
-      <div class="items-cener flex gap-3 dark:text-red-400">
-        <i class="pi pi-circle-fill text-red-400"></i>
-        {{ selectedMessage.transportHeaders['MT-Fault-ExceptionType'] }}
-      </div>
-      <span class="dark:text-surface-300">•</span>
-      <div class="text-surface-500 dark:text-surface-300">
-        {{ format(selectedMessage.transportHeaders['MT-Fault-Timestamp'], 'MMM dd HH:mm:ss') }}
-        (failed
-        {{ formatDistance(selectedMessage.transportHeaders['MT-Fault-Timestamp'], new Date()) }}
-        ago)
+    <!-- Error header -->
+    <div class="flex items-start justify-between px-6 pt-4">
+      <div class="flex min-w-0 flex-col gap-0.5">
+        <div class="flex items-center gap-1.5">
+          <span class="text-error truncate text-sm">{{ selectedMessage.transportHeaders["MT-Fault-Message"] }}</span>
+        </div>
+        <span class="text-base-content/50 text-error pl-3 text-sm"
+          >└ {{ selectedMessage.transportHeaders["MT-Fault-ExceptionType"] }}</span
+        >
       </div>
     </div>
 
-    <div class="text-red-700 dark:text-red-300">
-      {{ selectedMessage.transportHeaders['MT-Fault-Message'] }}
-    </div>
-
-    <div class="whitespace-pre px-4 text-red-900 dark:text-surface-400">
-      {{
-        selectedMessage.transportHeaders['MT-Fault-StackTrace']
-          ? selectedMessage.transportHeaders['MT-Fault-StackTrace']
-          : 'Stack trace missing.'
-      }}
+    <!-- Stack trace (main content) -->
+    <div class="min-h-0 flex-1">
+      <button
+        v-if="selectedMessage.transportHeaders['MT-Fault-StackTrace']"
+        class="btn btn-ghost btn-xs btn-circle absolute top-3 right-3 z-10"
+        @click="copyToClipboard(selectedMessage.transportHeaders['MT-Fault-StackTrace'])"
+        title="Copy to clipboard"
+      >
+        <CopyIcon class="h-3.5 w-3.5" />
+      </button>
+      <div class="h-full ps-10 pt-1">
+        <DotnetStackTraceHighlighter
+          v-if="selectedMessage.transportHeaders['MT-Fault-StackTrace']"
+          :stack-trace="selectedMessage.transportHeaders['MT-Fault-StackTrace']"
+        />
+        <span v-else class="text-base-content/60 font-mono text-xs">Stack trace missing.</span>
+      </div>
     </div>
   </div>
 </template>

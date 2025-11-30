@@ -1,0 +1,16 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: all;
+}
+
+/* Enable 'dark:' selector */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/* Instant snappy checkbox - disable all DaisyUI animations */
+.checkbox {
+  transition: none !important;
+}
+
+.checkbox::before {
+  transition: none !important;
+}

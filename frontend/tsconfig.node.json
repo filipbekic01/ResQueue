@@ -1,6 +1,17 @@
 {
   "extends": "@tsconfig/node22/tsconfig.json",
-  "include": ["vite.config.*", "vitest.config.*", "cypress.config.*", "nightwatch.conf.*", "playwright.config.*"],
+  "include": [
+    "vite.config.*",
+    "vitest.config.*",
+    "cypress.config.*",
+    "nightwatch.conf.*",
+    "playwright.config.*",
+    "eslint.config.*",
+    "*.json",
+    "vite-ssr-transform-index-html.*",
+    "vite-icons-plugin.*",
+    "vite-inline-css-plugin.*"
+  ],
   "compilerOptions": {
     "composite": true,
     "noEmit": true,

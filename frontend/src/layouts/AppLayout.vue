@@ -1,152 +1,310 @@
 <script setup lang="ts">
-import { useAuthQuery } from '@/api/auth/authQuery'
-import mtLogoUrlDark from '@/assets/images/masstransit-dark.svg'
-import mtLogoUrl from '@/assets/images/masstransit.svg'
-import { useUserSettings } from '@/composables/userSettingsComposable'
-import Listbox from 'primevue/listbox'
-import type { MenuItem } from 'primevue/menuitem'
-import { computed, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { computed, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useAuthQuery } from "@/api/auth/authQuery";
+import mtLogoUrlDark from "@/assets/images/masstransit-dark.svg";
+import mtLogoUrl from "@/assets/images/masstransit.svg";
+import ChartBarIcon from "@/components/icons/ChartBarIcon.vue";
+import ChevronDownIcon from "@/components/icons/ChevronDownIcon.vue";
+import RefreshIcon from "@/components/icons/RefreshIcon.vue";
+import { useLocalSettings } from "@/composables/useLocalSettings";
+import { allThemes, useTheme } from "@/composables/useTheme";
 
-const route = useRoute()
-const router = useRouter()
+const route = useRoute();
+const router = useRouter();
 
-const { isSuccess, isPending, error } = useAuthQuery()
+const { isSuccess, isPending, error } = useAuthQuery();
 
-const capitalize = (value: string = '') => value.replace(/\b\w/g, (char) => char.toUpperCase())
+const capitalize = (value: string = "") => value.replace(/\b\w/g, (char) => char.toUpperCase());
 
-const { settings, updateSettings, toggleDarkMode, toggleGraph } = useUserSettings()
+const { showGraph, refetchInterval, toggleGraph, setRefetchInterval } = useLocalSettings();
+const { currentTheme, darkThemes, lightThemes, isThemeDark, setTheme } = useTheme();
 
-const autoRefreshPopover = ref()
+const themeDropdownOpen = ref(false);
+
+const currentThemeLabel = computed(() => {
+  const theme = allThemes.find((t) => t.name === currentTheme.value);
+  return theme?.label ?? "Dark";
+});
+
+const autoRefreshPopoverOpen = ref(false);
 const refetchIntervalOptions = [
-  {
-    label: 'Never',
-    value: 0,
-  },
-  {
-    label: '1s',
-    value: 1000,
-  },
-  {
-    label: '5s',
-    value: 1000 * 5,
-  },
-  {
-    label: '30s',
-    value: 1000 * 30,
-  },
-  {
-    label: '1m',
-    value: 1000 * 60,
-  },
-  {
-    label: '5m',
-    value: 1000 * 60 * 5,
-  },
-  {
-    label: '30m',
-    value: 1000 * 60 * 30,
-  },
-  {
-    label: '1h',
-    value: 1000 * 60 * 60,
-  },
-]
+  { label: "Off", value: 0 },
+  { label: "1s", value: 1000 },
+  { label: "5s", value: 1000 * 5 },
+  { label: "30s", value: 1000 * 30 },
+  { label: "1m", value: 1000 * 60 },
+  { label: "5m", value: 1000 * 60 * 5 },
+];
 
 const onRefreshIntervalChange = (interval: number) => {
-  updateSettings({ ...settings, refetchInterval: interval })
-  autoRefreshPopover.value.hide()
+  setRefetchInterval(interval);
+  autoRefreshPopoverOpen.value = false;
+};
+
+interface BreadcrumbItem {
+  label: string;
+  command?: () => void;
 }
 
-const items = computed((): MenuItem[] => {
-  const items: MenuItem[] = []
+const items = computed((): BreadcrumbItem[] => {
+  const items: BreadcrumbItem[] = [];
 
-  if (route.name === 'messages') {
+  // Always start with Dashboard (except when on dashboard itself)
+  if (route.name !== "dashboard") {
     items.push({
-      label: 'Queues',
+      label: "Dashboard",
       command: () => {
-        router.push({ name: 'queues' })
+        router.push({ name: "dashboard" });
       },
-    })
+    });
+  }
+
+  if (route.name === "messages") {
+    items.push({
+      label: "Queues",
+      command: () => {
+        router.push({ name: "queues" });
+      },
+    });
 
     items.push({
-      label: capitalize(route.params['queueName']?.toString()),
-    })
+      label: capitalize(route.params["queueName"]?.toString()),
+    });
+  } else if (route.name === "queues") {
+    items.push({
+      label: "Queues",
+    });
+  } else if (route.name === "topics") {
+    items.push({
+      label: "Topics",
+    });
+  } else if (route.name === "dashboard") {
+    items.push({
+      label: "Dashboard",
+    });
   } else {
     items.push({
       label: capitalize(route.name?.toString()),
-    })
+    });
   }
 
-  return items
-})
+  return items;
+});
 
 const autoRefreshLabel = computed(() => {
-  return `${refetchIntervalOptions.find((x) => x.value === settings.refetchInterval)?.label}`
-})
+  const option = refetchIntervalOptions.find((x) => x.value === refetchInterval.value);
+  return option?.label ?? "Off";
+});
+
+const isAutoRefreshActive = computed(() => refetchInterval.value > 0);
+
+const refreshAnimationDuration = computed(() => {
+  if (refetchInterval.value === 0) return "0s";
+  return `${refetchInterval.value / 1000}s`;
+});
+
+const isMessagesPage = computed(() => route.name === "messages");
+const shouldShowGraph = computed(() => isMessagesPage.value && showGraph.value);
 </script>
 
 <template>
-  <div v-if="!isPending && isSuccess" class="flex h-screen w-full flex-col">
-    <Popover ref="autoRefreshPopover">
-      <div class="flex w-72 flex-col gap-2">
-        <div>
-          Select an interval to automatically refresh the queues and messages view. We plan to
-          integrate a real-time, socket-based system for instant updates in a future release.
+  <div v-if="!isPending && isSuccess" class="bg-base-100 flex h-screen w-full flex-col">
+    <!-- Header -->
+    <header class="border-base-200 dark:border-base-content/10 flex h-14 shrink-0 items-center border-b px-4">
+      <!-- Logo & Brand -->
+      <div class="flex items-center gap-3">
+        <router-link :to="{ name: 'dashboard' }" class="flex items-center gap-3 transition-opacity hover:opacity-80">
+          <div class="flex h-8 w-8 items-center justify-center">
+            <img
+              :src="isThemeDark ? mtLogoUrlDark : mtLogoUrl"
+              class="h-full w-full object-contain"
+              alt="MassTransit"
+            />
+          </div>
+          <span class="text-base-content text-lg font-semibold tracking-tight">MassTransit</span>
+        </router-link>
+        <div class="flex items-center gap-2">
+          <span class="text-base-content/30">·</span>
+          <!-- Breadcrumb -->
+          <nav class="text-base-content/60 flex items-center gap-1 text-sm">
+            <template v-for="(item, index) in items" :key="index">
+              <span v-if="index > 0" class="text-base-content/30">/</span>
+              <a
+                v-if="item.command"
+                @click="item.command"
+                class="hover:text-base-content cursor-pointer transition-colors"
+              >
+                {{ item.label }}
+              </a>
+              <span v-else class="text-base-content">{{ item.label }}</span>
+            </template>
+          </nav>
         </div>
-        <Listbox
-          :options="refetchIntervalOptions"
-          :model-value="settings.refetchInterval"
-          @update:model-value="onRefreshIntervalChange"
-          option-value="value"
-          option-label="label"
-        ></Listbox>
       </div>
-    </Popover>
 
-    <div class="flex">
-      <div class="flex grow flex-col">
-        <div class="flex items-center border-b px-4 pb-4 pt-4 dark:border-b-surface-700">
-          <div class="flex">
-            <div class="flex h-14 w-14 items-center justify-center rounded-xl text-2xl">
-              <img :src="mtLogoUrl" class="w-full dark:hidden" />
-              <img :src="mtLogoUrlDark" class="hidden w-full dark:block" />
+      <!-- Right side controls -->
+      <div class="ms-auto flex items-center gap-1">
+        <!-- Graph Toggle - Only show on messages page -->
+        <button
+          v-if="isMessagesPage"
+          class="btn btn-sm gap-1.5"
+          :class="{ 'btn-ghost': !showGraph }"
+          @click="toggleGraph"
+          :title="showGraph ? 'Hide metrics graph' : 'Show metrics graph'"
+        >
+          <ChartBarIcon class="h-4 w-4" />
+          <span class="text-xs font-medium">Metrics</span>
+        </button>
+
+        <!-- Auto Refresh Dropdown -->
+        <div class="relative">
+          <button
+            class="btn btn-ghost btn-sm gap-1.5"
+            @click="autoRefreshPopoverOpen = !autoRefreshPopoverOpen"
+            title="Auto refresh"
+          >
+            <div class="relative">
+              <RefreshIcon class="h-3.5 w-3.5" />
+              <!-- Circular progress indicator -->
+              <svg v-if="isAutoRefreshActive" class="absolute -inset-1.5 h-6.5 w-6.5" viewBox="0 0 24 24">
+                <circle
+                  class="text-base-content/30"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <circle
+                  class="text-base-content refresh-progress"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  :style="{ animationDuration: refreshAnimationDuration }"
+                />
+              </svg>
             </div>
-
-            <div class="ms-4 flex flex-col justify-center">
-              <div class="text-2xl font-semibold text-primary">MassTransit</div>
-              <div class="flex items-center gap-2">
-                <Breadcrumb style="padding: 0" :model="items" />
-              </div>
-            </div>
+            <span class="ms-2 text-xs font-medium">{{ autoRefreshLabel }}</span>
+          </button>
+          <div
+            v-if="autoRefreshPopoverOpen"
+            class="bg-base-100 border-base-200 dark:border-base-content/10 absolute right-0 z-50 mt-2 min-w-48 rounded-lg border p-1 shadow-lg"
+          >
+            <div class="text-base-content/50 px-3 py-2 text-xs font-medium tracking-wider uppercase">Auto Refresh</div>
+            <button
+              v-for="option in refetchIntervalOptions"
+              :key="option.value"
+              class="hover:bg-base-200 flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition-colors"
+              :class="{ 'bg-base-200 text-success': refetchInterval === option.value }"
+              @click="onRefreshIntervalChange(option.value)"
+            >
+              <span>{{ option.label }}</span>
+              <span v-if="refetchInterval === option.value" class="text-success">✓</span>
+            </button>
           </div>
-
-          <div class="my-auto me-3 ms-auto items-center">
-            <Button @click="toggleDarkMode" icon="pi pi-palette" text class="ms-1"></Button>
-            <Button
-              @click="(e) => autoRefreshPopover.toggle(e)"
-              :label="autoRefreshLabel"
-              icon="pi pi-hourglass "
-              text
-            ></Button>
-            <Button
-              @click="toggleGraph"
-              :icon="`pi pi-angle-${settings.showGraph ? 'right' : 'left'}`"
-              text
-              class="ms-1"
-            ></Button>
-          </div>
+          <div v-if="autoRefreshPopoverOpen" class="fixed inset-0 z-40" @click="autoRefreshPopoverOpen = false"></div>
         </div>
+
+        <!-- Theme Dropdown -->
+        <div class="relative">
+          <button
+            class="btn btn-ghost btn-sm gap-1.5"
+            @click="themeDropdownOpen = !themeDropdownOpen"
+            title="Select theme"
+          >
+            <span class="text-xs font-medium">{{ currentThemeLabel }}</span>
+            <ChevronDownIcon class="h-3 w-3 opacity-60" />
+          </button>
+          <div
+            v-if="themeDropdownOpen"
+            class="bg-base-100 border-base-200 dark:border-base-content/10 absolute right-0 z-50 mt-2 max-h-80 min-w-48 overflow-y-auto rounded-lg border p-1 shadow-lg"
+          >
+            <!-- Dark Themes Section -->
+            <div class="text-base-content/50 px-3 py-2 text-xs font-medium tracking-wider uppercase">Dark Themes</div>
+            <button
+              v-for="theme in darkThemes"
+              :key="theme.name"
+              class="hover:bg-base-200 flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition-colors"
+              :class="{ 'bg-base-200 text-primary': currentTheme === theme.name }"
+              @click="
+                setTheme(theme.name);
+                themeDropdownOpen = false;
+              "
+            >
+              <span class="flex items-center gap-2">
+                {{ theme.label }}
+                <span v-if="theme.recommended" class="badge badge-primary badge-xs">Recommended</span>
+              </span>
+              <span v-if="currentTheme === theme.name" class="text-primary">✓</span>
+            </button>
+
+            <!-- Light Themes Section -->
+            <div
+              class="text-base-content/50 border-base-200 mt-2 border-t px-3 py-2 text-xs font-medium tracking-wider uppercase"
+            >
+              Light Themes
+            </div>
+            <button
+              v-for="theme in lightThemes"
+              :key="theme.name"
+              class="hover:bg-base-200 flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition-colors"
+              :class="{ 'bg-base-200 text-primary': currentTheme === theme.name }"
+              @click="
+                setTheme(theme.name);
+                themeDropdownOpen = false;
+              "
+            >
+              <span>{{ theme.label }}</span>
+              <span v-if="currentTheme === theme.name" class="text-primary">✓</span>
+            </button>
+          </div>
+          <div v-if="themeDropdownOpen" class="fixed inset-0 z-40" @click="themeDropdownOpen = false"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <div class="flex min-h-0 flex-1 flex-col">
+      <!-- Main Content -->
+      <div class="flex min-h-0 min-w-0 flex-1 flex-col">
         <slot name="menu"></slot>
+        <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <slot></slot>
+        </div>
       </div>
-      <div class="flex">
-        <slot name="right"></slot>
-      </div>
-    </div>
 
-    <div class="flex grow flex-col overflow-auto">
-      <slot></slot>
+      <!-- Bottom Panel (Graph) - Only show on messages page -->
+      <aside v-if="shouldShowGraph" class="border-base-200 dark:border-base-content/10 h-48 shrink-0 border-t">
+        <slot name="bottom"></slot>
+      </aside>
     </div>
   </div>
-  <div v-else-if="!isPending && !isSuccess">{{ error?.message }}</div>
+  <div v-else-if="!isPending && !isSuccess" class="flex h-screen items-center justify-center">
+    <div class="text-error">{{ error?.message }}</div>
+  </div>
 </template>
+
+<style scoped>
+.refresh-progress {
+  stroke-dasharray: 62.83; /* 2 * PI * r (r=10) */
+  stroke-dashoffset: 62.83;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  animation: refresh-countdown linear infinite;
+}
+
+@keyframes refresh-countdown {
+  from {
+    stroke-dashoffset: 62.83;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+</style>

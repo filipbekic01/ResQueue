@@ -1,10 +1,10 @@
-import { API_URL } from '@/constants/api'
-import type { DeleteMessagesDto } from '@/dtos/message/deleteMessagesDto'
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import axios from 'axios'
+import { useMutation, useQueryClient } from "@tanstack/vue-query";
+import axios from "axios";
+import { API_URL } from "@/constants/api";
+import type { DeleteMessagesDto } from "@/dtos/message/deleteMessagesDto";
 
 export function useDeleteMessagesMutation() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (dto: DeleteMessagesDto) =>
@@ -15,9 +15,9 @@ export function useDeleteMessagesMutation() {
         withCredentials: true,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['messages'] })
-      queryClient.invalidateQueries({ queryKey: ['queues-view'] })
-      queryClient.invalidateQueries({ queryKey: ['queue-view'] })
+      queryClient.invalidateQueries({ queryKey: ["messages"] });
+      queryClient.invalidateQueries({ queryKey: ["queues-view"] });
+      queryClient.invalidateQueries({ queryKey: ["queue-view"] });
     },
-  })
+  });
 }

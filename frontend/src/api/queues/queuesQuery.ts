@@ -1,25 +1,21 @@
-import { API_URL } from '@/constants/api'
-import type { QueueDto } from '@/dtos/queue/queueDto'
-import { useQuery } from '@tanstack/vue-query'
-import axios from 'axios'
-import { computed, toValue, type MaybeRef } from 'vue'
+import { useQuery } from "@tanstack/vue-query";
+import axios from "axios";
+import { computed, toValue, type MaybeRef } from "vue";
+import { API_URL } from "@/constants/api";
+import type { QueueDto } from "@/dtos/queue/queueDto";
 
-export const useQueuesQuery = (
-  queueName: MaybeRef<string>,
-  refetchInterval: MaybeRef<number> = 5000,
-) =>
+export const useQueuesQuery = (queueName: MaybeRef<string>) =>
   useQuery({
-    queryKey: ['queues', queueName],
+    queryKey: ["queues", queueName],
     queryFn: async () => {
       const response = await axios.get<QueueDto[]>(`${API_URL}/queues`, {
         params: {
           queueName: toValue(queueName),
         },
         withCredentials: true,
-      })
+      });
 
-      return response.data
+      return response.data;
     },
     enabled: computed(() => !!toValue(queueName)),
-    refetchInterval: refetchInterval,
-  })
+  });

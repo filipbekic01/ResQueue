@@ -11,12 +11,8 @@ public static class SubscriptionsEndpoints
         group.MapGet("",
             async (IGetSubscriptionsFeature feature) =>
             {
-                var result = await feature.ExecuteAsync(new GetSubscriptionsRequest(
-                ));
-
-                return result.IsSuccess
-                    ? Results.Ok(result.Value!.Subscriptions)
-                    : Results.Problem(result.Problem!);
+                var result = await feature.ExecuteAsync(new GetSubscriptionsRequest());
+                return TypedResults.Ok(result.Subscriptions);
             });
     }
 }

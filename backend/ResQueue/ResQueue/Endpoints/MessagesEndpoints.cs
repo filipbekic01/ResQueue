@@ -17,60 +17,35 @@ public static class MessagesEndpoints
         group.MapGet("",
             async (IGetMessagesFeature feature, [FromQuery] long queueId, [FromQuery] int pageIndex = 0) =>
             {
-                var result = await feature.ExecuteAsync(new GetMessagesRequest(
-                    queueId, pageIndex
-                ));
-
-                return result.IsSuccess
-                    ? Results.Ok(result.Value!.Messages)
-                    : Results.Problem(result.Problem!);
+                var result = await feature.ExecuteAsync(new GetMessagesRequest(queueId, pageIndex));
+                return TypedResults.Ok(result.Messages);
             });
 
         group.MapGet("{transportMessageId:guid}",
             async (IGetSingleMessageFeature feature, Guid transportMessageId) =>
             {
-                var result = await feature.ExecuteAsync(new GetSingleMessageRequest(
-                    transportMessageId
-                ));
-
-                return result.IsSuccess
-                    ? Results.Ok(result.Value!.Message)
-                    : Results.Problem(result.Problem!);
+                var result = await feature.ExecuteAsync(new GetSingleMessageRequest(transportMessageId));
+                return TypedResults.Ok(result.Message);
             });
 
         group.MapPost("requeue",
             async (IRequeueMessagesFeature feature, [FromBody] RequeueMessagesDto dto) =>
             {
-                var result = await feature.ExecuteAsync(new RequeueMessagesRequest(
-                    dto
-                ));
-
-                return result.IsSuccess
-                    ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem!);
+                var result = await feature.ExecuteAsync(new RequeueMessagesRequest(dto));
+                return TypedResults.Ok(result);
             });
 
         group.MapPost("requeue-specific",
             async (IRequeueSpecificMessagesFeature feature, [FromBody] RequeueSpecificMessagesDto dto) =>
             {
-                var result = await feature.ExecuteAsync(new RequeueSpecificMessagesRequest(
-                    dto
-                ));
-
-                return result.IsSuccess
-                    ? Results.Ok(result.Value)
-                    : Results.Problem(result.Problem!);
+                var result = await feature.ExecuteAsync(new RequeueSpecificMessagesRequest(dto));
+                return TypedResults.Ok(result);
             });
 
         group.MapDelete("", async (IDeleteMessagesFeature feature, [FromBody] DeleteMessagesDto dto) =>
         {
-            var result = await feature.ExecuteAsync(new DeleteMessagesRequest(
-                dto
-            ));
-
-            return result.IsSuccess
-                ? Results.Ok(result.Value)
-                : Results.Problem(result.Problem!);
+            var result = await feature.ExecuteAsync(new DeleteMessagesRequest(dto));
+            return TypedResults.Ok(result);
         });
     }
 }

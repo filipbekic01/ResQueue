@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 defineProps<{
-  name: string
-}>()
+  name: string;
+}>();
 </script>
 
 <template>
-  <div class="dark:text-surface-0">{{ name }}</div>
+  <div class="text-base-content text-sm font-semibold tracking-wide uppercase">{{ name }}</div>
 </template>

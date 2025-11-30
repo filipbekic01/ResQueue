@@ -2,5 +2,5 @@ namespace ResQueue.Features.Messages.PurgeQueue;
 
 public interface IPurgeQueueFeature
 {
-    Task<OperationResult<PurgeQueueResponse>> ExecuteAsync(PurgeQueueRequest request);
+    Task<PurgeQueueResponse> ExecuteAsync(PurgeQueueRequest request);
 }

@@ -1,58 +1,55 @@
-import { API_URL } from '@/constants/api'
-import type { MessageDeliveryDto } from '@/dtos/message/messageDeliveryDto'
-import { useQuery } from '@tanstack/vue-query'
-import axios from 'axios'
-import { type MaybeRef } from 'vue'
+import { useQuery } from "@tanstack/vue-query";
+import axios from "axios";
+import { type MaybeRef } from "vue";
+import { API_URL } from "@/constants/api";
+import type { MessageDeliveryDto } from "@/dtos/message/messageDeliveryDto";
 
 export const useSingleMessageQuery = (transportMessageId: MaybeRef<string>) =>
   useQuery({
-    queryKey: ['singleMessage', transportMessageId],
+    queryKey: ["singleMessage", transportMessageId],
     queryFn: async () => {
-      const response = await axios.get<MessageDeliveryDto>(
-        `${API_URL}/messages/${transportMessageId}`,
-        {
-          withCredentials: true,
-        },
-      )
+      const response = await axios.get<MessageDeliveryDto>(`${API_URL}/messages/${transportMessageId}`, {
+        withCredentials: true,
+      });
 
-      const data = response.data
+      const data = response.data;
 
       if (data) {
         try {
-          data.transportHeaders = JSON.parse(data.transportHeaders ?? '{}')
+          data.transportHeaders = JSON.parse(data.transportHeaders ?? "{}");
         } catch {
-          data.transportHeaders = {}
+          data.transportHeaders = {};
         }
 
         if (data.message) {
           try {
-            data.message.host = JSON.parse(data.message.host ?? '{}')
+            data.message.host = JSON.parse(data.message.host ?? "{}");
           } catch {
-            data.message.host = {}
+            data.message.host = {};
           }
 
           try {
             if (data.message.headers) {
-              data.message.headers = JSON.parse(data.message.headers ?? '{}')
+              data.message.headers = JSON.parse(data.message.headers ?? "{}");
             }
           } catch {
-            data.message.headers = {}
+            data.message.headers = {};
           }
 
           try {
-            const body = JSON.parse(data.message.body)
-            if (body['jobId']) {
-              data.isRecurring = true
+            const body = JSON.parse(data.message.body);
+            if (body["jobId"]) {
+              data.isRecurring = true;
             } else {
-              data.isRecurring = false
+              data.isRecurring = false;
             }
           } catch (e) {
-            console.error(e)
-            data.isRecurring = false
+            console.error(e);
+            data.isRecurring = false;
           }
         }
       }
 
-      return data
+      return data;
     },
-  })
+  });

@@ -1,8 +1,5 @@
-using System.Data;
 using System.Data.Common;
 using Dapper;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using ResQueue.Dtos.Messages;
 using ResQueue.Enums;
 using ResQueue.Factories;
@@ -21,7 +18,7 @@ public class RequeueMessagesFeature(
     IDbConnectionProvider conn
 ) : IRequeueMessagesFeature
 {
-    public async Task<OperationResult<RequeueMessagesResponse>> ExecuteAsync(RequeueMessagesRequest request)
+    public async Task<RequeueMessagesResponse> ExecuteAsync(RequeueMessagesRequest request)
     {
         await using var connection = connectionFactory.CreateConnection();
 
@@ -29,7 +26,7 @@ public class RequeueMessagesFeature(
 
         await CallRoutineAsync(request, connection);
 
-        return OperationResult<RequeueMessagesResponse>.Success(new RequeueMessagesResponse());
+        return new RequeueMessagesResponse();
     }
 
     private async Task CallRoutineAsync(RequeueMessagesRequest request, DbConnection connection)

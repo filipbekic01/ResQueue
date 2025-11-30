@@ -9,6 +9,7 @@ using ResQueue.Features.Messages.PurgeQueue;
 using ResQueue.Features.Messages.RequeueMessages;
 using ResQueue.Features.Messages.RequeueSpecificMessages;
 using ResQueue.Features.Subscriptions.GetSubscriptions;
+using ResQueue.Middleware;
 using ResQueue.Providers.DbConnectionProvider;
 
 namespace ResQueue;
@@ -45,6 +46,8 @@ public static class ResQueueExtensions
     public static IApplicationBuilder UseResQueue(this WebApplication app, string prefix = "resqueue",
         Action<RouteGroupBuilder>? configureApi = null)
     {
+        app.UseMiddleware<ResQueueExceptionMiddleware>();
+
         app.MapGet("resqueue-4e8efb80-6aae-496f-b8bf-611b63e725bc/config.js", () => Results.Content(
             $$"""
               globalThis.resqueueConfig = {
