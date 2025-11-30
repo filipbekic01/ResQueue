@@ -1,4 +1,4 @@
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 
 // Theme definition type
 export interface ThemeOption {
@@ -102,10 +102,16 @@ export function useTheme() {
     });
   };
 
+  // Check if current theme is dark
+  const isThemeDark = computed(() => {
+    return darkThemes.some((t) => t.name === currentTheme.value);
+  });
+
   return {
     currentTheme,
     darkThemes,
     lightThemes,
+    isThemeDark,
     setTheme,
     init,
   };

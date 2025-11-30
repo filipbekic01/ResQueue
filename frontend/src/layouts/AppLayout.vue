@@ -18,7 +18,7 @@ const { isSuccess, isPending, error } = useAuthQuery();
 const capitalize = (value: string = "") => value.replace(/\b\w/g, (char) => char.toUpperCase());
 
 const { showGraph, refetchInterval, toggleGraph, setRefetchInterval } = useLocalSettings();
-const { currentTheme, darkThemes, lightThemes, setTheme } = useTheme();
+const { currentTheme, darkThemes, lightThemes, isThemeDark, setTheme } = useTheme();
 
 const themeDropdownOpen = ref(false);
 
@@ -116,8 +116,11 @@ const shouldShowGraph = computed(() => isMessagesPage.value && showGraph.value);
       <div class="flex items-center gap-3">
         <router-link :to="{ name: 'dashboard' }" class="flex items-center gap-3 transition-opacity hover:opacity-80">
           <div class="flex h-8 w-8 items-center justify-center">
-            <img :src="mtLogoUrl" class="h-full w-full object-contain dark:hidden" alt="MassTransit" />
-            <img :src="mtLogoUrlDark" class="hidden h-full w-full object-contain dark:block" alt="MassTransit" />
+            <img
+              :src="isThemeDark ? mtLogoUrlDark : mtLogoUrl"
+              class="h-full w-full object-contain"
+              alt="MassTransit"
+            />
           </div>
           <span class="text-base-content text-lg font-semibold tracking-tight">MassTransit</span>
         </router-link>

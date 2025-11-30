@@ -4,7 +4,7 @@ export interface JobStateDto {
   started: string;
   completed: string;
   duration: string;
-  faulted?: boolean;
+  faulted?: string;
   reason?: string;
   lastRetryAttempt: number;
   currentState: string;

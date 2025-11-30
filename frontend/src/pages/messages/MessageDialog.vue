@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useJobStateQuery } from "@/api/jobs/jobStateQuery";
 import { useSingleMessageQuery } from "@/api/messages/singleMessageQuery";
+import ClockExpiredIcon from "@/components/icons/ClockExpiredIcon.vue";
 import ClockIcon from "@/components/icons/ClockIcon.vue";
 import CopyIcon from "@/components/icons/CopyIcon.vue";
 import RefreshIcon from "@/components/icons/RefreshIcon.vue";
@@ -87,7 +88,7 @@ const jobStatePopoverOpen = ref(false);
   ></div>
 
   <div
-    class="bg-base-100 absolute end-0 bottom-0 z-50 mx-auto flex h-full w-[90%] flex-col overflow-auto rounded-s-xl shadow-2xl"
+    class="bg-base-100 absolute end-0 bottom-0 z-50 mx-auto flex h-full w-[90%] max-w-[1500px] flex-col overflow-auto rounded-s-xl shadow-2xl"
   >
     <div class="flex h-full flex-col overflow-hidden">
       <div class="border-base-200 dark:border-base-content/10 border-b px-8 pt-8 pb-6">
@@ -180,6 +181,24 @@ const jobStatePopoverOpen = ref(false);
               {{ humanDateTime(displayedMessage.lastDelivered) || "-" }}
             </span>
           </div>
+          <div class="flex min-w-0 flex-1 flex-col px-4 py-3">
+            <span class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Expire Time</span>
+            <span
+              class="mt-0.5 flex items-center gap-1.5 text-sm font-medium"
+              :class="{
+                'text-warning':
+                  displayedMessage.expirationTime && new Date(displayedMessage.expirationTime) < new Date(),
+                'text-base-content':
+                  !displayedMessage.expirationTime || new Date(displayedMessage.expirationTime) >= new Date(),
+              }"
+            >
+              <ClockExpiredIcon
+                v-if="displayedMessage.expirationTime && new Date(displayedMessage.expirationTime) < new Date()"
+                class="h-4 w-4"
+              />
+              {{ humanDateTime(displayedMessage.expirationTime) || "-" }}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -225,7 +244,9 @@ const jobStatePopoverOpen = ref(false);
                       {{ humanDateTime(job.completed) }}
                     </MessageBlock>
                     <MessageBlock name="Duration" :value="job.duration" />
-                    <MessageBlock name="Faulted" :value="job.faulted" />
+                    <MessageBlock name="Faulted" :value="job.faulted">
+                      {{ humanDateTime(job.faulted) }}
+                    </MessageBlock>
                     <MessageBlock name="Reason" :value="job.reason" />
                     <MessageBlock name="Last Retry Attempt" :value="job.lastRetryAttempt" />
                     <MessageBlock name="Current State" :value="job.currentState" />

@@ -102,6 +102,14 @@ const paginatedQueues = computed(() => {
   const end = start + pageSize;
   return filteredQueues.value.slice(start, end);
 });
+
+const getPerMinuteRate = (count: number, durationSeconds: number): string => {
+  if (durationSeconds <= 0) return "-";
+  const rate = (count / durationSeconds) * 60;
+  if (rate === 0) return "0";
+  if (rate < 0.1) return "<0.1";
+  return rate.toFixed(1);
+};
 </script>
 
 <template>
@@ -150,6 +158,11 @@ const paginatedQueues = computed(() => {
               <span v-if="sortField === 'ready'" class="text-base-content">{{ sortOrder === "asc" ? "↑" : "↓" }}</span>
             </th>
             <th
+              class="bg-success/3 text-base-content/60 border-l-success/30 w-0 border-l border-dashed text-xs font-medium whitespace-nowrap"
+            >
+              Consumed/min
+            </th>
+            <th
               class="bg-error/5 text-base-content/60 border-l-error/30 w-0 cursor-pointer border-l-2 text-xs font-medium whitespace-nowrap"
               @click="toggleSort('errored')"
             >
@@ -157,6 +170,11 @@ const paginatedQueues = computed(() => {
               <span v-if="sortField === 'errored'" class="text-base-content">{{
                 sortOrder === "asc" ? "↑" : "↓"
               }}</span>
+            </th>
+            <th
+              class="bg-error/3 text-base-content/60 border-l-error/30 w-0 border-l border-dashed text-xs font-medium whitespace-nowrap"
+            >
+              Errored/min
             </th>
             <th
               class="bg-base-content/5 text-base-content/60 border-l-base-content/20 w-0 cursor-pointer border-l-2 text-xs font-medium whitespace-nowrap"
@@ -180,32 +198,39 @@ const paginatedQueues = computed(() => {
             <td class="text-base-content/60 py-2.5 text-sm">
               {{ queue.queueAutoDelete ? `${queue.queueAutoDelete / 60}m` : "-" }}
             </td>
-            <td
-              class="bg-info/5 hover:bg-info/10 border-l-info/30 border-l-2 py-2.5 text-sm transition-colors"
-              @click.stop="selectQueue(queue, 1)"
-            >
+            <td class="bg-info/5 border-l-info/30 border-l-2 py-2.5 text-sm" @click.stop="selectQueue(queue, 1)">
               <span :class="queue.scheduled > 0 ? 'text-info font-medium' : 'text-base-content/40'">{{
                 queue.scheduled
               }}</span>
             </td>
-            <td
-              class="bg-success/5 hover:bg-success/10 border-l-success/30 border-l-2 py-2.5 text-sm transition-colors"
-              @click.stop="selectQueue(queue, 1)"
-            >
+            <td class="bg-success/5 border-l-success/30 border-l-2 py-2.5 text-sm" @click.stop="selectQueue(queue, 1)">
               <span :class="queue.ready > 0 ? 'text-success font-medium' : 'text-base-content/40'">{{
                 queue.ready
               }}</span>
             </td>
             <td
-              class="bg-error/5 hover:bg-error/10 border-l-error/30 border-l-2 py-2.5 text-sm transition-colors"
-              @click.stop="selectQueue(queue, 2)"
+              class="bg-success/3 border-l-success/30 border-l border-dashed py-2.5 text-sm"
+              @click.stop="selectQueue(queue, 1)"
             >
+              <span :class="queue.consumeCount > 0 ? 'text-success font-medium' : 'text-base-content/40'">
+                {{ getPerMinuteRate(queue.consumeCount, queue.countDuration) }}
+              </span>
+            </td>
+            <td class="bg-error/5 border-l-error/30 border-l-2 py-2.5 text-sm" @click.stop="selectQueue(queue, 2)">
               <span :class="queue.errored > 0 ? 'text-error font-medium' : 'text-base-content/40'">{{
                 queue.errored
               }}</span>
             </td>
             <td
-              class="bg-base-content/5 hover:bg-base-content/10 border-l-base-content/20 border-l-2 py-2.5 text-sm transition-colors"
+              class="bg-error/3 border-l-error/30 border-l border-dashed py-2.5 text-sm"
+              @click.stop="selectQueue(queue, 2)"
+            >
+              <span :class="queue.errorCount > 0 ? 'text-error font-medium' : 'text-base-content/40'">
+                {{ getPerMinuteRate(queue.errorCount, queue.countDuration) }}
+              </span>
+            </td>
+            <td
+              class="bg-base-content/5 border-l-base-content/20 border-l-2 py-2.5 text-sm"
               @click.stop="selectQueue(queue, 3)"
             >
               <span :class="queue.deadLettered > 0 ? 'text-base-content font-medium' : 'text-base-content/40'">{{
