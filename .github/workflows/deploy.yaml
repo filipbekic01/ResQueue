@@ -43,7 +43,7 @@ jobs:
   DeployImage:
     runs-on: ubuntu-latest
     env:
-      ResQueueImageVersion: "1.5.0"
+      ResQueueImageVersion: "2.0.0"
       DockerRegistry: ghcr.io
       DockerRepository: filipbekic01/resqueue
     steps:

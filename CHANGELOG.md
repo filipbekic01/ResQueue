@@ -2,6 +2,16 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v2.0.0] - 2025-11-30
+
+- Replaced PrimeVue with DaisyUI
+- Added .NET stacktrace highlighting
+- Several themes available now
+- Shift selection messages in table
+- Many tiny quality of life updates
+- Updated all JS dependencies to latest to this date
+- Simplified backend response types
+
 ## [v1.5.0] - 2025-11-29
 
 ### Fixed
