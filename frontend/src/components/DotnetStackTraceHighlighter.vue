@@ -173,7 +173,7 @@ const formatParameters = (params: string): { type: string; name: string }[] => {
 
 <template>
   <div class="font-mono text-xs leading-relaxed">
-    <div v-for="(line, index) in parseStackTrace" :key="index" class="hover:bg-base-300/30 whitespace-nowrap">
+    <div v-for="(line, index) in parseStackTrace" :key="index" class="whitespace-nowrap">
       <template v-if="line.type === 'empty'">
         <br />
       </template>

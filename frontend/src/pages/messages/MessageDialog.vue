@@ -5,6 +5,7 @@ import { useSingleMessageQuery } from "@/api/messages/singleMessageQuery";
 import ClockIcon from "@/components/icons/ClockIcon.vue";
 import CopyIcon from "@/components/icons/CopyIcon.vue";
 import RefreshIcon from "@/components/icons/RefreshIcon.vue";
+import ZapIcon from "@/components/icons/ZapIcon.vue";
 import { useJson } from "@/composables/jsonComposable";
 import type { MessageDeliveryDto } from "@/dtos/message/messageDeliveryDto";
 import { humanDateTime } from "@/utils/dateTimeUtil";
@@ -54,6 +55,13 @@ const transportHeadersTrimmed = computed(() => {
   }
 
   return th;
+});
+
+const isError = computed(() => {
+  return (
+    displayedMessage.value.transportHeaders?.["MT-Reason"] === "fault" ||
+    displayedMessage.value.deliveryCount >= displayedMessage.value.maxDeliveryCount
+  );
 });
 
 const handleEscKey = (event: KeyboardEvent) => {
@@ -172,9 +180,13 @@ const jobStatePopoverOpen = ref(false);
           </div>
           <div class="flex min-w-0 flex-1 flex-col px-4 py-3">
             <span class="text-base-content/50 text-xs font-medium tracking-wide uppercase">Last Delivered</span>
-            <span class="text-base-content mt-0.5 text-sm font-medium">{{
-              humanDateTime(displayedMessage.lastDelivered) || "-"
-            }}</span>
+            <span
+              class="mt-0.5 flex items-center gap-1.5 text-sm font-medium"
+              :class="isError ? 'text-error' : 'text-base-content'"
+            >
+              <ZapIcon v-if="isError" class="h-4 w-4" />
+              {{ humanDateTime(displayedMessage.lastDelivered) || "-" }}
+            </span>
           </div>
         </div>
       </div>

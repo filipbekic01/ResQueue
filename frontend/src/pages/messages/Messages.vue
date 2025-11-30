@@ -316,9 +316,6 @@ const getFailedStatus = (lastDelivered: string | undefined): string => {
                 <span class="flex items-center gap-1">
                   Auto-delete: {{ queueView?.queueAutoDelete ? `${queueView.queueAutoDelete / 60}m` : "Off" }}
                 </span>
-                <span v-if="queueView?.queueMaxDeliveryCount" class="flex items-center gap-1">
-                  Max delivery: {{ queueView.queueMaxDeliveryCount }}
-                </span>
               </div>
             </div>
           </div>
@@ -606,7 +603,7 @@ const getFailedStatus = (lastDelivered: string | undefined): string => {
                   </template>
                 </td>
                 <td v-if="hasMtFaultMessages" class="max-w-0 py-2.5">
-                  <div v-if="msg.transportHeaders?.['MT-Fault-Message']" class="text-base-content/60 text-sm">
+                  <div v-if="msg.transportHeaders?.['MT-Fault-Message']" class="text-error text-sm">
                     <span class="truncate">{{ msg.transportHeaders?.["MT-Fault-Message"] }}</span>
                   </div>
                   <span v-else class="text-base-content/30 text-sm">-</span>
