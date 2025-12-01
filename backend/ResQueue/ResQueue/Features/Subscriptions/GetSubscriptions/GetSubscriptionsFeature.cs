@@ -44,7 +44,7 @@ public class GetSubscriptionsFeature(
                                                 s.TopicName,
                                                 s.DestinationType,
                                                 s.DestinationName,
-                                                s.SubscriptionType,
+                                                CAST(s.SubscriptionType AS INT) AS SubscriptionType,
                                                 s.RoutingKey
                                             FROM {conn.Schema}.Subscriptions s
                                             """,
