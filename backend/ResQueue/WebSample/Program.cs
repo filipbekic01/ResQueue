@@ -25,8 +25,11 @@ public class Program
 
         builder.Services.AddResQueue(opt =>
         {
-            // opt.SqlEngine = ResQueueSqlEngine.SqlServer;
-            opt.SqlEngine = ResQueueSqlEngine.Postgres;
+            /////////////////////////////////////////////////////////////////
+            ////////////////// Choose your SQL engine here //////////////////
+            /////////////////////////////////////////////////////////////////
+            // opt.SqlEngine = ResQueueSqlEngine.Postgres;
+            opt.SqlEngine = ResQueueSqlEngine.SqlServer;
 
             opt.AppendAdditionalData = msg =>
             {
@@ -38,15 +41,21 @@ public class Program
 
         builder.Services.AddOptions<SqlTransportOptions>().Configure(options =>
         {
-            // options.ConnectionString = builder.Configuration["SQL"] ?? throw new NullReferenceException();
-            options.ConnectionString = builder.Configuration["Postgres"] ?? throw new NullReferenceException();
+            /////////////////////////////////////////////////////////////////
+            ////////////////// Choose your SQL engine here //////////////////
+            /////////////////////////////////////////////////////////////////
+            // options.ConnectionString = builder.Configuration["Postgres"] ?? throw new NullReferenceException();
+            options.ConnectionString = builder.Configuration["SQL"] ?? throw new NullReferenceException();
         });
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        builder.Services.AddPostgresMigrationHostedService();
-        // builder.Services.AddSqlServerMigrationHostedService();
+        /////////////////////////////////////////////////////////////////
+        ////////////////// Choose your SQL engine here //////////////////
+        /////////////////////////////////////////////////////////////////
+        // builder.Services.AddPostgresMigrationHostedService();
+        builder.Services.AddSqlServerMigrationHostedService();
 
         // Must go after MassTransit migrations
         builder.Services.AddResQueueMigrationsHostedService();
@@ -71,27 +80,27 @@ public class Program
                 .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
 
             // 3. Drink order consumer (fails for under 18, retries until dead-letter)
-            mt.AddConsumer<DrinkOrderConsumer>(cfg =>
-            {
-                cfg.UseMessageRetry(r => r.Immediate(3));
-            }).Endpoint(e => { e.ConcurrentMessageLimit = 1; });
+            mt.AddConsumer<DrinkOrderConsumer>(cfg => { cfg.UseMessageRetry(r => r.Immediate(3)); })
+                .Endpoint(e => { e.ConcurrentMessageLimit = 1; });
 
             // 4. Weather check job consumer (recurring every 3 minutes)
             mt.AddConsumer<WeatherCheckConsumer>();
 
             mt.AddJobSagaStateMachines();
 
-            mt.UsingPostgres((context, config) =>
-            {
-                config.UseSqlMessageScheduler();
-                config.ConfigureEndpoints(context);
-            });
-
-            // mt.UsingSqlServer((context, config) =>
+            /////////////////////////////////////////////////////////////////
+            ////////////////// Choose your SQL engine here //////////////////
+            /////////////////////////////////////////////////////////////////
+            // mt.UsingPostgres((context, config) =>
             // {
             //     config.UseSqlMessageScheduler();
             //     config.ConfigureEndpoints(context);
             // });
+            mt.UsingSqlServer((context, config) =>
+            {
+                config.UseSqlMessageScheduler();
+                config.ConfigureEndpoints(context);
+            });
         });
 
         var app = builder.Build();
