@@ -150,7 +150,10 @@ public static class QueuesEndpoints
 
                 var queues = await connection.QueryAsync<QueueMetricDto>(sql, new { QueueId = queueId });
 
-                return TypedResults.Ok(queues);
+                // Start times are stored in UTC, but SQL Server's datetime2 comes back as Unspecified and would be
+                // serialized without a "Z", making the browser treat it as local time.
+                return TypedResults.Ok(queues.Select(metric =>
+                    metric with { StartTime = DateTime.SpecifyKind(metric.StartTime, DateTimeKind.Utc) }));
             });
 
         group.MapGet("",
