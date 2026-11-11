@@ -88,6 +88,21 @@ Additional data will appear in next format:
 
 ![New Project](https://github.com/user-attachments/assets/b63cc78b-2a24-436f-a4e1-5d72d020ee97)
 
+### Queue depth history
+
+When enabled, ResQueue periodically samples each queue's ready, error and dead-letter counts and shows them as a "Queue Depth" chart next to the queue metrics chart. Samples are stored in a ResQueue-owned table (`_resqueue_queue_depth_metric` on Postgres, `_ResQueue_QueueDepthMetric` on SQL Server) in the transport schema. The table is created automatically, so the database user needs permission to create tables in that schema.
+
+```csharp
+builder.Services.AddResQueue(opt =>
+{
+    opt.QueueDepthHistory.Enabled = true;                           // default: false
+    opt.QueueDepthHistory.SampleInterval = TimeSpan.FromSeconds(60); // default: 60 seconds (minimum 5 seconds)
+    opt.QueueDepthHistory.Retention = TimeSpan.FromDays(1);          // default: 1 day, older samples are deleted
+});
+```
+
+With Docker, use environment variables such as `-e ResQueue__QueueDepthHistory__Enabled=true`.
+
 ### Docker support
 
 Simplify your setup by running ResQueue in standalone mode with Docker. Get up and running effortlessly without additional configurations—just pull the container and you're ready to go.
