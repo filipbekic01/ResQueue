@@ -3,17 +3,36 @@ on:
   push:
     branches:
       - prod
+
 jobs:
-  DeployNuget:
+  Version:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      # Single source of truth for the release version: <Version> in ResQueue.csproj
+      - name: Read version from ResQueue.csproj
+        id: version
+        run: echo "version=$(grep -oPm1 '(?<=<Version>)[^<]+' backend/ResQueue/ResQueue/ResQueue.csproj)" >> "$GITHUB_OUTPUT"
+
+  DeployNuget:
+    needs: Version
+    runs-on: ubuntu-latest
+    # Shows up under "Deployments" on the repository home page, linking to the published package
+    environment:
+      name: nuget
+      url: https://www.nuget.org/packages/ResQueue.MassTransit/${{ needs.Version.outputs.version }}
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "10.0.x"
+          dotnet-version: "11.0.x"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -38,12 +57,16 @@ jobs:
 
       - name: Push the NuGet package
         working-directory: backend/ResQueue/ResQueue
-        run: dotnet nuget push bin/Release/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://nuget.org
+        run: dotnet nuget push bin/Release/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
   DeployImage:
+    needs: Version
     runs-on: ubuntu-latest
+    environment:
+      name: docker
+      url: https://github.com/filipbekic01/ResQueue/pkgs/container/resqueue
     env:
-      ResQueueImageVersion: "2.0.2"
+      ResQueueImageVersion: ${{ needs.Version.outputs.version }}
       DockerRegistry: ghcr.io
       DockerRepository: filipbekic01/resqueue
     steps:
@@ -51,9 +74,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "10.0.x"
+          dotnet-version: "11.0.x"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -77,11 +100,11 @@ jobs:
 
       - name: Publish x64 image
         working-directory: backend/ResQueue/ResQueue.Standalone
-        run: dotnet publish --os linux -p:TargetFramework=net10.0 --arch x64 /t:PublishContainer -p:ContainerImageTag=${ResQueueImageVersion}-x64 -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry}
+        run: dotnet publish --os linux -p:TargetFramework=net11.0 --arch x64 /t:PublishContainer -p:ContainerImageTag=${ResQueueImageVersion}-x64 -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry}
 
       - name: Publish arm64 image
         working-directory: backend/ResQueue/ResQueue.Standalone
-        run: dotnet publish --os linux -p:TargetFramework=net10.0 --arch arm64 /t:PublishContainer -p:ContainerImageTag=${ResQueueImageVersion}-arm64 -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry}
+        run: dotnet publish --os linux -p:TargetFramework=net11.0 --arch arm64 /t:PublishContainer -p:ContainerImageTag=${ResQueueImageVersion}-arm64 -p:ContainerRepository=${DockerRepository} -p:ContainerRegistry=${DockerRegistry}
 
       - name: Publish image manifest
         run: |
