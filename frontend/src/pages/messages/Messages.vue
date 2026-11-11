@@ -23,6 +23,7 @@ import type { MessageDeliveryDto } from "@/dtos/message/messageDeliveryDto";
 import type { QueueDto } from "@/dtos/queue/queueDto";
 import AppLayout from "@/layouts/AppLayout.vue";
 import Graph from "@/layouts/Graph.vue";
+import QueueDepthGraph from "@/layouts/QueueDepthGraph.vue";
 import { errorToToast } from "@/utils/errorUtils";
 import MessageDialog from "./MessageDialog.vue";
 import MessagesTable from "./MessagesTable.vue";
@@ -413,7 +414,10 @@ const isReadyQueue = computed(() => {
     </template>
 
     <template #bottom>
-      <Graph v-if="primaryQueue" :queue="primaryQueue" />
+      <div v-if="primaryQueue" class="divide-base-200 dark:divide-base-content/10 flex h-full flex-row divide-x">
+        <Graph :queue="primaryQueue" class="min-w-0 flex-1" />
+        <QueueDepthGraph :queue="primaryQueue" class="min-w-0 flex-1" />
+      </div>
     </template>
 
     <!-- Empty State -->

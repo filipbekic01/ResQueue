@@ -11,6 +11,7 @@ using ResQueue.Features.Messages.RequeueSpecificMessages;
 using ResQueue.Features.Subscriptions.GetSubscriptions;
 using ResQueue.Middleware;
 using ResQueue.Providers.DbConnectionProvider;
+using ResQueue.QueueDepth;
 
 namespace ResQueue;
 
@@ -39,6 +40,10 @@ public static class ResQueueExtensions
         services.AddTransient<IGetSingleMessageFeature, GetSingleMessageFeature>();
         services.AddTransient<IPurgeQueueFeature, PurgeQueueFeature>();
         services.AddTransient<IGetSubscriptionsFeature, GetSubscriptionsFeature>();
+
+        // Samples queue depth periodically for the queue depth history chart.
+        // Always registered; it exits immediately when ResQueueOptions.QueueDepthHistory.Enabled is false.
+        services.AddHostedService<QueueDepthSampler>();
 
         return services;
     }

@@ -6,6 +6,8 @@ using ResQueue.Enums;
 using ResQueue.Factories;
 using ResQueue.Features.Messages.PurgeQueue;
 using ResQueue.Providers.DbConnectionProvider;
+using ResQueue.QueueDepth;
+using Microsoft.Extensions.Options;
 
 namespace ResQueue.Endpoints;
 
@@ -151,6 +153,39 @@ public static class QueuesEndpoints
                 var queues = await connection.QueryAsync<QueueMetricDto>(sql, new { QueueId = queueId });
 
                 return TypedResults.Ok(queues);
+            });
+
+        group.MapGet("{queueId:long}/depth-metrics",
+            async (IDatabaseConnectionFactory connectionFactory, IDbConnectionProvider conn,
+                IOptions<ResQueueOptions> options, long queueId, [FromQuery] int? minutes) =>
+            {
+                var historyOptions = options.Value.QueueDepthHistory;
+                var sampleIntervalSeconds = (int)historyOptions.EffectiveSampleInterval.TotalSeconds;
+
+                if (!historyOptions.Enabled)
+                {
+                    return TypedResults.Ok(new QueueDepthHistoryDto(false, sampleIntervalSeconds, []));
+                }
+
+                // Same default window as the queue metrics chart; capped at 7 days.
+                var windowMinutes = Math.Clamp(minutes ?? 10, 1, 7 * 24 * 60);
+
+                var parameters = new DynamicParameters();
+                parameters.Add("QueueId", queueId);
+                QueueDepthHistorySql.AddUtcParameter(parameters, conn.SqlEngine, "Since",
+                    DateTime.UtcNow.AddMinutes(-windowMinutes));
+
+                await using var connection = connectionFactory.CreateConnection();
+
+                var items = await connection.QueryAsync<QueueDepthMetricDto>(
+                    QueueDepthHistorySql.SelectForQueue(conn.SqlEngine, conn.Schema), parameters);
+
+                // SQL Server DATETIME2 comes back as DateTimeKind.Unspecified; mark as UTC so it serializes with "Z".
+                var utcItems = items
+                    .Select(x => x with { CapturedAt = DateTime.SpecifyKind(x.CapturedAt, DateTimeKind.Utc) })
+                    .ToList();
+
+                return TypedResults.Ok(new QueueDepthHistoryDto(true, sampleIntervalSeconds, utcItems));
             });
 
         group.MapGet("",
