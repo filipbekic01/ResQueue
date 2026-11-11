@@ -8,7 +8,7 @@ import Dashboard from "@/pages/Dashboard.vue";
 import Messages from "../pages/messages/Messages.vue";
 
 const router = createRouter({
-  history: createWebHistory("/" + resqueueConfig.prefix),
+  history: createWebHistory(resqueueConfig.prefix),
   routes: [
     {
       path: "",
