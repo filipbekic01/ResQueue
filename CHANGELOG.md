@@ -2,6 +2,30 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v3.0.0] - 2026-11-11
+
+### Breaking
+
+- Dropped .NET 8 and .NET 9 (end of life); ResQueue now targets .NET 10 and .NET 11
+
+### Added
+
+- Opt-in queue depth history chart (ready/error/dead-letter counts over time), enabled via `ResQueueOptions.QueueDepthHistory` (#31)
+- Support for hosting under a path base / IIS virtual directory (#20)
+
+### Fixed
+
+- Queue metrics chart empty when the database server is not in UTC (#30)
+- Direct loading / refresh of routed URLs with an empty or slash-prefixed prefix (#21)
+- `config.js` intercepted by app middleware registered after `UseResQueue` (#26)
+- Docker image crashing with SQL Server due to missing ICU (#17)
+- Double slash in router base path (#33)
+
+### Updated
+
+- MassTransit 8.5.6 -> 8.5.12, Microsoft.Data.SqlClient 6.1.3 -> 6.1.8, Npgsql 10.0.0 -> 10.0.3, Dapper 2.1.66 -> 2.1.89
+- Docker image now runs on .NET 11
+
 ## [v2.0.2] - 2026-08-30
 
 - Fixed dashboard queues link to use full API path
