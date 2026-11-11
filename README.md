@@ -1,5 +1,18 @@
 # ResQueue
 
+> [!TIP]
+> **Looking for a headless SQL worker? Try [Pgmq.NET](https://github.com/filipbekic01/pgmq-dotnet).**
+> Background messaging on the PostgreSQL you already run, with no broker to operate. It covers what most apps need today:
+>
+> - Strongly typed publishers and consumers, with every [pgmq](https://github.com/pgmq/pgmq) feature supported one to one
+> - Background workers woken instantly by `LISTEN/NOTIFY`
+> - OpenTelemetry traces and metrics out of the box
+> - Shovel functionality via routines
+>
+> ```bash
+> dotnet add package Pgmq.Hosting
+> ```
+
 **ResQueue** (pronounced /ˈrɛskjuː/) is a web-based UI management tool designed for SQL-based message transports. Currently, it offers seamless integration with MassTransit, and we're open to adding support for additional frameworks based on user feedback and demand.
 
 Join our community on [Discord](https://discord.gg/322AAB4xKx) for updates, support, and discussions.
