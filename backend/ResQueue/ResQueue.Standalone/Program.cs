@@ -16,7 +16,7 @@ builder.Services.AddResQueue(opt =>
 {
     opt.SqlEngine = sqlEngine;
 
-    // e.g. -e ResQueue__QueueDepthHistory__Enabled=false or ResQueue__QueueDepthHistory__Retention=3.00:00:00
+    // e.g. -e ResQueue__QueueDepthHistory__Enabled=true or ResQueue__QueueDepthHistory__Retention=3.00:00:00
     builder.Configuration.GetSection("Resqueue:QueueDepthHistory").Bind(opt.QueueDepthHistory);
 });
 

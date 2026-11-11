@@ -2,10 +2,6 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
-
-- Added queue depth history: ready/error/dead-letter counts are sampled periodically and shown as a chart on the queue page (configurable via `ResQueueOptions.QueueDepthHistory`)
-
 ## [v2.0.2] - 2026-08-30
 
 - Fixed dashboard queues link to use full API path

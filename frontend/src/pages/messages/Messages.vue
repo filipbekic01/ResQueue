@@ -5,6 +5,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useDeleteMessagesMutation } from "@/api/messages/deleteMessagesMutation";
 import { useMessagesQuery } from "@/api/messages/messagesQuery";
 import { usePurgeQueueMutation } from "@/api/queues/purgeQueueMutation";
+import { useQueueDepthMetricsQuery } from "@/api/queues/queueDepthMetricsQuery";
 import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon.vue";
 import CheckCircleIcon from "@/components/icons/CheckCircleIcon.vue";
 import EraserIcon from "@/components/icons/EraserIcon.vue";
@@ -55,6 +56,9 @@ const {
   primaryQueue,
   getQueueTypeLabel,
 } = useQueue(computed(() => props.queueName));
+
+// Queue depth history is opt-in on the backend; only show its chart when it's enabled.
+const { data: depthHistory } = useQueueDepthMetricsQuery(computed(() => primaryQueue.value?.id ?? 0));
 
 const selectedQueueId = ref<number>();
 const selectedQueue = computed(() => queues.value?.find((x) => x.id === selectedQueueId.value));
@@ -416,7 +420,7 @@ const isReadyQueue = computed(() => {
     <template #bottom>
       <div v-if="primaryQueue" class="divide-base-200 dark:divide-base-content/10 flex h-full flex-row divide-x">
         <Graph :queue="primaryQueue" class="min-w-0 flex-1" />
-        <QueueDepthGraph :queue="primaryQueue" class="min-w-0 flex-1" />
+        <QueueDepthGraph v-if="depthHistory?.enabled" :queue="primaryQueue" class="min-w-0 flex-1" />
       </div>
     </template>
 

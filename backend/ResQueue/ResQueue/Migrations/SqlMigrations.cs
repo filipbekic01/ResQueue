@@ -1,7 +1,6 @@
 using ResQueue.Enums;
 using ResQueue.Factories;
 using ResQueue.Providers.DbConnectionProvider;
-using ResQueue.QueueDepth;
 
 namespace ResQueue.Migrations;
 
@@ -20,12 +19,6 @@ public class SqlMigrations(
 
         await using var deleteMessageCommand = connectionFactory.CreateCommand(GetDeleteMessageCommand(), connection);
         await deleteMessageCommand.ExecuteNonQueryAsync(cancellationToken);
-
-        // The queue depth sampler also ensures this table exists, so this is only a convenience
-        // for setups that run migrations; it is idempotent.
-        await using var queueDepthTableCommand = connectionFactory.CreateCommand(
-            QueueDepthHistorySql.CreateTable(conn.SqlEngine, conn.Schema), connection);
-        await queueDepthTableCommand.ExecuteNonQueryAsync(cancellationToken);
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

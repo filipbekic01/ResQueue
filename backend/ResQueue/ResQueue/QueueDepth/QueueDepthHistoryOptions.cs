@@ -9,9 +9,10 @@ public class QueueDepthHistoryOptions
     public static readonly TimeSpan MinimumSampleInterval = TimeSpan.FromSeconds(5);
 
     /// <summary>
-    /// Whether the background sampler runs. Defaults to <c>true</c>.
+    /// Whether the background sampler runs. Defaults to <c>false</c>; enabling it creates a
+    /// ResQueue-owned table in the transport schema.
     /// </summary>
-    public bool Enabled { get; set; } = true;
+    public bool Enabled { get; set; }
 
     /// <summary>
     /// How often queue depth is sampled. Defaults to 60 seconds; values below 5 seconds are clamped.

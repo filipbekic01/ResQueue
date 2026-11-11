@@ -13,7 +13,7 @@ namespace ResQueue
         public IList<Type> TransformerTypes { get; } = new List<Type>();
 
         /// <summary>
-        /// Periodic queue depth sampling used by the queue depth history chart. Enabled by default.
+        /// Periodic queue depth sampling used by the queue depth history chart. Disabled by default.
         /// </summary>
         public QueueDepthHistoryOptions QueueDepthHistory { get; } = new();
         
