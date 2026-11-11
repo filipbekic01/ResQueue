@@ -6,7 +6,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
 
         <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
-        <ContainerFamily>alpine</ContainerFamily>
+        <!-- alpine-extra ships ICU so SQL Server connections work (invariant globalization is not supported by SqlClient) -->
+        <ContainerFamily>alpine-extra</ContainerFamily>
     </PropertyGroup>
 
     <ItemGroup>
