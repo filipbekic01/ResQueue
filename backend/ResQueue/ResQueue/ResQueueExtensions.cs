@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.FileProviders;
 using ResQueue.Endpoints;
@@ -70,8 +71,12 @@ public static class ResQueueExtensions
             "/queues/[^/]+",
         ];
 
+        // Rewrite rules match the path without its leading slash, so "/resqueue" must become "resqueue"
+        // and an empty prefix must not leave a leading slash on the route (e.g. "^topics$", not "^/topics$").
+        var routePrefix = Regex.Escape(prefix.Trim('/'));
+
         rewriteOptions = frontendRoutes.Aggregate(rewriteOptions, (options, route) => options.AddRewrite(
-            regex: $"^{prefix}{route}$",
+            regex: routePrefix.Length == 0 ? $"^{route.TrimStart('/')}$" : $"^{routePrefix}{route}$",
             replacement: "/resqueue-4e8efb80-6aae-496f-b8bf-611b63e725bc/index.html",
             skipRemainingRules: true
         ));
