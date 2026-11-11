@@ -23,6 +23,13 @@ export default defineConfig({
       },
     },
   ],
+  experimental: {
+    // Assets referenced from JS/CSS (e.g. logos) resolve relative to the bundle, so they keep working when
+    // the host app runs under a path base. index.html links are rewritten by the backend instead.
+    renderBuiltUrl(_filename, { hostType }) {
+      return hostType === "js" || hostType === "css" ? { relative: true } : undefined;
+    },
+  },
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),

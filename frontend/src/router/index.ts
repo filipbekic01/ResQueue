@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import resqueueConfig from "@/config/resqueue";
+import resqueueConfig, { pathBase } from "@/config/resqueue";
 import Broker from "@/pages/broker/Broker.vue";
 import BrokerQueues from "@/pages/broker/queues/BrokerQueues.vue";
 import BrokerRecurringJobs from "@/pages/broker/recurring-jobs/BrokerRecurringJobs.vue";
@@ -8,7 +8,7 @@ import Dashboard from "@/pages/Dashboard.vue";
 import Messages from "../pages/messages/Messages.vue";
 
 const router = createRouter({
-  history: createWebHistory(resqueueConfig.prefix),
+  history: createWebHistory(pathBase + resqueueConfig.prefix),
   routes: [
     {
       path: "",

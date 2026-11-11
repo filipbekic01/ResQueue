@@ -1,3 +1,4 @@
+using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.FileProviders;
 using ResQueue.Endpoints;
@@ -77,6 +78,27 @@ public static class ResQueueExtensions
         ));
 
         app.UseRewriter(rewriteOptions);
+
+        // index.html references its assets with absolute paths. When the app runs under a path base
+        // (e.g. an IIS virtual directory), prepend it so the browser requests them from the right place.
+        var indexHtml = new Lazy<string>(() => File.ReadAllText(
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resqueue-wwwroot", "index.html")));
+
+        app.Use(async (HttpContext context, RequestDelegate next) =>
+        {
+            if (!context.Request.PathBase.HasValue ||
+                context.Request.Path != "/resqueue-4e8efb80-6aae-496f-b8bf-611b63e725bc/index.html")
+            {
+                await next(context);
+                return;
+            }
+
+            var pathBase = HtmlEncoder.Default.Encode(context.Request.PathBase.ToUriComponent());
+            context.Response.ContentType = "text/html; charset=utf-8";
+            await context.Response.WriteAsync(indexHtml.Value.Replace(
+                "\"/resqueue-4e8efb80-6aae-496f-b8bf-611b63e725bc/",
+                $"\"{pathBase}/resqueue-4e8efb80-6aae-496f-b8bf-611b63e725bc/"));
+        });
 
         app.UseStaticFiles(new StaticFileOptions
         {
