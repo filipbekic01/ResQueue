@@ -129,7 +129,7 @@ public static class QueuesEndpoints
                                                        dead_letter_count AS DeadLetterCount
                                                    FROM {conn.Schema}.queue_metric
                                                    WHERE queue_id = @QueueId
-                                                   AND start_time >= NOW() - INTERVAL '10 minutes';
+                                                   AND start_time >= (NOW() AT TIME ZONE 'utc') - INTERVAL '10 minutes';
                                                    """,
                     ResQueueSqlEngine.SqlServer => $"""
                                                     SELECT 
@@ -141,7 +141,7 @@ public static class QueuesEndpoints
                                                         DeadLetterCount
                                                     FROM {conn.Schema}.QueueMetric
                                                     WHERE QueueId = @QueueId
-                                                    AND StartTime >= DATEADD(MINUTE, -10, GETDATE());
+                                                    AND StartTime >= DATEADD(MINUTE, -10, SYSUTCDATETIME());
                                                     """,
                     _ => throw new NotSupportedException("Unsupported SQL engine")
                 };
@@ -150,7 +150,10 @@ public static class QueuesEndpoints
 
                 var queues = await connection.QueryAsync<QueueMetricDto>(sql, new { QueueId = queueId });
 
-                return TypedResults.Ok(queues);
+                // Start times are stored in UTC, but SQL Server's datetime2 comes back as Unspecified and would be
+                // serialized without a "Z", making the browser treat it as local time.
+                return TypedResults.Ok(queues.Select(metric =>
+                    metric with { StartTime = DateTime.SpecifyKind(metric.StartTime, DateTimeKind.Utc) }));
             });
 
         group.MapGet("",
