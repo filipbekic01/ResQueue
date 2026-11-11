@@ -49,14 +49,21 @@ public static class ResQueueExtensions
     {
         app.UseMiddleware<ResQueueExceptionMiddleware>();
 
-        app.MapGet("resqueue-4e8efb80-6aae-496f-b8bf-611b63e725bc/config.js", () => Results.Content(
-            $$"""
-              globalThis.resqueueConfig = {
-                  prefix: "{{prefix}}"
-              }
-              """
-            , "text/javascript"
-        )).ExcludeFromDescription();
+        // Served by middleware rather than as an endpoint so it short-circuits like the static files do.
+        // Endpoints run at the end of the pipeline, so app middleware registered after UseResQueue
+        // (auth, tenant resolution, redirects...) would otherwise intercept it.
+        var configJs = $$"""
+                         globalThis.resqueueConfig = {
+                             prefix: {{System.Text.Json.JsonSerializer.Serialize(prefix)}}
+                         }
+                         """;
+
+        ((IApplicationBuilder)app).Map("/resqueue-4e8efb80-6aae-496f-b8bf-611b63e725bc/config.js", configApp =>
+            configApp.Run(context =>
+            {
+                context.Response.ContentType = "text/javascript";
+                return context.Response.WriteAsync(configJs);
+            }));
 
         var rewriteOptions = new RewriteOptions()
             .AddRewrite("^(.*)/$", "$1", false); // Remove trailing slash
