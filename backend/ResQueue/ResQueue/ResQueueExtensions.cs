@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.FileProviders;
 using ResQueue.Endpoints;
@@ -54,7 +53,7 @@ public static class ResQueueExtensions
         // (auth, tenant resolution, redirects...) would otherwise intercept it.
         var configJs = $$"""
                          globalThis.resqueueConfig = {
-                             prefix: {{JsonSerializer.Serialize(prefix)}}
+                             prefix: {{System.Text.Json.JsonSerializer.Serialize(prefix)}}
                          }
                          """;
 
