@@ -1,4 +1,3 @@
-using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.FileProviders;
 using ResQueue.Endpoints;
@@ -93,7 +92,7 @@ public static class ResQueueExtensions
                 return;
             }
 
-            var pathBase = HtmlEncoder.Default.Encode(context.Request.PathBase.ToUriComponent());
+            var pathBase = System.Text.Encodings.Web.HtmlEncoder.Default.Encode(context.Request.PathBase.ToUriComponent());
             context.Response.ContentType = "text/html; charset=utf-8";
             await context.Response.WriteAsync(indexHtml.Value.Replace(
                 "\"/resqueue-4e8efb80-6aae-496f-b8bf-611b63e725bc/",
